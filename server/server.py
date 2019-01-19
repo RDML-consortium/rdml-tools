@@ -11,16 +11,20 @@ from flask import Flask, send_file, flash, send_from_directory, request, redirec
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
 
+import rdmlpython as rdml
+
 RDMLWS = os.path.dirname(os.path.abspath(__file__))
 
 app = Flask(__name__)
 CORS(app)
 app.config['RDML'] = os.path.join(RDMLWS, "..")
 app.config['UPLOAD_FOLDER'] = os.path.join(app.config['RDML'], "data")
-app.config['MAX_CONTENT_LENGTH'] = 32 * 1024 * 1024   #maximum of 32MB
+app.config['MAX_CONTENT_LENGTH'] = 32 * 1024 * 1024   # maximum of 32MB
+
 
 def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in set(['rdml','rdm','xml'])
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in set(['rdml', 'rdm', 'xml'])
+
 
 @app.route('/api/v1/validate', methods=['POST'])
 def upload_file():
@@ -33,7 +37,7 @@ def upload_file():
             os.makedirs(sf)
        
         if 'showExample' in request.form.keys():
-            fexpname = os.path.join(TEALWS, "sample.rdml")
+            fexpname = os.path.join(RDMLWS, "sample.rdml")
         else:
             if 'queryFile' not in request.files:
                 return jsonify(errors = [{"title": "RDML file is missing!"}]), 400
@@ -46,25 +50,11 @@ def upload_file():
             fexp.save(fexpname)
 
         # Run RDML-Python
-        outfile = os.path.join(sf, "rdml_" + uuidstr + ".json")
-        logfile = os.path.join(sf, "rdml_" + uuidstr + ".log")
-        errfile = os.path.join(sf, "rdml_" + uuidstr + ".err")
-        with open(logfile, "w") as log:
-            with open(errfile, "w") as err:
-                try:
-                    return_code = call(['tracy', 'basecall', '-o', outfile, fexpname], stdout=log, stderr=err)
-                except OSError as e:
-                    if e.errno == os.errno.ENOENT:
-                        return jsonify(errors = [{"title": "Binary ./tracy not found!"}]), 400
-                    else:
-                        return jsonify(errors = [{"title": "OSError " + str(e.errno)  + " running binary ./tracy!"}]), 400
-        if return_code != 0:
-            errInfo = "!"
-            with open(errfile, "r") as err:
-                errInfo = ": " + err.read()
-            return jsonify(errors = [{"title": "Error in running teal" + errInfo}]), 400
-        return jsonify(data = json.loads(open(outfile).read()))
+        rd = rdml.Rdml()
+        ret = rd.validate(fexpname)
+        return jsonify(data = ret)
     return jsonify(errors = [{"title": "Error in handling POST request!"}]), 400
 
+
 if __name__ == '__main__':
-    app.run(host = '0.0.0.0', port=3300, debug = True, threaded=True)
+    app.run(host='0.0.0.0', port=3300, debug=True, threaded=True)

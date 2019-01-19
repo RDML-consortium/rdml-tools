@@ -16,6 +16,7 @@ exampleButton.addEventListener('click', showExample)
 const inputFile = document.getElementById('inputFile')
 const resultInfo = document.getElementById('result-info')
 const resultError = document.getElementById('result-error')
+const resultData = document.getElementById('result-data')
 var sectionResults = document.getElementById('results')
 
 function showExample() {
@@ -36,14 +37,14 @@ function run(stat) {
     formData.append('queryFile', inputFile.files[0])
   }
   hideElement(resultError)
-  traceView.deleteContent()
+  resultData.innerHTML = ""
   showElement(resultInfo)
 
   axios
-    .post(`${API_URL}/upload`, formData)
+    .post(`${API_URL}/validate`, formData)
     .then(res => {
 	if (res.status === 200) {
-          handleSuccess(res.data)
+          handleSuccess(res.data.data)
       }
     })
     .catch(err => {
@@ -55,13 +56,32 @@ function run(stat) {
       }
       hideElement(resultInfo)
       showElement(resultError)
-      traceView.deleteContent()
+      resultData.innerHTML = ""
       resultError.querySelector('#error-message').textContent = errorMessage
     })
 }
 
 function handleSuccess(res) {
     hideElement(resultInfo)
+    var resArr = res.split('\n')
+    var ret = '<table style="width:100%">\n'
+    for (var i = 0 ; i < resArr.length ; i++) {
+        var line = resArr[i].split('\t')
+        if (line.length != 3) {
+            continue;
+        }
+        ret += '  <tr>\n    <td style="width:20%;">' + line[0] + '</td>\n'
+        ret += '    <td style="width:80%;background-color:'
+        if (line[1] == "True") {
+            ret += '#5cd65c;">\n'
+        } else {
+            ret += '#ff5c33;">\n'
+        }
+        ret += line[2] + '</td>\n'
+        ret += '  </tr>'
+    }
+    ret += "</table>\n"
+    resultData.innerHTML = ret
     hideElement(resultError)
 }
 
