@@ -64,7 +64,7 @@ function run(stat) {
 function handleSuccess(res) {
     hideElement(resultInfo)
     var resArr = res.split('\n')
-    var ret = '<table style="width:100%">\n'
+    var ret = '<table style="width:100%; border-collapse: separate; border-spacing: 5px;">\n'
     for (var i = 0 ; i < resArr.length ; i++) {
         var line = resArr[i].split('\t')
         if (line.length != 3) {
