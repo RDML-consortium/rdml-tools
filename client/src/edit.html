@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <title>RDML-Validate | GEAR</title>
+  <title>RDML-Edit | GEAR</title>
   <meta name="description" content="Validate RDML files.">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.0/css/all.css">
@@ -15,8 +15,8 @@
 
   <header class="px-0 py-4">
     <div class="container">
-      <h1 class="display-4 app-name">RDML-Validate</h1>
-        <p class="lead">Validate RDML files.</p>
+      <h1 class="display-4 app-name">RDML-Edit</h1>
+        <p class="lead">View and edit RDML-Files.</p>
         <a class="plain" href="https://www-db.embl.de/EMBLPersonGroup-PersonPicture/MailForm/?recipient=ggenomics" target="_blank">
           <i class="fas fa-question"></i> Get help
         </a>
@@ -32,19 +32,36 @@
   </header>
 
   <main class="container">
+    <div id="result-error" class="alert alert-danger d-none" role="alert">
+    </div>
     <ul class="nav nav-fill mb-4" id="mainTab">
       <li class="nav-item">
-        <a class="nav-link active" href="#input-tab">Input</a>
+        <a class="nav-link active" href="#main-tab" id="link-main">Main</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="#result-tab" id="link-results">Results</a>
+        <a class="nav-link" href="#experiments-tab" id="link-experiments">Experiments</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#samples-tab" id="link-samples">Samples</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#targets-tab" id="link-targets">Targets</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#cycling-conditions-tab" id="link-cycling-conditions">Cycling Conditions</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#experimenters-tab" id="link-experimenters">Experimenters</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#more-tab" id="link-more">More...</a>
       </li>
       <li class="nav-item">
         <a class="nav-link" href="#help-tab" id="link-help">Help</a>
       </li>
     </ul>
     <div class="tab-content" id="main-tabs">
-      <div class="tab-pane show active" id="input-tab">
+      <div class="tab-pane show active" id="main-tab">
         <div class="form-group">
           <label for="inputFile">
             RDML file (<code>.rdml</code>, <code>.rdm</code> or <code>.xml</code>)
@@ -59,32 +76,47 @@
           <i class="fas fa-eye" style="margin-right: 5px;"></i>
           Load Example
         </button>
-       </div>
-
-      <div class="tab-pane" id="result-tab">
         <div id="result-info" class="alert alert-info d-none" role="alert">
           <i class="fas fa-spinner spinner"></i>
           Analysis is running, please be patient.
         </div>
-        <div id="result-error" class="alert alert-danger d-none" role="alert">
-          <i class="fas fa-fire"></i>
-          <span id="error-message"></span>
-        </div>
-        <div id="result-data"></div>
+        <div id="uuid-link-box"></div>
+      </div>
+
+      <div class="tab-pane" id="experiments-tab">
+        <div id="experiments-data"></div>
+      </div>
+
+      <div class="tab-pane" id="samples-tab">
+        <div id="samples-data"></div>
+      </div>
+
+      <div class="tab-pane" id="targets-tab">
+        <div id="targets-data"></div>
+      </div>
+
+      <div class="tab-pane" id="cycling-conditions-tab">
+        <div id="cycling-conditions-data"></div>
+      </div>
+
+      <div class="tab-pane" id="experimenters-tab">
+        <div id="experimenters-data"></div>
+      </div>
+
+      <div class="tab-pane" id="more-tab">
+        <div id="more-data"></div>
       </div>
 
       <div class="tab-pane" id="help-tab">
         <h4>Application Description</h4>
-        <p> RDML-Validate is a tool to validate RDML files against the RDML schema. 
+        <p> RDML-Edit is a tool to view and edit RDML files.
             Just select a file and hit submit.</p>
         <h4>Accepted Input</h4>
         <p> The RDML files can be provided in rdml or xml format (*.rdml, *.rdm,
             and *.xml).</p>
         <h4>Sample Data</h4>
-        <p> The "Show Example" button loads an sample trace file
-            <a href="static/bin/error.rdml">(click to download file)</a> with errors.
-            Try the example file
-            <a href="static/bin/sample.rdml">(click to download file)</a> for a valid file.
+        <p> The "Show Example" button loads an example trace file
+            <a href="static/bin/sample.rdml">(click to download file)</a>.
         </p>
       </div>
 
@@ -130,7 +162,7 @@
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
   <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-  <script src="static/js/rdml_validate.js"></script>
+  <script src="static/js/rdml_edit.js"></script>
 
 </body>
 

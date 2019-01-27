@@ -6,7 +6,7 @@ $('#mainTab a').on('click', function(e) {
   $(this).tab('show')
 })
 
-const resultLink = document.getElementById('link-results')
+const resultLink = document.getElementById('uuid-link-box')
 
 const submitButton = document.getElementById('btn-submit')
 submitButton.addEventListener('click', showUpload)
@@ -42,7 +42,6 @@ function showUpload() {
 
 // TODO client-side validation
 function run(stat) {
-  resultLink.click()
   const formData = new FormData()
   if (stat == "example") {
     formData.append('showExample', 'showExample')
@@ -52,11 +51,10 @@ function run(stat) {
     formData.append('uuid', stat)
   }
   hideElement(resultError)
-  resultData.innerHTML = ""
   showElement(resultInfo)
 
   axios
-    .post(`${API_URL}/validate`, formData)
+    .post(`${API_URL}/upload`, formData)
     .then(res => {
 	if (res.status === 200) {
           handleSuccess(res.data.data)
@@ -71,37 +69,30 @@ function run(stat) {
       }
       hideElement(resultInfo)
       showElement(resultError)
-      resultData.innerHTML = ""
-      resultError.querySelector('#error-message').textContent = errorMessage
+      var err = '<i class="fas fa-fire"></i>\n<span id="error-message">'
+      err += errorMessage + '</span>'
+      resultError.innerHTML = err
     })
 }
 
 function handleSuccess(res) {
     hideElement(resultInfo)
-    var ret = '<p>Link to this result page:\n'
-    ret += '<a href="' + `${API_LINK}` + "validate.html?UUID=" + res.uuid + '">'
-    ret += `${API_LINK}` + "validate.html?UUID=" + res.uuid + '</a>\n'
-    ret += ' (valid for 3 days)\n</p>\n<br />\n'
-    var resArr = res.table.split('\n')
-    ret += '<table style="width:100%; border-collapse: separate; border-spacing: 5px;">\n'
-    for (var i = 0 ; i < resArr.length ; i++) {
-        var line = resArr[i].split('\t')
-        if (line.length != 3) {
-            continue;
-        }
-        ret += '  <tr>\n    <td style="width:20%;">' + line[0] + '</td>\n'
-        ret += '    <td style="width:80%;background-color:'
-        if (line[1] == "True") {
-            ret += '#5cd65c;">\n'
-        } else {
-            ret += '#ff5c33;">\n'
-        }
-        ret += line[2] + '</td>\n'
-        ret += '  </tr>'
+    if (res.isvalid) {
+      var ret = '<p>Link to this result page:\n'
+      ret += '<a href="' + `${API_LINK}` + "edit.html?UUID=" + res.uuid + '">'
+      ret += `${API_LINK}` + "edit.html?UUID=" + res.uuid + '</a>\n'
+      ret += ' (valid for 3 days) ' + res.isvalid + '\n</p>\n<br />\n'
+      resultLink.innerHTML = ret
+      hideElement(resultError)
+    } else {
+      resultLink.innerHTML = ""
+      var ret = '<i class="fas fa-fire"></i>\nNot a valid RDML file:\n'
+      ret += '<a href="' + `${API_LINK}` + "validate.html?UUID=" + res.uuid + '" target="_blank">'
+      ret += `${API_LINK}` + "validate.html?UUID=" + res.uuid + '</a> (click for validation results)\n'
+      hideElement(resultInfo)
+      showElement(resultError)
+      resultError.innerHTML = ret
     }
-    ret += "</table>\n"
-    resultData.innerHTML = ret
-    hideElement(resultError)
 }
 
 function showElement(element) {
