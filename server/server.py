@@ -76,51 +76,6 @@ def validate_file():
     return jsonify(errors=[{"title": "Error in handling POST request!"}]), 400
 
 
-@app.route('/api/v1/upload', methods=['POST'])
-def upload_file():
-    if request.method == 'POST':
-        if 'showExample' in request.form.keys():
-            fexpname = os.path.join(RDMLWS, "sample.rdml")
-            uuidstr = "sample.rdml"
-        elif 'uuid' in request.form.keys():
-            uuidstr = request.form['uuid']
-            if uuidstr == "sample.rdml":
-                fexpname = os.path.join(RDMLWS, "sample.rdml")
-            else:
-                if not is_valid_uuid(uuidstr):
-                    return jsonify(errors=[{"title": "Invalid UUID - UUID link outdated or invalid!"}]), 400
-                sf = os.path.join(app.config['UPLOAD_FOLDER'], uuidstr[0:2])
-                if not os.path.exists(sf):
-                    return jsonify(errors=[{"title": "Invalid path - UUID link outdated or invalid!"}]), 400
-                fname = "rdml_" + uuidstr + ".rdml";
-                if not allowed_file(fname):
-                    return jsonify(errors=[{"title": "Invalid filename - UUID link outdated or invalid!"}]), 400
-                fexpname = os.path.join(sf, fname)
-                if not os.path.isfile(fexpname):
-                    return jsonify(errors=[{"title": "Invalid file - UUID Link outdated or invalid!"}]), 400
-        else:
-            if 'queryFile' not in request.files:
-                return jsonify(errors = [{"title": "RDML file is missing!"}]), 400
-            fexp = request.files['queryFile']
-            if fexp.filename == '':
-                return jsonify(errors = [{"title": "RDML file name is missing!"}]), 400
-            if not allowed_file(fexp.filename):
-                return jsonify(errors = [{"title": "RDML file has incorrect file type!"}]), 400
-            uuidstr = str(uuid.uuid4())
-            # Get subfolder
-            sf = os.path.join(app.config['UPLOAD_FOLDER'], uuidstr[0:2])
-            if not os.path.exists(sf):
-                os.makedirs(sf)
-            fexpname = os.path.join(sf, "rdml_" + uuidstr + ".rdml")
-            fexp.save(fexpname)
-
-        # Return the uuid
-        rd = rdml.Rdml()
-        ret = rd.isvalid(fexpname)
-        return jsonify(data={"isvalid": ret, "uuid": uuidstr})
-    return jsonify(errors=[{"title": "Error in handling POST request!"}]), 400
-
-
 @app.route('/api/v1/data', methods=['POST'])
 def handle_data():
     if request.method == 'POST':
@@ -144,13 +99,53 @@ def handle_data():
                 if not os.path.isfile(fexpname):
                     return jsonify(errors=[{"title": "Invalid file - UUID Link outdated or invalid!"}]), 400
         else:
-            return jsonify(errors=[{"title": "Upload RDML file first!"}]), 400
+            if 'queryFile' not in request.files:
+                return jsonify(errors=[{"title": "RDML file is missing!"}]), 400
+            fexp = request.files['queryFile']
+            if fexp.filename == '':
+                return jsonify(errors=[{"title": "RDML file name is missing!"}]), 400
+            if not allowed_file(fexp.filename):
+                return jsonify(errors=[{"title": "RDML file has incorrect file type!"}]), 400
+            uuidstr = str(uuid.uuid4())
+            # Get subfolder
+            sf = os.path.join(app.config['UPLOAD_FOLDER'], uuidstr[0:2])
+            if not os.path.exists(sf):
+                os.makedirs(sf)
+            fexpname = os.path.join(sf, "rdml_" + uuidstr + ".rdml")
+            fexp.save(fexpname)
 
-        # Run RDML-Python
+        if 'reqData' not in request.form.keys():
+            return jsonify(errors=[{"title": "Invalid server request - reqData missing!"}]), 400
+        reqdata = json.loads(request.form['reqData'])
+
+        data = {"uuid": uuidstr}
         rd = rdml.Rdml(fexpname)
-        ret = rd.tojson()
-        rd.save("nnnn.rdml")
-        return jsonify(data=ret)
+        modified = False
+
+        if "validate" in reqdata and reqdata["validate"] is True:
+            data["isvalid"] = rd.isvalid(fexpname)
+
+        if "mode" in reqdata and reqdata["mode"] == "delete":
+            if "type" not in reqdata or "position" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - type or position missing!"}]), 400
+            rd.delete_experimenter(byposition=reqdata["position"])
+            modified = True
+
+        if modified is True:
+            if uuidstr == "sample.rdml":
+                uuidstr = str(uuid.uuid4())
+                data["uuid"] = uuidstr
+                # Get subfolder
+                sf = os.path.join(app.config['UPLOAD_FOLDER'], uuidstr[0:2])
+                if not os.path.exists(sf):
+                    os.makedirs(sf)
+                fexpname = os.path.join(sf, "rdml_" + uuidstr + ".rdml")
+            rd.save(fexpname)
+            print("Save " + fexpname)
+
+
+        data["filedata"] = rd.tojson()
+        return jsonify(data=data)
     return jsonify(errors=[{"title": "Error in handling POST request!"}]), 400
 
 
