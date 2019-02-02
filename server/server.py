@@ -128,8 +128,41 @@ def handle_data():
         if "mode" in reqdata and reqdata["mode"] == "delete":
             if "type" not in reqdata or "position" not in reqdata:
                 return jsonify(errors=[{"title": "Invalid server request - type or position missing!"}]), 400
-            rd.delete_experimenter(byposition=reqdata["position"])
-            modified = True
+            if reqdata["type"] == "experimenter":
+                rd.delete_experimenter(byposition=reqdata["position"])
+                modified = True
+
+        if "mode" in reqdata and reqdata["mode"] in ["create", "edit"]:
+            if "type" not in reqdata or "data" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - type or data missing!"}]), 400
+            if "current-position" not in reqdata or "new-position" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - position information missing!"}]), 400
+            if reqdata["type"] == "experimenter":
+                if "id" not in reqdata["data"]:
+                    return jsonify(errors=[{"title": "Invalid server request - experimenter id missing!"}]), 400
+                if "firstName" not in reqdata["data"]:
+                    return jsonify(errors=[{"title": "Invalid server request - experimenter firstName missing!"}]), 400
+                if "lastName" not in reqdata["data"]:
+                    return jsonify(errors=[{"title": "Invalid server request - experimenter lastName missing!"}]), 400
+                if "email" not in reqdata["data"]:
+                    return jsonify(errors=[{"title": "Invalid server request - experimenter email missing!"}]), 400
+                if "labName" not in reqdata["data"]:
+                    return jsonify(errors=[{"title": "Invalid server request - experimenter labName missing!"}]), 400
+                if "labAddress" not in reqdata["data"]:
+                    return jsonify(errors=[{"title": "Invalid server request - experimenter labAddress missing!"}]), 400
+                if reqdata["mode"] == "create":
+                    try:
+                        rd.new_experimenter(id=reqdata["data"]["id"],
+                                            firstName=reqdata["data"]["firstName"],
+                                            lastName=reqdata["data"]["lastName"],
+                                            email=None,
+                                            labName=None,
+                                            labAddress=None,
+                                            newposition=int(reqdata["new-position"]) - 1)
+                    except rdml.RdmlError as err:
+                        data["error"] = str(err)
+                    else:
+                        modified = True
 
         if modified is True:
             if uuidstr == "sample.rdml":
@@ -141,8 +174,6 @@ def handle_data():
                     os.makedirs(sf)
                 fexpname = os.path.join(sf, "rdml_" + uuidstr + ".rdml")
             rd.save(fexpname)
-            print("Save " + fexpname)
-
 
         data["filedata"] = rd.tojson()
         return jsonify(data=data)

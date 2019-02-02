@@ -15,6 +15,7 @@ const inputFile = document.getElementById('inputFile')
 const resultInfo = document.getElementById('result-info')
 const resultError = document.getElementById('result-error')
 const resultData = document.getElementById('result-data')
+const debugData = document.getElementById('debug-data')
 const experimentersData = document.getElementById('experimenters-data')
 var sectionResults = document.getElementById('results')
 
@@ -41,6 +42,15 @@ document.addEventListener("DOMContentLoaded", function() {
 function saveUndef(tst) {
     if (tst) {
         return tst
+    } else {
+        return ""
+    }
+}
+
+function getSaveHtmlData(key) {
+    var el = document.getElementById(key)
+    if (el) {
+        return el.value
     } else {
         return ""
     }
@@ -87,6 +97,7 @@ function updateServerData(stat, reqData) {
         .then(res => {
 	        if (res.status === 200) {
                 resetAllGlobalVal()
+                debugData.value = JSON.stringify(res.data.data, null, 2)
                 window.rdmlData = res.data.data.filedata
                 window.uuid = res.data.data.uuid
                 if (res.data.data.hasOwnProperty("isvalid")) {
@@ -97,7 +108,14 @@ function updateServerData(stat, reqData) {
                     }
                 }
                 hideElement(resultInfo)
-                hideElement(resultError)
+                if (res.data.data.hasOwnProperty("error")) {
+                    showElement(resultError)
+                    var err = '<i class="fas fa-fire"></i>\n<span id="error-message">'
+                    err += res.data.data.error + '</span>'
+                    resultError.innerHTML = err
+                } else {
+                    hideElement(resultError)
+                }
                 updateClientData()
             }
         })
@@ -144,9 +162,10 @@ function updateClientData() {
         return
     }
     var ret = ''
+
+    // The experimenters tab
     var exp = window.rdmlData.rdml.experimenters;
     for (var i = 0; i < exp.length; i++) {
-     //   alert(editMode + " -- " + editType + " -- " + editNumber + " -- " + i)
         if ((editMode == true) && (editType == "experimenter") && (i == editNumber)) {
             ret += '<br /><div class="card text-white bg-primary">\n<div class="card-body">\n'
             ret += '<h5 class="card-title">' + (i + 1) + '. Experimenter ID: ' + exp[i].id + '</h5>\n<p>'
@@ -180,9 +199,10 @@ function updateClientData() {
             ret += 'id="inExpLabAddress" value="'+ saveUndef(exp[i].labAddress) + '"></td>\n'
             ret += '  </tr>'
             ret += '</table></p>\n'
-            ret += '<button type="button" class="btn btn-success">Save Changes</button>'
+            ret += '<button type="button" class="btn btn-success" '
+            ret += 'onclick="saveEditElement(\'experimenter\', ' + i + ');">Save Changes</button>'
             ret += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button type="button" class="btn btn-success" '
-            ret +='onclick="deleteEditElement(\'experimenter\', ' + i + ');">Delete</button>&nbsp;&nbsp;&nbsp;'
+            ret += 'onclick="deleteEditElement(\'experimenter\', ' + i + ');">Delete</button>&nbsp;&nbsp;&nbsp;'
             ret += '</div>\n</div>\n'
         } else {
             ret += '<br /><div class="card">\n<div class="card-body">\n'
@@ -208,7 +228,7 @@ function updateClientData() {
             }
             ret += '</table></p>\n'
             ret += '<button type="button" class="btn btn-success" '
-            ret +='onclick="editPresentElement(\'experimenter\', ' + i + ');">Edit</button>&nbsp;&nbsp;&nbsp;&nbsp;'
+            ret += 'onclick="editPresentElement(\'experimenter\', ' + i + ');">Edit</button>&nbsp;&nbsp;&nbsp;&nbsp;'
            if (i == 0) {
                 ret += '<button type="button" class="btn btn-success disabled">Move Up</button>&nbsp;&nbsp;'
             } else {
@@ -220,7 +240,7 @@ function updateClientData() {
                 ret += '<button type="button" class="btn btn-success">Move Down</button>&nbsp;&nbsp;&nbsp;'
             }
             ret += '&nbsp;<button type="button" class="btn btn-success" '
-            ret +='onclick="deleteEditElement(\'experimenter\', ' + i + ');">Delete</button>&nbsp;&nbsp;&nbsp;'
+            ret += 'onclick="deleteEditElement(\'experimenter\', ' + i + ');">Delete</button>&nbsp;&nbsp;&nbsp;'
             ret += '</div>\n</div>\n'
         }
     }
@@ -263,6 +283,7 @@ function createNewElement(typ){
 
 }
 
+// Set the edit mode for the selected element
 window.editPresentElement = editPresentElement;
 function editPresentElement(typ, pos){
     if (!(window.rdmlData.hasOwnProperty("rdml"))) {
@@ -281,6 +302,7 @@ function editPresentElement(typ, pos){
 
 }
 
+// Delete the selected element
 window.deleteEditElement = deleteEditElement;
 function deleteEditElement(typ, pos){
     if (!(window.rdmlData.hasOwnProperty("rdml"))) {
@@ -302,6 +324,40 @@ function deleteEditElement(typ, pos){
     }
     // If edit mode, delete only the edited element, ignore the other delete buttons
 }
+
+// Save edit element changes, create new ones
+window.saveEditElement = saveEditElement;
+function saveEditElement(typ, pos){
+    if (!(window.rdmlData.hasOwnProperty("rdml"))) {
+        return
+    }
+    if (window.editMode == false) {
+        return  // This can not happen
+    }
+    var ret = {}
+    if (window.editIsNew == true) {
+        ret["mode"] = "create"
+    } else {
+        ret["mode"] = "edit"
+    }
+    var el = {}
+    ret["current-position"] = pos
+    ret["new-position"] = getSaveHtmlData("inExpPos")
+    if (typ == "experimenter") {
+        ret["type"] = "experimenter"
+        el["id"] = getSaveHtmlData("inExpId")
+        el["firstName"] = getSaveHtmlData("inExpFirstName")
+        el["lastName"] = getSaveHtmlData("inExpLastName")
+        el["email"] = getSaveHtmlData("inExpEmail")
+        el["labName"] = getSaveHtmlData("inExpLabName")
+        el["labAddress"] = getSaveHtmlData("inExpLabAddress")
+        ret["data"] = el
+    }
+    updateServerData(uuid, JSON.stringify(ret))
+}
+
+
+
 
 function checkStatVal() {
      alert("EditMode: " + window.editMode +
