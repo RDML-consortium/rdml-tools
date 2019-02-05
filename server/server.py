@@ -155,9 +155,9 @@ def handle_data():
                         rd.new_experimenter(id=reqdata["data"]["id"],
                                             firstName=reqdata["data"]["firstName"],
                                             lastName=reqdata["data"]["lastName"],
-                                            email=None,
-                                            labName=None,
-                                            labAddress=None,
+                                            email=reqdata["data"]["email"],
+                                            labName=reqdata["data"]["labName"],
+                                            labAddress=reqdata["data"]["labAddress"],
                                             newposition=int(reqdata["new-position"]) - 1)
                     except rdml.RdmlError as err:
                         data["error"] = str(err)
