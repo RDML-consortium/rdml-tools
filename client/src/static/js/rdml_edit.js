@@ -8,13 +8,20 @@ const resultLink = document.getElementById('uuid-link-box')
 const submitButton = document.getElementById('btn-submit')
 submitButton.addEventListener('click', showUpload)
 
+const createNewButton = document.getElementById('btn-create-new')
+createNewButton.addEventListener('click', showCreateNew)
+
 const exampleButton = document.getElementById('btn-example')
 exampleButton.addEventListener('click', showExample)
+
+const createSaveButton = document.getElementById('btn-save')
+createSaveButton.addEventListener('click', showSave)
 
 const inputFile = document.getElementById('inputFile')
 const resultInfo = document.getElementById('result-info')
 const resultError = document.getElementById('result-error')
 const resultData = document.getElementById('result-data')
+const moreData = document.getElementById('more-data')
 const debugData = document.getElementById('debug-data')
 const experimentersData = document.getElementById('experimenters-data')
 var sectionResults = document.getElementById('results')
@@ -77,6 +84,15 @@ function showUpload() {
     updateServerData("data", '{"mode": "upload", "validate": true}')
 }
 
+function showCreateNew() {
+    updateServerData("createNew", '{"mode": "new", "validate": false}')
+}
+
+function showSave() {
+    var elem = document.getElementById('download-link')
+    elem.click()
+}
+
 // TODO client-side validation
 function updateServerData(stat, reqData) {
     const formData = new FormData()
@@ -84,6 +100,8 @@ function updateServerData(stat, reqData) {
         formData.append('showExample', 'showExample')
     } else if (stat == "data") {
         formData.append('queryFile', inputFile.files[0])
+    } else if (stat == "createNew") {
+        formData.append('createNew', 'createNew')
     } else {
         formData.append('uuid', stat)
     }
@@ -106,6 +124,8 @@ function updateServerData(stat, reqData) {
                     } else {
                         window.isvalid = "invalid"
                     }
+                } else {
+                    window.isvalid = "untested"
                 }
                 hideElement(resultInfo)
                 if (res.data.data.hasOwnProperty("error")) {
@@ -140,6 +160,10 @@ function updateClientData() {
     ret += '<h5 class="card-title">Link to this result page</h5>\n<p>'
     ret += '<a href="' + `${API_LINK}` + "edit.html?UUID=" + window.uuid + '">'
     ret += `${API_LINK}` + "edit.html?UUID=" + window.uuid + '</a> (valid for 3 days)\n</p>\n'
+    ret += '<p>Download RDML file:<br />'
+    ret += '<a href="' + `${API_URL}` + "/download/" + window.uuid + '" target="_blank" id="download-link">'
+    ret += `${API_URL}` + "/download/" + window.uuid + '</a> (valid for 3 days)\n<br />\n'
+    ret += '</p>\n'
     if (window.isvalid == "untested") {
         ret += '<p>Click here to validate RDML file:<br />'
     }
@@ -165,6 +189,7 @@ function updateClientData() {
 
     // The experimenters tab
     var exp = window.rdmlData.rdml.experimenters;
+    ret = ''
     for (var i = 0; i < exp.length; i++) {
         if ((editMode == true) && (editType == "experimenter") && (i == editNumber)) {
             ret += '<br /><div class="card text-white bg-primary">\n<div class="card-body">\n'
@@ -247,6 +272,28 @@ function updateClientData() {
         }
     }
     experimentersData.innerHTML = ret
+
+    // The more tab - File Info
+    var fileRoot = window.rdmlData.rdml
+    ret = '<br /><div class="card">\n<div class="card-body">\n'
+    ret += '<h5 class="card-title">RDML File Information</h5>\n<p>'
+    ret += '<table style="width:100%;">'
+    ret += '  <tr>\n    <td style="width:15%;">Version:</td>\n'
+    ret += '    <td style="width:85%">\n'+ fileRoot.version + '</td>\n'
+    ret += '  </tr>'
+    ret += '  <tr>\n    <td style="width:15%;">Date Created:</td>\n'
+    ret += '    <td style="width:85%">\n'+ fileRoot.dateMade.replace("T", " at ") + ' UTC</td>\n'
+    ret += '  </tr>'
+    ret += '  <tr>\n    <td style="width:15%;">Date Updated:</td>\n'
+    ret += '    <td style="width:85%">\n'+ fileRoot.dateUpdated.replace("T", " at ") + ' UTC</td>\n'
+    ret += '  </tr>'
+    ret += '</table></p>\n'
+    ret += '</div>\n</div>\n'
+
+
+
+    moreData.innerHTML = ret
+
 
 }
 

@@ -31,6 +31,20 @@ def is_valid_uuid(s):
     return uuid_re.match(s) is not None
 
 
+@app.route('/api/v1/download/<uuidstr>')
+def download(uuidstr):
+   if is_valid_uuid(uuidstr):
+      fname = "rdml_" + uuidstr + ".rdml";
+      if allowed_file(fname):
+         sf = os.path.join(app.config['UPLOAD_FOLDER'], uuidstr[0:2])
+         if os.path.exists(sf):
+            if os.path.isfile(os.path.join(sf, fname)):
+               return send_file(os.path.join(sf, fname), mimetype="application/x-rdml", as_attachment=True, attachment_filename="data.rdml")
+   if uuidstr == "sample.rdml":
+      return send_file("sample.rdml", mimetype="application/x-rdml", as_attachment=True, attachment_filename="sample.rdml")
+   return "File does not exist!"
+
+
 @app.route('/api/v1/validate', methods=['POST'])
 def validate_file():
     if request.method == 'POST':
@@ -82,6 +96,18 @@ def handle_data():
         if 'showExample' in request.form.keys():
             fexpname = os.path.join(RDMLWS, "sample.rdml")
             uuidstr = "sample.rdml"
+        elif 'createNew' in request.form.keys():
+            uuidstr = str(uuid.uuid4())
+            data = {"uuid": uuidstr}
+            # Get subfolder
+            sf = os.path.join(app.config['UPLOAD_FOLDER'], uuidstr[0:2])
+            if not os.path.exists(sf):
+                os.makedirs(sf)
+            fexpname = os.path.join(sf, "rdml_" + uuidstr + ".rdml")
+            rd = rdml.Rdml()
+            rd.save(fexpname)
+            data["filedata"] = rd.tojson()
+            return jsonify(data=data)
         elif 'uuid' in request.form.keys():
             uuidstr = request.form['uuid']
             if uuidstr == "sample.rdml":
@@ -189,7 +215,6 @@ def handle_data():
             if "position" not in reqdata:
                 return jsonify(errors=[{"title": "Invalid server request - position information missing!"}]), 400
             if reqdata["type"] == "experimenter":
-                print("Mooove")
                 try:
                     rd.move_experimenter(id=reqdata["id"], newposition=reqdata["position"])
                 except rdml.RdmlError as err:
