@@ -39,7 +39,12 @@ def download(uuidstr):
          sf = os.path.join(app.config['UPLOAD_FOLDER'], uuidstr[0:2])
          if os.path.exists(sf):
             if os.path.isfile(os.path.join(sf, fname)):
-               return send_file(os.path.join(sf, fname), mimetype="application/x-rdml", as_attachment=True, attachment_filename="data.rdml")
+                fexpfilename = os.path.join(sf, "rdml_" + uuidstr + ".txt")
+                downFileName = "data.rdml"
+                with open(fexpfilename, 'r') as the_file:
+                    downFileName = the_file.read()
+                    downFileName = downFileName.replace(".xml", ".rdml")
+                return send_file(os.path.join(sf, fname), mimetype="application/x-rdml", as_attachment=True, attachment_filename=downFileName)
    if uuidstr == "sample.rdml":
       return send_file("sample.rdml", mimetype="application/x-rdml", as_attachment=True, attachment_filename="sample.rdml")
    return "File does not exist!"
@@ -81,6 +86,9 @@ def validate_file():
             if not os.path.exists(sf):
                 os.makedirs(sf)
             fexpname = os.path.join(sf, "rdml_" + uuidstr + ".rdml")
+            fexpfilename = os.path.join(sf, "rdml_" + uuidstr + ".txt")
+            with open(fexpfilename, 'a') as the_file:
+                the_file.write(fexp.filename)
             fexp.save(fexpname)
 
         # Run RDML-Python
@@ -138,6 +146,9 @@ def handle_data():
             if not os.path.exists(sf):
                 os.makedirs(sf)
             fexpname = os.path.join(sf, "rdml_" + uuidstr + ".rdml")
+            fexpfilename = os.path.join(sf, "rdml_" + uuidstr + ".txt")
+            with open(fexpfilename, 'a') as the_file:
+                the_file.write(fexp.filename)
             fexp.save(fexpname)
 
         if 'reqData' not in request.form.keys():
