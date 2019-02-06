@@ -200,7 +200,7 @@ function updateClientData() {
             ret += '  </tr>'
             ret += '</table></p>\n'
             ret += '<button type="button" class="btn btn-success" '
-            ret += 'onclick="saveEditElement(\'experimenter\', ' + i + ');">Save Changes</button>'
+            ret += 'onclick="saveEditElement(\'experimenter\', ' + i + ', \'' + exp[i].id + '\');">Save Changes</button>'
             ret += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button type="button" class="btn btn-success" '
             ret += 'onclick="deleteEditElement(\'experimenter\', ' + i + ');">Delete</button>&nbsp;&nbsp;&nbsp;'
             ret += '</div>\n</div>\n'
@@ -232,12 +232,14 @@ function updateClientData() {
            if (i == 0) {
                 ret += '<button type="button" class="btn btn-success disabled">Move Up</button>&nbsp;&nbsp;'
             } else {
-                ret += '<button type="button" class="btn btn-success">Move Up</button>&nbsp;&nbsp;'
+                ret += '<button type="button" class="btn btn-success" '
+            ret += 'onclick="moveEditElement(\'experimenter\', \'' + exp[i].id + '\', ' + (i - 1) + ');">Move Up</button>&nbsp;&nbsp;'
             }
             if (i == exp.length - 1) {
                 ret += '<button type="button" class="btn btn-success disabled">Move Down</button>&nbsp;&nbsp;&nbsp;'
             } else {
-                ret += '<button type="button" class="btn btn-success">Move Down</button>&nbsp;&nbsp;&nbsp;'
+                ret += '<button type="button" class="btn btn-success" '
+            ret += 'onclick="moveEditElement(\'experimenter\', \'' + exp[i].id + '\', ' + (i + 2) + ');">Move Down</button>&nbsp;&nbsp;&nbsp;'
             }
             ret += '&nbsp;<button type="button" class="btn btn-success" '
             ret += 'onclick="deleteEditElement(\'experimenter\', ' + i + ');">Delete</button>&nbsp;&nbsp;&nbsp;'
@@ -302,6 +304,21 @@ function editPresentElement(typ, pos){
 
 }
 
+moveEditElement
+
+// Delete the selected element
+window.moveEditElement = moveEditElement;
+function moveEditElement(typ, id, pos){
+    if (!(window.rdmlData.hasOwnProperty("rdml"))) {
+        return
+    }
+    if (window.editMode == false) {
+        updateServerData(uuid, '{"mode": "move", "type": "' + typ + '", "id": "' + id + '", "position": ' + pos + '}')
+    }
+    // If edit mode, delete only the edited element, ignore the other delete buttons
+}
+
+
 // Delete the selected element
 window.deleteEditElement = deleteEditElement;
 function deleteEditElement(typ, pos){
@@ -318,16 +335,16 @@ function deleteEditElement(typ, pos){
             updateClientData()
         }
     } else  if ((window.editIsNew == false) && (window.editMode == true) && (window.editNumber == pos)) {
-            updateServerData(uuid, '{"mode": "delete", "type": "experimenter", "position": ' + pos + '}')
+            updateServerData(uuid, '{"mode": "delete", "type": "' + typ + '", "position": ' + pos + '}')
     } else  if (window.editMode == false) {
-            updateServerData(uuid, '{"mode": "delete", "type": "experimenter", "position": ' + pos + '}')
+            updateServerData(uuid, '{"mode": "delete", "type": "' + typ + '", "position": ' + pos + '}')
     }
     // If edit mode, delete only the edited element, ignore the other delete buttons
 }
 
 // Save edit element changes, create new ones
 window.saveEditElement = saveEditElement;
-function saveEditElement(typ, pos){
+function saveEditElement(typ, pos, oldId){
     if (!(window.rdmlData.hasOwnProperty("rdml"))) {
         return
     }
@@ -342,7 +359,8 @@ function saveEditElement(typ, pos){
     }
     var el = {}
     ret["current-position"] = pos
-    ret["new-position"] = getSaveHtmlData("inExpPos")
+    ret["new-position"] = getSaveHtmlData("inExpPos") - 1
+    ret["old-id"] = oldId
     if (typ == "experimenter") {
         ret["type"] = "experimenter"
         el["id"] = getSaveHtmlData("inExpId")

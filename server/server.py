@@ -135,8 +135,6 @@ def handle_data():
         if "mode" in reqdata and reqdata["mode"] in ["create", "edit"]:
             if "type" not in reqdata or "data" not in reqdata:
                 return jsonify(errors=[{"title": "Invalid server request - type or data missing!"}]), 400
-            if "current-position" not in reqdata or "new-position" not in reqdata:
-                return jsonify(errors=[{"title": "Invalid server request - position information missing!"}]), 400
             if reqdata["type"] == "experimenter":
                 if "id" not in reqdata["data"]:
                     return jsonify(errors=[{"title": "Invalid server request - experimenter id missing!"}]), 400
@@ -150,6 +148,8 @@ def handle_data():
                     return jsonify(errors=[{"title": "Invalid server request - experimenter labName missing!"}]), 400
                 if "labAddress" not in reqdata["data"]:
                     return jsonify(errors=[{"title": "Invalid server request - experimenter labAddress missing!"}]), 400
+                if "current-position" not in reqdata or "new-position" not in reqdata:
+                    return jsonify(errors=[{"title": "Invalid server request - position information missing!"}]), 400
                 if reqdata["mode"] == "create":
                     try:
                         rd.new_experimenter(id=reqdata["data"]["id"],
@@ -158,11 +158,44 @@ def handle_data():
                                             email=reqdata["data"]["email"],
                                             labName=reqdata["data"]["labName"],
                                             labAddress=reqdata["data"]["labAddress"],
-                                            newposition=int(reqdata["new-position"]) - 1)
+                                            newposition=int(reqdata["new-position"]))
                     except rdml.RdmlError as err:
                         data["error"] = str(err)
                     else:
                         modified = True
+                if reqdata["mode"] == "edit":
+                    if "old-id" not in reqdata:
+                        return jsonify(errors=[{"title": "Invalid server request - old id information missing!"}]), 400
+                    try:
+                        elem = rd.get_experimenter(byid=reqdata["old-id"])
+                        if elem is None:
+                            return jsonify(errors=[{"title": "Invalid server request - experimenter id not found!"}]), 400
+                        elem["id"] = reqdata["data"]["id"]
+                        elem["firstName"] = reqdata["data"]["firstName"]
+                        elem["lastName"] = reqdata["data"]["lastName"]
+                        elem["email"] = reqdata["data"]["email"]
+                        elem["labName"] = reqdata["data"]["labName"]
+                        elem["labAddress"] = reqdata["data"]["labAddress"]
+                    except rdml.RdmlError as err:
+                        data["error"] = str(err)
+                    else:
+                        modified = True
+
+        if "mode" in reqdata and reqdata["mode"] in ["move"]:
+            if "type" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - type missing!"}]), 400
+            if "id" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - id information missing!"}]), 400
+            if "position" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - position information missing!"}]), 400
+            if reqdata["type"] == "experimenter":
+                print("Mooove")
+                try:
+                    rd.move_experimenter(id=reqdata["id"], newposition=reqdata["position"])
+                except rdml.RdmlError as err:
+                    data["error"] = str(err)
+                else:
+                    modified = True
 
         if modified is True:
             if uuidstr == "sample.rdml":
