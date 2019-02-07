@@ -100,19 +100,27 @@
       </div>
 
       <div class="tab-pane" id="experiments-tab">
+        <button id="btn-new-experiment" onclick="createNewElement('experiment');" type="button"
+                class="btn btn-success">Create New Experiment</button>
         <div id="experiments-data"></div>
       </div>
 
       <div class="tab-pane" id="samples-tab">
+        <button id="btn-new-sample" onclick="createNewElement('sample');" type="button"
+                class="btn btn-success">Create New Sample</button>
         <div id="samples-data"></div>
       </div>
 
       <div class="tab-pane" id="targets-tab">
+        <button id="btn-new-target" onclick="createNewElement('target');" type="button"
+                class="btn btn-success">Create New Target</button>
         <div id="targets-data"></div>
       </div>
 
       <div class="tab-pane" id="cycling-conditions-tab">
-        <div id="cycling-conditions-data"></div>
+        <button id="btn-new-cyclingConditions" onclick="createNewElement('cyclingConditions');" type="button"
+                class="btn btn-success">Create New Cycling Conditions</button>
+        <div id="cyclingConditions-data"></div>
       </div>
 
       <div class="tab-pane" id="experimenters-tab">
@@ -124,7 +132,7 @@
       <div class="tab-pane" id="documentation-tab">
         <button id="btn-new-documentation" onclick="createNewElement('documentation');" type="button"
                 class="btn btn-success">Create New Documentation</button>
-        <div id="documentation-data"></div>
+        <div id="documentations-data"></div>
       </div>
 
       <div class="tab-pane" id="more-tab">
@@ -136,7 +144,7 @@
         <br />
         <button id="btn-new-dye" onclick="createNewElement('dye');" type="button"
                 class="btn btn-success">Create New Dye</button>
-        <div id="file-info-data"></div>
+        <div id="dyes-data"></div>
         <br />
         <div class="form-group">
           <label for="debug-data">Debug Response</label>

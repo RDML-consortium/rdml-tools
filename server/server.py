@@ -171,6 +171,24 @@ def handle_data():
             if reqdata["type"] == "experimenter":
                 rd.delete_experimenter(byposition=reqdata["position"])
                 modified = True
+            if reqdata["type"] == "documentation":
+                rd.delete_documentation(byposition=reqdata["position"])
+                modified = True
+            if reqdata["type"] == "dye":
+                rd.delete_dye(byposition=reqdata["position"])
+                modified = True
+            if reqdata["type"] == "sample":
+                rd.delete_sample(byposition=reqdata["position"])
+                modified = True
+            if reqdata["type"] == "target":
+                rd.delete_target(byposition=reqdata["position"])
+                modified = True
+            if reqdata["type"] == "cyclingConditions":
+                rd.delete_cyclingConditions(byposition=reqdata["position"])
+                modified = True
+            if reqdata["type"] == "experiment":
+                rd.delete_experiment(byposition=reqdata["position"])
+                modified = True
 
         if "mode" in reqdata and reqdata["mode"] in ["create", "edit"]:
             if "type" not in reqdata or "data" not in reqdata:
@@ -256,6 +274,69 @@ def handle_data():
                     else:
                         modified = True
 
+            if reqdata["type"] == "documentation":
+                if "id" not in reqdata["data"]:
+                    return jsonify(errors=[{"title": "Invalid server request - documentation id missing!"}]), 400
+                if "text" not in reqdata["data"]:
+                    return jsonify(errors=[{"title": "Invalid server request - documentation text missing!"}]), 400
+                if "current-position" not in reqdata or "new-position" not in reqdata:
+                    return jsonify(errors=[{"title": "Invalid server request - documentation position " +
+                                                     "information missing!"}]), 400
+                if reqdata["mode"] == "create":
+                    try:
+                        rd.new_documentation(id=reqdata["data"]["id"],
+                                             text=reqdata["data"]["text"],
+                                             newposition=int(reqdata["new-position"]))
+                    except rdml.RdmlError as err:
+                        data["error"] = str(err)
+                    else:
+                        modified = True
+                if reqdata["mode"] == "edit":
+                    if "old-id" not in reqdata:
+                        return jsonify(errors=[{"title": "Invalid server request - old id information missing!"}]), 400
+                    try:
+                        elem = rd.get_documentation(byid=reqdata["old-id"])
+                        if elem is None:
+                            return jsonify(errors=[{"title": "Invalid server request - documentation id not found!"}]), 400
+                        elem["id"] = reqdata["data"]["id"]
+                        elem["text"] = reqdata["data"]["text"]
+                    except rdml.RdmlError as err:
+                        data["error"] = str(err)
+                    else:
+                        modified = True
+
+            if reqdata["type"] == "dye":
+                if "id" not in reqdata["data"]:
+                    return jsonify(errors=[{"title": "Invalid server request - dye id missing!"}]), 400
+                if "description" not in reqdata["data"]:
+                    return jsonify(errors=[{"title": "Invalid server request - dye description missing!"}]), 400
+                if "current-position" not in reqdata or "new-position" not in reqdata:
+                    return jsonify(errors=[{"title": "Invalid server request - dye position " +
+                                                     "information missing!"}]), 400
+                if reqdata["mode"] == "create":
+                    try:
+                        rd.new_dye(id=reqdata["data"]["id"],
+                                   description=reqdata["data"]["description"],
+                                   newposition=int(reqdata["new-position"]))
+                    except rdml.RdmlError as err:
+                        data["error"] = str(err)
+                    else:
+                        modified = True
+                if reqdata["mode"] == "edit":
+                    if "old-id" not in reqdata:
+                        return jsonify(errors=[{"title": "Invalid server request - old id information missing!"}]), 400
+                    try:
+                        elem = rd.get_dye(byid=reqdata["old-id"])
+                        if elem is None:
+                            return jsonify(errors=[{"title": "Invalid server request - dye id not found!"}]), 400
+                        elem["id"] = reqdata["data"]["id"]
+                        elem["description"] = reqdata["data"]["description"]
+                    except rdml.RdmlError as err:
+                        data["error"] = str(err)
+                    else:
+                        modified = True
+
+
         if "mode" in reqdata and reqdata["mode"] in ["move"]:
             if "type" not in reqdata:
                 return jsonify(errors=[{"title": "Invalid server request - type missing!"}]), 400
@@ -273,6 +354,48 @@ def handle_data():
             if reqdata["type"] == "experimenter":
                 try:
                     rd.move_experimenter(id=reqdata["id"], newposition=reqdata["position"])
+                except rdml.RdmlError as err:
+                    data["error"] = str(err)
+                else:
+                    modified = True
+            if reqdata["type"] == "documentation":
+                try:
+                    rd.move_documentation(id=reqdata["id"], newposition=reqdata["position"])
+                except rdml.RdmlError as err:
+                    data["error"] = str(err)
+                else:
+                    modified = True
+            if reqdata["type"] == "dye":
+                try:
+                    rd.move_dye(id=reqdata["id"], newposition=reqdata["position"])
+                except rdml.RdmlError as err:
+                    data["error"] = str(err)
+                else:
+                    modified = True
+            if reqdata["type"] == "sample":
+                try:
+                    rd.move_sample(id=reqdata["id"], newposition=reqdata["position"])
+                except rdml.RdmlError as err:
+                    data["error"] = str(err)
+                else:
+                    modified = True
+            if reqdata["type"] == "target":
+                try:
+                    rd.move_target(id=reqdata["id"], newposition=reqdata["position"])
+                except rdml.RdmlError as err:
+                    data["error"] = str(err)
+                else:
+                    modified = True
+            if reqdata["type"] == "cyclingConditions":
+                try:
+                    rd.move_cyclingConditions(id=reqdata["id"], newposition=reqdata["position"])
+                except rdml.RdmlError as err:
+                    data["error"] = str(err)
+                else:
+                    modified = True
+            if reqdata["type"] == "experiment":
+                try:
+                    rd.move_experiment(id=reqdata["id"], newposition=reqdata["position"])
                 except rdml.RdmlError as err:
                     data["error"] = str(err)
                 else:

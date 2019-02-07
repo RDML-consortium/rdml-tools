@@ -20,12 +20,17 @@ createSaveButton.addEventListener('click', showSave)
 const inputFile = document.getElementById('inputFile')
 const resultInfo = document.getElementById('result-info')
 const resultError = document.getElementById('result-error')
-const resultData = document.getElementById('result-data')
+
 const fileInfoData = document.getElementById('file-info-data')
 const rdmlidsData = document.getElementById('rdmlids-data')
-const debugData = document.getElementById('debug-data')
 const experimentersData = document.getElementById('experimenters-data')
-var sectionResults = document.getElementById('results')
+const documentationsData = document.getElementById('documentations-data')
+const dyesData = document.getElementById('dyes-data')
+const samplesData = document.getElementById('samples-data')
+const targetsData = document.getElementById('targets-data')
+const cyclingConditionsData = document.getElementById('cyclingConditions-data')
+const experimentsData = document.getElementById('experiments-data')
+const debugData = document.getElementById('debug-data')
 
 window.uuid = "";
 window.rdmlData = "";
@@ -53,6 +58,12 @@ function saveUndef(tst) {
     } else {
         return ""
     }
+}
+
+function htmllize(tst) {
+    tst = tst.replace(/\n/g, "<br />")
+
+    return tst
 }
 
 function getSaveHtmlData(key) {
@@ -274,6 +285,58 @@ function updateClientData() {
     }
     experimentersData.innerHTML = ret
 
+    // The documentations tab
+    var exp = window.rdmlData.rdml.documentations;
+    ret = ''
+    for (var i = 0; i < exp.length; i++) {
+        if ((editMode == true) && (editType == "documentation") && (i == editNumber)) {
+            ret += '<br /><div class="card text-white bg-primary">\n<div class="card-body">\n'
+            ret += '<h5 class="card-title">' + (i + 1) + '. Documentation ID: ' + exp[i].id + '</h5>\n<p>'
+            ret += '<table style="width:100%;">'
+            ret += '  <tr>\n    <td style="width:15%;">ID:</td>\n'
+            ret += '    <td style="width:85%"><input type="text" class="form-control" '
+            ret += 'id="inDocId" value="'+ exp[i].id + '"></td>\n'
+            ret += '  </tr>'
+            ret += '  <tr>\n    <td style="width:15%;">Place at Position:</td>\n'
+            ret += '    <td style="width:85%"><input type="text" class="form-control" '
+            ret += 'id="inPos" value="' + (i + 1) + '"></td>\n'
+            ret += '  </tr>'
+            ret += '</table></p><textarea class="form-control" id="inDocText" rows="20">' + saveUndef(exp[i].text) + '</textarea><br /><br />\n'
+            ret += '<button type="button" class="btn btn-success" '
+            ret += 'onclick="saveEditElement(\'documentation\', ' + i + ', \'' + exp[i].id + '\');">Save Changes</button>'
+            ret += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button type="button" class="btn btn-success" '
+            ret += 'onclick="deleteEditElement(\'documentation\', ' + i + ');">Delete</button>&nbsp;&nbsp;&nbsp;'
+            ret += '</div>\n</div>\n'
+        } else {
+            ret += '<br /><div class="card">\n<div class="card-body">\n'
+            ret += '<h5 class="card-title">' + (i + 1) + '. Documentation ID: ' + exp[i].id + '</h5>\n<p>'
+            ret += '<p>' + htmllize(saveUndef(exp[i].text)) + '</p>\n'
+            ret += '<button type="button" class="btn btn-success" '
+            ret += 'onclick="editPresentElement(\'documentation\', ' + i + ');">Edit</button>&nbsp;&nbsp;&nbsp;&nbsp;'
+            if (i == 0) {
+                ret += '<button type="button" class="btn btn-success disabled">Move Up</button>&nbsp;&nbsp;'
+            } else {
+                ret += '<button type="button" class="btn btn-success" '
+            ret += 'onclick="moveEditElement(\'documentation\', \'' + exp[i].id + '\', ' + (i - 1) + ');">Move Up</button>&nbsp;&nbsp;'
+            }
+            if (i == exp.length - 1) {
+                ret += '<button type="button" class="btn btn-success disabled">Move Down</button>&nbsp;&nbsp;&nbsp;'
+            } else {
+                ret += '<button type="button" class="btn btn-success" '
+            ret += 'onclick="moveEditElement(\'documentation\', \'' + exp[i].id + '\', ' + (i + 2) + ');">Move Down</button>&nbsp;&nbsp;&nbsp;'
+            }
+            ret += '&nbsp;<button type="button" class="btn btn-success" '
+            ret += 'onclick="deleteEditElement(\'documentation\', ' + i + ');">Delete</button>&nbsp;&nbsp;&nbsp;'
+            ret += '</div>\n</div>\n'
+        }
+    }
+    documentationsData.innerHTML = ret
+
+
+
+
+
+
     // The more tab - File Info
     var fileRoot = window.rdmlData.rdml
     ret = '<br /><div class="card">\n<div class="card-body">\n'
@@ -292,7 +355,7 @@ function updateClientData() {
     ret += '</div>\n</div>\n'
     fileInfoData.innerHTML = ret
 
-    // The experimenters tab
+    // The more tab - RDML Id Info
     var exp = window.rdmlData.rdml.ids;
     ret = ''
     for (var i = 0; i < exp.length; i++) {
@@ -359,6 +422,55 @@ function updateClientData() {
     }
     rdmlidsData.innerHTML = ret
 
+    // The more tab - dyes tab
+    var exp = window.rdmlData.rdml.dyes;
+    ret = ''
+    for (var i = 0; i < exp.length; i++) {
+        if ((editMode == true) && (editType == "dye") && (i == editNumber)) {
+            ret += '<br /><div class="card text-white bg-primary">\n<div class="card-body">\n'
+            ret += '<h5 class="card-title">' + (i + 1) + '. Dye ID: ' + exp[i].id + '</h5>\n<p>'
+            ret += '<table style="width:100%;">'
+            ret += '  <tr>\n    <td style="width:15%;">ID:</td>\n'
+            ret += '    <td style="width:85%"><input type="text" class="form-control" '
+            ret += 'id="inDyeId" value="'+ exp[i].id + '"></td>\n'
+            ret += '  </tr>'
+            ret += '  <tr>\n    <td style="width:15%;">Place at Position:</td>\n'
+            ret += '    <td style="width:85%"><input type="text" class="form-control" '
+            ret += 'id="inPos" value="' + (i + 1) + '"></td>\n'
+            ret += '  </tr>'
+            ret += '</table></p><textarea class="form-control" id="inDyeDescription" rows="20">'
+            ret += htmllize(saveUndef(exp[i].description)) + '</textarea><br /><br />\n'
+            ret += '<button type="button" class="btn btn-success" '
+            ret += 'onclick="saveEditElement(\'dye\', ' + i + ', \'' + exp[i].id + '\');">Save Changes</button>'
+            ret += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button type="button" class="btn btn-success" '
+            ret += 'onclick="deleteEditElement(\'dye\', ' + i + ');">Delete</button>&nbsp;&nbsp;&nbsp;'
+            ret += '</div>\n</div>\n'
+        } else {
+            ret += '<br /><div class="card">\n<div class="card-body">\n'
+            ret += '<h5 class="card-title">' + (i + 1) + '. Dye ID: ' + exp[i].id + '</h5>\n<p>'
+            ret += '<p>' + saveUndef(exp[i].description) + '</p>\n'
+            ret += '<button type="button" class="btn btn-success" '
+            ret += 'onclick="editPresentElement(\'dye\', ' + i + ');">Edit</button>&nbsp;&nbsp;&nbsp;&nbsp;'
+            if (i == 0) {
+                ret += '<button type="button" class="btn btn-success disabled">Move Up</button>&nbsp;&nbsp;'
+            } else {
+                ret += '<button type="button" class="btn btn-success" '
+            ret += 'onclick="moveEditElement(\'dye\', \'' + exp[i].id + '\', ' + (i - 1) + ');">Move Up</button>&nbsp;&nbsp;'
+            }
+            if (i == exp.length - 1) {
+                ret += '<button type="button" class="btn btn-success disabled">Move Down</button>&nbsp;&nbsp;&nbsp;'
+            } else {
+                ret += '<button type="button" class="btn btn-success" '
+            ret += 'onclick="moveEditElement(\'dye\', \'' + exp[i].id + '\', ' + (i + 2) + ');">Move Down</button>&nbsp;&nbsp;&nbsp;'
+            }
+            ret += '&nbsp;<button type="button" class="btn btn-success" '
+            ret += 'onclick="deleteEditElement(\'dye\', ' + i + ');">Delete</button>&nbsp;&nbsp;&nbsp;'
+            ret += '</div>\n</div>\n'
+        }
+    }
+    dyesData.innerHTML = ret
+
+
 
 }
 
@@ -400,6 +512,54 @@ function createNewElement(typ){
         nex["lastName"] = "New Last Name"
         window.rdmlData.rdml.experimenters.unshift(nex)
         window.editType = "experimenter";
+        window.editNumber = 0;
+        updateClientData()
+    }
+    if (typ == "documentation") {
+        var nex = {}
+        nex["id"] = "New Documentation"
+        window.rdmlData.rdml.documentations.unshift(nex)
+        window.editType = "documentation";
+        window.editNumber = 0;
+        updateClientData()
+    }
+    if (typ == "dye") {
+        var nex = {}
+        nex["id"] = "New Dye"
+        window.rdmlData.rdml.dyes.unshift(nex)
+        window.editType = "dye";
+        window.editNumber = 0;
+        updateClientData()
+    }
+    if (typ == "sample") {
+        var nex = {}
+        nex["id"] = "New Sample"
+        window.rdmlData.rdml.samples.unshift(nex)
+        window.editType = "sample";
+        window.editNumber = 0;
+        updateClientData()
+    }
+    if (typ == "target") {
+        var nex = {}
+        nex["id"] = "New Target"
+        window.rdmlData.rdml.targets.unshift(nex)
+        window.editType = "target";
+        window.editNumber = 0;
+        updateClientData()
+    }
+    if (typ == "cyclingConditions") {
+        var nex = {}
+        nex["id"] = "New Cycling Conditions"
+        window.rdmlData.rdml.cyclingConditions.unshift(nex)
+        window.editType = "cyclingConditions";
+        window.editNumber = 0;
+        updateClientData()
+    }
+    if (typ == "experiment") {
+        var nex = {}
+        nex["id"] = "New Experiment"
+        window.rdmlData.rdml.experiments.unshift(nex)
+        window.editType = "experiments";
         window.editNumber = 0;
         updateClientData()
     }
@@ -460,6 +620,54 @@ function deleteEditElement(typ, pos){
             window.editNumber = -1;
             updateClientData()
         }
+        if (typ == "documentation") {
+            window.rdmlData.rdml.documentations.shift()
+            window.editMode = false;
+            window.editIsNew = false;
+            window.editType = "";
+            window.editNumber = -1;
+            updateClientData()
+        }
+        if (typ == "dye") {
+            window.rdmlData.rdml.dyes.shift()
+            window.editMode = false;
+            window.editIsNew = false;
+            window.editType = "";
+            window.editNumber = -1;
+            updateClientData()
+        }
+        if (typ == "sample") {
+            window.rdmlData.rdml.samples.shift()
+            window.editMode = false;
+            window.editIsNew = false;
+            window.editType = "";
+            window.editNumber = -1;
+            updateClientData()
+        }
+        if (typ == "target") {
+            window.rdmlData.rdml.targets.shift()
+            window.editMode = false;
+            window.editIsNew = false;
+            window.editType = "";
+            window.editNumber = -1;
+            updateClientData()
+        }
+        if (typ == "cyclingConditions") {
+            window.rdmlData.rdml.cyclingConditions.shift()
+            window.editMode = false;
+            window.editIsNew = false;
+            window.editType = "";
+            window.editNumber = -1;
+            updateClientData()
+        }
+        if (typ == "experiment") {
+            window.rdmlData.rdml.experiments.shift()
+            window.editMode = false;
+            window.editIsNew = false;
+            window.editType = "";
+            window.editNumber = -1;
+            updateClientData()
+        }
     } else  if ((window.editIsNew == false) && (window.editMode == true) && (window.editNumber == pos)) {
             updateServerData(uuid, '{"mode": "delete", "type": "' + typ + '", "position": ' + pos + '}')
     } else  if (window.editMode == false) {
@@ -504,8 +712,40 @@ function saveEditElement(typ, pos, oldId){
         el["labAddress"] = getSaveHtmlData("inExpLabAddress")
         ret["data"] = el
     }
-
-
+    if (typ == "documentation") {
+        ret["type"] = "documentation"
+        el["id"] = getSaveHtmlData("inDocId")
+        el["text"] = getSaveHtmlData("inDocText")
+        ret["data"] = el
+    }
+    if (typ == "dye") {
+        ret["type"] = "dye"
+        el["id"] = getSaveHtmlData("inDyeId")
+        el["description"] = getSaveHtmlData("inDyeDescription")
+        ret["data"] = el
+    }
+    if (typ == "sample") {
+        ret["type"] = "sample"
+        el["id"] = getSaveHtmlData("inSampId")
+        el["type"] = getSaveHtmlData("inSampType")
+        ret["data"] = el
+    }
+    if (typ == "target") {
+        ret["type"] = "target"
+        el["id"] = getSaveHtmlData("inTarId")
+        el["type"] = getSaveHtmlData("inTarType")
+        ret["data"] = el
+    }
+    if (typ == "cyclingConditions") {
+        ret["type"] = "cyclingConditions"
+        el["id"] = getSaveHtmlData("inCycId")
+        ret["data"] = el
+    }
+    if (typ == "experiment") {
+        ret["type"] = "experiment"
+        el["id"] = getSaveHtmlData("inExId")
+        ret["data"] = el
+    }
     updateServerData(uuid, JSON.stringify(ret))
 }
 
