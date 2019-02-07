@@ -122,11 +122,22 @@
       </div>
 
       <div class="tab-pane" id="documentation-tab">
+        <button id="btn-new-documentation" onclick="createNewElement('documentation');" type="button"
+                class="btn btn-success">Create New Documentation</button>
         <div id="documentation-data"></div>
       </div>
 
       <div class="tab-pane" id="more-tab">
-        <div id="more-data"></div>
+        <div id="file-info-data"></div>
+        <br />
+        <button id="btn-new-rdmlid" onclick="createNewElement('rdmlid');" type="button"
+                class="btn btn-success">Create New Id</button>
+        <div id="rdmlids-data"></div>
+        <br />
+        <button id="btn-new-dye" onclick="createNewElement('dye');" type="button"
+                class="btn btn-success">Create New Dye</button>
+        <div id="file-info-data"></div>
+        <br />
         <div class="form-group">
           <label for="debug-data">Debug Response</label>
           <textarea class="form-control" id="debug-data" rows="80"></textarea>

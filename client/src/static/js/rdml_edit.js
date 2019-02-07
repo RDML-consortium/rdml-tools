@@ -21,7 +21,8 @@ const inputFile = document.getElementById('inputFile')
 const resultInfo = document.getElementById('result-info')
 const resultError = document.getElementById('result-error')
 const resultData = document.getElementById('result-data')
-const moreData = document.getElementById('more-data')
+const fileInfoData = document.getElementById('file-info-data')
+const rdmlidsData = document.getElementById('rdmlids-data')
 const debugData = document.getElementById('debug-data')
 const experimentersData = document.getElementById('experimenters-data')
 var sectionResults = document.getElementById('results')
@@ -157,7 +158,7 @@ function updateServerData(stat, reqData) {
 function updateClientData() {
     // The UUID box
     var ret = '<br /><div class="card">\n<div class="card-body">\n'
-    ret += '<h5 class="card-title">Link to this result page</h5>\n<p>'
+    ret += '<h5 class="card-title">Links to other RDML tools</h5>\n<p>Link to this result page:<br />'
     ret += '<a href="' + `${API_LINK}` + "edit.html?UUID=" + window.uuid + '">'
     ret += `${API_LINK}` + "edit.html?UUID=" + window.uuid + '</a> (valid for 3 days)\n</p>\n'
     ret += '<p>Download RDML file:<br />'
@@ -201,7 +202,7 @@ function updateClientData() {
             ret += '  </tr>'
             ret += '  <tr>\n    <td style="width:15%;">Place at Position:</td>\n'
             ret += '    <td style="width:85%"><input type="text" class="form-control" '
-            ret += 'id="inExpPos" value="' + (i + 1) + '"></td>\n'
+            ret += 'id="inPos" value="' + (i + 1) + '"></td>\n'
             ret += '  </tr>'
             ret += '  <tr>\n    <td style="width:15%;">First Name:</td>\n'
             ret += '    <td style="width:85%"><input type="text" class="form-control" '
@@ -254,7 +255,7 @@ function updateClientData() {
             ret += '</table></p>\n'
             ret += '<button type="button" class="btn btn-success" '
             ret += 'onclick="editPresentElement(\'experimenter\', ' + i + ');">Edit</button>&nbsp;&nbsp;&nbsp;&nbsp;'
-           if (i == 0) {
+            if (i == 0) {
                 ret += '<button type="button" class="btn btn-success disabled">Move Up</button>&nbsp;&nbsp;'
             } else {
                 ret += '<button type="button" class="btn btn-success" '
@@ -289,10 +290,74 @@ function updateClientData() {
     ret += '  </tr>'
     ret += '</table></p>\n'
     ret += '</div>\n</div>\n'
+    fileInfoData.innerHTML = ret
 
-
-
-    moreData.innerHTML = ret
+    // The experimenters tab
+    var exp = window.rdmlData.rdml.ids;
+    ret = ''
+    for (var i = 0; i < exp.length; i++) {
+        if ((editMode == true) && (editType == "rdmlid") && (i == editNumber)) {
+            ret += '<br /><div class="card text-white bg-primary">\n<div class="card-body">\n'
+            ret += '<h5 class="card-title">' + (i + 1) + '. RDML File  ID:</h5>\n<p>'
+            ret += '<table style="width:100%;">'
+            ret += '  <tr>\n    <td style="width:15%;">Place at Position:</td>\n'
+            ret += '    <td style="width:85%"><input type="text" class="form-control" '
+            ret += 'id="inPos" value="' + (i + 1) + '"></td>\n'
+            ret += '  </tr>'
+            ret += '  <tr>\n    <td style="width:15%;">Publisher:</td>\n'
+            ret += '    <td style="width:85%"><input type="text" class="form-control" '
+            ret += 'id="inRdmlidPublisher" value="'+ exp[i].publisher + '"></td>\n'
+            ret += '  </tr>'
+            ret += '  <tr>\n    <td style="width:15%;">Serial Number:</td>\n'
+            ret += '    <td style="width:85%"><input type="text" class="form-control" '
+            ret += 'id="inRdmlidSerialNumber" value="'+ exp[i].serialNumber + '"></td>\n'
+            ret += '  </tr>'
+            ret += '  <tr>\n    <td style="width:15%;">MD5Hash:</td>\n'
+            ret += '    <td style="width:85%"><input type="text" class="form-control" '
+            ret += 'id="inRdmlidMD5Hash" value="'+ saveUndef(exp[i].MD5Hash) + '"></td>\n'
+            ret += '  </tr>'
+            ret += '</table></p>\n'
+            ret += '<button type="button" class="btn btn-success" '
+            ret += 'onclick="saveEditElement(\'rdmlid\', ' + i + ', \'' + i + '\');">Save Changes</button>'
+            ret += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button type="button" class="btn btn-success" '
+            ret += 'onclick="deleteEditElement(\'rdmlid\', ' + i + ');">Delete</button>&nbsp;&nbsp;&nbsp;'
+            ret += '</div>\n</div>\n'
+        } else {
+            ret += '<br /><div class="card">\n<div class="card-body">\n'
+            ret += '<h5 class="card-title">' + (i + 1) + '. RDML File ID: </h5>\n<p>'
+            ret += '<table style="width:100%;">'
+            ret += '  <tr>\n    <td style="width:15%;">Publisher:</td>\n'
+            ret += '    <td style="width:85%">\n'+ exp[i].publisher + '</td>\n'
+            ret += '  </tr>'
+            ret += '  <tr>\n    <td style="width:15%;">Serial Number:</td>\n'
+            ret += '    <td style="width:85%">\n'+ exp[i].serialNumber + '</td>\n'
+            ret += '  </tr>'
+            if (exp[i].hasOwnProperty("MD5Hash")) {
+              ret += '  <tr>\n    <td style="width:15%;">MD5Hash:</td>\n'
+              ret += '    <td style="width:85%">\n'+ exp[i].MD5Hash + '</td>\n'
+              ret += '  </tr>'
+            }
+            ret += '</table></p>\n'
+            ret += '<button type="button" class="btn btn-success" '
+            ret += 'onclick="editPresentElement(\'rdmlid\', ' + i + ');">Edit</button>&nbsp;&nbsp;&nbsp;&nbsp;'
+            if (i == 0) {
+                ret += '<button type="button" class="btn btn-success disabled">Move Up</button>&nbsp;&nbsp;'
+            } else {
+                ret += '<button type="button" class="btn btn-success" '
+            ret += 'onclick="moveEditElement(\'rdmlid\', \'' + i + '\', ' + (i - 1) + ');">Move Up</button>&nbsp;&nbsp;'
+            }
+            if (i == exp.length - 1) {
+                ret += '<button type="button" class="btn btn-success disabled">Move Down</button>&nbsp;&nbsp;&nbsp;'
+            } else {
+                ret += '<button type="button" class="btn btn-success" '
+            ret += 'onclick="moveEditElement(\'rdmlid\', \'' + i + '\', ' + (i + 2) + ');">Move Down</button>&nbsp;&nbsp;&nbsp;'
+            }
+            ret += '&nbsp;<button type="button" class="btn btn-success" '
+            ret += 'onclick="deleteEditElement(\'rdmlid\', ' + i + ');">Delete</button>&nbsp;&nbsp;&nbsp;'
+            ret += '</div>\n</div>\n'
+        }
+    }
+    rdmlidsData.innerHTML = ret
 
 
 }
@@ -319,6 +384,15 @@ function createNewElement(typ){
     }
     window.editMode = true;
     window.editIsNew = true;
+    if (typ == "rdmlid") {
+        var nex = {}
+        nex["publisher"] = "New Publisher"
+        nex["serialNumber"] = "New Serial Number"
+        window.rdmlData.rdml.ids.unshift(nex)
+        window.editType = "rdmlid";
+        window.editNumber = 0;
+        updateClientData()
+    }
     if (typ == "experimenter") {
         var nex = {}
         nex["id"] = "New Experimenter"
@@ -343,12 +417,9 @@ function editPresentElement(typ, pos){
     }
     window.editMode = true;
     window.editIsNew = false;
-    if (typ == "experimenter") {
-        window.editType = "experimenter";
-        window.editNumber = pos;
-        updateClientData()
-    }
-
+    window.editType = typ;
+    window.editNumber = pos;
+    updateClientData()
 }
 
 moveEditElement
@@ -373,6 +444,14 @@ function deleteEditElement(typ, pos){
         return
     }
     if ((window.editIsNew == true) && (pos == 0)) {  // New element is only existing in the client
+        if (typ == "rdmlid") {
+            window.rdmlData.rdml.ids.shift()
+            window.editMode = false;
+            window.editIsNew = false;
+            window.editType = "";
+            window.editNumber = -1;
+            updateClientData()
+        }
         if (typ == "experimenter") {
             window.rdmlData.rdml.experimenters.shift()
             window.editMode = false;
@@ -406,8 +485,15 @@ function saveEditElement(typ, pos, oldId){
     }
     var el = {}
     ret["current-position"] = pos
-    ret["new-position"] = getSaveHtmlData("inExpPos") - 1
+    ret["new-position"] = getSaveHtmlData("inPos") - 1
     ret["old-id"] = oldId
+    if (typ == "rdmlid") {
+        ret["type"] = "rdmlid"
+        el["publisher"] = getSaveHtmlData("inRdmlidPublisher")
+        el["serialNumber"] = getSaveHtmlData("inRdmlidSerialNumber")
+        el["MD5Hash"] = getSaveHtmlData("inRdmlidMD5Hash")
+        ret["data"] = el
+    }
     if (typ == "experimenter") {
         ret["type"] = "experimenter"
         el["id"] = getSaveHtmlData("inExpId")
@@ -418,6 +504,8 @@ function saveEditElement(typ, pos, oldId){
         el["labAddress"] = getSaveHtmlData("inExpLabAddress")
         ret["data"] = el
     }
+
+
     updateServerData(uuid, JSON.stringify(ret))
 }
 

@@ -165,6 +165,9 @@ def handle_data():
         if "mode" in reqdata and reqdata["mode"] == "delete":
             if "type" not in reqdata or "position" not in reqdata:
                 return jsonify(errors=[{"title": "Invalid server request - type or position missing!"}]), 400
+            if reqdata["type"] == "rdmlid":
+                rd.delete_rdmlid(byposition=reqdata["position"])
+                modified = True
             if reqdata["type"] == "experimenter":
                 rd.delete_experimenter(byposition=reqdata["position"])
                 modified = True
@@ -172,6 +175,41 @@ def handle_data():
         if "mode" in reqdata and reqdata["mode"] in ["create", "edit"]:
             if "type" not in reqdata or "data" not in reqdata:
                 return jsonify(errors=[{"title": "Invalid server request - type or data missing!"}]), 400
+
+            if reqdata["type"] == "rdmlid":
+                if "publisher" not in reqdata["data"]:
+                    return jsonify(errors=[{"title": "Invalid server request - rdmlid publisher missing!"}]), 400
+                if "serialNumber" not in reqdata["data"]:
+                    return jsonify(errors=[{"title": "Invalid server request - rdmlid serialNumber missing!"}]), 400
+                if "MD5Hash" not in reqdata["data"]:
+                    return jsonify(errors=[{"title": "Invalid server request - rdmlid MD5Hash missing!"}]), 400
+                if "current-position" not in reqdata or "new-position" not in reqdata:
+                    return jsonify(errors=[{"title": "Invalid server request - position information missing!"}]), 400
+                if reqdata["mode"] == "create":
+                    try:
+                        rd.new_rdmlid(publisher=reqdata["data"]["publisher"],
+                                      serialNumber=reqdata["data"]["serialNumber"],
+                                      MD5Hash=reqdata["data"]["MD5Hash"],
+                                      newposition=int(reqdata["new-position"]))
+                    except rdml.RdmlError as err:
+                        data["error"] = str(err)
+                    else:
+                        modified = True
+                if reqdata["mode"] == "edit":
+                    if "old-id" not in reqdata:
+                        return jsonify(errors=[{"title": "Invalid server request - old id information missing!"}]), 400
+                    try:
+                        elem = rd.get_rdmlid(byposition=int(reqdata["old-id"]))
+                        if elem is None:
+                            return jsonify(errors=[{"title": "Invalid server request - experimenter id not found!"}]), 400
+                        elem["publisher"] = reqdata["data"]["publisher"]
+                        elem["serialNumber"] = reqdata["data"]["serialNumber"]
+                        elem["MD5Hash"] = reqdata["data"]["MD5Hash"]
+                    except rdml.RdmlError as err:
+                        data["error"] = str(err)
+                    else:
+                        modified = True
+
             if reqdata["type"] == "experimenter":
                 if "id" not in reqdata["data"]:
                     return jsonify(errors=[{"title": "Invalid server request - experimenter id missing!"}]), 400
@@ -225,6 +263,13 @@ def handle_data():
                 return jsonify(errors=[{"title": "Invalid server request - id information missing!"}]), 400
             if "position" not in reqdata:
                 return jsonify(errors=[{"title": "Invalid server request - position information missing!"}]), 400
+            if reqdata["type"] == "rdmlid":
+                try:
+                    rd.move_rdmlid(oldposition=int(reqdata["id"]), newposition=reqdata["position"])
+                except rdml.RdmlError as err:
+                    data["error"] = str(err)
+                else:
+                    modified = True
             if reqdata["type"] == "experimenter":
                 try:
                     rd.move_experimenter(id=reqdata["id"], newposition=reqdata["position"])
