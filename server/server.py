@@ -336,6 +336,78 @@ def handle_data():
                     else:
                         modified = True
 
+            if reqdata["type"] == "sample":
+                if "id" not in reqdata["data"]:
+                    return jsonify(errors=[{"title": "Invalid server request - sample id missing!"}]), 400
+                if "type" not in reqdata["data"]:
+                    return jsonify(errors=[{"title": "Invalid server request - sample type missing!"}]), 400
+                if "description" not in reqdata["data"]:
+                    return jsonify(errors=[{"title": "Invalid server request - sample description missing!"}]), 400
+                if "interRunCalibrator" not in reqdata["data"]:
+                    return jsonify(errors=[{"title": "Invalid server request - sample interRunCalibrator missing!"}]), 400
+                if "quantity" not in reqdata["data"]:
+                    return jsonify(errors=[{"title": "Invalid server request - sample quantity missing!"}]), 400
+                if "calibratorSample" not in reqdata["data"]:
+                    return jsonify(errors=[{"title": "Invalid server request - sample calibratorSample missing!"}]), 400
+                if "cdnaSynthesisMethod_enzyme" not in reqdata["data"]:
+                    return jsonify(errors=[{"title": "Invalid server request - sample cdnaSynthesisMethod_enzyme missing!"}]), 400
+                if "cdnaSynthesisMethod_primingMethod" not in reqdata["data"]:
+                    return jsonify(errors=[{"title": "Invalid server request - sample cdnaSynthesisMethod_primingMethod missing!"}]), 400
+                if "cdnaSynthesisMethod_dnaseTreatment" not in reqdata["data"]:
+                    return jsonify(errors=[{"title": "Invalid server request - sample cdnaSynthesisMethod_dnaseTreatment missing!"}]), 400
+                if "cdnaSynthesisMethod_thermalCyclingConditions" not in reqdata["data"]:
+                    return jsonify(errors=[{"title": "Invalid server request - sample cdnaSynthesisMethod_thermalCyclingConditions missing!"}]), 400
+                if "templateRNAQuantity" not in reqdata["data"]:
+                    return jsonify(errors=[{"title": "Invalid server request - sample templateRNAQuantity missing!"}]), 400
+                if "templateRNAQuality" not in reqdata["data"]:
+                    return jsonify(errors=[{"title": "Invalid server request - sample templateRNAQuality missing!"}]), 400
+                if "templateDNAQuantity" not in reqdata["data"]:
+                    return jsonify(errors=[{"title": "Invalid server request - sample templateDNAQuantity missing!"}]), 400
+                if "templateDNAQuality" not in reqdata["data"]:
+                    return jsonify(errors=[{"title": "Invalid server request - sample templateDNAQuality missing!"}]), 400
+                if "current-position" not in reqdata or "new-position" not in reqdata:
+                    return jsonify(errors=[{"title": "Invalid server request - position information missing!"}]), 400
+                if reqdata["mode"] == "create":
+                    try:
+                        rd.new_sample(id=reqdata["data"]["id"],
+                                      type=reqdata["data"]["type"],
+                                      newposition=int(reqdata["new-position"]))
+                    except rdml.RdmlError as err:
+                        data["error"] = str(err)
+                    else:
+                        modified = True
+                if reqdata["mode"] in ["create", "edit"]:
+                    if reqdata["mode"] == "edit" and "old-id" not in reqdata:
+                        return jsonify(errors=[{"title": "Invalid server request - sample old id information missing!"}]), 400
+                    try:
+                        elem = None
+                        if reqdata["mode"] == "create":
+                            rd.new_sample(id=reqdata["data"]["id"],
+                                          type=reqdata["data"]["type"],
+                                          newposition=int(reqdata["new-position"]))
+                            elem = rd.get_sample(byid=reqdata["id"])
+                        if reqdata["mode"] == "edit":
+                            elem = rd.get_sample(byid=reqdata["old-id"])
+                            if elem is None:
+                                return jsonify(errors=[{"title": "Invalid server request - sample id not found!"}]), 400
+                            elem["id"] = reqdata["data"]["id"]
+                            elem["type"] = reqdata["data"]["type"]
+                        elem["description"] = reqdata["data"]["description"]
+                        elem["interRunCalibrator"] = reqdata["data"]["interRunCalibrator"]
+                        elem["quantity"] = reqdata["data"]["quantity"]
+                        elem["calibratorSample"] = reqdata["data"]["calibratorSample"]
+                        elem["cdnaSynthesisMethod_enzyme"] = reqdata["data"]["cdnaSynthesisMethod_enzyme"]
+                        elem["cdnaSynthesisMethod_primingMethod"] = reqdata["data"]["cdnaSynthesisMethod_primingMethod"]
+                        elem["cdnaSynthesisMethod_dnaseTreatment"] = reqdata["data"]["cdnaSynthesisMethod_dnaseTreatment"]
+                        elem["cdnaSynthesisMethod_thermalCyclingConditions"] = reqdata["data"]["cdnaSynthesisMethod_thermalCyclingConditions"]
+                        elem["templateRNAQuantity"] = reqdata["data"]["templateRNAQuantity"]
+                        elem["templateRNAQuality"] = reqdata["data"]["templateRNAQuality"]
+                        elem["templateDNAQuantity"] = reqdata["data"]["templateDNAQuantity"]
+                        elem["templateDNAQuality"] = reqdata["data"]["templateDNAQuality"]
+                    except rdml.RdmlError as err:
+                        data["error"] = str(err)
+                    else:
+                        modified = True
 
         if "mode" in reqdata and reqdata["mode"] in ["move"]:
             if "type" not in reqdata:

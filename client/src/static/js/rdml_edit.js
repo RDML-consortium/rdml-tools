@@ -60,10 +60,70 @@ function saveUndef(tst) {
     }
 }
 
+function saveUndefKey(base, key) {
+    if (base) {
+        if(base.hasOwnProperty(key)) {
+            return base[key]
+        }
+    } else {
+        return ""
+    }
+}
+
 function htmllize(tst) {
     tst = tst.replace(/\n/g, "<br />")
 
     return tst
+}
+
+function niceSampleType(txt) {
+    if (txt == "unkn") {
+        return "unkn - unknown sample"
+    }
+    if (txt == "ntc") {
+        return "ntc - non template control"
+    }
+    if (txt == "nac") {
+        return "nac - no amplification control"
+    }
+    if (txt == "std") {
+        return "std - standard sample"
+    }
+    if (txt == "ntp") {
+        return "ntp - no target present"
+    }
+    if (txt == "nrt") {
+        return "nrt - minusRT"
+    }
+    if (txt == "pos") {
+        return "pos - positive control"
+    }
+    if (txt == "opt") {
+        return "opt - optical calibrator sample"
+    }
+    return txt
+}
+
+function niceUnitType(txt) {
+    if (txt == "cop") {
+        return "cop - copies per microliter"
+    }
+    if (txt == "fold") {
+        return "fold - fold change"
+    }
+    if (txt == "dil") {
+        return "dil - dilution (10 would mean 1:10 dilution)"
+    }
+    if (txt == "nMol") {
+        return "nMol - nanomol per microliter"
+    }
+    if (txt == "ng") {
+        return "ng - nanogram per microliter"
+    }
+    if (txt == "other") {
+        return "other - other linear unit"
+    }
+    return txt
 }
 
 function getSaveHtmlData(key) {
@@ -166,6 +226,81 @@ function updateServerData(stat, reqData) {
         })
 }
 
+
+function htmlTriState(desc, tag, base, key, trV, faV, unV) {
+    var ret = '  <tr>\n    <td style="width:15%;">' + desc + ':</td>\n'
+    ret += '    <td style="width:85%"><div class="form-check"><input class="form-check-input" type="radio" '
+    ret += ' name="' + tag + '_radios" id="' + tag + '_true" value="true"'
+    if (base.hasOwnProperty(key) && base[key] == true) {
+        ret += ' checked'
+    }
+    ret += '>\n   <label class="form-check-label" for="' + tag + '_true">' + trV + '</label>'
+    ret += ' </div>\n'
+    ret += '    <td style="width:85%"><div class="form-check"><input class="form-check-input" type="radio" '
+    ret += ' name="' + tag + '_radios" id="' + tag + '_false" value="false"'
+    if (base.hasOwnProperty(key) && base[key] == false) {
+        ret += ' checked'
+    }
+    ret += '>\n   <label class="form-check-label" for="' + tag + '_false">' + faV + '</label>'
+    ret += ' </div>\n'
+    ret += '    <td style="width:85%"><div class="form-check"><input class="form-check-input" type="radio" '
+    ret += ' name="' + tag + '_radios" id="' + tag + '_absent" value="absent"'
+    if (!(base.hasOwnProperty(key))) {
+        ret += ' checked'
+    }
+    ret += '>\n   <label class="form-check-label" for="' + tag + '_absent">' + unV + '</label>'
+    ret += ' </div>\n'
+    ret += '  </tr>'
+    return ret
+}
+
+function htmlUnitSelector(tag, val) {
+    if (typeof val !== 'undefined') {
+        val = ""
+        if (val.hasOwnProperty("unit")) {
+            val = base["unit"]
+        } else {
+            val = ""
+        }
+    } else {
+        val = ""
+    }
+
+    var ret = '<select class="form-control" id="' + tag + '">\n'
+    ret += '        <option value="cop"'
+    if (val == "cop") {
+        ret += ' selected'
+    }
+    ret += '>cop - copies per microliter</option>\n'
+    ret += '        <option value="fold"'
+    if (val == "fold") {
+        ret += ' selected'
+    }
+    ret += '>fold - fold change</option>\n'
+    ret += '        <option value="dil"'
+    if (val == "dil") {
+        ret += ' selected'
+    }
+    ret += '>dil - dilution (10 would mean 1:10 dilution)</option>\n'
+    ret += '        <option value="nMol"'
+    if (val == "nMol") {
+        ret += ' selected'
+    }
+    ret += '>nMol - nanomol per microliter</option>\n'
+    ret += '        <option value="ng"'
+    if ((val == "ng") || (val == "")) {
+        ret += ' selected'
+    }
+    ret += '>ng - nanogram per microliter</option>\n'
+    ret += '        <option value="other"'
+    if (val == "other") {
+        ret += ' selected'
+    }
+    ret += '>other - other linear unit</option>\n'
+    ret += '      </select></td>\n'
+    return ret
+}
+
 function updateClientData() {
     // The UUID box
     var ret = '<br /><div class="card">\n<div class="card-body">\n'
@@ -198,6 +333,238 @@ function updateClientData() {
         return
     }
     var ret = ''
+
+
+    // The samples tab
+    var exp = window.rdmlData.rdml.samples;
+    ret = ''
+    for (var i = 0; i < exp.length; i++) {
+        if ((editMode == true) && (editType == "sample") && (i == editNumber)) {
+            ret += '<br /><div class="card text-white bg-primary">\n<div class="card-body">\n'
+            ret += '<h5 class="card-title">' + (i + 1) + '. Sample ID: ' + exp[i].id + '</h5>\n<p>'
+            ret += '<table style="width:100%;">'
+            ret += '  <tr>\n    <td style="width:15%;">ID:</td>\n'
+            ret += '    <td style="width:85%"><input type="text" class="form-control" '
+            ret += 'id="inSampId" value="'+ exp[i].id + '"></td>\n'
+            ret += '  </tr>'
+            ret += '  <tr>\n    <td style="width:15%;">Place at Position:</td>\n'
+            ret += '    <td style="width:85%"><input type="text" class="form-control" '
+            ret += 'id="inPos" value="' + (i + 1) + '"></td>\n'
+            ret += '  </tr>'
+            ret += '  <tr>\n    <td style="width:15%;">Type:</td>\n'
+            ret += '    <td style="width:85%"><select class="form-control" id="inSampType">\n'
+            ret += '        <option value="unkn"'
+            if (exp[i].type == "unkn") {
+                ret += ' selected'
+            }
+            ret += '>unkn - unknown sample</option>\n'
+            ret += '        <option value="ntc"'
+            if (exp[i].type == "ntc") {
+                ret += ' selected'
+            }
+            ret += '>ntc  - non template control</option>\n'
+            ret += '        <option value="nac"'
+            if (exp[i].type == "nac") {
+                ret += ' selected'
+            }
+            ret += '>nac  - no amplification control</option>\n'
+            ret += '        <option value="std"'
+            if (exp[i].type == "std") {
+                ret += ' selected'
+            }
+            ret += '>std  - standard sample</option>\n'
+            ret += '        <option value="ntp"'
+            if (exp[i].type == "ntp") {
+                ret += ' selected'
+            }
+            ret += '>ntp  - no target present</option>\n'
+            ret += '        <option value="nrt"'
+            if (exp[i].type == "nrt") {
+                ret += ' selected'
+            }
+            ret += '>nrt  - minusRT</option>\n'
+            ret += '        <option value="pos"'
+            if (exp[i].type == "pos") {
+                ret += ' selected'
+            }
+            ret += '>pos  - positive control</option>\n'
+            ret += '        <option value="opt"'
+            if (exp[i].type == "opt") {
+                ret += ' selected'
+            }
+            ret += '>opt  - optical calibrator sample</option>\n'
+            ret += '      </select></td>\n'
+            ret += '  </tr>'
+            ret += htmlTriState("Calibrator Sample", "inExpCalibratorSample", exp[i],
+                                "calibratorSample", "Yes", "No", "Not Set")
+            ret += htmlTriState("Inter Run Calibrator", "inExpInterRunCalibrator", exp[i],
+                                "interRunCalibrator", "Yes", "No", "Not Set")
+            ret += '  <tr>\n    <td style="width:15%;">Quantity:</td>\n'
+            ret += '    <td style="width:85%"><input type="text" class="form-control" '
+            ret += 'id="inExpQuantity_Value" value="'+ saveUndefKey(exp[i].quantity, "value") + '">'
+            ret += htmlUnitSelector("inExpQuantity_Unit", exp[i].quantity) + '</td>\n'
+            ret += '  </tr>'
+            ret += '  <tr>\n    <td style="width:15%;">Lab Address:</td>\n'
+            ret += '    <td style="width:85%"><input type="text" class="form-control" '
+            ret += 'id="inExpLabAddress" value="'+ saveUndef(exp[i].cdnaSynthesisMethod_enzyme) + '"></td>\n'
+            ret += '  </tr>'
+            ret += '  <tr>\n    <td style="width:15%;">Lab Address:</td>\n'
+            ret += '    <td style="width:85%"><input type="text" class="form-control" '
+            ret += 'id="inExpLabAddress" value="'+ saveUndef(exp[i].cdnaSynthesisMethod_primingMethod) + '"></td>\n'
+            ret += '  </tr>'
+            ret += '  <tr>\n    <td style="width:15%;">Lab Address:</td>\n'
+            ret += '    <td style="width:85%"><input type="text" class="form-control" '
+            ret += 'id="inExpLabAddress" value="'+ saveUndef(exp[i].cdnaSynthesisMethod_dnaseTreatment) + '"></td>\n'
+            ret += '  </tr>'
+            ret += '  <tr>\n    <td style="width:15%;">Lab Address:</td>\n'
+            ret += '    <td style="width:85%"><input type="text" class="form-control" '
+            ret += 'id="inExpLabAddress" value="'+ saveUndef(exp[i].cdnaSynthesisMethod_thermalCyclingConditions) + '"></td>\n'
+            ret += '  </tr>'
+              // Todo: add link
+
+            ret += '  <tr>\n    <td style="width:15%;">Template RNA Quantity:</td>\n'
+            ret += '    <td style="width:85%"><input type="text" class="form-control" '
+            ret += 'id="inExpTemplateRNAQuantity_Value" value="'+ saveUndefKey(exp[i].templateRNAQuantity, "value") + '">'
+            ret += htmlUnitSelector("inExpTemplateRNAQuantity_Unit", exp[i].templateRNAQuantity) + '</td>\n'
+            ret += '  </tr>'
+            ret += '  <tr>\n    <td style="width:15%;">Template RNA Quality - Method:</td>\n'
+            ret += '    <td style="width:85%"><input type="text" class="form-control" '
+            ret += 'id="inExpTemplateRNAQuality_Method" value="'+ saveUndefKey(exp[i].templateRNAQuality, "method") + '"></td>\n'
+            ret += '  </tr>'
+            ret += '  <tr>\n    <td style="width:15%;">Template RNA Quality - Result:</td>\n'
+            ret += '    <td style="width:85%"><input type="text" class="form-control" '
+            ret += 'id="inExpTemplateRNAQuality_Result" value="'+ saveUndefKey(exp[i].templateRNAQuality, "result") + '"></td>\n'
+            ret += '  </tr>'
+            ret += '  <tr>\n    <td style="width:15%;">Template DNA Quantity:</td>\n'
+            ret += '    <td style="width:85%"><input type="text" class="form-control" '
+            ret += 'id="inExpTemplateDNAQuantity_Value" value="'+ saveUndefKey(exp[i].templateDNAQuantity, "value") + '">'
+            ret += htmlUnitSelector("inExpTemplateDNAQuantity_Unit", exp[i].templateDNAQuantity) + '</td>\n'
+            ret += '  </tr>'
+            ret += '  <tr>\n    <td style="width:15%;">Template DNA Quality - Method:</td>\n'
+            ret += '    <td style="width:85%"><input type="text" class="form-control" '
+            ret += 'id="inExpTemplateDNAQuality_Method" value="'+ saveUndefKey(exp[i].templateDNAQuality, "method") + '"></td>\n'
+            ret += '  </tr>'
+            ret += '  <tr>\n    <td style="width:15%;">Template DNA Quality - Result:</td>\n'
+            ret += '    <td style="width:85%"><input type="text" class="form-control" '
+            ret += 'id="inExpTemplateDNAQuality_Result" value="'+ saveUndefKey(exp[i].templateDNAQuality, "result") + '"></td>\n'
+            ret += '  </tr>'
+
+            //      if "description" not in reqdata["data"]:
+
+
+            ret += '</table></p>\n'
+
+
+
+            ret += '</table></p>\n'
+            ret += '<button type="button" class="btn btn-success" '
+            ret += 'onclick="saveEditElement(\'sample\', ' + i + ', \'' + exp[i].id + '\');">Save Changes</button>'
+            ret += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button type="button" class="btn btn-success" '
+            ret += 'onclick="deleteEditElement(\'sample\', ' + i + ');">Delete</button>&nbsp;&nbsp;&nbsp;'
+            ret += '</div>\n</div>\n'
+        } else {
+            ret += '<br /><div class="card">\n<div class="card-body">\n'
+            ret += '<h5 class="card-title">' + (i + 1) + '. Sample ID: ' + exp[i].id + '</h5>\n<p>'
+            ret += '<table style="width:100%;">'
+            ret += '  <tr>\n    <td style="width:15%;">Type:</td>\n'
+            ret += '    <td style="width:85%">\n'+ niceSampleType(exp[i].type) + '</td>\n'
+            ret += '  </tr>'
+            if (exp[i].hasOwnProperty("calibratorSample")) {
+              ret += '  <tr>\n    <td style="width:15%;">Calibrator Sample:</td>\n'
+              if (exp[i].calibratorSample == true) {
+                  ret += '    <td style="width:85%">Yes, used as Calibrator</td>\n'
+              } else {
+                  ret += '    <td style="width:85%">No</td>\n'
+              }
+              ret += '  </tr>'
+            }
+            if (exp[i].hasOwnProperty("interRunCalibrator")) {
+              ret += '  <tr>\n    <td style="width:15%;">Inter Run Calibrator:</td>\n'
+              if (exp[i].interRunCalibrator == true) {
+                  ret += '    <td style="width:85%">Yes, used as Inter Run Calibrator</td>\n'
+              } else {
+                  ret += '    <td style="width:85%">No</td>\n'
+              }
+              ret += '  </tr>'
+            }
+            if (exp[i].hasOwnProperty("quantity")) {
+              ret += '  <tr>\n    <td style="width:15%;">Quantity:</td>\n'
+              ret += '    <td style="width:85%">\n'+ exp[i].quantity.value
+              ret += ' ' + niceUnitType(exp[i].quantity.unit) + '</td>\n'
+              ret += '  </tr>'
+            }
+            if (exp[i].hasOwnProperty("cdnaSynthesisMethod_enzyme")) {
+              ret += '  <tr>\n    <td style="width:15%;">cDNA Synthesis - Enzyme:</td>\n'
+              ret += '    <td style="width:85%">\n'+ exp[i].cdnaSynthesisMethod_enzyme + '</td>\n'
+              ret += '  </tr>'
+            }
+            if (exp[i].hasOwnProperty("cdnaSynthesisMethod_primingMethod")) {
+              ret += '  <tr>\n    <td style="width:15%;">cDNA Synthesis - Priming Method:</td>\n'
+              ret += '    <td style="width:85%">\n'+ exp[i].cdnaSynthesisMethod_primingMethod + '</td>\n'
+              ret += '  </tr>'
+            }
+            if (exp[i].hasOwnProperty("cdnaSynthesisMethod_dnaseTreatment")) {
+              ret += '  <tr>\n    <td style="width:15%;">cDNA Synthesis - DNase Treatment:</td>\n'
+              ret += '    <td style="width:85%">\n'+ exp[i].cdnaSynthesisMethod_dnaseTreatment + '</td>\n'
+              ret += '  </tr>'
+            }
+            if (exp[i].hasOwnProperty("cdnaSynthesisMethod_thermalCyclingConditions")) {
+              ret += '  <tr>\n    <td style="width:15%;">cDNA Synthesis - Enzyme:</td>\n'
+              ret += '    <td style="width:85%">\n'+ exp[i].cdnaSynthesisMethod_thermalCyclingConditions + '</td>\n'
+              ret += '  </tr>'
+              // Todo: add link
+            }
+            if (exp[i].hasOwnProperty("templateRNAQuantity")) {
+              ret += '  <tr>\n    <td style="width:15%;">Template RNA Quantity:</td>\n'
+              ret += '    <td style="width:85%">\n'+ exp[i].templateRNAQuantity.value
+              ret += ' ' + niceUnitType(exp[i].templateRNAQuantity.unit) + '</td>\n'
+              ret += '  </tr>'
+            }
+            if (exp[i].hasOwnProperty("templateRNAQuality")) {
+              ret += '  <tr>\n    <td style="width:15%;">templateRNAQuality:</td>\n'
+              ret += '    <td style="width:85%">\n'+ exp[i].templateRNAQuality.method
+              ret += ' is ' + niceUnitType(exp[i].templateRNAQuality.result) + '</td>\n'
+              ret += '  </tr>'
+            }
+            if (exp[i].hasOwnProperty("templateDNAQuantity")) {
+              ret += '  <tr>\n    <td style="width:15%;">Template DNA Quantity:</td>\n'
+              ret += '    <td style="width:85%">\n'+ exp[i].templateDNAQuantity.value
+              ret += ' ' + niceUnitType(exp[i].templateDNAQuantity.unit) + '</td>\n'
+              ret += '  </tr>'
+            }
+            if (exp[i].hasOwnProperty("templateDNAQuality")) {
+              ret += '  <tr>\n    <td style="width:15%;">templateDNAQuality:</td>\n'
+              ret += '    <td style="width:85%">\n'+ exp[i].templateDNAQuality.method
+              ret += ' is ' + niceUnitType(exp[i].templateDNAQuality.result) + '</td>\n'
+              ret += '  </tr>'
+            }
+
+            //      if "description" not in reqdata["data"]:
+
+
+            ret += '</table></p>\n'
+            ret += '<button type="button" class="btn btn-success" '
+            ret += 'onclick="editPresentElement(\'sample\', ' + i + ');">Edit</button>&nbsp;&nbsp;&nbsp;&nbsp;'
+            if (i == 0) {
+                ret += '<button type="button" class="btn btn-success disabled">Move Up</button>&nbsp;&nbsp;'
+            } else {
+                ret += '<button type="button" class="btn btn-success" '
+            ret += 'onclick="moveEditElement(\'sample\', \'' + exp[i].id + '\', ' + (i - 1) + ');">Move Up</button>&nbsp;&nbsp;'
+            }
+            if (i == exp.length - 1) {
+                ret += '<button type="button" class="btn btn-success disabled">Move Down</button>&nbsp;&nbsp;&nbsp;'
+            } else {
+                ret += '<button type="button" class="btn btn-success" '
+            ret += 'onclick="moveEditElement(\'sample\', \'' + exp[i].id + '\', ' + (i + 2) + ');">Move Down</button>&nbsp;&nbsp;&nbsp;'
+            }
+            ret += '&nbsp;<button type="button" class="btn btn-success" '
+            ret += 'onclick="deleteEditElement(\'sample\', ' + i + ');">Delete</button>&nbsp;&nbsp;&nbsp;'
+            ret += '</div>\n</div>\n'
+        }
+    }
+    samplesData.innerHTML = ret
+
+
 
     // The experimenters tab
     var exp = window.rdmlData.rdml.experimenters;

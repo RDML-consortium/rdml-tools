@@ -106,6 +106,11 @@
       </div>
 
       <div class="tab-pane" id="samples-tab">
+        <p>A "samples" is a defined template solution. Dilutions of the same material differ in concentration and are
+          considered different samples. A technical replicate samples should contain the same name (reactions are
+          performed on the same material), and biological replicates should contain different names (the nucleic acids
+          derived from the different biological replicates are not the same). Serial dilutions in a standard curve
+          must have different names.</p>
         <button id="btn-new-sample" onclick="createNewElement('sample');" type="button"
                 class="btn btn-success">Create New Sample</button>
         <div id="samples-data"></div>
@@ -124,12 +129,14 @@
       </div>
 
       <div class="tab-pane" id="experimenters-tab">
+        <p>The "experimenter" elements save the contact details of experimenters.</p>
         <button id="btn-new-experimenter" onclick="createNewElement('experimenter');" type="button"
                 class="btn btn-success">Create New Experimenter</button>
         <div id="experimenters-data"></div>
       </div>
 
       <div class="tab-pane" id="documentation-tab">
+        <p>The "documentation" description can be linked to many samples, targets or experiments.</p>
         <button id="btn-new-documentation" onclick="createNewElement('documentation');" type="button"
                 class="btn btn-success">Create New Documentation</button>
         <div id="documentations-data"></div>
@@ -138,14 +145,19 @@
       <div class="tab-pane" id="more-tab">
         <div id="file-info-data"></div>
         <br />
+        <h3>RDML-File Ids</h3>
+        <p>The "id" element assigns a publisher and id/serial number/accession number to the RDML file.</p>
         <button id="btn-new-rdmlid" onclick="createNewElement('rdmlid');" type="button"
-                class="btn btn-success">Create New Id</button>
+                class="btn btn-success">Create New Id</button><br /><br />
         <div id="rdmlids-data"></div>
         <br />
+        <h3>Dyes</h3>
+        <p>The "dye" element documents a fluorescent dye and is required by the targets.</p>
         <button id="btn-new-dye" onclick="createNewElement('dye');" type="button"
                 class="btn btn-success">Create New Dye</button>
         <div id="dyes-data"></div>
         <br />
+        <h3>Debug</h3>
         <div class="form-group">
           <label for="debug-data">Debug Response</label>
           <textarea class="form-control" id="debug-data" rows="80"></textarea>
