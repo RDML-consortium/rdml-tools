@@ -496,12 +496,10 @@ function updateClientData() {
             ret += '    <td style="width:75%"><input type="text" class="form-control" '
             ret += 'id="inExpTemplateDNAQuality_Result" value="'+ saveUndefKey(exp[i].templateDNAQuality, "result") + '"></td>\n'
             ret += '  </tr>'
-
-            //      if "description" not in reqdata["data"]:
-
-
-
-
+            ret += '  <tr>\n    <td style="width:25%;">Description:</td>\n'
+            ret += '    <td style="width:75%"><input type="text" class="form-control" '
+            ret += 'id="inExpDescription" value="'+ saveUndef(exp[i].description) + '"></td>\n'
+            ret += '  </tr>'
             ret += '</table></p>\n'
             ret += '<button type="button" class="btn btn-success" '
             ret += 'onclick="saveEditElement(\'sample\', ' + i + ', \'' + exp[i].id + '\');">Save Changes</button>'
@@ -512,89 +510,120 @@ function updateClientData() {
             ret += '<br /><div class="card">\n<div class="card-body">\n'
             ret += '<h5 class="card-title">' + (i + 1) + '. Sample ID: ' + exp[i].id + '</h5>\n<p>'
             ret += '<table style="width:100%;">'
-            ret += '  <tr>\n    <td style="width:15%;">Type:</td>\n'
-            ret += '    <td style="width:85%">\n'+ niceSampleType(exp[i].type) + '</td>\n'
+            ret += '  <tr>\n    <td style="width:25%;">Type:</td>\n'
+            ret += '    <td style="width:75%">\n'+ niceSampleType(exp[i].type) + '</td>\n'
             ret += '  </tr>'
             if (exp[i].hasOwnProperty("calibratorSample")) {
-              ret += '  <tr>\n    <td style="width:15%;">Calibrator Sample:</td>\n'
+              ret += '  <tr>\n    <td style="width:25%;">Calibrator Sample:</td>\n'
               if (exp[i].calibratorSample == "true") {
-                  ret += '    <td style="width:85%">Yes, used as Calibrator</td>\n'
+                  ret += '    <td style="width:75%">Yes, used as Calibrator</td>\n'
               } else {
-                  ret += '    <td style="width:85%">No</td>\n'
+                  ret += '    <td style="width:75%">No</td>\n'
               }
               ret += '  </tr>'
             }
             if (exp[i].hasOwnProperty("interRunCalibrator")) {
-              ret += '  <tr>\n    <td style="width:15%;">Inter Run Calibrator:</td>\n'
+              ret += '  <tr>\n    <td style="width:25%;">Inter Run Calibrator:</td>\n'
               if (exp[i].interRunCalibrator == "true") {
-                  ret += '    <td style="width:85%">Yes, used as Inter Run Calibrator</td>\n'
+                  ret += '    <td style="width:75%">Yes, used as Inter Run Calibrator</td>\n'
               } else {
-                  ret += '    <td style="width:85%">No</td>\n'
+                  ret += '    <td style="width:75%">No</td>\n'
               }
               ret += '  </tr>'
             }
             if (exp[i].hasOwnProperty("quantity")) {
-              ret += '  <tr>\n    <td style="width:15%;">Quantity:</td>\n'
-              ret += '    <td style="width:85%">\n'+ exp[i].quantity.value
+              ret += '  <tr>\n    <td style="width:25%;">Quantity:</td>\n'
+              ret += '    <td style="width:75%">\n'+ exp[i].quantity.value
               ret += ' ' + niceUnitType(exp[i].quantity.unit) + '</td>\n'
               ret += '  </tr>'
             }
             if (exp[i].hasOwnProperty("cdnaSynthesisMethod")) {
                 if (exp[i].cdnaSynthesisMethod.hasOwnProperty("enzyme")) {
-                  ret += '  <tr>\n    <td style="width:15%;">cDNA Synthesis - Enzyme:</td>\n'
-                  ret += '    <td style="width:85%">\n'+ exp[i].cdnaSynthesisMethod.enzyme + '</td>\n'
+                  ret += '  <tr>\n    <td style="width:25%;">cDNA - Enzyme:</td>\n'
+                  ret += '    <td style="width:75%">\n'+ exp[i].cdnaSynthesisMethod.enzyme + '</td>\n'
                   ret += '  </tr>'
                 }
                 if (exp[i].cdnaSynthesisMethod.hasOwnProperty("primingMethod")) {
-                  ret += '  <tr>\n    <td style="width:15%;">cDNA Synthesis - Priming Method:</td>\n'
-                  ret += '    <td style="width:85%">\n'+ exp[i].cdnaSynthesisMethod.primingMethod + '</td>\n'
+                  ret += '  <tr>\n    <td style="width:25%;">cDNA - Priming Method:</td>\n'
+                  ret += '    <td style="width:75%">\n'+ exp[i].cdnaSynthesisMethod.primingMethod + '</td>\n'
                   ret += '  </tr>'
                 }
                 if (exp[i].cdnaSynthesisMethod.hasOwnProperty("dnaseTreatment")) {
-                  ret += '  <tr>\n    <td style="width:15%;">cDNA Synthesis - DNase Treatment:</td>\n'
+                  ret += '  <tr>\n    <td style="width:25%;">cDNA - DNase Treatment:</td>\n'
                   if (exp[i].cdnaSynthesisMethod.dnaseTreatment == "true") {
-                      ret += '    <td style="width:85%">Yes, treated with DNase</td>\n'
+                      ret += '    <td style="width:75%">Yes, treated with DNase</td>\n'
                   } else {
-                      ret += '    <td style="width:85%">No</td>\n'
+                      ret += '    <td style="width:75%">No</td>\n'
                   }
                   ret += '  </tr>'
                 }
                 if (exp[i].cdnaSynthesisMethod.hasOwnProperty("thermalCyclingConditions")) {
-                  ret += '  <tr>\n    <td style="width:15%;">cDNA Synthesis - Thermal Cycling Conditions:</td>\n'
-                  ret += '    <td style="width:85%">\n'+ exp[i].cdnaSynthesisMethod.thermalCyclingConditions + '</td>\n'
+                  ret += '  <tr>\n    <td style="width:25%;">cDNA - Thermal Cycling Conditions:</td>\n'
+                  ret += '    <td style="width:75%">\n'+ exp[i].cdnaSynthesisMethod.thermalCyclingConditions + '</td>\n'
                   ret += '  </tr>'
                   // Todo: add link
                 }
             }
+
+
             if (exp[i].hasOwnProperty("templateRNAQuantity")) {
-              ret += '  <tr>\n    <td style="width:15%;">Template RNA Quantity:</td>\n'
-              ret += '    <td style="width:85%">\n'+ exp[i].templateRNAQuantity.value
+              ret += '  <tr>\n    <td style="width:25%;">Template RNA Quantity:</td>\n'
+              ret += '    <td style="width:75%">\n'+ exp[i].templateRNAQuantity.value
               ret += ' ' + niceUnitType(exp[i].templateRNAQuantity.unit) + '</td>\n'
               ret += '  </tr>'
             }
             if (exp[i].hasOwnProperty("templateRNAQuality")) {
-              ret += '  <tr>\n    <td style="width:15%;">templateRNAQuality:</td>\n'
-              ret += '    <td style="width:85%">\n'+ exp[i].templateRNAQuality.method
+              ret += '  <tr>\n    <td style="width:25%;">Template RNA Quality:</td>\n'
+              ret += '    <td style="width:75%">\n'+ exp[i].templateRNAQuality.method
               ret += ' is ' + niceUnitType(exp[i].templateRNAQuality.result) + '</td>\n'
               ret += '  </tr>'
             }
             if (exp[i].hasOwnProperty("templateDNAQuantity")) {
-              ret += '  <tr>\n    <td style="width:15%;">Template DNA Quantity:</td>\n'
-              ret += '    <td style="width:85%">\n'+ exp[i].templateDNAQuantity.value
+              ret += '  <tr>\n    <td style="width:25%;">Template DNA Quantity:</td>\n'
+              ret += '    <td style="width:75%">\n'+ exp[i].templateDNAQuantity.value
               ret += ' ' + niceUnitType(exp[i].templateDNAQuantity.unit) + '</td>\n'
               ret += '  </tr>'
             }
             if (exp[i].hasOwnProperty("templateDNAQuality")) {
-              ret += '  <tr>\n    <td style="width:15%;">templateDNAQuality:</td>\n'
-              ret += '    <td style="width:85%">\n'+ exp[i].templateDNAQuality.method
+              ret += '  <tr>\n    <td style="width:25%;">Template DNA Quality:</td>\n'
+              ret += '    <td style="width:75%">\n'+ exp[i].templateDNAQuality.method
               ret += ' is ' + niceUnitType(exp[i].templateDNAQuality.result) + '</td>\n'
               ret += '  </tr>'
             }
 
-            //      if "description" not in reqdata["data"]:
-
-
             ret += '</table></p>\n'
+
+            var k = 0
+            var xref = '<div class="card">\n<div class="card-body">\n'
+            xref += '<h5 class="card-title">References (xRef):</h5>\n'
+            xref += '<p>' + 'blabgggglabla' + '&nbsp;&nbsp;&nbsp;&nbsp;\n'
+            xref += '<button type="button" class="btn btn-success btn-sm" '
+            xref += 'onclick="deleteSecElement(\'sample\', ' + i + ', "", "", "xref", ' + k + ');">Delete</button></p>'
+            xref += '</div>\n</div><br />\n'
+            if (k > 0) {
+                ret += xref
+            }
+
+            var hasData = false
+            var doc = '<div class="card">\n<div class="card-body">\n'
+            doc += '<h5 class="card-title">Documentation:</h5>\n'
+            var desc = saveUndef(exp[i].description)
+            if (desc != "") {
+                doc += '<p><div class="input-group">' + desc + '&nbsp;&nbsp;&nbsp;&nbsp;\n</div></p>'
+                hasData = true
+            }
+            doc += '<button type="button" class="btn btn-success btn-sm" '
+            doc += 'onclick="showDocSecElement(\'sample\', ' + i + ', \'\', \'\', \'documentation\', '
+            doc += '\'pDoc-sample-' + i + '\');">Show All Document Information</button>'
+            doc += '&nbsp;&nbsp;<button type="button" class="btn btn-success btn-sm" '
+            doc += 'onclick="selectSecElement(\'sample\', ' + i + ', \'\', \'\', \'documentation\', '
+            doc += '\'pDoc-sample-' + i + '\');">Select Document Ids</button>'
+            doc += '<div id="pDoc-sample-' + i + '"></div>'
+            doc += '</div>\n</div><br />\n'
+            if (hasData == true) {
+                ret += doc
+            }
+
             ret += '<button type="button" class="btn btn-success" '
             ret += 'onclick="editPresentElement(\'sample\', ' + i + ');">Edit</button>&nbsp;&nbsp;&nbsp;&nbsp;'
             if (i == 0) {
@@ -1001,8 +1030,6 @@ function editPresentElement(typ, pos){
     updateClientData()
 }
 
-moveEditElement
-
 // Delete the selected element
 window.moveEditElement = moveEditElement;
 function moveEditElement(typ, id, pos){
@@ -1173,7 +1200,7 @@ function saveEditElement(typ, pos, oldId){
         quant["method"] = getSaveHtmlData("inExpTemplateDNAQuality_Method")
         quant["result"] = getSaveHtmlData("inExpTemplateDNAQuality_Result")
         el["templateDNAQuality"] = quant
-        el["description"] = ""
+        el["description"] = getSaveHtmlData("inExpDescription")
         ret["data"] = el
     }
     if (typ == "target") {
@@ -1195,8 +1222,32 @@ function saveEditElement(typ, pos, oldId){
     updateServerData(uuid, JSON.stringify(ret))
 }
 
+// Create a selector for ids
+window.selectSecElement = selectSecElement;
+function selectSecElement(prim_key, prim_pos, sec_key, sec_pos, id_source, div_target) {
+    var exp = null
+    if (id_source == "documentation") {
+        exp = window.rdmlData.rdml.documentations
+    }
+    var ret = ''
+    for (var i = 0; i < exp.length; i++) {
+            ret += '<p>' + exp[i].id + '</p>'
 
+    }
+    ret += '<button type="button" class="btn btn-success" '
+    ret += 'onclick="saveSecElement(\'sample\', ' + 2 + ', \'' + 2 + '\');">Save Changes</button>'
+    ret += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button type="button" class="btn btn-success" '
+    ret += 'onclick="disChangesSecElement(\'' + div_target + '\');">Discard Changes</button>'
+    var ele = document.getElementById(div_target)
+    ele.innerHTML = ret
+}
 
+// Create a selector for ids
+window.disChangesSecElement = disChangesSecElement;
+function disChangesSecElement(div_target) {
+    var ele = document.getElementById(div_target)
+    ele.innerHTML = ""
+}
 
 function checkStatVal() {
      alert("EditMode: " + window.editMode +
