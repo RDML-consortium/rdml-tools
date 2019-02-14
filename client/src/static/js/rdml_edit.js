@@ -40,6 +40,7 @@ window.editMode = false;
 window.editType = "";
 window.editIsNew = false;
 window.editNumber = -1;
+window.docIdOpen = "";
 
 function resetAllGlobalVal() {
     window.editMode = false;
@@ -598,7 +599,7 @@ function updateClientData() {
             xref += '<h5 class="card-title">References (xRef):</h5>\n'
             xref += '<p>' + 'blabgggglabla' + '&nbsp;&nbsp;&nbsp;&nbsp;\n'
             xref += '<button type="button" class="btn btn-success btn-sm" '
-            xref += 'onclick="deleteSecElement(\'sample\', ' + i + ', "", "", "xref", ' + k + ');">Delete</button></p>'
+            xref += 'onclick="deleteSecElement(\'sample\', ' + i + ', "", 0, "xref", ' + k + ');">Delete</button></p>'
             xref += '</div>\n</div><br />\n'
             if (k > 0) {
                 ret += xref
@@ -613,11 +614,11 @@ function updateClientData() {
                 hasData = true
             }
             doc += '<button type="button" class="btn btn-success btn-sm" '
-            doc += 'onclick="showDocSecElement(\'sample\', ' + i + ', \'\', \'\', \'documentation\', '
-            doc += '\'pDoc-sample-' + i + '\');">Show All Document Information</button>'
+            doc += ' onclick="showDocSecElement(\'sample\', ' + i + ', \'\', 0, \'documentation\', '
+            doc += '\'pDoc-sample-' + i + '\', this);">Show All Document Information</button>'
             doc += '&nbsp;&nbsp;<button type="button" class="btn btn-success btn-sm" '
-            doc += 'onclick="selectSecElement(\'sample\', ' + i + ', \'\', \'\', \'documentation\', '
-            doc += '\'pDoc-sample-' + i + '\');">Select Document Ids</button>'
+            doc += 'onclick="selectSecElement(\'sample\', ' + i + ', \'\', 0, \'documentation\', '
+            doc += '\'pDoc-sample-' + i + '\');">Change Attached Document Ids</button>'
             doc += '<div id="pDoc-sample-' + i + '"></div>'
             doc += '</div>\n</div><br />\n'
             if (hasData == true) {
@@ -919,6 +920,10 @@ function updateClientData() {
     dyesData.innerHTML = ret
 
 
+    if (window.docIdOpen != "") {
+        showDocSecElement(window.docIdOpen[0], window.docIdOpen[1], window.docIdOpen[2], window.docIdOpen[3],
+                          window.docIdOpen[4], window.docIdOpen[5], null);
+    }
 
 }
 
@@ -1030,7 +1035,28 @@ function editPresentElement(typ, pos){
     updateClientData()
 }
 
-// Delete the selected element
+// Move the selected element
+window.moveSecElement = moveSecElement;
+function moveSecElement(prim_key, prim_pos, sec_key, sec_pos, id_source, cur_pos, new_pos){
+    if (!(window.rdmlData.hasOwnProperty("rdml"))) {
+        return
+    }
+    if (window.editMode == false) {
+        var ret = {}
+        ret["mode"] = "moveSecIds"
+        ret["primary-key"] = prim_key
+        ret["primary-position"] = prim_pos
+        ret["secondary-key"] = sec_key
+        ret["secondary-position"] = sec_pos
+        ret["id-source"] = id_source
+        ret["old-position"] = cur_pos
+        ret["new-position"] = new_pos
+        updateServerData(uuid, JSON.stringify(ret))
+    }
+    // If edit mode, ignore the other delete buttons
+}
+
+// Move the selected secondary element
 window.moveEditElement = moveEditElement;
 function moveEditElement(typ, id, pos){
     if (!(window.rdmlData.hasOwnProperty("rdml"))) {
@@ -1039,7 +1065,7 @@ function moveEditElement(typ, id, pos){
     if (window.editMode == false) {
         updateServerData(uuid, '{"mode": "move", "type": "' + typ + '", "id": "' + id + '", "position": ' + pos + '}')
     }
-    // If edit mode, delete only the edited element, ignore the other delete buttons
+    // If edit mode, ignore the other delete buttons
 }
 
 
@@ -1222,24 +1248,134 @@ function saveEditElement(typ, pos, oldId){
     updateServerData(uuid, JSON.stringify(ret))
 }
 
+// Show documentation for selected ids
+window.showDocSecElement = showDocSecElement;
+function showDocSecElement(prim_key, prim_pos, sec_key, sec_pos, id_source, div_target, par) {
+    if (!(window.rdmlData.hasOwnProperty("rdml"))) {
+        return
+    }
+    if (window.editMode == true) {
+        return
+    }
+    if (par == null) {
+
+    } else {
+        var but_text = par.textContent
+        if (but_text == "Show All Document Information") {
+            par.textContent = "Hide All Document Information"
+            window.docIdOpen = [prim_key, prim_pos, sec_key, sec_pos, id_source, div_target, par]
+        } else {
+            par.textContent = "Show All Document Information"
+            document.getElementById(div_target).innerHTML = ""
+            window.docIdOpen = ""
+            return
+        }
+    }
+    var exp = []
+    var allDic = {}
+    if (id_source == "documentation") {
+        var src = window.rdmlData.rdml.documentations
+        for (var i = 0; i < src.length; i++) {
+            allDic[src[i].id] = src[i].text
+        }
+    }
+    if (prim_key == "sample") {
+        exp = window.rdmlData.rdml.samples[prim_pos].documentations
+    }
+    var ret = '<p><br />'
+    for (var i = 0; i < exp.length; i++) {
+            ret += '<h3>' + exp[i] + '</h3>\n'
+            if (i == 0) {
+                ret += '<button type="button" class="btn btn-success btn-sm disabled">Move Up</button>&nbsp;&nbsp;'
+            } else {
+                ret += '<button type="button" class="btn btn-success btn-sm" '
+                ret += 'onclick="moveSecElement(\'' + prim_key + '\', ' + prim_pos + ', \'' + sec_key + '\', ' + sec_pos + ', \''
+                ret +=  id_source + '\', ' +  i + ', ' + (i - 1) + ');">Move Up</button>&nbsp;&nbsp;'
+            }
+            if (i == exp.length - 1) {
+                ret += '<button type="button" class="btn btn-success btn-sm disabled">Move Down</button>'
+            } else {
+                ret += '<button type="button" class="btn btn-success btn-sm" '
+                ret += 'onclick="moveSecElement(\'' + prim_key + '\', ' + prim_pos + ', \'' + sec_key + '\', ' + sec_pos + ', \''
+                ret +=  id_source + '\', ' + i + ', ' + (i + 2) + ');">Move Down</button>'
+            }
+            ret += '<p>' + allDic[exp[i]] + '</p>'
+    }
+    ret += '</p>'
+    var ele = document.getElementById(div_target)
+    ele.innerHTML = ret
+}
+
 // Create a selector for ids
 window.selectSecElement = selectSecElement;
 function selectSecElement(prim_key, prim_pos, sec_key, sec_pos, id_source, div_target) {
+    if (!(window.rdmlData.hasOwnProperty("rdml"))) {
+        return
+    }
+    if (window.editMode == true) {
+        return
+    }
     var exp = null
+    var sel = {}
     if (id_source == "documentation") {
         exp = window.rdmlData.rdml.documentations
     }
-    var ret = ''
-    for (var i = 0; i < exp.length; i++) {
-            ret += '<p>' + exp[i].id + '</p>'
+    window.docIdOpen = ""
+    if (prim_key == "sample") {
+        var elem = window.rdmlData.rdml.samples[prim_pos].documentations
+        for (var i = 0; i < elem.length; i++) {
+            sel[elem[i]] = true
+        }
 
     }
+    var ret = '<p><br />'
+    for (var i = 0; i < exp.length; i++) {
+        ret += '<input type="checkbox" name="select-elements-by-ids" value="' + exp[i].id
+        ret += '" id="select-id-' + exp[i].id + '"'
+        if (sel.hasOwnProperty(exp[i].id)) {
+            ret += ' checked'
+        }
+        ret += '>&nbsp;&nbsp;<label for="select-id-' + exp[i].id
+        ret += '">' + exp[i].id + '</label><br />'
+    }
+    // Todo check already selected ones
+    ret += '</p>'
     ret += '<button type="button" class="btn btn-success" '
-    ret += 'onclick="saveSecElement(\'sample\', ' + 2 + ', \'' + 2 + '\');">Save Changes</button>'
+    ret += 'onclick="saveSecElement(\'' + prim_key + '\', ' + prim_pos + ', \'' + sec_key + '\', ' + sec_pos + ', \''
+    ret +=  id_source + '\', \'select-elements-by-ids\');">Save Changes</button>'
     ret += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button type="button" class="btn btn-success" '
     ret += 'onclick="disChangesSecElement(\'' + div_target + '\');">Discard Changes</button>'
     var ele = document.getElementById(div_target)
     ele.innerHTML = ret
+}
+
+// Send the selection to the server
+window.saveSecElement = saveSecElement;
+function saveSecElement(prim_key, prim_pos, sec_key, sec_pos, id_source, group_name) {
+    if (!(window.rdmlData.hasOwnProperty("rdml"))) {
+        return
+    }
+    if (window.editMode == true) {
+        return
+    }
+    var all = document.getElementsByName(group_name)
+    var el = {}
+    for (var i = 0 ; i < all.length ; i++) {
+        if (all[i].checked) {
+            el[all[i].value] = "true"
+        } else {
+            el[all[i].value] = "false"
+        }
+    }
+    var ret = {}
+    ret["mode"] = "addSecIds"
+    ret["primary-key"] = prim_key
+    ret["primary-position"] = prim_pos
+    ret["secondary-key"] = sec_key
+    ret["secondary-position"] = sec_pos
+    ret["id-source"] = id_source
+    ret["data"] = el
+    updateServerData(uuid, JSON.stringify(ret))
 }
 
 // Create a selector for ids

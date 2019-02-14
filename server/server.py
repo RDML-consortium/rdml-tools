@@ -33,21 +33,22 @@ def is_valid_uuid(s):
 
 @app.route('/api/v1/download/<uuidstr>')
 def download(uuidstr):
-   if is_valid_uuid(uuidstr):
-      fname = "rdml_" + uuidstr + ".rdml";
-      if allowed_file(fname):
-         sf = os.path.join(app.config['UPLOAD_FOLDER'], uuidstr[0:2])
-         if os.path.exists(sf):
-            if os.path.isfile(os.path.join(sf, fname)):
-                fexpfilename = os.path.join(sf, "rdml_" + uuidstr + ".txt")
-                downFileName = "data.rdml"
-                with open(fexpfilename, 'r') as the_file:
-                    downFileName = the_file.read()
-                    downFileName = downFileName.replace(".xml", ".rdml")
-                return send_file(os.path.join(sf, fname), mimetype="application/x-rdml", as_attachment=True, attachment_filename=downFileName)
-   if uuidstr == "sample.rdml":
-      return send_file("sample.rdml", mimetype="application/x-rdml", as_attachment=True, attachment_filename="sample.rdml")
-   return "File does not exist!"
+    if is_valid_uuid(uuidstr):
+        fname = "rdml_" + uuidstr + ".rdml"
+        if allowed_file(fname):
+            sf = os.path.join(app.config['UPLOAD_FOLDER'], uuidstr[0:2])
+            if os.path.exists(sf):
+                if os.path.isfile(os.path.join(sf, fname)):
+                    fexpfilename = os.path.join(sf, "rdml_" + uuidstr + ".txt")
+                    downFileName = "data.rdml"
+                    if os.path.isfile(downFileName):
+                        with open(fexpfilename, 'r') as the_file:
+                            downFileName = the_file.read()
+                            downFileName = downFileName.replace(".xml", ".rdml")
+                    return send_file(os.path.join(sf, fname), mimetype="application/x-rdml", as_attachment=True, attachment_filename=downFileName)
+    if uuidstr == "sample.rdml":
+        return send_file("sample.rdml", mimetype="application/x-rdml", as_attachment=True, attachment_filename="sample.rdml")
+    return "File does not exist!"
 
 
 @app.route('/api/v1/validate', methods=['POST'])
@@ -66,7 +67,7 @@ def validate_file():
                 sf = os.path.join(app.config['UPLOAD_FOLDER'], uuidstr[0:2])
                 if not os.path.exists(sf):
                     return jsonify(errors=[{"title": "Invalid path - UUID link outdated or invalid!"}]), 400
-                fname = "rdml_" + uuidstr + ".rdml";
+                fname = "rdml_" + uuidstr + ".rdml"
                 if not allowed_file(fname):
                     return jsonify(errors=[{"title": "Invalid filename - UUID link outdated or invalid!"}]), 400
                 fexpname = os.path.join(sf, fname)
@@ -126,7 +127,7 @@ def handle_data():
                 sf = os.path.join(app.config['UPLOAD_FOLDER'], uuidstr[0:2])
                 if not os.path.exists(sf):
                     return jsonify(errors=[{"title": "Invalid path - UUID link outdated or invalid!"}]), 400
-                fname = "rdml_" + uuidstr + ".rdml";
+                fname = "rdml_" + uuidstr + ".rdml"
                 if not allowed_file(fname):
                     return jsonify(errors=[{"title": "Invalid filename - UUID link outdated or invalid!"}]), 400
                 fexpname = os.path.join(sf, fname)
@@ -189,6 +190,22 @@ def handle_data():
             if reqdata["type"] == "experiment":
                 rd.delete_experiment(byposition=reqdata["position"])
                 modified = True
+
+        if "mode" in reqdata and reqdata["mode"] == "addSecIds":
+            if "primary-key" not in reqdata or "primary-position" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - primary-key or primary-position missing!"}]), 400
+            if "secondary-key" not in reqdata or "secondary-position" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - secondary-key or secondary-position missing!"}]), 400
+            if "id-source" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - id-source missing!"}]), 400
+            if "data" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - data missing!"}]), 400
+            elem = None
+            if reqdata["primary-key"] == "sample":
+                elem = rd.get_sample(byposition=reqdata["primary-position"])
+                if elem is None:
+                    return jsonify(errors=[{"title": "Invalid server request - sample at position not found!"}]), 400
+            modified = elem.update_documentation_ids(reqdata["data"])
 
         if "mode" in reqdata and reqdata["mode"] in ["create", "edit"]:
             if "type" not in reqdata or "data" not in reqdata:
@@ -408,6 +425,33 @@ def handle_data():
                         data["error"] = str(err)
                     else:
                         modified = True
+
+        if "mode" in reqdata and reqdata["mode"] in ["moveSecIds"]:
+            if "primary-key" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - primary-key missing!"}]), 400
+            if "primary-position" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - primary-position information missing!"}]), 400
+            if "secondary-key" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - secondary-key information missing!"}]), 400
+            if "secondary-position" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - secondary-position missing!"}]), 400
+            if "id-source" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - id-source information missing!"}]), 400
+            if "old-position" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - old-position information missing!"}]), 400
+            if "new-position" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - new-position missing!"}]), 400
+            if reqdata["primary-key"] == "sample":
+                try:
+                    elem = rd.get_sample(byposition=reqdata["primary-position"])
+                    if elem is None:
+                        return jsonify(errors=[{"title": "Invalid server request - sample primary-position not found!"}]), 400
+                    elem.move_documentation(oldposition=int(reqdata["old-position"]),
+                                            newposition=int(reqdata["new-position"]))
+                except rdml.RdmlError as err:
+                    data["error"] = str(err)
+                else:
+                    modified = True
 
         if "mode" in reqdata and reqdata["mode"] in ["move"]:
             if "type" not in reqdata:
