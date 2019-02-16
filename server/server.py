@@ -191,6 +191,31 @@ def handle_data():
                 rd.delete_experiment(byposition=reqdata["position"])
                 modified = True
 
+        if "mode" in reqdata and reqdata["mode"] in ["deleteSecIds"]:
+            if "primary-key" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - primary-key missing!"}]), 400
+            if "primary-position" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - primary-position information missing!"}]), 400
+            if "secondary-key" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - secondary-key information missing!"}]), 400
+            if "secondary-position" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - secondary-position missing!"}]), 400
+            if "id-source" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - id-source information missing!"}]), 400
+            if "old-position" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - old-position information missing!"}]), 400
+            if reqdata["primary-key"] == "sample":
+                try:
+                    elem = rd.get_sample(byposition=reqdata["primary-position"])
+                    if elem is None:
+                        return jsonify(errors=[{"title": "Invalid server request - sample primary-position not found!"}]), 400
+                    if reqdata["id-source"] == "xRef":
+                        elem.delete_xref(byposition=int(reqdata["old-position"]))
+                except rdml.RdmlError as err:
+                    data["error"] = str(err)
+                else:
+                    modified = True
+
         if "mode" in reqdata and reqdata["mode"] == "addSecIds":
             if "primary-key" not in reqdata or "primary-position" not in reqdata:
                 return jsonify(errors=[{"title": "Invalid server request - primary-key or primary-position missing!"}]), 400
@@ -206,6 +231,40 @@ def handle_data():
                 if elem is None:
                     return jsonify(errors=[{"title": "Invalid server request - sample at position not found!"}]), 400
             modified = elem.update_documentation_ids(reqdata["data"])
+
+        if "mode" in reqdata and reqdata["mode"] in ["create-xref", "edit-xref"]:
+            if "primary-key" not in reqdata or "primary-position" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - primary-key or primary-position missing!"}]), 400
+            if "xref-position" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - xref-position missing!"}]), 400
+            if "new-position" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - new-position missing!"}]), 400
+            if "data" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - data missing!"}]), 400
+            elem = None
+            if reqdata["primary-key"] == "sample":
+                elem = rd.get_sample(byposition=reqdata["primary-position"])
+                if elem is None:
+                    return jsonify(errors=[{"title": "Invalid server request - sample at position not found!"}]), 400
+            if reqdata["mode"] == "create-xref":
+                try:
+                    elem.new_xref(name=reqdata["data"]["name"],
+                                  id=reqdata["data"]["id"],
+                                  newposition=reqdata["new-position"])
+                except rdml.RdmlError as err:
+                    data["error"] = str(err)
+                else:
+                    modified = True
+            if reqdata["mode"] == "edit-xref":
+                try:
+                    elem.edit_xref(oldposition=reqdata["xref-position"],
+                                   newposition=reqdata["new-position"],
+                                   name=reqdata["data"]["name"],
+                                   id=reqdata["data"]["id"])
+                except rdml.RdmlError as err:
+                    data["error"] = str(err)
+                else:
+                    modified = True
 
         if "mode" in reqdata and reqdata["mode"] in ["create", "edit"]:
             if "type" not in reqdata or "data" not in reqdata:
@@ -446,8 +505,12 @@ def handle_data():
                     elem = rd.get_sample(byposition=reqdata["primary-position"])
                     if elem is None:
                         return jsonify(errors=[{"title": "Invalid server request - sample primary-position not found!"}]), 400
-                    elem.move_documentation(oldposition=int(reqdata["old-position"]),
-                                            newposition=int(reqdata["new-position"]))
+                    if reqdata["id-source"] == "documentation":
+                        elem.move_documentation(oldposition=int(reqdata["old-position"]),
+                                                newposition=int(reqdata["new-position"]))
+                    if reqdata["id-source"] == "xRef":
+                        elem.move_xref(oldposition=int(reqdata["old-position"]),
+                                       newposition=int(reqdata["new-position"]))
                 except rdml.RdmlError as err:
                     data["error"] = str(err)
                 else:

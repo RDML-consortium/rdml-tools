@@ -591,15 +591,43 @@ function updateClientData() {
               ret += ' is ' + niceUnitType(exp[i].templateDNAQuality.result) + '</td>\n'
               ret += '  </tr>'
             }
-
             ret += '</table></p>\n'
 
             var k = 0
             var xref = '<div class="card">\n<div class="card-body">\n'
             xref += '<h5 class="card-title">References (xRef):</h5>\n'
-            xref += '<p>' + 'blabgggglabla' + '&nbsp;&nbsp;&nbsp;&nbsp;\n'
-            xref += '<button type="button" class="btn btn-success btn-sm" '
-            xref += 'onclick="deleteSecElement(\'sample\', ' + i + ', "", 0, "xref", ' + k + ');">Delete</button></p>'
+            xref += '<table style="width:100%;">'
+            if (exp[i].hasOwnProperty("xRefs")) {
+                k = exp[i].xRefs.length
+                for (var j = 0; j < k; j++) {
+                    xref += '  <tr>\n    <td style="width:30%;">Name: '
+                    xref += saveUndef(exp[i].xRefs[j].name) + '</td>\n'
+                    xref += '    <td style="width:30%;">Id: '
+                    xref += saveUndef(exp[i].xRefs[j].id) + '</td>\n'
+                    xref += '    <td style="width:40%">\n'
+                    xref += '<button type="button" class="btn btn-success btn-sm" '
+                    xref += 'onclick="editXref(\'sample\', ' + i + ', ' + j + ');">Edit</button>&nbsp;&nbsp;'
+
+                    if (j == 0) {
+                        xref += '<button type="button" class="btn btn-success btn-sm disabled">Move Up</button>&nbsp;&nbsp;'
+                    } else {
+                        xref += '<button type="button" class="btn btn-success btn-sm" '
+                        xref += 'onclick="moveSecElement(\'sample\', ' + i + ', \'\', 0, \'xRef\', ' + j
+                        xref += ', ' + (j - 1) + ');">Move Up</button>&nbsp;&nbsp;'
+                    }
+                    if (j == k - 1) {
+                        xref += '<button type="button" class="btn btn-success btn-sm disabled">Move Down</button>&nbsp;&nbsp;&nbsp;'
+                    } else {
+                        xref += '<button type="button" class="btn btn-success btn-sm" '
+                        xref += 'onclick="moveSecElement(\'sample\', ' + i + ', \'\', 0, \'xRef\', ' + j
+                        xref += ', ' + (j + 2) + ');">Move Down</button>&nbsp;&nbsp;&nbsp;'
+                    }
+                    xref += '<button type="button" class="btn btn-success btn-sm" '
+                    xref += 'onclick="deleteSecElement(\'sample\', ' + i + ', \'\', 0, \'xRef\', ' + j
+                    xref += ');">Delete</button></td>\n  </tr>'
+                }
+            }
+            xref += '</table></p>\n'
             xref += '</div>\n</div><br />\n'
             if (k > 0) {
                 ret += xref
@@ -610,7 +638,7 @@ function updateClientData() {
             doc += '<h5 class="card-title">Documentation:</h5>\n'
             var desc = saveUndef(exp[i].description)
             if (desc != "") {
-                doc += '<p><div class="input-group">' + desc + '&nbsp;&nbsp;&nbsp;&nbsp;\n</div></p>'
+                doc += '<p>' + desc + '</p>'
                 hasData = true
             }
             doc += '<button type="button" class="btn btn-success btn-sm" '
@@ -625,8 +653,12 @@ function updateClientData() {
                 ret += doc
             }
 
+            ret += '<div id="pXref-sample-' + i + '"></div>'
+
             ret += '<button type="button" class="btn btn-success" '
             ret += 'onclick="editPresentElement(\'sample\', ' + i + ');">Edit</button>&nbsp;&nbsp;&nbsp;&nbsp;'
+            ret += '<button type="button" class="btn btn-success" '
+            ret += 'onclick="editXref(\'sample\', ' + i + ', -1);">New xRef</button>&nbsp;&nbsp;&nbsp;&nbsp;'
             if (i == 0) {
                 ret += '<button type="button" class="btn btn-success disabled">Move Up</button>&nbsp;&nbsp;'
             } else {
@@ -921,10 +953,14 @@ function updateClientData() {
 
 
     if (window.docIdOpen != "") {
-        showDocSecElement(window.docIdOpen[0], window.docIdOpen[1], window.docIdOpen[2], window.docIdOpen[3],
-                          window.docIdOpen[4], window.docIdOpen[5], null);
+        try {
+            showDocSecElement(window.docIdOpen[0], window.docIdOpen[1], window.docIdOpen[2], window.docIdOpen[3],
+                              window.docIdOpen[4], window.docIdOpen[5], null);
+        }
+        catch(err) {
+            window.docIdOpen = ""
+        }
     }
-
 }
 
 function deleteAllData() {
@@ -1055,6 +1091,27 @@ function moveSecElement(prim_key, prim_pos, sec_key, sec_pos, id_source, cur_pos
     }
     // If edit mode, ignore the other delete buttons
 }
+
+// Delete the selected element
+window.deleteSecElement = deleteSecElement;
+function deleteSecElement(prim_key, prim_pos, sec_key, sec_pos, id_source, cur_pos){
+    if (!(window.rdmlData.hasOwnProperty("rdml"))) {
+        return
+    }
+    if (window.editMode == false) {
+        var ret = {}
+        ret["mode"] = "deleteSecIds"
+        ret["primary-key"] = prim_key
+        ret["primary-position"] = prim_pos
+        ret["secondary-key"] = sec_key
+        ret["secondary-position"] = sec_pos
+        ret["id-source"] = id_source
+        ret["old-position"] = cur_pos
+        updateServerData(uuid, JSON.stringify(ret))
+    }
+    // If edit mode, ignore the other delete buttons
+}
+deleteSecElement
 
 // Move the selected secondary element
 window.moveEditElement = moveEditElement;
@@ -1248,6 +1305,32 @@ function saveEditElement(typ, pos, oldId){
     updateServerData(uuid, JSON.stringify(ret))
 }
 
+// Save edit xRef changes, create new ones
+window.saveXref = saveXref;
+function saveXref(prim_key, prim_pos, xref_pos, edit){
+    if (!(window.rdmlData.hasOwnProperty("rdml"))) {
+        return
+    }
+    if (window.editMode == true) {
+        return
+    }
+    var ret = {}
+    if (edit == false) {
+        ret["mode"] = "create-xref"
+    } else {
+        ret["mode"] = "edit-xref"
+    }
+    ret["primary-key"] = prim_key
+    ret["primary-position"] = prim_pos
+    ret["xref-position"] = xref_pos
+    ret["new-position"] = getSaveHtmlData("inPos") - 1
+    var el = {}
+    el["name"] = getSaveHtmlData("inXRefName")
+    el["id"] = getSaveHtmlData("inXRefId")
+    ret["data"] = el
+    updateServerData(uuid, JSON.stringify(ret))
+}
+
 // Show documentation for selected ids
 window.showDocSecElement = showDocSecElement;
 function showDocSecElement(prim_key, prim_pos, sec_key, sec_pos, id_source, div_target, par) {
@@ -1255,11 +1338,10 @@ function showDocSecElement(prim_key, prim_pos, sec_key, sec_pos, id_source, div_
         return
     }
     if (window.editMode == true) {
+        window.docIdOpen = ""
         return
     }
-    if (par == null) {
-
-    } else {
+    if (par != null) {
         var but_text = par.textContent
         if (but_text == "Show All Document Information") {
             par.textContent = "Hide All Document Information"
@@ -1306,6 +1388,59 @@ function showDocSecElement(prim_key, prim_pos, sec_key, sec_pos, id_source, div_
     ele.innerHTML = ret
 }
 
+// Edit or create an xRef
+window.editXref = editXref;
+function editXref(prim_key, prim_pos, xref_pos) {
+    if (!(window.rdmlData.hasOwnProperty("rdml"))) {
+        return
+    }
+    if (window.editMode == true) {
+        return
+    }
+    var exp = null
+    if (prim_key == "sample") {
+        exp = window.rdmlData.rdml.samples
+    }
+    var name = ""
+    var id = ""
+    var edit = true
+    if (xref_pos == -1) {
+        xref_pos = 0
+        edit = false
+    }
+    if ((edit == true) && (exp != null) && (prim_pos < exp.length) && (xref_pos < exp[prim_pos].xRefs.length)) {
+        if ((exp[prim_pos].xRefs[xref_pos]) && (exp[prim_pos].xRefs[xref_pos].hasOwnProperty("name"))){
+            name = exp[prim_pos].xRefs[xref_pos].name
+        }
+        if ((exp[prim_pos].xRefs[xref_pos]) && (exp[prim_pos].xRefs[xref_pos].hasOwnProperty("id"))){
+            id = exp[prim_pos].xRefs[xref_pos].id
+        }
+    }
+    var ret = '<div class="card">\n<div class="card-body">\n'
+    ret += '<h5 class="card-title">New Reference (xRef):</h5>\n'
+    ret += '<p><table style="width:100%;">'
+    ret += '  <tr>\n    <td style="width:15%;">Name:</td>\n'
+    ret += '    <td style="width:85%">\n<input type="text" class="form-control" '
+    ret += 'id="inXRefName" value="' + name + '"></td>\n'
+    ret += '  </tr>'
+    ret += '  <tr>\n    <td style="width:15%;">Id:</td>\n'
+    ret += '    <td style="width:85%">\n<input type="text" class="form-control" '
+    ret += 'id="inXRefId" value="' + id + '"></td>\n'
+    ret += '  </tr>'
+    ret += '  <tr>\n    <td style="width:15%;">Place at Position:</td>\n'
+    ret += '    <td style="width:85%"><input type="text" class="form-control" '
+    ret += 'id="inPos" value="' + (xref_pos + 1) + '"></td>\n'
+    ret += '  </tr>'
+    ret += '</table></p>\n'
+    ret += '<button type="button" class="btn btn-success btn-sm" '
+    ret += 'onclick="saveXref(\'' + prim_key + '\', ' + prim_pos + ', ' + xref_pos + ', ' + edit + ');">Save Changes</button>'
+    ret += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button type="button" class="btn btn-success btn-sm" '
+    ret += 'onclick="disChangesSecElement(\'pXref-sample-' + prim_pos + '\');">Discard Changes</button>'
+    ret += '</div>\n</div><br />\n'
+    var ele = document.getElementById('pXref-sample-' + prim_pos)
+    ele.innerHTML = ret
+}
+
 // Create a selector for ids
 window.selectSecElement = selectSecElement;
 function selectSecElement(prim_key, prim_pos, sec_key, sec_pos, id_source, div_target) {
@@ -1338,7 +1473,6 @@ function selectSecElement(prim_key, prim_pos, sec_key, sec_pos, id_source, div_t
         ret += '>&nbsp;&nbsp;<label for="select-id-' + exp[i].id
         ret += '">' + exp[i].id + '</label><br />'
     }
-    // Todo check already selected ones
     ret += '</p>'
     ret += '<button type="button" class="btn btn-success" '
     ret += 'onclick="saveSecElement(\'' + prim_key + '\', ' + prim_pos + ', \'' + sec_key + '\', ' + sec_pos + ', \''
