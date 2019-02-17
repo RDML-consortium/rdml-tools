@@ -215,6 +215,17 @@ def handle_data():
                     data["error"] = str(err)
                 else:
                     modified = True
+            if reqdata["primary-key"] == "target":
+                try:
+                    elem = rd.get_target(byposition=reqdata["primary-position"])
+                    if elem is None:
+                        return jsonify(errors=[{"title": "Invalid server request - target primary-position not found!"}]), 400
+                    if reqdata["id-source"] == "xRef":
+                        elem.delete_xref(byposition=int(reqdata["old-position"]))
+                except rdml.RdmlError as err:
+                    data["error"] = str(err)
+                else:
+                    modified = True
 
         if "mode" in reqdata and reqdata["mode"] == "addSecIds":
             if "primary-key" not in reqdata or "primary-position" not in reqdata:
@@ -230,6 +241,10 @@ def handle_data():
                 elem = rd.get_sample(byposition=reqdata["primary-position"])
                 if elem is None:
                     return jsonify(errors=[{"title": "Invalid server request - sample at position not found!"}]), 400
+            if reqdata["primary-key"] == "target":
+                elem = rd.get_target(byposition=reqdata["primary-position"])
+                if elem is None:
+                    return jsonify(errors=[{"title": "Invalid server request - target at position not found!"}]), 400
             modified = elem.update_documentation_ids(reqdata["data"])
 
         if "mode" in reqdata and reqdata["mode"] in ["create-xref", "edit-xref"]:
@@ -246,6 +261,11 @@ def handle_data():
                 elem = rd.get_sample(byposition=reqdata["primary-position"])
                 if elem is None:
                     return jsonify(errors=[{"title": "Invalid server request - sample at position not found!"}]), 400
+            if reqdata["primary-key"] == "target":
+                elem = rd.get_target(byposition=reqdata["primary-position"])
+                if elem is None:
+                    return jsonify(errors=[{"title": "Invalid server request - target at position not found!"}]), 400
+
             if reqdata["mode"] == "create-xref":
                 try:
                     elem.new_xref(name=reqdata["data"]["name"],
@@ -443,15 +463,6 @@ def handle_data():
                     return jsonify(errors=[{"title": "Invalid server request - sample templateDNAQuality missing!"}]), 400
                 if "current-position" not in reqdata or "new-position" not in reqdata:
                     return jsonify(errors=[{"title": "Invalid server request - position information missing!"}]), 400
-                if reqdata["mode"] == "create":
-                    try:
-                        rd.new_sample(id=reqdata["data"]["id"],
-                                      type=reqdata["data"]["type"],
-                                      newposition=int(reqdata["new-position"]))
-                    except rdml.RdmlError as err:
-                        data["error"] = str(err)
-                    else:
-                        modified = True
                 if reqdata["mode"] in ["create", "edit"]:
                     if reqdata["mode"] == "edit" and "old-id" not in reqdata:
                         return jsonify(errors=[{"title": "Invalid server request - sample old id information missing!"}]), 400
@@ -461,7 +472,7 @@ def handle_data():
                             rd.new_sample(id=reqdata["data"]["id"],
                                           type=reqdata["data"]["type"],
                                           newposition=int(reqdata["new-position"]))
-                            elem = rd.get_sample(byid=reqdata["id"])
+                            elem = rd.get_sample(byid=reqdata["data"]["id"])
                         if reqdata["mode"] == "edit":
                             elem = rd.get_sample(byid=reqdata["old-id"])
                             if elem is None:
@@ -476,6 +487,92 @@ def handle_data():
                         elem["cdnaSynthesisMethod_primingMethod"] = reqdata["data"]["cdnaSynthesisMethod_primingMethod"]
                         elem["cdnaSynthesisMethod_dnaseTreatment"] = reqdata["data"]["cdnaSynthesisMethod_dnaseTreatment"]
                         elem["cdnaSynthesisMethod_thermalCyclingConditions"] = reqdata["data"]["cdnaSynthesisMethod_thermalCyclingConditions"]
+                        elem["templateRNAQuantity"] = reqdata["data"]["templateRNAQuantity"]
+                        elem["templateRNAQuality"] = reqdata["data"]["templateRNAQuality"]
+                        elem["templateDNAQuantity"] = reqdata["data"]["templateDNAQuantity"]
+                        elem["templateDNAQuality"] = reqdata["data"]["templateDNAQuality"]
+                    except rdml.RdmlError as err:
+                        data["error"] = str(err)
+                    else:
+                        modified = True
+
+            if reqdata["type"] == "target":
+                if "id" not in reqdata["data"]:
+                    return jsonify(errors=[{"title": "Invalid server request - target id missing!"}]), 400
+                if "type" not in reqdata["data"]:
+                    return jsonify(errors=[{"title": "Invalid server request - target type missing!"}]), 400
+                if "description" not in reqdata["data"]:
+                    return jsonify(errors=[{"title": "Invalid server request - target description missing!"}]), 400
+                if "amplificationEfficiencyMethod" not in reqdata["data"]:
+                    return jsonify(errors=[{"title": "Invalid server request - target amplificationEfficiencyMethod missing!"}]), 400
+                if "amplificationEfficiency" not in reqdata["data"]:
+                    return jsonify(errors=[{"title": "Invalid server request - target amplificationEfficiency missing!"}]), 400
+                if "detectionLimit" not in reqdata["data"]:
+                    return jsonify(errors=[{"title": "Invalid server request - target detectionLimit missing!"}]), 400
+                if "dyeId" not in reqdata["data"]:
+                    return jsonify(errors=[{"title": "Invalid server request - target dyeId missing!"}]), 400
+                if "sequences_forwardPrimer_threePrimeTag" not in reqdata["data"]:
+                    return jsonify(errors=[{"title": "Invalid server request - target sequences_forwardPrimer_threePrimeTag missing!"}]), 400
+                if "sequences_forwardPrimer_fivePrimeTag" not in reqdata["data"]:
+                    return jsonify(errors=[{"title": "Invalid server request - target sequences_forwardPrimer_fivePrimeTag missing!"}]), 400
+                if "sequences_forwardPrimer_sequence" not in reqdata["data"]:
+                    return jsonify(errors=[{"title": "Invalid server request - target sequences_forwardPrimer_sequence missing!"}]), 400
+                if "sequences_reversePrimer_threePrimeTag" not in reqdata["data"]:
+                    return jsonify(errors=[{"title": "Invalid server request - target sequences_reversePrimer_threePrimeTag missing!"}]), 400
+                if "sequences_reversePrimer_fivePrimeTag" not in reqdata["data"]:
+                    return jsonify(errors=[{"title": "Invalid server request - target sequences_reversePrimer_fivePrimeTag missing!"}]), 400
+                if "sequences_reversePrimer_sequence" not in reqdata["data"]:
+                    return jsonify(errors=[{"title": "Invalid server request - target sequences_reversePrimer_sequence missing!"}]), 400
+                if "sequences_probe1_threePrimeTag" not in reqdata["data"]:
+                    return jsonify(errors=[{"title": "Invalid server request - target sequences_probe1_threePrimeTag missing!"}]), 400
+                if "sequences_probe1_fivePrimeTag" not in reqdata["data"]:
+                    return jsonify(errors=[{"title": "Invalid server request - target sequences_probe1_fivePrimeTag missing!"}]), 400
+                if "sequences_probe1_sequence" not in reqdata["data"]:
+                    return jsonify(errors=[{"title": "Invalid server request - target sequences_probe1_sequence missing!"}]), 400
+                if "sequences_probe2_threePrimeTag" not in reqdata["data"]:
+                    return jsonify(errors=[{"title": "Invalid server request - target sequences_probe2_threePrimeTag missing!"}]), 400
+                if "sequences_probe2_fivePrimeTag" not in reqdata["data"]:
+                    return jsonify(errors=[{"title": "Invalid server request - target sequences_probe2_fivePrimeTag missing!"}]), 400
+                if "sequences_probe2_sequence" not in reqdata["data"]:
+                    return jsonify(errors=[{"title": "Invalid server request - target sequences_probe2_sequence missing!"}]), 400
+                if "sequences_amplicon_threePrimeTag" not in reqdata["data"]:
+                    return jsonify(errors=[{"title": "Invalid server request - target sequences_amplicon_threePrimeTag missing!"}]), 400
+                if "sequences_amplicon_fivePrimeTag" not in reqdata["data"]:
+                    return jsonify(errors=[{"title": "Invalid server request - target sequences_amplicon_fivePrimeTag missing!"}]), 400
+                if "sequences_amplicon_sequence" not in reqdata["data"]:
+                    return jsonify(errors=[{"title": "Invalid server request - target sequences_amplicon_sequence missing!"}]), 400
+                if "commercialAssay_company" not in reqdata["data"]:
+                    return jsonify(errors=[{"title": "Invalid server request - target commercialAssay_company missing!"}]), 400
+                if "commercialAssay_orderNumber" not in reqdata["data"]:
+                    return jsonify(errors=[{"title": "Invalid server request - target commercialAssay_orderNumber missing!"}]), 400
+                if "current-position" not in reqdata or "new-position" not in reqdata:
+                    return jsonify(errors=[{"title": "Invalid server request - position information missing!"}]), 400
+                if reqdata["mode"] in ["create", "edit"]:
+                    if reqdata["mode"] == "edit" and "old-id" not in reqdata:
+                        return jsonify(
+                            errors=[{"title": "Invalid server request - target old id information missing!"}]), 400
+                    try:
+                        elem = None
+                        if reqdata["mode"] == "create":
+                            rd.new_target(id=reqdata["data"]["id"],
+                                          type=reqdata["data"]["type"],
+                                          newposition=int(reqdata["new-position"]))
+                            elem = rd.get_target(byid=reqdata["data"]["id"])
+                        if reqdata["mode"] == "edit":
+                            elem = rd.get_target(byid=reqdata["old-id"])
+                            if elem is None:
+                                return jsonify(errors=[{"title": "Invalid server request - target id not found!"}]), 400
+                            elem["id"] = reqdata["data"]["id"]
+                            elem["type"] = reqdata["data"]["type"]
+                        elem["description"] = reqdata["data"]["description"]
+                        elem["interRunCalibrator"] = reqdata["data"]["interRunCalibrator"]
+                        elem["quantity"] = reqdata["data"]["quantity"]
+                        elem["calibratorSample"] = reqdata["data"]["calibratorSample"]
+                        elem["cdnaSynthesisMethod_enzyme"] = reqdata["data"]["cdnaSynthesisMethod_enzyme"]
+                        elem["cdnaSynthesisMethod_primingMethod"] = reqdata["data"]["cdnaSynthesisMethod_primingMethod"]
+                        elem["cdnaSynthesisMethod_dnaseTreatment"] = reqdata["data"]["cdnaSynthesisMethod_dnaseTreatment"]
+                        elem["cdnaSynthesisMethod_thermalCyclingConditions"] = reqdata["data"][
+                            "cdnaSynthesisMethod_thermalCyclingConditions"]
                         elem["templateRNAQuantity"] = reqdata["data"]["templateRNAQuantity"]
                         elem["templateRNAQuality"] = reqdata["data"]["templateRNAQuality"]
                         elem["templateDNAQuantity"] = reqdata["data"]["templateDNAQuantity"]
@@ -500,21 +597,28 @@ def handle_data():
                 return jsonify(errors=[{"title": "Invalid server request - old-position information missing!"}]), 400
             if "new-position" not in reqdata:
                 return jsonify(errors=[{"title": "Invalid server request - new-position missing!"}]), 400
-            if reqdata["primary-key"] == "sample":
-                try:
+            try:
+                elem = None
+                if reqdata["primary-key"] == "sample":
                     elem = rd.get_sample(byposition=reqdata["primary-position"])
                     if elem is None:
                         return jsonify(errors=[{"title": "Invalid server request - sample primary-position not found!"}]), 400
-                    if reqdata["id-source"] == "documentation":
-                        elem.move_documentation(oldposition=int(reqdata["old-position"]),
-                                                newposition=int(reqdata["new-position"]))
-                    if reqdata["id-source"] == "xRef":
-                        elem.move_xref(oldposition=int(reqdata["old-position"]),
-                                       newposition=int(reqdata["new-position"]))
-                except rdml.RdmlError as err:
-                    data["error"] = str(err)
-                else:
-                    modified = True
+                if reqdata["primary-key"] == "target":
+                    elem = rd.get_target(byposition=reqdata["primary-position"])
+                    if elem is None:
+                        return jsonify(errors=[{"title": "Invalid server request - target primary-position not found!"}]), 400
+                if elem is None:
+                    return jsonify(errors=[{"title": "Invalid server request - primary-key is unknown!"}]), 400
+                if reqdata["id-source"] == "documentation":
+                    elem.move_documentation(oldposition=int(reqdata["old-position"]),
+                                            newposition=int(reqdata["new-position"]))
+                if reqdata["id-source"] == "xRef":
+                    elem.move_xref(oldposition=int(reqdata["old-position"]),
+                                   newposition=int(reqdata["new-position"]))
+            except rdml.RdmlError as err:
+                data["error"] = str(err)
+            else:
+                modified = True
 
         if "mode" in reqdata and reqdata["mode"] in ["move"]:
             if "type" not in reqdata:

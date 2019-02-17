@@ -71,6 +71,40 @@ function saveUndefKey(base, key) {
     }
 }
 
+function tarSeqHtml(base, key) {
+    var has_data = true
+    if (!(base)) {
+        has_data = false
+    }
+    if (!(base.hasOwnProperty("sequences"))) {
+        has_data = false
+    }
+    if (!(base.sequences.hasOwnProperty(key))) {
+        has_data = false
+    }
+    var print_name = ""
+    var elem = {}
+    if (key == "forwardPrimer") {
+        if (has_data == true) {
+            elem = base.sequences.forwardPrimer
+        }
+        print_name = "Forward Primer"
+    }
+    var ret = '  <tr>\n    <td style="width:25%;">' + print_name + ' - Five Prime Tag:</td>\n'
+    ret += '    <td style="width:75%"><input type="text" class="form-control" id="inTarSequences_' + key
+    ret += '_fivePrimeTag" value="' + saveUndefKey(elem.fivePrimeTag, "value") + '"></td>\n<
+    ret += '  </tr>'
+    ret += '  <tr>\n    <td style="width:25%;">' + print_name + ' - Sequence:</td>\n'
+    ret += '    <td style="width:75%"><input type="text" class="form-control" id="inTarSequences_' + key
+    ret += '_sequence" value="' + saveUndefKey(elem.sequence, "value") + '"></td>\n<
+    ret += '  </tr>'
+    ret += '  <tr>\n    <td style="width:25%;">' + print_name + ' - Three Prime Tag:</td>\n'
+    ret += '    <td style="width:75%"><input type="text" class="form-control" id="inTarSequences_' + key
+    ret += '_threePrimeTag" value="' + saveUndefKey(elem.threePrimeTag, "value") + '"></td>\n<
+    ret += '  </tr>'
+}
+
+
 function htmllize(tst) {
     tst = tst.replace(/\n/g, "<br />")
 
@@ -78,6 +112,16 @@ function htmllize(tst) {
 }
 
 function niceSampleType(txt) {
+    if (txt == "ref") {
+        return "ref - reference target"
+    }
+    if (txt == "toi") {
+        return "toi - target of interest"
+    }
+    return txt
+}
+
+function niceTargetType(txt) {
     if (txt == "unkn") {
         return "unkn - unknown sample"
     }
@@ -125,6 +169,23 @@ function niceUnitType(txt) {
         return "other - other linear unit"
     }
     return txt
+}
+
+function niceLongSeq(seq) {
+    var ret = ""
+    for (var i = 0; i < seq.length ; i++) {
+        if (i % 50 == 0) {
+            if (i != 0) {
+                ret += "<br />";
+            }
+        } else {
+            if (i % 10 == 0) {
+                ret += " ";
+            }
+        }
+        ret += seq.charAt(i);
+    }
+    return ret
 }
 
 function getSaveHtmlData(key) {
@@ -633,6 +694,8 @@ function updateClientData() {
                 ret += xref
             }
 
+            ret += '<div id="pXref-sample-' + i + '"></div>'
+
             var hasData = false
             var doc = '<div class="card">\n<div class="card-body">\n'
             doc += '<h5 class="card-title">Documentation:</h5>\n'
@@ -652,8 +715,6 @@ function updateClientData() {
             if (hasData == true) {
                 ret += doc
             }
-
-            ret += '<div id="pXref-sample-' + i + '"></div>'
 
             ret += '<button type="button" class="btn btn-success" '
             ret += 'onclick="editPresentElement(\'sample\', ' + i + ');">Edit</button>&nbsp;&nbsp;&nbsp;&nbsp;'
@@ -678,7 +739,388 @@ function updateClientData() {
     }
     samplesData.innerHTML = ret
 
+    // The targets tab
+    var exp = window.rdmlData.rdml.targets;
+    ret = ''
+    for (var i = 0; i < exp.length; i++) {
+        if ((editMode == true) && (editType == "target") && (i == editNumber)) {
+            ret += '<br /><div class="card text-white bg-primary">\n<div class="card-body">\n'
+            ret += '<h5 class="card-title">' + (i + 1) + '. Target ID: ' + exp[i].id + '</h5>\n<p>'
+            ret += '<table style="width:100%;">'
+            ret += '  <tr>\n    <td style="width:25%;">ID:</td>\n'
+            ret += '    <td style="width:75%"><input type="text" class="form-control" '
+            ret += 'id="inTarId" value="'+ exp[i].id + '"></td>\n'
+            ret += '  </tr>'
+            ret += '  <tr>\n    <td style="width:25%;">Place at Position:</td>\n'
+            ret += '    <td style="width:75%"><input type="text" class="form-control" '
+            ret += 'id="inPos" value="' + (i + 1) + '"></td>\n'
+            ret += '  </tr>'
+            ret += '  <tr>\n    <td style="width:25%;">Type:</td>\n'
+            ret += '    <td style="width:75%"><select class="form-control" id="inTarType">\n'
+            ret += '        <option value="ref"'
+            if (exp[i].type == "ref") {
+                ret += ' selected'
+            }
+            ret += '>ref - reference target</option>\n'
+            ret += '        <option value="toi"'
+            if (exp[i].type == "toi") {
+                ret += ' selected'
+            }
+            ret += '>toi - target of interest</option>\n'
+            ret += '      </select></td>\n'
+            ret += '  </tr>'
+            ret += '  <tr>\n    <td style="width:25%;">Amplification Efficiency Method:</td>\n'
+            ret += '    <td style="width:75%"><input type="text" class="form-control" '
+            ret += 'id="inTarAmplificationEfficiencyMethod" value="'+ exp[i].amplificationEfficiencyMethod + '"></td>\n'
+            ret += '  </tr>'
+            ret += '  <tr>\n    <td style="width:25%;">Amplification Efficiency:</td>\n'
+            ret += '    <td style="width:75%"><input type="text" class="form-control" '
+            ret += 'id="inTarAmplificationEfficiency" value="'+ exp[i].amplificationEfficiency + '"></td>\n'
+            ret += '  </tr>'
+            ret += '  <tr>\n    <td style="width:25%;">Detection Limit:</td>\n'
+            ret += '    <td style="width:75%"><input type="text" class="form-control" '
+            ret += 'id="inTarDetectionLimit" value="'+ exp[i].detectionLimit + '"></td>\n'
+            ret += '  </tr>'
+            ret += '  <tr>\n    <td style="width:25%;">ID:</td>\n'
+            ret += '    <td style="width:75%"><input type="text" class="form-control" '
+            ret += 'id="inTarDyeId" value="'+ exp[i].dyeId + '"></td>\n'
+            ret += '  </tr>'
+                    // Todo: create special selector
 
+
+            ret += '  <tr>\n    <td style="width:25%;">Forward Primer:</td>\n'
+            ret += '    <td style="width:75%"><table style="width:100%;">'
+            ret += '      <tr><td style="width:25%;">'
+            ret += '        <input type="text" class="form-control" id="inTar" value="'
+            ret += saveUndefKey(exp[i].quantity, "value") + '"></td>\n<td style="width:50%">'
+                        ret += '        <input type="text" class="form-control" id="inTar" value="'
+            ret += saveUndefKey(exp[i].quantity, "value") + '"></td>\n<td style="width:25%">'
+                        ret += '        <input type="text" class="form-control" id="inTar" value="'
+            ret += saveUndefKey(exp[i].quantity, "value") + '"></td>\n</tr>\n</table>'
+            ret += '  </tr>'
+            ret += '  <tr>\n    <td style="width:25%;">cDNA - Enzyme:</td>\n'
+            ret += '    <td style="width:75%"><input type="text" class="form-control" '
+            ret += 'id="inExpCdnaSynthesisMethod_enzyme" value="'
+            ret += saveUndef(exp[i].cdnaSynthesisMethod_enzyme) + '"></td>\n'
+            ret += '  </tr>'
+            ret += '  <tr>\n    <td style="width:25%;">cDNA - Priming Method:</td>\n'
+            ret += '    <td style="width:75%"><select class="form-control" id="inExpCdnaSynthesisMethod_primingMethod">\n'
+            ret += '        <option value=""'
+            if (exp[i].cdnaSynthesisMethod_primingMethod == "") {
+                ret += ' selected'
+            }
+            ret += '>not set</option>\n'
+            ret += '        <option value="oligo-dt"'
+            if (exp[i].cdnaSynthesisMethod_primingMethod == "oligo-dt") {
+                ret += ' selected'
+            }
+            ret += '>oligo-dt</option>\n'
+            ret += '        <option value="random"'
+            if (exp[i].cdnaSynthesisMethod_primingMethod == "random") {
+                ret += ' selected'
+            }
+            ret += '>random</option>\n'
+            ret += '        <option value="target-specific"'
+            if (exp[i].cdnaSynthesisMethod_primingMethod == "target-specific") {
+                ret += ' selected'
+            }
+            ret += '>target-specific</option>\n'
+            ret += '        <option value="oligo-dt and random"'
+            if (exp[i].cdnaSynthesisMethod_primingMethod == "oligo-dt and random") {
+                ret += ' selected'
+            }
+            ret += '>oligo-dt and random</option>\n'
+            ret += '        <option value="other"'
+            if (exp[i].cdnaSynthesisMethod_primingMethod == "other") {
+                ret += ' selected'
+            }
+            ret += '>other</option>\n'
+            ret += '      </select></td>\n'
+            ret += '  </tr>'
+            ret += htmlTriState("cDNA - DNase Treatment", 85,"inExpCdnaSynthesisMethod_dnaseTreatment", exp[i],
+                                "cdnaSynthesisMethod_dnaseTreatment", "Yes", "No", "Not Set")
+            ret += '  <tr>\n    <td style="width:25%;">cDNA - Thermal Cycling Conditions:</td>\n'
+            ret += '    <td style="width:75%"><input type="text" class="form-control" '
+            ret += 'id="inExpCdnaSynthesisMethod_thermalCyclingConditions" value="'
+            ret += saveUndef(exp[i].cdnaSynthesisMethod_thermalCyclingConditions) + '"></td>\n'
+            ret += '  </tr>'
+              // Todo: make dropdown selection
+
+            ret += '  <tr>\n    <td style="width:25%;">Template RNA Quantity:</td>\n'
+            ret += '    <td style="width:75%"><table style="width:100%;">'
+            ret += '      <tr><td style="width:50%;">'
+            ret += '        <input type="text" class="form-control" id="inExpTemplateRNAQuantity_Value" value="'
+            ret += saveUndefKey(exp[i].templateRNAQuantity, "value") + '">'
+            ret += '        </td>\n<td style="width:50%">'
+            ret += htmlUnitSelector("inExpTemplateRNAQuantity_Unit", exp[i].templateRNAQuantity) + '</td>\n</tr>\n</table>'
+            ret += '  </tr>'
+            ret += '  <tr>\n    <td style="width:25%;">Template RNA Quality - Method:</td>\n'
+            ret += '    <td style="width:75%"><input type="text" class="form-control" '
+            ret += 'id="inExpTemplateRNAQuality_Method" value="'+ saveUndefKey(exp[i].templateRNAQuality, "method") + '"></td>\n'
+            ret += '  </tr>'
+            ret += '  <tr>\n    <td style="width:25%;">Template RNA Quality - Result:</td>\n'
+            ret += '    <td style="width:75%"><input type="text" class="form-control" '
+            ret += 'id="inExpTemplateRNAQuality_Result" value="'+ saveUndefKey(exp[i].templateRNAQuality, "result") + '"></td>\n'
+            ret += '  </tr>'
+            ret += '  <tr>\n    <td style="width:25%;">Template DNA Quantity:</td>\n'
+            ret += '    <td style="width:75%"><table style="width:100%;">'
+            ret += '      <tr><td style="width:50%;">'
+            ret += '        <input type="text" class="form-control" id="inExpTemplateDNAQuantity_Value" value="'
+            ret += saveUndefKey(exp[i].templateDNAQuantity, "value") + '">'
+            ret += '        </td>\n<td style="width:50%">'
+            ret += htmlUnitSelector("inExpTemplateDNAQuantity_Unit", exp[i].templateDNAQuantity) + '</td>\n</tr>\n</table>'
+            ret += '  </tr>'
+            ret += '  <tr>\n    <td style="width:25%;">Template DNA Quality - Method:</td>\n'
+            ret += '    <td style="width:75%"><input type="text" class="form-control" '
+            ret += 'id="inExpTemplateDNAQuality_Method" value="'+ saveUndefKey(exp[i].templateDNAQuality, "method") + '"></td>\n'
+            ret += '  </tr>'
+            ret += '  <tr>\n    <td style="width:25%;">Template DNA Quality - Result:</td>\n'
+            ret += '    <td style="width:75%"><input type="text" class="form-control" '
+            ret += 'id="inExpTemplateDNAQuality_Result" value="'+ saveUndefKey(exp[i].templateDNAQuality, "result") + '"></td>\n'
+            ret += '  </tr>'
+            ret += '  <tr>\n    <td style="width:25%;">Description:</td>\n'
+            ret += '    <td style="width:75%"><input type="text" class="form-control" '
+            ret += 'id="inExpDescription" value="'+ saveUndef(exp[i].description) + '"></td>\n'
+            ret += '  </tr>'
+            ret += '</table></p>\n'
+            ret += '<button type="button" class="btn btn-success" '
+            ret += 'onclick="saveEditElement(\'sample\', ' + i + ', \'' + exp[i].id + '\');">Save Changes</button>'
+            ret += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button type="button" class="btn btn-success" '
+            ret += 'onclick="deleteEditElement(\'sample\', ' + i + ');">Delete</button>&nbsp;&nbsp;&nbsp;'
+            ret += '</div>\n</div>\n'
+        } else {
+            ret += '<br /><div class="card">\n<div class="card-body">\n'
+            ret += '<h5 class="card-title">' + (i + 1) + '. Target ID: ' + exp[i].id + '</h5>\n<p>'
+            ret += '<table style="width:100%;">'
+            ret += '  <tr>\n    <td style="width:25%;">Type:</td>\n'
+            ret += '    <td style="width:75%">\n'+ niceTargetType(exp[i].type) + '</td>\n'
+            ret += '  </tr>'
+            if (exp[i].hasOwnProperty("amplificationEfficiencyMethod")) {
+                ret += '  <tr>\n    <td style="width:25%;">Amplification Efficiency Method:</td>\n'
+                ret += '    <td style="width:75%">\n'+ exp[i].amplificationEfficiencyMethod + '</td>\n'
+                ret += '  </tr>'
+            }
+            if (exp[i].hasOwnProperty("amplificationEfficiency")) {
+                ret += '  <tr>\n    <td style="width:25%;">Amplification Efficiency:</td>\n'
+                ret += '    <td style="width:75%">\n'+ exp[i].amplificationEfficiency + '</td>\n'
+                ret += '  </tr>'
+            }
+            if (exp[i].hasOwnProperty("detectionLimit")) {
+                ret += '  <tr>\n    <td style="width:25%;">detectionLimit:</td>\n'
+                ret += '    <td style="width:75%">\n'+ exp[i].detectionLimit + '</td>\n'
+                ret += '  </tr>'
+            }
+            if (exp[i].hasOwnProperty("dyeId")) {
+                ret += '  <tr>\n    <td style="width:25%;">Dye Id:</td>\n'
+                ret += '    <td style="width:75%">\n'+ exp[i].dyeId + '</td>\n'
+                ret += '  </tr>'
+                // Todo: add link
+            }
+            if (exp[i].hasOwnProperty("sequences")) {
+                if (exp[i].sequences.hasOwnProperty("forwardPrimer")) {
+                    var oligo_elem = exp[i].sequences.forwardPrimer
+                    var use_oligo = false
+                    var oligo = '  <tr>\n    <td style="width:25%;">Forward Primer:</td>\n'
+                    oligo += '    <td style="width:75%">\n'
+                    if (oligo_elem.hasOwnProperty("fivePrimeTag")) {
+                      oligo += oligo_elem.fivePrimeTag + ' '
+                      use_oligo = true
+                    }
+                    if (oligo_elem.hasOwnProperty("sequence")) {
+                      oligo += oligo_elem.sequence
+                      use_oligo = true
+                    }
+                    if (oligo_elem.hasOwnProperty("threePrimeTag")) {
+                      oligo += ' '+ oligo_elem.threePrimeTag
+                      use_oligo = true
+                    }
+                    if (use_oligo == true) {
+                      ret += oligo + '</td>\n  </tr>'
+                    }
+                }
+                if (exp[i].sequences.hasOwnProperty("reversePrimer")) {
+                    var oligo_elem = exp[i].sequences.reversePrimer
+                    var use_oligo = false
+                    var oligo = '  <tr>\n    <td style="width:25%;">Reverse Primer:</td>\n'
+                    oligo += '    <td style="width:75%">\n'
+                    if (oligo_elem.hasOwnProperty("fivePrimeTag")) {
+                      oligo += oligo_elem.fivePrimeTag + ' '
+                      use_oligo = true
+                    }
+                    if (oligo_elem.hasOwnProperty("sequence")) {
+                      oligo += oligo_elem.sequence
+                      use_oligo = true
+                    }
+                    if (oligo_elem.hasOwnProperty("threePrimeTag")) {
+                      oligo += ' '+ oligo_elem.threePrimeTag
+                      use_oligo = true
+                    }
+                    if (use_oligo == true) {
+                      ret += oligo + '</td>\n  </tr>'
+                    }
+                }
+                if (exp[i].sequences.hasOwnProperty("probe1")) {
+                    var oligo_elem = exp[i].sequences.probe1
+                    var use_oligo = false
+                    var oligo = '  <tr>\n    <td style="width:25%;">Probe 1:</td>\n'
+                    oligo += '    <td style="width:75%">\n'
+                    if (oligo_elem.hasOwnProperty("fivePrimeTag")) {
+                      oligo += oligo_elem.fivePrimeTag + ' '
+                      use_oligo = true
+                    }
+                    if (oligo_elem.hasOwnProperty("sequence")) {
+                      oligo += oligo_elem.sequence
+                      use_oligo = true
+                    }
+                    if (oligo_elem.hasOwnProperty("threePrimeTag")) {
+                      oligo += ' '+ oligo_elem.threePrimeTag
+                      use_oligo = true
+                    }
+                    if (use_oligo == true) {
+                      ret += oligo + '</td>\n  </tr>'
+                    }
+                }
+                if (exp[i].sequences.hasOwnProperty("probe2")) {
+                    var oligo_elem = exp[i].sequences.probe2
+                    var use_oligo = false
+                    var oligo = '  <tr>\n    <td style="width:25%;">Probe 2:</td>\n'
+                    oligo += '    <td style="width:75%">\n'
+                    if (oligo_elem.hasOwnProperty("fivePrimeTag")) {
+                      oligo += oligo_elem.fivePrimeTag + ' '
+                      use_oligo = true
+                    }
+                    if (oligo_elem.hasOwnProperty("sequence")) {
+                      oligo += oligo_elem.sequence
+                      use_oligo = true
+                    }
+                    if (oligo_elem.hasOwnProperty("threePrimeTag")) {
+                      oligo += ' '+ oligo_elem.threePrimeTag
+                      use_oligo = true
+                    }
+                    if (use_oligo == true) {
+                      ret += oligo + '</td>\n  </tr>'
+                    }
+                }
+                if (exp[i].sequences.hasOwnProperty("amplicon")) {
+                    var oligo_elem = exp[i].sequences.amplicon
+                    var use_oligo = false
+                    var oligo = '  <tr>\n    <td style="width:25%;">Amplicon:</td>\n'
+                    oligo += '    <td style="width:75%">\n'
+                    if (oligo_elem.hasOwnProperty("fivePrimeTag")) {
+                      oligo += oligo_elem.fivePrimeTag + ' '
+                      use_oligo = true
+                    }
+                    if (oligo_elem.hasOwnProperty("sequence")) {
+                      oligo += niceLongSeq(oligo_elem.sequence)
+                      use_oligo = true
+                    }
+                    if (oligo_elem.hasOwnProperty("threePrimeTag")) {
+                      oligo += ' '+ oligo_elem.threePrimeTag
+                      use_oligo = true
+                    }
+                    if (use_oligo == true) {
+                      ret += oligo + '</td>\n  </tr>'
+                    }
+                }
+            }
+            if (exp[i].hasOwnProperty("commercialAssay")) {
+                if (exp[i].commercialAssay.hasOwnProperty("company")) {
+                  ret += '  <tr>\n    <td style="width:25%;">Commercial Assay - Company:</td>\n'
+                  ret += '    <td style="width:75%">\n'+ exp[i].cdnaSynthesisMethod.company + '</td>\n'
+                  ret += '  </tr>'
+                }
+                if (exp[i].commercialAssay.hasOwnProperty("orderNumber")) {
+                  ret += '  <tr>\n    <td style="width:25%;">Commercial Assay - Order Number:</td>\n'
+                  ret += '    <td style="width:75%">\n'+ exp[i].cdnaSynthesisMethod.orderNumber + '</td>\n'
+                  ret += '  </tr>'
+                }
+            }
+            ret += '</table></p>\n'
+
+            var k = 0
+            var xref = '<div class="card">\n<div class="card-body">\n'
+            xref += '<h5 class="card-title">References (xRef):</h5>\n'
+            xref += '<table style="width:100%;">'
+            if (exp[i].hasOwnProperty("xRefs")) {
+                k = exp[i].xRefs.length
+                for (var j = 0; j < k; j++) {
+                    xref += '  <tr>\n    <td style="width:30%;">Name: '
+                    xref += saveUndef(exp[i].xRefs[j].name) + '</td>\n'
+                    xref += '    <td style="width:30%;">Id: '
+                    xref += saveUndef(exp[i].xRefs[j].id) + '</td>\n'
+                    xref += '    <td style="width:40%">\n'
+                    xref += '<button type="button" class="btn btn-success btn-sm" '
+                    xref += 'onclick="editXref(\'target\', ' + i + ', ' + j + ');">Edit</button>&nbsp;&nbsp;'
+
+                    if (j == 0) {
+                        xref += '<button type="button" class="btn btn-success btn-sm disabled">Move Up</button>&nbsp;&nbsp;'
+                    } else {
+                        xref += '<button type="button" class="btn btn-success btn-sm" '
+                        xref += 'onclick="moveSecElement(\'target\', ' + i + ', \'\', 0, \'xRef\', ' + j
+                        xref += ', ' + (j - 1) + ');">Move Up</button>&nbsp;&nbsp;'
+                    }
+                    if (j == k - 1) {
+                        xref += '<button type="button" class="btn btn-success btn-sm disabled">Move Down</button>&nbsp;&nbsp;&nbsp;'
+                    } else {
+                        xref += '<button type="button" class="btn btn-success btn-sm" '
+                        xref += 'onclick="moveSecElement(\'target\', ' + i + ', \'\', 0, \'xRef\', ' + j
+                        xref += ', ' + (j + 2) + ');">Move Down</button>&nbsp;&nbsp;&nbsp;'
+                    }
+                    xref += '<button type="button" class="btn btn-success btn-sm" '
+                    xref += 'onclick="deleteSecElement(\'target\', ' + i + ', \'\', 0, \'xRef\', ' + j
+                    xref += ');">Delete</button></td>\n  </tr>'
+                }
+            }
+            xref += '</table></p>\n'
+            xref += '</div>\n</div><br />\n'
+            if (k > 0) {
+                ret += xref
+            }
+
+            ret += '<div id="pXref-target-' + i + '"></div>'
+
+            var hasData = false
+            var doc = '<div class="card">\n<div class="card-body">\n'
+            doc += '<h5 class="card-title">Documentation:</h5>\n'
+            var desc = saveUndef(exp[i].description)
+            if (desc != "") {
+                doc += '<p>' + desc + '</p>'
+                hasData = true
+            }
+            doc += '<button type="button" class="btn btn-success btn-sm" '
+            doc += ' onclick="showDocSecElement(\'target\', ' + i + ', \'\', 0, \'documentation\', '
+            doc += '\'pDoc-target-' + i + '\', this);">Show All Document Information</button>'
+            doc += '&nbsp;&nbsp;<button type="button" class="btn btn-success btn-sm" '
+            doc += 'onclick="selectSecElement(\'target\', ' + i + ', \'\', 0, \'documentation\', '
+            doc += '\'pDoc-target-' + i + '\');">Change Attached Document Ids</button>'
+            doc += '<div id="pDoc-target-' + i + '"></div>'
+            doc += '</div>\n</div><br />\n'
+            if (hasData == true) {
+                ret += doc
+            }
+
+            ret += '<button type="button" class="btn btn-success" '
+            ret += 'onclick="editPresentElement(\'target\', ' + i + ');">Edit</button>&nbsp;&nbsp;&nbsp;&nbsp;'
+            ret += '<button type="button" class="btn btn-success" '
+            ret += 'onclick="editXref(\'target\', ' + i + ', -1);">New xRef</button>&nbsp;&nbsp;&nbsp;&nbsp;'
+            if (i == 0) {
+                ret += '<button type="button" class="btn btn-success disabled">Move Up</button>&nbsp;&nbsp;'
+            } else {
+                ret += '<button type="button" class="btn btn-success" '
+            ret += 'onclick="moveEditElement(\'target\', \'' + exp[i].id + '\', ' + (i - 1) + ');">Move Up</button>&nbsp;&nbsp;'
+            }
+            if (i == exp.length - 1) {
+                ret += '<button type="button" class="btn btn-success disabled">Move Down</button>&nbsp;&nbsp;&nbsp;'
+            } else {
+                ret += '<button type="button" class="btn btn-success" '
+            ret += 'onclick="moveEditElement(\'target\', \'' + exp[i].id + '\', ' + (i + 2) + ');">Move Down</button>&nbsp;&nbsp;&nbsp;'
+            }
+            ret += '&nbsp;<button type="button" class="btn btn-success" '
+            ret += 'onclick="deleteEditElement(\'target\', ' + i + ');">Delete</button>&nbsp;&nbsp;&nbsp;'
+            ret += '</div>\n</div>\n'
+        }
+    }
+    targetsData.innerHTML = ret
 
     // The experimenters tab
     var exp = window.rdmlData.rdml.experimenters;
@@ -812,11 +1254,6 @@ function updateClientData() {
         }
     }
     documentationsData.innerHTML = ret
-
-
-
-
-
 
     // The more tab - File Info
     var fileRoot = window.rdmlData.rdml
@@ -1364,6 +1801,9 @@ function showDocSecElement(prim_key, prim_pos, sec_key, sec_pos, id_source, div_
     if (prim_key == "sample") {
         exp = window.rdmlData.rdml.samples[prim_pos].documentations
     }
+    if (prim_key == "target") {
+        exp = window.rdmlData.rdml.targets[prim_pos].documentations
+    }
     var ret = '<p><br />'
     for (var i = 0; i < exp.length; i++) {
             ret += '<h3>' + exp[i] + '</h3>\n'
@@ -1401,6 +1841,9 @@ function editXref(prim_key, prim_pos, xref_pos) {
     if (prim_key == "sample") {
         exp = window.rdmlData.rdml.samples
     }
+    if (prim_key == "target") {
+        exp = window.rdmlData.rdml.targets
+    }
     var name = ""
     var id = ""
     var edit = true
@@ -1435,9 +1878,9 @@ function editXref(prim_key, prim_pos, xref_pos) {
     ret += '<button type="button" class="btn btn-success btn-sm" '
     ret += 'onclick="saveXref(\'' + prim_key + '\', ' + prim_pos + ', ' + xref_pos + ', ' + edit + ');">Save Changes</button>'
     ret += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button type="button" class="btn btn-success btn-sm" '
-    ret += 'onclick="disChangesSecElement(\'pXref-sample-' + prim_pos + '\');">Discard Changes</button>'
+    ret += 'onclick="disChangesSecElement(\'pXref-' + prim_key + '-' + prim_pos + '\');">Discard Changes</button>'
     ret += '</div>\n</div><br />\n'
-    var ele = document.getElementById('pXref-sample-' + prim_pos)
+    var ele = document.getElementById('pXref-' + prim_key + '-' + prim_pos)
     ele.innerHTML = ret
 }
 
@@ -1458,6 +1901,13 @@ function selectSecElement(prim_key, prim_pos, sec_key, sec_pos, id_source, div_t
     window.docIdOpen = ""
     if (prim_key == "sample") {
         var elem = window.rdmlData.rdml.samples[prim_pos].documentations
+        for (var i = 0; i < elem.length; i++) {
+            sel[elem[i]] = true
+        }
+
+    }
+    if (prim_key == "target") {
+        var elem = window.rdmlData.rdml.targets[prim_pos].documentations
         for (var i = 0; i < elem.length; i++) {
             sel[elem[i]] = true
         }
