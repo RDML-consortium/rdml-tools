@@ -66,20 +66,13 @@ function saveUndefKey(base, key) {
         if(base.hasOwnProperty(key)) {
             return base[key]
         }
-    } else {
-        return ""
     }
+    return ""
 }
 
 function tarSeqHtml(base, key) {
     var has_data = true
-    if (!(base)) {
-        has_data = false
-    }
-    if (!(base.hasOwnProperty("sequences"))) {
-        has_data = false
-    }
-    if (!(base.sequences.hasOwnProperty(key))) {
+    if (!(base) || !(base.hasOwnProperty("sequences")) || !(base.sequences.hasOwnProperty(key))) {
         has_data = false
     }
     var print_name = ""
@@ -90,18 +83,43 @@ function tarSeqHtml(base, key) {
         }
         print_name = "Forward Primer"
     }
+    if (key == "reversePrimer") {
+        if (has_data == true) {
+            elem = base.sequences.reversePrimer
+        }
+        print_name = "Reverse Primer"
+    }
+    if (key == "probe1") {
+        if (has_data == true) {
+            elem = base.sequences.probe1
+        }
+        print_name = "Probe 1"
+    }
+    if (key == "probe2") {
+        if (has_data == true) {
+            elem = base.sequences.probe2
+        }
+        print_name = "Probe 2"
+    }
+    if (key == "amplicon") {
+        if (has_data == true) {
+            elem = base.sequences.amplicon
+        }
+        print_name = "Amplicon"
+    }
     var ret = '  <tr>\n    <td style="width:25%;">' + print_name + ' - Five Prime Tag:</td>\n'
     ret += '    <td style="width:75%"><input type="text" class="form-control" id="inTarSequences_' + key
-    ret += '_fivePrimeTag" value="' + saveUndefKey(elem.fivePrimeTag, "value") + '"></td>\n<
+    ret += '_fivePrimeTag" value="' + saveUndefKey(elem, "fivePrimeTag") + '"></td>\n'
     ret += '  </tr>'
     ret += '  <tr>\n    <td style="width:25%;">' + print_name + ' - Sequence:</td>\n'
     ret += '    <td style="width:75%"><input type="text" class="form-control" id="inTarSequences_' + key
-    ret += '_sequence" value="' + saveUndefKey(elem.sequence, "value") + '"></td>\n<
+    ret += '_sequence" value="' + saveUndefKey(elem, "sequence") + '"></td>\n'
     ret += '  </tr>'
     ret += '  <tr>\n    <td style="width:25%;">' + print_name + ' - Three Prime Tag:</td>\n'
     ret += '    <td style="width:75%"><input type="text" class="form-control" id="inTarSequences_' + key
-    ret += '_threePrimeTag" value="' + saveUndefKey(elem.threePrimeTag, "value") + '"></td>\n<
+    ret += '_threePrimeTag" value="' + saveUndefKey(elem, "threePrimeTag") + '"></td>\n'
     ret += '  </tr>'
+    return ret
 }
 
 
@@ -466,6 +484,10 @@ function updateClientData() {
             ret += '>opt  - optical calibrator sample</option>\n'
             ret += '      </select></td>\n'
             ret += '  </tr>'
+            ret += '  <tr>\n    <td style="width:25%;">Description:</td>\n'
+            ret += '    <td style="width:75%"><input type="text" class="form-control" '
+            ret += 'id="inExpDescription" value="'+ saveUndef(exp[i].description) + '"></td>\n'
+            ret += '  </tr>'
             ret += htmlTriState("Calibrator Sample", 75, "inExpCalibratorSample", exp[i],
                                 "calibratorSample", "Yes", "No", "Not Set")
             ret += htmlTriState("Inter Run Calibrator", 75,"inExpInterRunCalibrator", exp[i],
@@ -557,10 +579,6 @@ function updateClientData() {
             ret += '  <tr>\n    <td style="width:25%;">Template DNA Quality - Result:</td>\n'
             ret += '    <td style="width:75%"><input type="text" class="form-control" '
             ret += 'id="inExpTemplateDNAQuality_Result" value="'+ saveUndefKey(exp[i].templateDNAQuality, "result") + '"></td>\n'
-            ret += '  </tr>'
-            ret += '  <tr>\n    <td style="width:25%;">Description:</td>\n'
-            ret += '    <td style="width:75%"><input type="text" class="form-control" '
-            ret += 'id="inExpDescription" value="'+ saveUndef(exp[i].description) + '"></td>\n'
             ret += '  </tr>'
             ret += '</table></p>\n'
             ret += '<button type="button" class="btn btn-success" '
@@ -769,124 +787,45 @@ function updateClientData() {
             ret += '>toi - target of interest</option>\n'
             ret += '      </select></td>\n'
             ret += '  </tr>'
+            ret += '  <tr>\n    <td style="width:25%;">Description:</td>\n'
+            ret += '    <td style="width:75%"><input type="text" class="form-control" '
+            ret += 'id="inTarDescription" value="'+ saveUndef(exp[i].description) + '"></td>\n'
+            ret += '  </tr>'
             ret += '  <tr>\n    <td style="width:25%;">Amplification Efficiency Method:</td>\n'
             ret += '    <td style="width:75%"><input type="text" class="form-control" '
-            ret += 'id="inTarAmplificationEfficiencyMethod" value="'+ exp[i].amplificationEfficiencyMethod + '"></td>\n'
+            ret += 'id="inTarAmplificationEfficiencyMethod" value="'+ saveUndef(exp[i].amplificationEfficiencyMethod) + '"></td>\n'
             ret += '  </tr>'
             ret += '  <tr>\n    <td style="width:25%;">Amplification Efficiency:</td>\n'
             ret += '    <td style="width:75%"><input type="text" class="form-control" '
-            ret += 'id="inTarAmplificationEfficiency" value="'+ exp[i].amplificationEfficiency + '"></td>\n'
+            ret += 'id="inTarAmplificationEfficiency" value="'+ saveUndef(exp[i].amplificationEfficiency) + '"></td>\n'
             ret += '  </tr>'
             ret += '  <tr>\n    <td style="width:25%;">Detection Limit:</td>\n'
             ret += '    <td style="width:75%"><input type="text" class="form-control" '
-            ret += 'id="inTarDetectionLimit" value="'+ exp[i].detectionLimit + '"></td>\n'
+            ret += 'id="inTarDetectionLimit" value="'+ saveUndef(exp[i].detectionLimit) + '"></td>\n'
             ret += '  </tr>'
-            ret += '  <tr>\n    <td style="width:25%;">ID:</td>\n'
+            ret += '  <tr>\n    <td style="width:25%;">Dye ID:</td>\n'
             ret += '    <td style="width:75%"><input type="text" class="form-control" '
-            ret += 'id="inTarDyeId" value="'+ exp[i].dyeId + '"></td>\n'
+            ret += 'id="inTarDyeId" value="'+ saveUndef(exp[i].dyeId) + '"></td>\n'
             ret += '  </tr>'
                     // Todo: create special selector
-
-
-            ret += '  <tr>\n    <td style="width:25%;">Forward Primer:</td>\n'
-            ret += '    <td style="width:75%"><table style="width:100%;">'
-            ret += '      <tr><td style="width:25%;">'
-            ret += '        <input type="text" class="form-control" id="inTar" value="'
-            ret += saveUndefKey(exp[i].quantity, "value") + '"></td>\n<td style="width:50%">'
-                        ret += '        <input type="text" class="form-control" id="inTar" value="'
-            ret += saveUndefKey(exp[i].quantity, "value") + '"></td>\n<td style="width:25%">'
-                        ret += '        <input type="text" class="form-control" id="inTar" value="'
-            ret += saveUndefKey(exp[i].quantity, "value") + '"></td>\n</tr>\n</table>'
-            ret += '  </tr>'
-            ret += '  <tr>\n    <td style="width:25%;">cDNA - Enzyme:</td>\n'
+            ret += tarSeqHtml(exp[i], "forwardPrimer")
+            ret += tarSeqHtml(exp[i], "reversePrimer")
+            ret += tarSeqHtml(exp[i], "probe1")
+            ret += tarSeqHtml(exp[i], "probe2")
+            ret += tarSeqHtml(exp[i], "amplicon")
+            ret += '  <tr>\n    <td style="width:25%;">Commercial Assay - Company:</td>\n'
             ret += '    <td style="width:75%"><input type="text" class="form-control" '
-            ret += 'id="inExpCdnaSynthesisMethod_enzyme" value="'
-            ret += saveUndef(exp[i].cdnaSynthesisMethod_enzyme) + '"></td>\n'
+            ret += 'id="inTarCommercialAssay_company" value="'+ saveUndefKey(exp[i].commercialAssay, "company") + '"></td>\n'
             ret += '  </tr>'
-            ret += '  <tr>\n    <td style="width:25%;">cDNA - Priming Method:</td>\n'
-            ret += '    <td style="width:75%"><select class="form-control" id="inExpCdnaSynthesisMethod_primingMethod">\n'
-            ret += '        <option value=""'
-            if (exp[i].cdnaSynthesisMethod_primingMethod == "") {
-                ret += ' selected'
-            }
-            ret += '>not set</option>\n'
-            ret += '        <option value="oligo-dt"'
-            if (exp[i].cdnaSynthesisMethod_primingMethod == "oligo-dt") {
-                ret += ' selected'
-            }
-            ret += '>oligo-dt</option>\n'
-            ret += '        <option value="random"'
-            if (exp[i].cdnaSynthesisMethod_primingMethod == "random") {
-                ret += ' selected'
-            }
-            ret += '>random</option>\n'
-            ret += '        <option value="target-specific"'
-            if (exp[i].cdnaSynthesisMethod_primingMethod == "target-specific") {
-                ret += ' selected'
-            }
-            ret += '>target-specific</option>\n'
-            ret += '        <option value="oligo-dt and random"'
-            if (exp[i].cdnaSynthesisMethod_primingMethod == "oligo-dt and random") {
-                ret += ' selected'
-            }
-            ret += '>oligo-dt and random</option>\n'
-            ret += '        <option value="other"'
-            if (exp[i].cdnaSynthesisMethod_primingMethod == "other") {
-                ret += ' selected'
-            }
-            ret += '>other</option>\n'
-            ret += '      </select></td>\n'
-            ret += '  </tr>'
-            ret += htmlTriState("cDNA - DNase Treatment", 85,"inExpCdnaSynthesisMethod_dnaseTreatment", exp[i],
-                                "cdnaSynthesisMethod_dnaseTreatment", "Yes", "No", "Not Set")
-            ret += '  <tr>\n    <td style="width:25%;">cDNA - Thermal Cycling Conditions:</td>\n'
+            ret += '  <tr>\n    <td style="width:25%;">Commercial Assay - Order Number:</td>\n'
             ret += '    <td style="width:75%"><input type="text" class="form-control" '
-            ret += 'id="inExpCdnaSynthesisMethod_thermalCyclingConditions" value="'
-            ret += saveUndef(exp[i].cdnaSynthesisMethod_thermalCyclingConditions) + '"></td>\n'
-            ret += '  </tr>'
-              // Todo: make dropdown selection
-
-            ret += '  <tr>\n    <td style="width:25%;">Template RNA Quantity:</td>\n'
-            ret += '    <td style="width:75%"><table style="width:100%;">'
-            ret += '      <tr><td style="width:50%;">'
-            ret += '        <input type="text" class="form-control" id="inExpTemplateRNAQuantity_Value" value="'
-            ret += saveUndefKey(exp[i].templateRNAQuantity, "value") + '">'
-            ret += '        </td>\n<td style="width:50%">'
-            ret += htmlUnitSelector("inExpTemplateRNAQuantity_Unit", exp[i].templateRNAQuantity) + '</td>\n</tr>\n</table>'
-            ret += '  </tr>'
-            ret += '  <tr>\n    <td style="width:25%;">Template RNA Quality - Method:</td>\n'
-            ret += '    <td style="width:75%"><input type="text" class="form-control" '
-            ret += 'id="inExpTemplateRNAQuality_Method" value="'+ saveUndefKey(exp[i].templateRNAQuality, "method") + '"></td>\n'
-            ret += '  </tr>'
-            ret += '  <tr>\n    <td style="width:25%;">Template RNA Quality - Result:</td>\n'
-            ret += '    <td style="width:75%"><input type="text" class="form-control" '
-            ret += 'id="inExpTemplateRNAQuality_Result" value="'+ saveUndefKey(exp[i].templateRNAQuality, "result") + '"></td>\n'
-            ret += '  </tr>'
-            ret += '  <tr>\n    <td style="width:25%;">Template DNA Quantity:</td>\n'
-            ret += '    <td style="width:75%"><table style="width:100%;">'
-            ret += '      <tr><td style="width:50%;">'
-            ret += '        <input type="text" class="form-control" id="inExpTemplateDNAQuantity_Value" value="'
-            ret += saveUndefKey(exp[i].templateDNAQuantity, "value") + '">'
-            ret += '        </td>\n<td style="width:50%">'
-            ret += htmlUnitSelector("inExpTemplateDNAQuantity_Unit", exp[i].templateDNAQuantity) + '</td>\n</tr>\n</table>'
-            ret += '  </tr>'
-            ret += '  <tr>\n    <td style="width:25%;">Template DNA Quality - Method:</td>\n'
-            ret += '    <td style="width:75%"><input type="text" class="form-control" '
-            ret += 'id="inExpTemplateDNAQuality_Method" value="'+ saveUndefKey(exp[i].templateDNAQuality, "method") + '"></td>\n'
-            ret += '  </tr>'
-            ret += '  <tr>\n    <td style="width:25%;">Template DNA Quality - Result:</td>\n'
-            ret += '    <td style="width:75%"><input type="text" class="form-control" '
-            ret += 'id="inExpTemplateDNAQuality_Result" value="'+ saveUndefKey(exp[i].templateDNAQuality, "result") + '"></td>\n'
-            ret += '  </tr>'
-            ret += '  <tr>\n    <td style="width:25%;">Description:</td>\n'
-            ret += '    <td style="width:75%"><input type="text" class="form-control" '
-            ret += 'id="inExpDescription" value="'+ saveUndef(exp[i].description) + '"></td>\n'
+            ret += 'id="inTarCommercialAssay_orderNumber" value="'+ saveUndefKey(exp[i].commercialAssay, "orderNumber") + '"></td>\n'
             ret += '  </tr>'
             ret += '</table></p>\n'
             ret += '<button type="button" class="btn btn-success" '
-            ret += 'onclick="saveEditElement(\'sample\', ' + i + ', \'' + exp[i].id + '\');">Save Changes</button>'
+            ret += 'onclick="saveEditElement(\'target\', ' + i + ', \'' + exp[i].id + '\');">Save Changes</button>'
             ret += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button type="button" class="btn btn-success" '
-            ret += 'onclick="deleteEditElement(\'sample\', ' + i + ');">Delete</button>&nbsp;&nbsp;&nbsp;'
+            ret += 'onclick="deleteEditElement(\'target\', ' + i + ');">Delete</button>&nbsp;&nbsp;&nbsp;'
             ret += '</div>\n</div>\n'
         } else {
             ret += '<br /><div class="card">\n<div class="card-body">\n'
@@ -1026,12 +965,12 @@ function updateClientData() {
             if (exp[i].hasOwnProperty("commercialAssay")) {
                 if (exp[i].commercialAssay.hasOwnProperty("company")) {
                   ret += '  <tr>\n    <td style="width:25%;">Commercial Assay - Company:</td>\n'
-                  ret += '    <td style="width:75%">\n'+ exp[i].cdnaSynthesisMethod.company + '</td>\n'
+                  ret += '    <td style="width:75%">\n'+ exp[i].commercialAssay.company + '</td>\n'
                   ret += '  </tr>'
                 }
                 if (exp[i].commercialAssay.hasOwnProperty("orderNumber")) {
                   ret += '  <tr>\n    <td style="width:25%;">Commercial Assay - Order Number:</td>\n'
-                  ret += '    <td style="width:75%">\n'+ exp[i].cdnaSynthesisMethod.orderNumber + '</td>\n'
+                  ret += '    <td style="width:75%">\n'+ exp[i].commercialAssay.orderNumber + '</td>\n'
                   ret += '  </tr>'
                 }
             }
@@ -1727,6 +1666,28 @@ function saveEditElement(typ, pos, oldId){
         ret["type"] = "target"
         el["id"] = getSaveHtmlData("inTarId")
         el["type"] = getSaveHtmlData("inTarType")
+        el["amplificationEfficiencyMethod"] = getSaveHtmlData("inTarAmplificationEfficiencyMethod")
+        el["amplificationEfficiency"] = getSaveHtmlData("inTarAmplificationEfficiency")
+        el["detectionLimit"] = getSaveHtmlData("inTarDetectionLimit")
+        el["dyeId"] = getSaveHtmlData("inTarDyeId")
+        el["sequences_forwardPrimer_fivePrimeTag"] = getSaveHtmlData("inTarSequences_forwardPrimer_fivePrimeTag")
+        el["sequences_forwardPrimer_sequence"] = getSaveHtmlData("inTarSequences_forwardPrimer_sequence")
+        el["sequences_forwardPrimer_threePrimeTag"] = getSaveHtmlData("inTarSequences_forwardPrimer_threePrimeTag")
+        el["sequences_reversePrimer_fivePrimeTag"] = getSaveHtmlData("inTarSequences_reversePrimer_fivePrimeTag")
+        el["sequences_reversePrimer_sequence"] = getSaveHtmlData("inTarSequences_reversePrimer_sequence")
+        el["sequences_reversePrimer_threePrimeTag"] = getSaveHtmlData("inTarSequences_reversePrimer_threePrimeTag")
+        el["sequences_probe1_fivePrimeTag"] = getSaveHtmlData("inTarSequences_probe1_fivePrimeTag")
+        el["sequences_probe1_sequence"] = getSaveHtmlData("inTarSequences_probe1_sequence")
+        el["sequences_probe1_threePrimeTag"] = getSaveHtmlData("inTarSequences_probe1_threePrimeTag")
+        el["sequences_probe2_fivePrimeTag"] = getSaveHtmlData("inTarSequences_probe2_fivePrimeTag")
+        el["sequences_probe2_sequence"] = getSaveHtmlData("inTarSequences_probe2_sequence")
+        el["sequences_probe2_threePrimeTag"] = getSaveHtmlData("inTarSequences_probe2_threePrimeTag")
+        el["sequences_amplicon_fivePrimeTag"] = getSaveHtmlData("inTarSequences_amplicon_fivePrimeTag")
+        el["sequences_amplicon_sequence"] = getSaveHtmlData("inTarSequences_amplicon_sequence")
+        el["sequences_amplicon_threePrimeTag"] = getSaveHtmlData("inTarSequences_amplicon_threePrimeTag")
+        el["commercialAssay_company"] = getSaveHtmlData("inTarCommercialAssay_company")
+        el["commercialAssay_orderNumber"] = getSaveHtmlData("inTarCommercialAssay_orderNumber")
+        el["description"] = getSaveHtmlData("inTarDescription")
         ret["data"] = el
     }
     if (typ == "cyclingConditions") {
