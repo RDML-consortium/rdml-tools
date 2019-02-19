@@ -311,12 +311,12 @@ function htmlTriState(desc, div, tag, base, key, trV, faV, unV) {
     var ret = '  <tr>\n    <td style="width:' + (100-div) + '%;">' + desc + ':</td>\n'
     ret += '    <td style="width:' + div + '%;padding:10px;">\n'
     ret += '    <input type="radio" name="' + tag + '_radios" id="' + tag + '_true" value="true"'
-    if (base.hasOwnProperty(key) && base[key] == true) {
+    if (base.hasOwnProperty(key) && ((base[key] == true) || (base[key].toLowerCase() == "true"))){
         ret += ' checked'
     }
     ret += '>&nbsp;' + trV + "&nbsp;&nbsp;&nbsp;&nbsp;"
     ret += '    <input type="radio" name="' + tag + '_radios" id="' + tag + '_false" value="false"'
-    if (base.hasOwnProperty(key) && base[key] == false) {
+    if (base.hasOwnProperty(key) && ((base[key] == false) || (base[key].toLowerCase() == "false"))) {
         ret += ' checked'
     }
     ret += '>&nbsp;' + faV + "&nbsp;&nbsp;&nbsp;&nbsp;"
@@ -338,18 +338,13 @@ function readTriState(tag) {
     return ""
 }
 
-function htmlUnitSelector(tag, val) {
-    if (typeof val !== 'undefined') {
-        val = ""
-        if (val.hasOwnProperty("unit")) {
+function htmlUnitSelector(tag, base) {
+    var val = ""
+    if (typeof base !== 'undefined') {
+        if (base.hasOwnProperty("unit")) {
             val = base["unit"]
-        } else {
-            val = ""
         }
-    } else {
-        val = ""
     }
-
     var ret = '<select class="form-control" id="' + tag + '">\n'
     ret += '        <option value=""'
     if (val == "") {
@@ -503,48 +498,53 @@ function updateClientData() {
             ret += '  <tr>\n    <td style="width:25%;">cDNA - Enzyme:</td>\n'
             ret += '    <td style="width:75%"><input type="text" class="form-control" '
             ret += 'id="inExpCdnaSynthesisMethod_enzyme" value="'
-            ret += saveUndef(exp[i].cdnaSynthesisMethod_enzyme) + '"></td>\n'
+            ret += saveUndefKey(exp[i].cdnaSynthesisMethod, "enzyme") + '"></td>\n'
             ret += '  </tr>'
             ret += '  <tr>\n    <td style="width:25%;">cDNA - Priming Method:</td>\n'
             ret += '    <td style="width:75%"><select class="form-control" id="inExpCdnaSynthesisMethod_primingMethod">\n'
             ret += '        <option value=""'
-            if (exp[i].cdnaSynthesisMethod_primingMethod == "") {
+            var primMeth = saveUndefKey(exp[i].cdnaSynthesisMethod, "primingMethod")
+            if (primMeth == "") {
                 ret += ' selected'
             }
             ret += '>not set</option>\n'
             ret += '        <option value="oligo-dt"'
-            if (exp[i].cdnaSynthesisMethod_primingMethod == "oligo-dt") {
+            if (primMeth == "oligo-dt") {
                 ret += ' selected'
             }
             ret += '>oligo-dt</option>\n'
             ret += '        <option value="random"'
-            if (exp[i].cdnaSynthesisMethod_primingMethod == "random") {
+            if (primMeth == "random") {
                 ret += ' selected'
             }
             ret += '>random</option>\n'
             ret += '        <option value="target-specific"'
-            if (exp[i].cdnaSynthesisMethod_primingMethod == "target-specific") {
+            if (primMeth == "target-specific") {
                 ret += ' selected'
             }
             ret += '>target-specific</option>\n'
             ret += '        <option value="oligo-dt and random"'
-            if (exp[i].cdnaSynthesisMethod_primingMethod == "oligo-dt and random") {
+            if (primMeth == "oligo-dt and random") {
                 ret += ' selected'
             }
             ret += '>oligo-dt and random</option>\n'
             ret += '        <option value="other"'
-            if (exp[i].cdnaSynthesisMethod_primingMethod == "other") {
+            if (primMeth == "other") {
                 ret += ' selected'
             }
             ret += '>other</option>\n'
             ret += '      </select></td>\n'
             ret += '  </tr>'
-            ret += htmlTriState("cDNA - DNase Treatment", 85,"inExpCdnaSynthesisMethod_dnaseTreatment", exp[i],
-                                "cdnaSynthesisMethod_dnaseTreatment", "Yes", "No", "Not Set")
+            var newBaseCyc = {}
+            if (exp[i].hasOwnProperty("cdnaSynthesisMethod")) {
+                newBaseCyc = exp[i].cdnaSynthesisMethod
+            }
+            ret += htmlTriState("cDNA - DNase Treatment", 85,"inExpCdnaSynthesisMethod_dnaseTreatment", newBaseCyc,
+                                "dnaseTreatment", "Yes", "No", "Not Set")
             ret += '  <tr>\n    <td style="width:25%;">cDNA - Thermal Cycling Conditions:</td>\n'
             ret += '    <td style="width:75%"><input type="text" class="form-control" '
             ret += 'id="inExpCdnaSynthesisMethod_thermalCyclingConditions" value="'
-            ret += saveUndef(exp[i].cdnaSynthesisMethod_thermalCyclingConditions) + '"></td>\n'
+            ret += saveUndefKey(exp[i].cdnaSynthesisMethod, "thermalCyclingConditions") + '"></td>\n'
             ret += '  </tr>'
               // Todo: make dropdown selection
 
