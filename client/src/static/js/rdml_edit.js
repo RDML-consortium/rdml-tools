@@ -28,7 +28,7 @@ const documentationsData = document.getElementById('documentations-data')
 const dyesData = document.getElementById('dyes-data')
 const samplesData = document.getElementById('samples-data')
 const targetsData = document.getElementById('targets-data')
-const cyclingConditionsData = document.getElementById('cyclingConditions-data')
+const therm_cyc_consData = document.getElementById('cyclingConditions-data')
 const experimentsData = document.getElementById('experiments-data')
 const debugData = document.getElementById('debug-data')
 
@@ -714,13 +714,11 @@ function updateClientData() {
 
             ret += '<div id="pXref-sample-' + i + '"></div>'
 
-            var hasData = false
             var doc = '<div class="card">\n<div class="card-body">\n'
             doc += '<h5 class="card-title">Documentation:</h5>\n'
             var desc = saveUndef(exp[i].description)
             if (desc != "") {
                 doc += '<p>' + desc + '</p>'
-                hasData = true
             }
             doc += '<button type="button" class="btn btn-success btn-sm" '
             doc += ' onclick="showDocSecElement(\'sample\', ' + i + ', \'\', 0, \'documentation\', '
@@ -730,9 +728,7 @@ function updateClientData() {
             doc += '\'pDoc-sample-' + i + '\');">Change Attached Document Ids</button>'
             doc += '<div id="pDoc-sample-' + i + '"></div>'
             doc += '</div>\n</div><br />\n'
-            if (hasData == true) {
-                ret += doc
-            }
+            ret += doc
 
             ret += '<button type="button" class="btn btn-success" '
             ret += 'onclick="editPresentElement(\'sample\', ' + i + ');">Edit</button>&nbsp;&nbsp;&nbsp;&nbsp;'
@@ -1018,13 +1014,11 @@ function updateClientData() {
 
             ret += '<div id="pXref-target-' + i + '"></div>'
 
-            var hasData = false
             var doc = '<div class="card">\n<div class="card-body">\n'
             doc += '<h5 class="card-title">Documentation:</h5>\n'
             var desc = saveUndef(exp[i].description)
             if (desc != "") {
                 doc += '<p>' + desc + '</p>'
-                hasData = true
             }
             doc += '<button type="button" class="btn btn-success btn-sm" '
             doc += ' onclick="showDocSecElement(\'target\', ' + i + ', \'\', 0, \'documentation\', '
@@ -1034,9 +1028,7 @@ function updateClientData() {
             doc += '\'pDoc-target-' + i + '\');">Change Attached Document Ids</button>'
             doc += '<div id="pDoc-target-' + i + '"></div>'
             doc += '</div>\n</div><br />\n'
-            if (hasData == true) {
-                ret += doc
-            }
+            ret += doc
 
             ret += '<button type="button" class="btn btn-success" '
             ret += 'onclick="editPresentElement(\'target\', ' + i + ');">Edit</button>&nbsp;&nbsp;&nbsp;&nbsp;'
@@ -1060,6 +1052,123 @@ function updateClientData() {
         }
     }
     targetsData.innerHTML = ret
+
+    // The Thermal Cycling Conditions tab
+    var exp = window.rdmlData.rdml.therm_cyc_cons;
+    ret = ''
+    for (var i = 0; i < exp.length; i++) {
+        if ((editMode == true) && (editType == "therm_cyc_cons") && (i == editNumber)) {
+            ret += '<br /><div class="card text-white bg-primary">\n<div class="card-body">\n'
+            ret += '<h5 class="card-title">' + (i + 1) + '. Thermal Cycling Conditions ID: ' + exp[i].id + '</h5>\n<p>'
+            ret += '<table style="width:100%;">'
+            ret += '  <tr>\n    <td style="width:25%;">ID:</td>\n'
+            ret += '    <td style="width:75%"><input type="text" class="form-control" '
+            ret += 'id="inCycId" value="'+ exp[i].id + '"></td>\n'
+            ret += '  </tr>'
+            ret += '  <tr>\n    <td style="width:25%;">Place at Position:</td>\n'
+            ret += '    <td style="width:75%"><input type="text" class="form-control" '
+            ret += 'id="inPos" value="' + (i + 1) + '"></td>\n'
+            ret += '  </tr>'
+            ret += '  <tr>\n    <td style="width:25%;">Description:</td>\n'
+            ret += '    <td style="width:75%"><input type="text" class="form-control" '
+            ret += 'id="inCycDescription" value="'+ saveUndef(exp[i].description) + '"></td>\n'
+            ret += '  </tr>'
+            ret += '  <tr>\n    <td style="width:25%;">Lid Temperature:</td>\n'
+            ret += '    <td style="width:75%"><input type="text" class="form-control" '
+            ret += 'id="inCycLidTemperature" value="'+ saveUndef(exp[i].lidTemperature) + '"></td>\n'
+            ret += '  </tr>'
+            ret += '</table></p>\n'
+            ret += '<button type="button" class="btn btn-success" '
+            ret += 'onclick="saveEditElement(\'therm_cyc_cons\', ' + i + ', \'' + exp[i].id + '\');">Save Changes</button>'
+            ret += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button type="button" class="btn btn-success" '
+            ret += 'onclick="deleteEditElement(\'therm_cyc_cons\', ' + i + ');">Delete</button>&nbsp;&nbsp;&nbsp;'
+            ret += '</div>\n</div>\n'
+        } else {
+            ret += '<br /><div class="card">\n<div class="card-body">\n'
+            ret += '<h5 class="card-title">' + (i + 1) + '. Thermal Cycling Conditions ID: ' + exp[i].id + '</h5>\n<p>'
+            ret += '<table style="width:100%;">'
+            if (exp[i].hasOwnProperty("lidTemperature")) {
+                ret += '  <tr>\n    <td style="width:25%;">Lid Temperature:</td>\n'
+                ret += '    <td style="width:75%">\n'+ exp[i].lidTemperature + '</td>\n'
+                ret += '  </tr>'
+            }
+            ret += '</table></p>\n'
+
+            var k = 0
+            var xref = '<div class="card">\n<div class="card-body">\n'
+            xref += '<h5 class="card-title">Experimenters:</h5>\n'
+            xref += '<table style="width:100%;">'
+            if (exp[i].hasOwnProperty("experimenters")) {
+                k = exp[i].experimenters.length
+                for (var j = 0; j < k; j++) {
+                    xref += '  <tr>\n    <td style="width:50%;">Experimenter: '
+                    xref += saveUndef(exp[i].experimenters[j]) + '</td>\n'
+                    xref += '    <td style="width:50%">\n'
+                    if (j == 0) {
+                        xref += '<button type="button" class="btn btn-success btn-sm disabled">Move Up</button>&nbsp;&nbsp;'
+                    } else {
+                        xref += '<button type="button" class="btn btn-success btn-sm" '
+                        xref += 'onclick="moveSecElement(\'therm_cyc_cons\', ' + i + ', \'\', 0, \'experimenter\', ' + j
+                        xref += ', ' + (j - 1) + ');">Move Up</button>&nbsp;&nbsp;'
+                    }
+                    if (j == k - 1) {
+                        xref += '<button type="button" class="btn btn-success btn-sm disabled">Move Down</button>&nbsp;&nbsp;&nbsp;'
+                    } else {
+                        xref += '<button type="button" class="btn btn-success btn-sm" '
+                        xref += 'onclick="moveSecElement(\'therm_cyc_cons\', ' + i + ', \'\', 0, \'experimenter\', ' + j
+                        xref += ', ' + (j + 2) + ');">Move Down</button>&nbsp;&nbsp;&nbsp;'
+                    }
+                    xref += '<button type="button" class="btn btn-success btn-sm" '
+                    xref += 'onclick="deleteSecElement(\'therm_cyc_cons\', ' + i + ', \'\', 0, \'experimenter\', ' + j
+                    xref += ');">Delete</button></td>\n  </tr>'
+                }
+            }
+            xref += '</table></p>\n'
+            xref += '</div>\n</div><br />\n'
+            if (k > 0) {
+                ret += xref
+            }
+            ret += '<div id="pExp-therm_cyc_cons-' + i + '"></div>'
+
+            var doc = '<div class="card">\n<div class="card-body">\n'
+            doc += '<h5 class="card-title">Documentation:</h5>\n'
+            var desc = saveUndef(exp[i].description)
+            if (desc != "") {
+                doc += '<p>' + desc + '</p>'
+            }
+            doc += '<button type="button" class="btn btn-success btn-sm" '
+            doc += ' onclick="showDocSecElement(\'therm_cyc_cons\', ' + i + ', \'\', 0, \'documentation\', '
+            doc += '\'pDoc-therm_cyc_cons-' + i + '\', this);">Show All Document Information</button>'
+            doc += '&nbsp;&nbsp;<button type="button" class="btn btn-success btn-sm" '
+            doc += 'onclick="selectSecElement(\'therm_cyc_cons\', ' + i + ', \'\', 0, \'documentation\', '
+            doc += '\'pDoc-therm_cyc_cons-' + i + '\');">Change Attached Document Ids</button>'
+            doc += '<div id="pDoc-therm_cyc_cons-' + i + '"></div>'
+            doc += '</div>\n</div><br />\n'
+            ret += doc
+
+            ret += '<button type="button" class="btn btn-success" '
+            ret += 'onclick="editPresentElement(\'therm_cyc_cons\', ' + i + ');">Edit</button>&nbsp;&nbsp;&nbsp;&nbsp;'
+            ret += '<button type="button" class="btn btn-success" '
+            ret += 'onclick="selectSecElement(\'therm_cyc_cons\', ' + i + ', \'\', 0, \'experimenter\', '
+            ret += '\'pExp-therm_cyc_cons-' + i + '\');"">Change Attached Experimenters</button>&nbsp;&nbsp;&nbsp;&nbsp;'
+            if (i == 0) {
+                ret += '<button type="button" class="btn btn-success disabled">Move Up</button>&nbsp;&nbsp;'
+            } else {
+                ret += '<button type="button" class="btn btn-success" '
+            ret += 'onclick="moveEditElement(\'therm_cyc_cons\', \'' + exp[i].id + '\', ' + (i - 1) + ');">Move Up</button>&nbsp;&nbsp;'
+            }
+            if (i == exp.length - 1) {
+                ret += '<button type="button" class="btn btn-success disabled">Move Down</button>&nbsp;&nbsp;&nbsp;'
+            } else {
+                ret += '<button type="button" class="btn btn-success" '
+            ret += 'onclick="moveEditElement(\'therm_cyc_cons\', \'' + exp[i].id + '\', ' + (i + 2) + ');">Move Down</button>&nbsp;&nbsp;&nbsp;'
+            }
+            ret += '&nbsp;<button type="button" class="btn btn-success" '
+            ret += 'onclick="deleteEditElement(\'therm_cyc_cons\', ' + i + ');">Delete</button>&nbsp;&nbsp;&nbsp;'
+            ret += '</div>\n</div>\n'
+        }
+    }
+    therm_cyc_consData.innerHTML = ret
 
     // The experimenters tab
     var exp = window.rdmlData.rdml.experimenters;
@@ -1412,11 +1521,11 @@ function createNewElement(typ){
         window.editNumber = 0;
         updateClientData()
     }
-    if (typ == "cyclingConditions") {
+    if (typ == "therm_cyc_cons") {
         var nex = {}
         nex["id"] = "New Cycling Conditions"
-        window.rdmlData.rdml.cyclingConditions.unshift(nex)
-        window.editType = "cyclingConditions";
+        window.rdmlData.rdml.therm_cyc_cons.unshift(nex)
+        window.editType = "therm_cyc_cons";
         window.editNumber = 0;
         updateClientData()
     }
@@ -1557,8 +1666,8 @@ function deleteEditElement(typ, pos){
             window.editNumber = -1;
             updateClientData()
         }
-        if (typ == "cyclingConditions") {
-            window.rdmlData.rdml.cyclingConditions.shift()
+        if (typ == "therm_cyc_cons") {
+            window.rdmlData.rdml.therm_cyc_cons.shift()
             window.editMode = false;
             window.editIsNew = false;
             window.editType = "";
@@ -1690,9 +1799,11 @@ function saveEditElement(typ, pos, oldId){
         el["description"] = getSaveHtmlData("inTarDescription")
         ret["data"] = el
     }
-    if (typ == "cyclingConditions") {
-        ret["type"] = "cyclingConditions"
+    if (typ == "therm_cyc_cons") {
+        ret["type"] = "therm_cyc_cons"
         el["id"] = getSaveHtmlData("inCycId")
+        el["lidTemperature"] = getSaveHtmlData("inCycLidTemperature")
+        el["description"] = getSaveHtmlData("inCycDescription")
         ret["data"] = el
     }
     if (typ == "experiment") {
@@ -1764,6 +1875,9 @@ function showDocSecElement(prim_key, prim_pos, sec_key, sec_pos, id_source, div_
     }
     if (prim_key == "target") {
         exp = window.rdmlData.rdml.targets[prim_pos].documentations
+    }
+    if (prim_key == "therm_cyc_cons") {
+        exp = window.rdmlData.rdml.therm_cyc_cons[prim_pos].documentations
     }
     var ret = '<p><br />'
     for (var i = 0; i < exp.length; i++) {
@@ -1859,20 +1973,32 @@ function selectSecElement(prim_key, prim_pos, sec_key, sec_pos, id_source, div_t
     if (id_source == "documentation") {
         exp = window.rdmlData.rdml.documentations
     }
+    if (id_source == "experimenter") {
+        exp = window.rdmlData.rdml.experimenters
+    }
     window.docIdOpen = ""
     if (prim_key == "sample") {
         var elem = window.rdmlData.rdml.samples[prim_pos].documentations
         for (var i = 0; i < elem.length; i++) {
             sel[elem[i]] = true
         }
-
     }
     if (prim_key == "target") {
         var elem = window.rdmlData.rdml.targets[prim_pos].documentations
         for (var i = 0; i < elem.length; i++) {
             sel[elem[i]] = true
         }
-
+    }
+    if (prim_key == "therm_cyc_cons") {
+        var elem = null
+        if (id_source == "experimenter") {
+            elem = window.rdmlData.rdml.therm_cyc_cons[prim_pos].experimenters
+        } else {
+            elem = window.rdmlData.rdml.therm_cyc_cons[prim_pos].documentations
+        }
+        for (var i = 0; i < elem.length; i++) {
+            sel[elem[i]] = true
+        }
     }
     var ret = '<p><br />'
     for (var i = 0; i < exp.length; i++) {
@@ -1890,6 +2016,9 @@ function selectSecElement(prim_key, prim_pos, sec_key, sec_pos, id_source, div_t
     ret +=  id_source + '\', \'select-elements-by-ids\');">Save Changes</button>'
     ret += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button type="button" class="btn btn-success" '
     ret += 'onclick="disChangesSecElement(\'' + div_target + '\');">Discard Changes</button>'
+    if (id_source == "experimenter") {
+        ret += '<br /><br />'
+    }
     var ele = document.getElementById(div_target)
     ele.innerHTML = ret
 }

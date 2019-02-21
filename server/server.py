@@ -184,8 +184,8 @@ def handle_data():
             if reqdata["type"] == "target":
                 rd.delete_target(byposition=reqdata["position"])
                 modified = True
-            if reqdata["type"] == "cyclingConditions":
-                rd.delete_cyclingConditions(byposition=reqdata["position"])
+            if reqdata["type"] == "therm_cyc_cons":
+                rd.delete_therm_cyc_cons(byposition=reqdata["position"])
                 modified = True
             if reqdata["type"] == "experiment":
                 rd.delete_experiment(byposition=reqdata["position"])
@@ -204,28 +204,23 @@ def handle_data():
                 return jsonify(errors=[{"title": "Invalid server request - id-source information missing!"}]), 400
             if "old-position" not in reqdata:
                 return jsonify(errors=[{"title": "Invalid server request - old-position information missing!"}]), 400
-            if reqdata["primary-key"] == "sample":
-                try:
+            try:
+                if reqdata["primary-key"] == "sample":
                     elem = rd.get_sample(byposition=reqdata["primary-position"])
                     if elem is None:
                         return jsonify(errors=[{"title": "Invalid server request - sample primary-position not found!"}]), 400
                     if reqdata["id-source"] == "xRef":
                         elem.delete_xref(byposition=int(reqdata["old-position"]))
-                except rdml.RdmlError as err:
-                    data["error"] = str(err)
-                else:
-                    modified = True
-            if reqdata["primary-key"] == "target":
-                try:
+                if reqdata["primary-key"] == "target":
                     elem = rd.get_target(byposition=reqdata["primary-position"])
                     if elem is None:
                         return jsonify(errors=[{"title": "Invalid server request - target primary-position not found!"}]), 400
                     if reqdata["id-source"] == "xRef":
                         elem.delete_xref(byposition=int(reqdata["old-position"]))
-                except rdml.RdmlError as err:
-                    data["error"] = str(err)
-                else:
-                    modified = True
+            except rdml.RdmlError as err:
+                data["error"] = str(err)
+            else:
+                modified = True
 
         if "mode" in reqdata and reqdata["mode"] == "addSecIds":
             if "primary-key" not in reqdata or "primary-position" not in reqdata:
@@ -245,7 +240,15 @@ def handle_data():
                 elem = rd.get_target(byposition=reqdata["primary-position"])
                 if elem is None:
                     return jsonify(errors=[{"title": "Invalid server request - target at position not found!"}]), 400
-            modified = elem.update_documentation_ids(reqdata["data"])
+            if reqdata["primary-key"] == "therm_cyc_cons":
+                elem = rd.get_therm_cyc_cons(byposition=reqdata["primary-position"])
+                if elem is None:
+                    return jsonify(errors=[{"title": "Invalid server request - thermal cycling conditions at position not found!"}]), 400
+            if reqdata["id-source"] == "documentation":
+                modified = elem.update_documentation_ids(reqdata["data"])
+            if reqdata["id-source"] == "experimenter":
+                print("Exp")
+                modified = elem.update_experimenter_ids(reqdata["data"])
 
         if "mode" in reqdata and reqdata["mode"] in ["create-xref", "edit-xref"]:
             if "primary-key" not in reqdata or "primary-position" not in reqdata:
@@ -587,7 +590,37 @@ def handle_data():
                         elem["commercialAssay_company"] = reqdata["data"]["commercialAssay_company"]
                         elem["commercialAssay_orderNumber"] = reqdata["data"]["commercialAssay_orderNumber"]
                     except rdml.RdmlError as err:
-                        print (str(err))
+                        data["error"] = str(err)
+                    else:
+                        modified = True
+
+            if reqdata["type"] == "therm_cyc_cons":
+                if "id" not in reqdata["data"]:
+                    return jsonify(errors=[{"title": "Invalid server request - thermal cycling conditions id missing!"}]), 400
+                if "description" not in reqdata["data"]:
+                    return jsonify(errors=[{"title": "Invalid server request - thermal cycling conditions description missing!"}]), 400
+                if "lidTemperature" not in reqdata["data"]:
+                    return jsonify(errors=[{"title": "Invalid server request - thermal cycling conditions lidTemperature missing!"}]), 400
+                if "current-position" not in reqdata or "new-position" not in reqdata:
+                    return jsonify(errors=[{"title": "Invalid server request - thermal cycling conditions position " +
+                                                     "information missing!"}]), 400
+                if reqdata["mode"] in ["create", "edit"]:
+                    if reqdata["mode"] == "edit" and "old-id" not in reqdata:
+                        return jsonify(
+                            errors=[{"title": "Invalid server request - thermal cycling conditions old id information missing!"}]), 400
+                    try:
+                        elem = None
+                        if reqdata["mode"] == "create":
+                            rd.new_therm_cyc_cons(id=reqdata["data"]["id"], newposition=int(reqdata["new-position"]))
+                            elem = rd.get_therm_cyc_cons(byid=reqdata["data"]["id"])
+                        if reqdata["mode"] == "edit":
+                            elem = rd.get_therm_cyc_cons(byid=reqdata["old-id"])
+                            if elem is None:
+                                return jsonify(errors=[{"title": "Invalid server request - thermal cycling conditions id not found!"}]), 400
+                            elem["id"] = reqdata["data"]["id"]
+                        elem["description"] = reqdata["data"]["description"]
+                        elem["lidTemperature"] = reqdata["data"]["lidTemperature"]
+                    except rdml.RdmlError as err:
                         data["error"] = str(err)
                     else:
                         modified = True
@@ -617,6 +650,10 @@ def handle_data():
                     elem = rd.get_target(byposition=reqdata["primary-position"])
                     if elem is None:
                         return jsonify(errors=[{"title": "Invalid server request - target primary-position not found!"}]), 400
+                if reqdata["primary-key"] == "therm_cyc_cons":
+                    elem = rd.get_therm_cyc_cons(byposition=reqdata["primary-position"])
+                    if elem is None:
+                        return jsonify(errors=[{"title": "Invalid server request - thermal cycling conditions primary-position not found!"}]), 400
                 if elem is None:
                     return jsonify(errors=[{"title": "Invalid server request - primary-key is unknown!"}]), 400
                 if reqdata["id-source"] == "documentation":
@@ -679,9 +716,9 @@ def handle_data():
                     data["error"] = str(err)
                 else:
                     modified = True
-            if reqdata["type"] == "cyclingConditions":
+            if reqdata["type"] == "therm_cyc_cons":
                 try:
-                    rd.move_cyclingConditions(id=reqdata["id"], newposition=reqdata["position"])
+                    rd.move_therm_cyc_cons(id=reqdata["id"], newposition=reqdata["position"])
                 except rdml.RdmlError as err:
                     data["error"] = str(err)
                 else:
