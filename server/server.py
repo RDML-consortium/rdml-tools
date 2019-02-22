@@ -662,6 +662,9 @@ def handle_data():
                 if reqdata["id-source"] == "xRef":
                     elem.move_xref(oldposition=int(reqdata["old-position"]),
                                    newposition=int(reqdata["new-position"]))
+                if reqdata["id-source"] == "experimenter":
+                    elem.move_experimenter(oldposition=int(reqdata["old-position"]),
+                                           newposition=int(reqdata["new-position"]))
             except rdml.RdmlError as err:
                 data["error"] = str(err)
             else:

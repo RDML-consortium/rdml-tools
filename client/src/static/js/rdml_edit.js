@@ -1089,7 +1089,7 @@ function updateClientData() {
             ret += '<table style="width:100%;">'
             if (exp[i].hasOwnProperty("lidTemperature")) {
                 ret += '  <tr>\n    <td style="width:25%;">Lid Temperature:</td>\n'
-                ret += '    <td style="width:75%">\n'+ exp[i].lidTemperature + '</td>\n'
+                ret += '    <td style="width:75%">\n'+ exp[i].lidTemperature + ' &deg;C</td>\n'
                 ret += '  </tr>'
             }
             ret += '</table></p>\n'
@@ -1101,9 +1101,10 @@ function updateClientData() {
             if (exp[i].hasOwnProperty("experimenters")) {
                 k = exp[i].experimenters.length
                 for (var j = 0; j < k; j++) {
-                    xref += '  <tr>\n    <td style="width:50%;">Experimenter: '
+                    xref += '  <tr>\n    <td style="width:75%;">'
                     xref += saveUndef(exp[i].experimenters[j]) + '</td>\n'
-                    xref += '    <td style="width:50%">\n'
+                    // Todo make link
+                    xref += '    <td style="width:25%">\n'
                     if (j == 0) {
                         xref += '<button type="button" class="btn btn-success btn-sm disabled">Move Up</button>&nbsp;&nbsp;'
                     } else {
@@ -1116,11 +1117,9 @@ function updateClientData() {
                     } else {
                         xref += '<button type="button" class="btn btn-success btn-sm" '
                         xref += 'onclick="moveSecElement(\'therm_cyc_cons\', ' + i + ', \'\', 0, \'experimenter\', ' + j
-                        xref += ', ' + (j + 2) + ');">Move Down</button>&nbsp;&nbsp;&nbsp;'
+                        xref += ', ' + (j + 2) + ');">Move Down</button>'
                     }
-                    xref += '<button type="button" class="btn btn-success btn-sm" '
-                    xref += 'onclick="deleteSecElement(\'therm_cyc_cons\', ' + i + ', \'\', 0, \'experimenter\', ' + j
-                    xref += ');">Delete</button></td>\n  </tr>'
+                    xref += '</td>\n  </tr>'
                 }
             }
             xref += '</table></p>\n'
