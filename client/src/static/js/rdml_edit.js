@@ -1093,6 +1093,131 @@ function updateClientData() {
                 ret += '  </tr>'
             }
             ret += '</table></p>\n'
+            ret += '<div class="card">\n<div class="card-body">\n'
+            ret += '<h5 class="card-title">Cycling Protocol:</h5>\n'
+            var cyc_steps = exp[i].steps
+            for (var s = 0 ; s < cyc_steps.length ; s++){
+                ret += '<div class="card">\n<div class="card-body">\n'
+                if (cyc_steps[s].hasOwnProperty("temperature")) {
+                    ret += '<h5 class="card-title">Step ' + cyc_steps[s].nr + ' - Temperature:</h5>\n'
+                    ret += '<table style="width:100%;">'
+                    ret += '  <tr>\n    <td style="width:25%;">Temperature:</td>\n'
+                    ret += '    <td style="width:75%">\n'+ cyc_steps[s].temperature.temperature + ' &deg;C</td>\n'
+                    ret += '  </tr>'
+                    ret += '  <tr>\n    <td style="width:25%;">Duration:</td>\n'
+                    ret += '    <td style="width:75%">\n'+ cyc_steps[s].temperature.duration + ' sec</td>\n'
+                    ret += '  </tr>'
+                    if (cyc_steps[s].temperature.hasOwnProperty("temperatureChange")) {
+                        ret += '  <tr>\n    <td style="width:25%;">Temperature Change:</td>\n'
+                        ret += '    <td style="width:75%">\n'+ cyc_steps[s].temperature.temperatureChange + ' &deg;C/cycle</td>\n'
+                        ret += '  </tr>'
+                    }
+                    if (cyc_steps[s].temperature.hasOwnProperty("durationChange")) {
+                        ret += '  <tr>\n    <td style="width:25%;">Duration Change:</td>\n'
+                        ret += '    <td style="width:75%">\n'+ cyc_steps[s].temperature.durationChange + ' sec/cycle</td>\n'
+                        ret += '  </tr>'
+                    }
+                    if (cyc_steps[s].temperature.hasOwnProperty("measure")) {
+                        ret += '  <tr>\n    <td style="width:25%;">Measure for:</td>\n'
+                        ret += '    <td style="width:75%">\n'+ cyc_steps[s].temperature.measure + '</td>\n'
+                        ret += '  </tr>'
+                    }
+                    if (cyc_steps[s].temperature.hasOwnProperty("ramp")) {
+                        ret += '  <tr>\n    <td style="width:25%;">Max. Ramp Speed:</td>\n'
+                        ret += '    <td style="width:75%">\n'+ cyc_steps[s].temperature.ramp + ' &deg;C/sec</td>\n'
+                        ret += '  </tr>'
+                    }
+                }
+                if (cyc_steps[s].hasOwnProperty("gradient")) {
+                    ret += '<h5 class="card-title">Step ' + cyc_steps[s].nr + ' - Gradient:</h5>\n'
+                    ret += '<table style="width:100%;">'
+                    ret += '  <tr>\n    <td style="width:25%;">High Temperature:</td>\n'
+                    ret += '    <td style="width:75%">\n'+ cyc_steps[s].gradient.highTemperature + ' &deg;C</td>\n'
+                    ret += '  </tr>'
+                    ret += '  <tr>\n    <td style="width:25%;">Low Temperature:</td>\n'
+                    ret += '    <td style="width:75%">\n'+ cyc_steps[s].gradient.lowTemperature + ' &deg;C</td>\n'
+                    ret += '  </tr>'
+                    ret += '  <tr>\n    <td style="width:25%;">Duration:</td>\n'
+                    ret += '    <td style="width:75%">\n'+ cyc_steps[s].gradient.duration + ' sec</td>\n'
+                    ret += '  </tr>'
+                    if (cyc_steps[s].gradient.hasOwnProperty("temperatureChange")) {
+                        ret += '  <tr>\n    <td style="width:25%;">Temperature Change:</td>\n'
+                        ret += '    <td style="width:75%">\n'+ cyc_steps[s].gradient.temperatureChange + ' &deg;C/cycle</td>\n'
+                        ret += '  </tr>'
+                    }
+                    if (cyc_steps[s].gradient.hasOwnProperty("durationChange")) {
+                        ret += '  <tr>\n    <td style="width:25%;">Duration Change:</td>\n'
+                        ret += '    <td style="width:75%">\n'+ cyc_steps[s].gradient.durationChange + ' sec/cycle</td>\n'
+                        ret += '  </tr>'
+                    }
+                    if (cyc_steps[s].gradient.hasOwnProperty("measure")) {
+                        ret += '  <tr>\n    <td style="width:25%;">Measure for:</td>\n'
+                        ret += '    <td style="width:75%">\n'+ cyc_steps[s].gradient.measure + '</td>\n'
+                        ret += '  </tr>'
+                    }
+                    if (cyc_steps[s].gradient.hasOwnProperty("ramp")) {
+                        ret += '  <tr>\n    <td style="width:25%;">Max. Ramp Speed:</td>\n'
+                        ret += '    <td style="width:75%">\n'+ cyc_steps[s].gradient.ramp + ' &deg;C/sec</td>\n'
+                        ret += '  </tr>'
+                    }
+                }
+                if (cyc_steps[s].hasOwnProperty("loop")) {
+                    ret += '<h5 class="card-title">Step ' + cyc_steps[s].nr + ' - Loop:</h5>\n'
+                    ret += '<table style="width:100%;">'
+                    ret += '  <tr>\n    <td style="width:25%;">Go back to step:</td>\n'
+                    ret += '    <td style="width:75%">\n'+ cyc_steps[s].loop.goto + '</td>\n'
+                    ret += '  </tr>'
+                    ret += '  <tr>\n    <td style="width:25%;">Repeat:</td>\n'
+                    ret += '    <td style="width:75%">\n' + cyc_steps[s].loop.repeat + ' times ('
+                    ret += (parseInt(cyc_steps[s].loop.repeat) + 1)  + ' cycles)</td>\n'
+                    ret += '  </tr>'
+                }
+                if (cyc_steps[s].hasOwnProperty("pause")) {
+                    ret += '<h5 class="card-title">Step ' + cyc_steps[s].nr + ' - Pause:</h5>\n'
+                    ret += '<table style="width:100%;">'
+                    ret += '  <tr>\n    <td style="width:25%;">Temperature:</td>\n'
+                    ret += '    <td style="width:75%">\n'+ cyc_steps[s].pause.temperature + ' &deg;C</td>\n'
+                    ret += '  </tr>'
+                }
+                if (cyc_steps[s].hasOwnProperty("lidOpen")) {
+                    ret += '<h5 class="card-title">Step ' + cyc_steps[s].nr + ' - LidOpen:</h5>\n'
+                    ret += '<table style="width:100%;">'
+                    ret += '  <tr>\n    <td style="width:25%;">Lid Open:</td>\n'
+                    ret += '    <td style="width:75%">\nWait for lid open.</td>\n'
+                    ret += '  </tr>'
+                }
+                ret += '</table></p>\n'
+                ret += '</div>\n</div><br />\n'
+            }
+
+            if (exp[i].hasOwnProperty("experimffenters")) {
+                k = exp[i].experimenters.length
+                for (var j = 0; j < k; j++) {
+                    xref += '  <tr>\n    <td style="width:75%;">'
+                    xref += saveUndef(exp[i].experimenters[j]) + '</td>\n'
+                    // Todo make link
+                    xref += '    <td style="width:25%">\n'
+                    if (j == 0) {
+                        xref += '<button type="button" class="btn btn-success btn-sm disabled">Move Up</button>&nbsp;&nbsp;'
+                    } else {
+                        xref += '<button type="button" class="btn btn-success btn-sm" '
+                        xref += 'onclick="moveSecElement(\'therm_cyc_cons\', ' + i + ', \'\', 0, \'experimenter\', ' + j
+                        xref += ', ' + (j - 1) + ');">Move Up</button>&nbsp;&nbsp;'
+                    }
+                    if (j == k - 1) {
+                        xref += '<button type="button" class="btn btn-success btn-sm disabled">Move Down</button>&nbsp;&nbsp;&nbsp;'
+                    } else {
+                        xref += '<button type="button" class="btn btn-success btn-sm" '
+                        xref += 'onclick="moveSecElement(\'therm_cyc_cons\', ' + i + ', \'\', 0, \'experimenter\', ' + j
+                        xref += ', ' + (j + 2) + ');">Move Down</button>'
+                    }
+                    xref += '</td>\n  </tr>'
+                }
+            }
+            ret += '</div>\n</div><br />\n'
+
+
+
 
             var k = 0
             var xref = '<div class="card">\n<div class="card-body">\n'
