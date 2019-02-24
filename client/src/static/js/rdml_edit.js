@@ -1187,37 +1187,24 @@ function updateClientData() {
                     ret += '  </tr>'
                 }
                 ret += '</table></p>\n'
+                ret += '<button type="button" class="btn btn-success btn-sm" '
+                ret += 'onclick="newEditStep(' + i + ', ' + (s + 1) + ', \'edit\');">Edit Step</button>&nbsp;&nbsp;'
+
+
                 ret += '</div>\n</div><br />\n'
             }
-
-            if (exp[i].hasOwnProperty("experimffenters")) {
-                k = exp[i].experimenters.length
-                for (var j = 0; j < k; j++) {
-                    xref += '  <tr>\n    <td style="width:75%;">'
-                    xref += saveUndef(exp[i].experimenters[j]) + '</td>\n'
-                    // Todo make link
-                    xref += '    <td style="width:25%">\n'
-                    if (j == 0) {
-                        xref += '<button type="button" class="btn btn-success btn-sm disabled">Move Up</button>&nbsp;&nbsp;'
-                    } else {
-                        xref += '<button type="button" class="btn btn-success btn-sm" '
-                        xref += 'onclick="moveSecElement(\'therm_cyc_cons\', ' + i + ', \'\', 0, \'experimenter\', ' + j
-                        xref += ', ' + (j - 1) + ');">Move Up</button>&nbsp;&nbsp;'
-                    }
-                    if (j == k - 1) {
-                        xref += '<button type="button" class="btn btn-success btn-sm disabled">Move Down</button>&nbsp;&nbsp;&nbsp;'
-                    } else {
-                        xref += '<button type="button" class="btn btn-success btn-sm" '
-                        xref += 'onclick="moveSecElement(\'therm_cyc_cons\', ' + i + ', \'\', 0, \'experimenter\', ' + j
-                        xref += ', ' + (j + 2) + ');">Move Down</button>'
-                    }
-                    xref += '</td>\n  </tr>'
-                }
-            }
+            ret += '<div id="pStep-therm_cyc_cons-' + i + '"></div>'
+            ret += '<button type="button" class="btn btn-success btn-sm" '
+            ret += 'onclick="newEditStep(' + i + ', 999999, \'temperature\');">New Temperature Step</button>&nbsp;&nbsp;'
+            ret += '<button type="button" class="btn btn-success btn-sm" '
+            ret += 'onclick="newEditStep(' + i + ', 999999, \'gradient\');">New Gradient Step</button>&nbsp;&nbsp;'
+            ret += '<button type="button" class="btn btn-success btn-sm" '
+            ret += 'onclick="newEditStep(' + i + ', 999999, \'loop\');">New Loop Step</button>&nbsp;&nbsp;'
+            ret += '<button type="button" class="btn btn-success btn-sm" '
+            ret += 'onclick="newEditStep(' + i + ', 999999, \'pause\');">New Pause Step</button>&nbsp;&nbsp;'
+            ret += '<button type="button" class="btn btn-success btn-sm" '
+            ret += 'onclick="newEditStep(' + i + ', 999999, \'lidOpen\');">New Lid Open Step</button><br />'
             ret += '</div>\n</div><br />\n'
-
-
-
 
             var k = 0
             var xref = '<div class="card">\n<div class="card-body">\n'
@@ -2175,6 +2162,234 @@ function saveSecElement(prim_key, prim_pos, sec_key, sec_pos, id_source, group_n
     ret["data"] = el
     updateServerData(uuid, JSON.stringify(ret))
 }
+
+
+// Edit or create an cycling conditions step
+window.newEditStep = newEditStep;
+function newEditStep(prim_pos, step_pos, type) {
+    if (!(window.rdmlData.hasOwnProperty("rdml"))) {
+        return
+    }
+    if (window.editMode == true) {
+        return
+    }
+    var edit = false
+    var useType = ""
+    if (type != "edit") {
+        useType = type
+        edit = true
+    } else {
+        var step = window.rdmlData.rdml.therm_cyc_cons[prim_pos].steps[(step_pos - 1)]
+        if (step.hasOwnProperty("temperature")) {
+            useType = "temperature"
+        }
+        if (step.hasOwnProperty("gradient")) {
+            useType = "gradient"
+        }
+        if (step.hasOwnProperty("loop")) {
+            useType = "loop"
+        }
+        if (step.hasOwnProperty("pause")) {
+            useType = "pause"
+        }
+        if (step.hasOwnProperty("lidOpen")) {
+            useType = "lidOpen"
+        }
+    }
+    var ret = '<div class="card">\n<div class="card-body">\n'
+    var temperature = ""
+    var highTemperature = ""
+    var lowTemperature = ""
+    var duration = ""
+    var temperatureChange = ""
+    var durationChange = ""
+    var measure = ""
+    var ramp = ""
+    var goto = ""
+    var repeat = ""
+    if (useType == "temperature") {
+        if (step_pos < 999999) {
+            temperature = step.temperature.temperature
+            duration = step.temperature.duration
+            temperatureChange = saveUndef(step.temperature.temperatureChange)
+            durationChange = saveUndef(step.temperature.durationChange)
+            measure = saveUndef(step.temperature.measure)
+            ramp = saveUndef(step.temperature.ramp)
+            ret += '<h5 class="card-title">Edit Step - Temperature:</h5>\n'
+        } else {
+            ret += '<h5 class="card-title">New Step - Temperature:</h5>\n'
+        }
+        ret += '<p><table style="width:100%;">'
+        ret += '  <tr>\n    <td style="width:25%;">Place at Step:</td>\n'
+        ret += '    <td style="width:75%"><input type="text" class="form-control" '
+        ret += 'id="inStepPos" value="' + step_pos + '"></td>\n'
+        ret += '  </tr>'
+        ret += '  <tr>\n    <td style="width:25%;">Temperature:</td>\n'
+        ret += '    <td style="width:75%">\n<input type="text" class="form-control" '
+        ret += 'id="inStepTemperature" value="' + temperature + '"></td>\n'
+        ret += '  </tr>'
+        ret += '  <tr>\n    <td style="width:25%;">Duration:</td>\n'
+        ret += '    <td style="width:75%">\n<input type="text" class="form-control" '
+        ret += 'id="inStepDuration" value="' + duration + '"></td>\n'
+        ret += '  </tr>'
+        ret += '  <tr>\n    <td style="width:25%;">Temperature Change:</td>\n'
+        ret += '    <td style="width:75%">\n<input type="text" class="form-control" '
+        ret += 'id="inStepTemperatureChange" value="' + temperatureChange + '"></td>\n'
+        ret += '  </tr>'
+        ret += '  <tr>\n    <td style="width:25%;">Duration Change:</td>\n'
+        ret += '    <td style="width:75%">\n<input type="text" class="form-control" '
+        ret += 'id="inStepDurationChange" value="' + durationChange + '"></td>\n'
+        ret += '  </tr>'
+        ret += '  <tr>\n    <td style="width:25%;">Measure:</td>\n'
+        ret += '    <td style="width:75%"><select class="form-control" id="inStepMeasure">\n'
+        ret += '        <option value=""'
+        if (measure == "") {
+            ret += ' selected'
+        }
+        ret += '>Do not measure</option>\n'
+        ret += '        <option value="real time"'
+        if (measure == "real time") {
+            ret += ' selected'
+        }
+        ret += '>real time</option>\n'
+        ret += '        <option value="meltcurve"'
+        if (measure == "meltcurve") {
+            ret += ' selected'
+        }
+        ret += '>meltcurve</option>\n'
+        ret += '      </select></td>\n'
+        ret += '  </tr>'
+        ret += '  <tr>\n    <td style="width:25%;">Ramp:</td>\n'
+        ret += '    <td style="width:75%">\n<input type="text" class="form-control" '
+        ret += 'id="inStepRamp" value="' + ramp + '"></td>\n'
+        ret += '  </tr>'
+    }
+    if (useType == "gradient") {
+        if (step_pos < 999999) {
+            highTemperature = step.gradient.highTemperature
+            lowTemperature = step.gradient.lowTemperature
+            duration = step.gradient.duration
+            temperatureChange = saveUndef(step.gradient.temperatureChange)
+            durationChange = saveUndef(step.gradient.durationChange)
+            measure = saveUndef(step.gradient.measure)
+            ramp = saveUndef(step.gradient.ramp)
+            ret += '<h5 class="card-title">Edit Step - Gradient:</h5>\n'
+        } else {
+            ret += '<h5 class="card-title">New Step - Gradient:</h5>\n'
+        }
+        ret += '<p><table style="width:100%;">'
+        ret += '  <tr>\n    <td style="width:25%;">Place at Step:</td>\n'
+        ret += '    <td style="width:75%"><input type="text" class="form-control" '
+        ret += 'id="inStepPos" value="' + step_pos + '"></td>\n'
+        ret += '  </tr>'
+        ret += '  <tr>\n    <td style="width:25%;">High Temperature:</td>\n'
+        ret += '    <td style="width:75%">\n<input type="text" class="form-control" '
+        ret += 'id="inStepHighTemperature" value="' + highTemperature + '"></td>\n'
+        ret += '  </tr>'
+        ret += '  <tr>\n    <td style="width:25%;">Low Temperature:</td>\n'
+        ret += '    <td style="width:75%">\n<input type="text" class="form-control" '
+        ret += 'id="inStepLowTemperature" value="' + lowTemperature + '"></td>\n'
+        ret += '  </tr>'
+        ret += '  <tr>\n    <td style="width:25%;">Duration:</td>\n'
+        ret += '    <td style="width:75%">\n<input type="text" class="form-control" '
+        ret += 'id="inStepDuration" value="' + duration + '"></td>\n'
+        ret += '  </tr>'
+        ret += '  <tr>\n    <td style="width:25%;">Temperature Change:</td>\n'
+        ret += '    <td style="width:75%">\n<input type="text" class="form-control" '
+        ret += 'id="inStepTemperatureChange" value="' + temperatureChange + '"></td>\n'
+        ret += '  </tr>'
+        ret += '  <tr>\n    <td style="width:25%;">Duration Change:</td>\n'
+        ret += '    <td style="width:75%">\n<input type="text" class="form-control" '
+        ret += 'id="inStepDurationChange" value="' + durationChange + '"></td>\n'
+        ret += '  </tr>'
+        ret += '  <tr>\n    <td style="width:25%;">Measure:</td>\n'
+        ret += '    <td style="width:75%"><select class="form-control" id="inStepMeasure">\n'
+        ret += '        <option value=""'
+        if (measure == "") {
+            ret += ' selected'
+        }
+        ret += '>Do not measure</option>\n'
+        ret += '        <option value="real time"'
+        if (measure == "real time") {
+            ret += ' selected'
+        }
+        ret += '>real time</option>\n'
+        ret += '        <option value="meltcurve"'
+        if (measure == "meltcurve") {
+            ret += ' selected'
+        }
+        ret += '>meltcurve</option>\n'
+        ret += '      </select></td>\n'
+        ret += '  </tr>'
+        ret += '  <tr>\n    <td style="width:25%;">Ramp:</td>\n'
+        ret += '    <td style="width:75%">\n<input type="text" class="form-control" '
+        ret += 'id="inStepRamp" value="' + ramp + '"></td>\n'
+        ret += '  </tr>'
+    }
+    if (useType == "loop") {
+        if (step_pos < 999999) {
+            goto = step.loop.goto
+            repeat = step.loop.repeat
+            ret += '<h5 class="card-title">Edit Step - Loop:</h5>\n'
+        } else {
+            ret += '<h5 class="card-title">New Step - Loop:</h5>\n'
+        }
+        ret += '<p><table style="width:100%;">'
+        ret += '  <tr>\n    <td style="width:25%;">Place at Step:</td>\n'
+        ret += '    <td style="width:75%"><input type="text" class="form-control" '
+        ret += 'id="inStepPos" value="' + step_pos + '"></td>\n'
+        ret += '  </tr>'
+        ret += '  <tr>\n    <td style="width:25%;">Go back to step:</td>\n'
+        ret += '    <td style="width:75%">\n<input type="text" class="form-control" '
+        ret += 'id="inStepGoto" value="' + goto + '"></td>\n'
+        ret += '  </tr>'
+        ret += '  <tr>\n    <td style="width:25%;">Repeat for:</td>\n'
+        ret += '    <td style="width:75%">\n<input type="text" class="form-control" '
+        ret += 'id="inStepRepeat" value="' + repeat + '"></td>\n'
+        ret += '  </tr>'
+    }
+    if (useType == "pause") {
+        if (step_pos < 999999) {
+            temperature = step.pause.temperature
+            ret += '<h5 class="card-title">Edit Step - Pause:</h5>\n'
+        } else {
+            ret += '<h5 class="card-title">New Step - Pause:</h5>\n'
+        }
+        ret += '<p><table style="width:100%;">'
+        ret += '  <tr>\n    <td style="width:25%;">Place at Step:</td>\n'
+        ret += '    <td style="width:75%"><input type="text" class="form-control" '
+        ret += 'id="inStepPos" value="' + step_pos + '"></td>\n'
+        ret += '  </tr>'
+        ret += '  <tr>\n    <td style="width:25%;">Temperature:</td>\n'
+        ret += '    <td style="width:75%">\n<input type="text" class="form-control" '
+        ret += 'id="inStepTemperature" value="' + temperature + '"></td>\n'
+        ret += '  </tr>'
+    }
+    if (useType == "lidOpen") {
+        if (step_pos < 999999) {
+            ret += '<h5 class="card-title">Edit Step - Lid Open:</h5>\n'
+        } else {
+            ret += '<h5 class="card-title">New Step - Lid Open:</h5>\n'
+        }
+        ret += '<p><table style="width:100%;">'
+        ret += '  <tr>\n    <td style="width:25%;">Place at Step:</td>\n'
+        ret += '    <td style="width:75%"><input type="text" class="form-control" '
+        ret += 'id="inStepPos" value="' + step_pos + '"></td>\n'
+        ret += '  </tr>'
+    }
+    ret += '</table></p>\n'
+    ret += '<button type="button" class="btn btn-success btn-sm" '
+    ret += 'onclick="saveXref(\'' +  '\', ' + ', ' + edit + ');">Save Changes</button>'
+    ret += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button type="button" class="btn btn-success btn-sm" '
+    ret += 'onclick="disChangesSecElement(\'pStep-therm_cyc_cons-' + prim_pos + '\');">Discard Changes</button>'
+    ret += '</div>\n</div><br />\n'
+    var ele = document.getElementById('pStep-therm_cyc_cons-' + prim_pos)
+    ele.innerHTML = ret
+    ele.scrollIntoView();
+}
+
+
+
 
 // Create a selector for ids
 window.disChangesSecElement = disChangesSecElement;
