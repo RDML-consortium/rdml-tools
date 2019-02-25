@@ -289,6 +289,52 @@ def handle_data():
                 else:
                     modified = True
 
+        if "mode" in reqdata and reqdata["mode"] in ["create-step", "edit-step"]:
+            if "primary-position" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - step primary-position missing!"}]), 400
+            if "step-position" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - step step-position missing!"}]), 400
+            if "new-position" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - step new-position missing!"}]), 400
+            if "type" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - step type missing!"}]), 400
+            if "data" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - step data missing!"}]), 400
+            elem = rd.get_therm_cyc_cons(byposition=reqdata["primary-position"])
+            if elem is None:
+                return jsonify(errors=[{"title": "Invalid server request - thermal cycling conditions at position not found!"}]), 400
+            try:
+                if reqdata["type"] == "temperature":
+                    if "temperature" not in reqdata["data"]:
+                        return jsonify(errors=[{"title": "Invalid server request - step temperature missing!"}]), 400
+                    if "duration" not in reqdata["data"]:
+                        return jsonify(errors=[{"title": "Invalid server request - step duration missing!"}]), 400
+                    if "temperatureChange" not in reqdata["data"]:
+                        return jsonify(errors=[{"title": "Invalid server request - step temperatureChange missing!"}]), 400
+                    if "durationChange" not in reqdata["data"]:
+                        return jsonify(errors=[{"title": "Invalid server request - step durationChange missing!"}]), 400
+                    if "measure" not in reqdata["data"]:
+                        return jsonify(errors=[{"title": "Invalid server request - step measure missing!"}]), 400
+                    if "ramp" not in reqdata["data"]:
+                        return jsonify(errors=[{"title": "Invalid server request - step ramp missing!"}]), 400
+                    if reqdata["mode"] == "create-step":
+                        elem.new_step_temperature(temperature=reqdata["data"]["temperature"],
+                                                  duration=reqdata["data"]["duration"],
+                                                  temperatureChange=reqdata["data"]["temperatureChange"],
+                                                  durationChange=reqdata["data"]["durationChange"],
+                                                  measure=reqdata["data"]["measure"],
+                                                  ramp=reqdata["data"]["ramp"],
+                                                  nr=reqdata["new-position"])
+                    if reqdata["mode"] == "edit-step":
+                        elem.edit_xref(oldposition=reqdata["xref-position"],
+                                       newposition=reqdata["new-position"],
+                                       name=reqdata["data"]["name"],
+                                       id=reqdata["data"]["id"])
+            except rdml.RdmlError as err:
+                data["error"] = str(err)
+            else:
+                modified = True
+
         if "mode" in reqdata and reqdata["mode"] in ["create", "edit"]:
             if "type" not in reqdata or "data" not in reqdata:
                 return jsonify(errors=[{"title": "Invalid server request - type or data missing!"}]), 400

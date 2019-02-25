@@ -2173,11 +2173,11 @@ function newEditStep(prim_pos, step_pos, type) {
     if (window.editMode == true) {
         return
     }
-    var edit = false
+    var edit = true
     var useType = ""
     if (type != "edit") {
         useType = type
-        edit = true
+        edit = false
     } else {
         var step = window.rdmlData.rdml.therm_cyc_cons[prim_pos].steps[(step_pos - 1)]
         if (step.hasOwnProperty("temperature")) {
@@ -2379,7 +2379,7 @@ function newEditStep(prim_pos, step_pos, type) {
     }
     ret += '</table></p>\n'
     ret += '<button type="button" class="btn btn-success btn-sm" '
-    ret += 'onclick="saveXref(\'' +  '\', ' + ', ' + edit + ');">Save Changes</button>'
+    ret += 'onclick="saveStep(' + prim_pos + ', ' + step_pos + ', \'' + useType + '\', ' + edit + ');">Save Changes</button>'
     ret += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button type="button" class="btn btn-success btn-sm" '
     ret += 'onclick="disChangesSecElement(\'pStep-therm_cyc_cons-' + prim_pos + '\');">Discard Changes</button>'
     ret += '</div>\n</div><br />\n'
@@ -2388,7 +2388,53 @@ function newEditStep(prim_pos, step_pos, type) {
     ele.scrollIntoView();
 }
 
-
+// Save edit step changes, create new ones
+window.saveStep = saveStep;
+function saveStep(prim_pos, step_pos, useType, edit){
+    if (!(window.rdmlData.hasOwnProperty("rdml"))) {
+        return
+    }
+    if (window.editMode == true) {
+        return
+    }
+    var ret = {}
+    if (edit == false) {
+        ret["mode"] = "create-step"
+    } else {
+        ret["mode"] = "edit-step"
+    }
+    ret["primary-position"] = prim_pos
+    ret["step-position"] = step_pos
+    ret["new-position"] = getSaveHtmlData("inStepPos")
+    ret["type"] = useType
+    var el = {}
+    if (useType == "temperature") {
+        el["temperature"] = getSaveHtmlData("inStepTemperature")
+        el["duration"] = getSaveHtmlData("inStepDuration")
+        el["temperatureChange"] = getSaveHtmlData("inStepTemperatureChange")
+        el["durationChange"] = getSaveHtmlData("inStepDurationChange")
+        el["measure"] = getSaveHtmlData("inStepMeasure")
+        el["ramp"] = getSaveHtmlData("inStepRamp")
+    }
+    if (useType == "gradient") {
+        el["highTemperature"] = getSaveHtmlData("inStepHighTemperature")
+        el["lowTemperature"] = getSaveHtmlData("inStepLowTemperature")
+        el["duration"] = getSaveHtmlData("inStepDuration")
+        el["temperatureChange"] = getSaveHtmlData("inStepTemperatureChange")
+        el["durationChange"] = getSaveHtmlData("inStepDurationChange")
+        el["measure"] = getSaveHtmlData("inStepMeasure")
+        el["ramp"] = getSaveHtmlData("inStepRamp")
+    }
+    if (useType == "loop") {
+        el["goto"] = getSaveHtmlData("inStepGoto")
+        el["repeat"] = getSaveHtmlData("inStepRepeat")
+    }
+    if (useType == "pause") {
+        el["temperature"] = getSaveHtmlData("inStepTemperature")
+    }
+    ret["data"] = el
+    updateServerData(uuid, JSON.stringify(ret))
+}
 
 
 // Create a selector for ids
