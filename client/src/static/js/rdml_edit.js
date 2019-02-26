@@ -1189,6 +1189,8 @@ function updateClientData() {
                 ret += '</table></p>\n'
                 ret += '<button type="button" class="btn btn-success btn-sm" '
                 ret += 'onclick="newEditStep(' + i + ', ' + (s + 1) + ', \'edit\');">Edit Step</button>&nbsp;&nbsp;'
+                ret += '<button type="button" class="btn btn-success btn-sm" '
+                ret += 'onclick="deleteStep(' + i + ', ' + (s + 1) + ');">Delete Step</button>&nbsp;&nbsp;'
 
 
                 ret += '</div>\n</div><br />\n'
@@ -2433,6 +2435,23 @@ function saveStep(prim_pos, step_pos, useType, edit){
         el["temperature"] = getSaveHtmlData("inStepTemperature")
     }
     ret["data"] = el
+    updateServerData(uuid, JSON.stringify(ret))
+}
+
+
+// Save edit step changes, create new ones
+window.deleteStep = deleteStep;
+function deleteStep(prim_pos, step_pos){
+    if (!(window.rdmlData.hasOwnProperty("rdml"))) {
+        return
+    }
+    if (window.editMode == true) {
+        return
+    }
+    var ret = {}
+    ret["mode"] = "delete-step"
+    ret["primary-position"] = prim_pos
+    ret["step-position"] = step_pos
     updateServerData(uuid, JSON.stringify(ret))
 }
 
