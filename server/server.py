@@ -244,10 +244,13 @@ def handle_data():
                 elem = rd.get_therm_cyc_cons(byposition=reqdata["primary-position"])
                 if elem is None:
                     return jsonify(errors=[{"title": "Invalid server request - thermal cycling conditions at position not found!"}]), 400
+            if reqdata["primary-key"] == "experiment":
+                elem = rd.get_experiment(byposition=reqdata["primary-position"])
+                if elem is None:
+                    return jsonify(errors=[{"title": "Invalid server request - experiment at position not found!"}]), 400
             if reqdata["id-source"] == "documentation":
                 modified = elem.update_documentation_ids(reqdata["data"])
             if reqdata["id-source"] == "experimenter":
-                print("Exp")
                 modified = elem.update_experimenter_ids(reqdata["data"])
 
         if "mode" in reqdata and reqdata["mode"] in ["create-xref", "edit-xref"]:
@@ -774,6 +777,33 @@ def handle_data():
                     else:
                         modified = True
 
+            if reqdata["type"] == "experiment":
+                if "id" not in reqdata["data"]:
+                    return jsonify(errors=[{"title": "Invalid server request - experiment id missing!"}]), 400
+                if "description" not in reqdata["data"]:
+                    return jsonify(errors=[{"title": "Invalid server request - experiment description missing!"}]), 400
+                if "current-position" not in reqdata or "new-position" not in reqdata:
+                    return jsonify(errors=[{"title": "Invalid server request - experiment position information missing!"}]), 400
+                if reqdata["mode"] in ["create", "edit"]:
+                    if reqdata["mode"] == "edit" and "old-id" not in reqdata:
+                        return jsonify(
+                            errors=[{"title": "Invalid server request - experiment old id information missing!"}]), 400
+                    try:
+                        elem = None
+                        if reqdata["mode"] == "create":
+                            rd.new_experiment(id=reqdata["data"]["id"], newposition=int(reqdata["new-position"]))
+                            elem = rd.get_experiment(byid=reqdata["data"]["id"])
+                        if reqdata["mode"] == "edit":
+                            elem = rd.get_experiment(byid=reqdata["old-id"])
+                            if elem is None:
+                                return jsonify(errors=[{"title": "Invalid server request - experiment id not found!"}]), 400
+                            elem["id"] = reqdata["data"]["id"]
+                        elem["description"] = reqdata["data"]["description"]
+                    except rdml.RdmlError as err:
+                        data["error"] = str(err)
+                    else:
+                        modified = True
+
         if "mode" in reqdata and reqdata["mode"] in ["moveSecIds"]:
             if "primary-key" not in reqdata:
                 return jsonify(errors=[{"title": "Invalid server request - primary-key missing!"}]), 400
@@ -803,6 +833,10 @@ def handle_data():
                     elem = rd.get_therm_cyc_cons(byposition=reqdata["primary-position"])
                     if elem is None:
                         return jsonify(errors=[{"title": "Invalid server request - thermal cycling conditions primary-position not found!"}]), 400
+                if reqdata["primary-key"] == "experiment":
+                    elem = rd.get_experiment(byposition=reqdata["primary-position"])
+                    if elem is None:
+                        return jsonify(errors=[{"title": "Invalid server request - experiment primary-position not found!"}]), 400
                 if elem is None:
                     return jsonify(errors=[{"title": "Invalid server request - primary-key is unknown!"}]), 400
                 if reqdata["id-source"] == "documentation":

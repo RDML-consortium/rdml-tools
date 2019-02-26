@@ -418,6 +418,108 @@ function updateClientData() {
     }
     var ret = ''
 
+    // The Experiments tab
+    var exp = window.rdmlData.rdml.experiments;
+    ret = ''
+    for (var i = 0; i < exp.length; i++) {
+        if ((editMode == true) && (editType == "experiment") && (i == editNumber)) {
+            ret += '<br /><div class="card text-white bg-primary">\n<div class="card-body">\n'
+            ret += '<h5 class="card-title">' + (i + 1) + '. Thermal Cycling Conditions ID: ' + exp[i].id + '</h5>\n<p>'
+            ret += '<table style="width:100%;">'
+            ret += '  <tr>\n    <td style="width:25%;">ID:</td>\n'
+            ret += '    <td style="width:75%"><input type="text" class="form-control" '
+            ret += 'id="inExId" value="'+ exp[i].id + '"></td>\n'
+            ret += '  </tr>'
+            ret += '  <tr>\n    <td style="width:25%;">Place at Position:</td>\n'
+            ret += '    <td style="width:75%"><input type="text" class="form-control" '
+            ret += 'id="inPos" value="' + (i + 1) + '"></td>\n'
+            ret += '  </tr>'
+            ret += '  <tr>\n    <td style="width:25%;">Description:</td>\n'
+            ret += '    <td style="width:75%"><input type="text" class="form-control" '
+            ret += 'id="inExDescription" value="'+ saveUndef(exp[i].description) + '"></td>\n'
+            ret += '  </tr>'
+            ret += '</table></p>\n'
+            ret += '<button type="button" class="btn btn-success" '
+            ret += 'onclick="saveEditElement(\'experiment\', ' + i + ', \'' + exp[i].id + '\');">Save Changes</button>'
+            ret += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button type="button" class="btn btn-success" '
+            ret += 'onclick="deleteEditElement(\'experiment\', ' + i + ');">Delete</button>&nbsp;&nbsp;&nbsp;'
+            ret += '</div>\n</div>\n'
+        } else {
+            ret += '<br /><div class="card">\n<div class="card-body">\n'
+            ret += '<h5 class="card-title">' + (i + 1) + '. Experiment ID: ' + exp[i].id + '</h5>\n<p>'
+            ret += '<div class="card">\n<div class="card-body">\n'
+            ret += '<h5 class="card-title">Runs:</h5>\n'
+            var runs = exp[i].runs
+            for (var s = 0 ; s < runs.length ; s++){
+                ret += '<div class="card">\n<div class="card-body">\n'
+                if (cyc_steps[s].hasOwnProperty("lidOpen")) {
+                    ret += '<h5 class="card-title">Step ' + cyc_steps[s].nr + ' - LidOpen:</h5>\n'
+                    ret += '<table style="width:100%;">'
+                    ret += '  <tr>\n    <td style="width:25%;">Lid Open:</td>\n'
+                    ret += '    <td style="width:75%">\nWait for lid open.</td>\n'
+                    ret += '  </tr>'
+                }
+                ret += '</table></p>\n'
+                ret += '<button type="button" class="btn btn-success btn-sm" '
+                ret += 'onclick="newEditStep(' + i + ', ' + (s + 1) + ', \'edit\');">Edit Step</button>&nbsp;&nbsp;'
+                ret += '<button type="button" class="btn btn-success btn-sm" '
+                ret += 'onclick="deleteStep(' + i + ', ' + (s + 1) + ');">Delete Step</button>&nbsp;&nbsp;'
+
+
+                ret += '</div>\n</div><br />\n'
+            }
+            ret += '<div id="pStep-therm_cyc_cons-' + i + '"></div>'
+            ret += '<button type="button" class="btn btn-success btn-sm" '
+            ret += 'onclick="newEditStep(' + i + ', 999999, \'temperature\');">New Temperature Step</button>&nbsp;&nbsp;'
+            ret += '<button type="button" class="btn btn-success btn-sm" '
+            ret += 'onclick="newEditStep(' + i + ', 999999, \'gradient\');">New Gradient Step</button>&nbsp;&nbsp;'
+            ret += '<button type="button" class="btn btn-success btn-sm" '
+            ret += 'onclick="newEditStep(' + i + ', 999999, \'loop\');">New Loop Step</button>&nbsp;&nbsp;'
+            ret += '<button type="button" class="btn btn-success btn-sm" '
+            ret += 'onclick="newEditStep(' + i + ', 999999, \'pause\');">New Pause Step</button>&nbsp;&nbsp;'
+            ret += '<button type="button" class="btn btn-success btn-sm" '
+            ret += 'onclick="newEditStep(' + i + ', 999999, \'lidOpen\');">New Lid Open Step</button><br />'
+            ret += '</div>\n</div><br />\n'
+
+            var doc = '<div class="card">\n<div class="card-body">\n'
+            doc += '<h5 class="card-title">Documentation:</h5>\n'
+            var desc = saveUndef(exp[i].description)
+            if (desc != "") {
+                doc += '<p>' + desc + '</p>'
+            }
+            doc += '<button type="button" class="btn btn-success btn-sm" '
+            doc += ' onclick="showDocSecElement(\'experiment\', ' + i + ', \'\', 0, \'documentation\', '
+            doc += '\'pDoc-experiment-' + i + '\', this);">Show All Document Information</button>'
+            doc += '&nbsp;&nbsp;<button type="button" class="btn btn-success btn-sm" '
+            doc += 'onclick="selectSecElement(\'experiment\', ' + i + ', \'\', 0, \'documentation\', '
+            doc += '\'pDoc-experiment-' + i + '\');">Change Attached Document Ids</button>'
+            doc += '<div id="pDoc-experiment-' + i + '"></div>'
+            doc += '</div>\n</div><br />\n'
+            ret += doc
+
+            ret += '<button type="button" class="btn btn-success" '
+            ret += 'onclick="editPresentElement(\'experiment\', ' + i + ');">Edit</button>&nbsp;&nbsp;&nbsp;&nbsp;'
+            ret += '<button type="button" class="btn btn-success" '
+            ret += 'onclick="selectSecElement(\'experiment\', ' + i + ', \'\', 0, \'experimenter\', '
+            ret += '\'pExp-therm_cyc_cons-' + i + '\');"">Change Attached Experimenters</button>&nbsp;&nbsp;&nbsp;&nbsp;'
+            if (i == 0) {
+                ret += '<button type="button" class="btn btn-success disabled">Move Up</button>&nbsp;&nbsp;'
+            } else {
+                ret += '<button type="button" class="btn btn-success" '
+            ret += 'onclick="moveEditElement(\'experiment\', \'' + exp[i].id + '\', ' + (i - 1) + ');">Move Up</button>&nbsp;&nbsp;'
+            }
+            if (i == exp.length - 1) {
+                ret += '<button type="button" class="btn btn-success disabled">Move Down</button>&nbsp;&nbsp;&nbsp;'
+            } else {
+                ret += '<button type="button" class="btn btn-success" '
+            ret += 'onclick="moveEditElement(\'experiment\', \'' + exp[i].id + '\', ' + (i + 2) + ');">Move Down</button>&nbsp;&nbsp;&nbsp;'
+            }
+            ret += '&nbsp;<button type="button" class="btn btn-success" '
+            ret += 'onclick="deleteEditElement(\'experiment\', ' + i + ');">Delete</button>&nbsp;&nbsp;&nbsp;'
+            ret += '</div>\n</div>\n'
+        }
+    }
+    experimentsData.innerHTML = ret
 
     // The samples tab
     var exp = window.rdmlData.rdml.samples;
@@ -1645,8 +1747,9 @@ function createNewElement(typ){
     if (typ == "experiment") {
         var nex = {}
         nex["id"] = "New Experiment"
+        nex["runs"] = []
         window.rdmlData.rdml.experiments.unshift(nex)
-        window.editType = "experiments";
+        window.editType = "experiment";
         window.editNumber = 0;
         updateClientData()
     }
@@ -1922,6 +2025,7 @@ function saveEditElement(typ, pos, oldId){
     if (typ == "experiment") {
         ret["type"] = "experiment"
         el["id"] = getSaveHtmlData("inExId")
+        el["description"] = getSaveHtmlData("inExDescription")
         ret["data"] = el
     }
     updateServerData(uuid, JSON.stringify(ret))
@@ -1991,6 +2095,9 @@ function showDocSecElement(prim_key, prim_pos, sec_key, sec_pos, id_source, div_
     }
     if (prim_key == "therm_cyc_cons") {
         exp = window.rdmlData.rdml.therm_cyc_cons[prim_pos].documentations
+    }
+    if (prim_key == "experiment") {
+        exp = window.rdmlData.rdml.experiments[prim_pos].documentations
     }
     var ret = '<p><br />'
     for (var i = 0; i < exp.length; i++) {
@@ -2109,6 +2216,12 @@ function selectSecElement(prim_key, prim_pos, sec_key, sec_pos, id_source, div_t
         } else {
             elem = window.rdmlData.rdml.therm_cyc_cons[prim_pos].documentations
         }
+        for (var i = 0; i < elem.length; i++) {
+            sel[elem[i]] = true
+        }
+    }
+    if (prim_key == "experiment") {
+        var elem = window.rdmlData.rdml.experiments[prim_pos].documentations
         for (var i = 0; i < elem.length; i++) {
             sel[elem[i]] = true
         }
