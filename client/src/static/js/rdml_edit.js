@@ -452,7 +452,7 @@ function updateClientData() {
             var runs = exp[i].runs
             for (var s = 0 ; s < runs.length ; s++){
                 ret += '<div class="card">\n<div class="card-body">\n'
-                if (cyc_steps[s].hasOwnProperty("lidOpen")) {
+                if (runs[s].hasOwnProperty("lidOpen")) {
                     ret += '<h5 class="card-title">Step ' + cyc_steps[s].nr + ' - LidOpen:</h5>\n'
                     ret += '<table style="width:100%;">'
                     ret += '  <tr>\n    <td style="width:25%;">Lid Open:</td>\n'
