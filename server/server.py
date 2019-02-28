@@ -248,6 +248,10 @@ def handle_data():
                 elem = rd.get_experiment(byposition=reqdata["primary-position"])
                 if elem is None:
                     return jsonify(errors=[{"title": "Invalid server request - experiment at position not found!"}]), 400
+                if reqdata["secondary-key"] == "run":
+                    elem = elem.get_run(byposition=reqdata["secondary-position"])
+                    if elem is None:
+                        return jsonify(errors=[{"title": "Invalid server request - run at position not found!"}]), 400
             if reqdata["id-source"] == "documentation":
                 modified = elem.update_documentation_ids(reqdata["data"])
             if reqdata["id-source"] == "experimenter":
@@ -837,6 +841,10 @@ def handle_data():
                     elem = rd.get_experiment(byposition=reqdata["primary-position"])
                     if elem is None:
                         return jsonify(errors=[{"title": "Invalid server request - experiment primary-position not found!"}]), 400
+                    if reqdata["secondary-key"] == "run":
+                        elem = elem.get_run(byposition=reqdata["secondary-position"])
+                        if elem is None:
+                            return jsonify(errors=[{"title": "Invalid server request - run at secondary-position not found!"}]), 400
                 if elem is None:
                     return jsonify(errors=[{"title": "Invalid server request - primary-key is unknown!"}]), 400
                 if reqdata["id-source"] == "documentation":

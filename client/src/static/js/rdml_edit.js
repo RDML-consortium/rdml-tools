@@ -452,33 +452,138 @@ function updateClientData() {
             var runs = exp[i].runs
             for (var s = 0 ; s < runs.length ; s++){
                 ret += '<div class="card">\n<div class="card-body">\n'
-                if (runs[s].hasOwnProperty("lidOpen")) {
-                    ret += '<h5 class="card-title">Step ' + cyc_steps[s].nr + ' - LidOpen:</h5>\n'
-                    ret += '<table style="width:100%;">'
-                    ret += '  <tr>\n    <td style="width:25%;">Lid Open:</td>\n'
-                    ret += '    <td style="width:75%">\nWait for lid open.</td>\n'
+                ret += '<h5 class="card-title">Run ID: ' + runs[s].id + '</h5>\n'
+                ret += '<table style="width:100%;">'
+                if (runs[s].hasOwnProperty("runDate")) {
+                    ret += '  <tr>\n    <td style="width:25%;">Run Date:</td>\n'
+                    ret += '    <td style="width:75%">' + runs[s].runDate + '</td>\n'
                     ret += '  </tr>'
                 }
+                if (runs[s].hasOwnProperty("thermalCyclingConditions")) {
+                    ret += '  <tr>\n    <td style="width:25%;">Thermal Cycling Conditions:</td>\n'
+                    ret += '    <td style="width:75%">' + runs[s].thermalCyclingConditions + '</td>\n'
+                    ret += '  </tr>'
+                    // Todo: Add link
+                }
+                if (runs[s].hasOwnProperty("cqDetectionMethod")) {
+                    ret += '  <tr>\n    <td style="width:25%;">Cq Detection Method:</td>\n'
+                    ret += '    <td style="width:75%">' + runs[s].cqDetectionMethod + '</td>\n'
+                    ret += '  </tr>'
+                }
+                if (runs[s].hasOwnProperty("backgroundDeterminationMethod")) {
+                    ret += '  <tr>\n    <td style="width:25%;">Background Determination Method:</td>\n'
+                    ret += '    <td style="width:75%">' + runs[s].backgroundDeterminationMethod + '</td>\n'
+                    ret += '  </tr>'
+                }
+                ret += '  <tr>\n    <td style="width:25%;">PCR Format - Columns:</td>\n'
+                ret += '    <td style="width:75%">\n'+ runs[s].pcrFormat.columns + '</td>\n'
+                ret += '  </tr>'
+                ret += '  <tr>\n    <td style="width:25%;">PCR Format - Column Label:</td>\n'
+                ret += '    <td style="width:75%">\n'+ runs[s].pcrFormat.columnLabel + '</td>\n'
+                ret += '  </tr>'
+                ret += '  <tr>\n    <td style="width:25%;">PCR Format - Rows:</td>\n'
+                ret += '    <td style="width:75%">\n'+ runs[s].pcrFormat.rows + '</td>\n'
+                ret += '  </tr>'
+                ret += '  <tr>\n    <td style="width:25%;">PCR Format - Row Label:</td>\n'
+                ret += '    <td style="width:75%">\n'+ runs[s].pcrFormat.rowLabel + '</td>\n'
+                ret += '  </tr>'
+                if (runs[s].hasOwnProperty("instrument")) {
+                    ret += '  <tr>\n    <td style="width:25%;">Instrument:</td>\n'
+                    ret += '    <td style="width:75%">' + runs[s].instrument + '</td>\n'
+                    ret += '  </tr>'
+                }
+                if (runs[s].hasOwnProperty("dataCollectionSoftware")) {
+                    if (runs[s].dataCollectionSoftware.hasOwnProperty("name")) {
+                      ret += '  <tr>\n    <td style="width:25%;">Software - Name:</td>\n'
+                      ret += '    <td style="width:75%">\n'+ runs[s].dataCollectionSoftware.name + '</td>\n'
+                      ret += '  </tr>'
+                    }
+                    if (runs[s].dataCollectionSoftware.hasOwnProperty("version")) {
+                      ret += '  <tr>\n    <td style="width:25%;">Software - Version:</td>\n'
+                      ret += '    <td style="width:75%">\n'+ runs[s].dataCollectionSoftware.version + '</td>\n'
+                      ret += '  </tr>'
+                    }
+                }
+                ret += '  <tr>\n    <td style="width:25%;">Number of Reactions:</td>\n'
+                ret += '    <td style="width:75%">\n'+ runs[s].react + '</td>\n'
+                ret += '  </tr>'
                 ret += '</table></p>\n'
-                ret += '<button type="button" class="btn btn-success btn-sm" '
-                ret += 'onclick="newEditStep(' + i + ', ' + (s + 1) + ', \'edit\');">Edit Step</button>&nbsp;&nbsp;'
-                ret += '<button type="button" class="btn btn-success btn-sm" '
-                ret += 'onclick="deleteStep(' + i + ', ' + (s + 1) + ');">Delete Step</button>&nbsp;&nbsp;'
 
+                var k = 0
+                var xref = '<div class="card">\n<div class="card-body">\n'
+                xref += '<h5 class="card-title">Experimenters:</h5>\n'
+                xref += '<table style="width:100%;">'
+                if (runs[s].hasOwnProperty("experimenters")) {
+                    k = runs[s].experimenters.length
+                    for (var j = 0; j < k; j++) {
+                        xref += '  <tr>\n    <td style="width:75%;">'
+                        xref += saveUndef(runs[s].experimenters[j]) + '</td>\n'
+                        // Todo make link
+                        xref += '    <td style="width:25%">\n'
+                        if (j == 0) {
+                            xref += '<button type="button" class="btn btn-success btn-sm disabled">Move Up</button>&nbsp;&nbsp;'
+                        } else {
+                            xref += '<button type="button" class="btn btn-success btn-sm" '
+                            xref += 'onclick="moveSecElement(\'experiment\', ' + i + ', \'run\', ' + s + ', \'experimenter\', ' + j
+                            xref += ', ' + (j - 1) + ');">Move Up</button>&nbsp;&nbsp;'
+                        }
+                        if (j == k - 1) {
+                            xref += '<button type="button" class="btn btn-success btn-sm disabled">Move Down</button>&nbsp;&nbsp;&nbsp;'
+                        } else {
+                            xref += '<button type="button" class="btn btn-success btn-sm" '
+                            xref += 'onclick="moveSecElement(\'experiment\', ' + i + ', \'run\', ' + s + ', \'experimenter\', ' + j
+                            xref += ', ' + (j + 2) + ');">Move Down</button>'
+                        }
+                        xref += '</td>\n  </tr>'
+                    }
+                }
+                xref += '</table></p>\n'
+                xref += '</div>\n</div><br />\n'
+                if (k > 0) {
+                    ret += xref
+                }
+                ret += '<div id="pExp-experiment-' + i + '-run-' + s + '"></div>'
 
+                var idoc = '<div class="card">\n<div class="card-body">\n'
+                idoc += '<h5 class="card-title">Documentation:</h5>\n'
+                var desc = saveUndef(runs[s].description)
+                if (desc != "") {
+                    idoc += '<p>' + desc + '</p>'
+                }
+                idoc += '<button type="button" class="btn btn-success btn-sm" '
+                idoc += ' onclick="showDocSecElement(\'experiment\', ' + i + ', \'run\', ' + s + ', \'documentation\', '
+                idoc += '\'pDoc-experiment-' + i + '-run-' + s + '\', this);">Show All Document Information</button>'
+                idoc += '&nbsp;&nbsp;<button type="button" class="btn btn-success btn-sm" '
+                idoc += 'onclick="selectSecElement(\'experiment\', ' + i + ', \'run\', ' + s + ', \'documentation\', '
+                idoc += '\'pDoc-experiment-' + i + '-run-' + s + '\');">Change Attached Document Ids</button>'
+                idoc += '<div id="pDoc-experiment-' + i + '-run-' + s + '"></div>'
+                idoc += '</div>\n</div><br />\n'
+                ret += idoc
+
+                ret += '<button type="button" class="btn btn-success btn-sm" '
+                ret += 'onclick="newEditRun(' + i + ', ' + s + ', \'edit\');">Edit Run</button>&nbsp;&nbsp;'
+                ret += '<button type="button" class="btn btn-success btn-sm" '
+                ret += 'onclick="selectSecElement(\'experiment\', ' + i + ', \'run\', ' + s + ', \'experimenter\', '
+                ret += '\'pExp-experiment-' + i + '-run-' + s + '\');"">Change Attached Experimenters</button>&nbsp;&nbsp;&nbsp;&nbsp;'
+                if (i == 0) {
+                    ret += '<button type="button" class="btn btn-success btn-sm disabled">Move Up</button>&nbsp;&nbsp;'
+                } else {
+                    ret += '<button type="button" class="btn btn-success btn-sm" '
+                ret += 'onclick="moveEditElement(\'experiment\', \'' + exp[i].id + '\', ' + (i - 1) + ');">Move Up</button>&nbsp;&nbsp;'
+                }
+                if (i == exp.length - 1) {
+                    ret += '<button type="button" class="btn btn-success btn-sm disabled">Move Down</button>&nbsp;&nbsp;&nbsp;'
+                } else {
+                    ret += '<button type="button" class="btn btn-success btn-sm" '
+                ret += 'onclick="moveEditElement(\'experiment\', \'' + exp[i].id + '\', ' + (i + 2) + ');">Move Down</button>&nbsp;&nbsp;&nbsp;'
+                }
+                ret += '<button type="button" class="btn btn-success btn-sm" '
+                ret += 'onclick="deleteRun(' + i + ', ' + s + ');">Delete Run</button>&nbsp;&nbsp;'
                 ret += '</div>\n</div><br />\n'
             }
-            ret += '<div id="pStep-therm_cyc_cons-' + i + '"></div>'
+
             ret += '<button type="button" class="btn btn-success btn-sm" '
-            ret += 'onclick="newEditStep(' + i + ', 999999, \'temperature\');">New Temperature Step</button>&nbsp;&nbsp;'
-            ret += '<button type="button" class="btn btn-success btn-sm" '
-            ret += 'onclick="newEditStep(' + i + ', 999999, \'gradient\');">New Gradient Step</button>&nbsp;&nbsp;'
-            ret += '<button type="button" class="btn btn-success btn-sm" '
-            ret += 'onclick="newEditStep(' + i + ', 999999, \'loop\');">New Loop Step</button>&nbsp;&nbsp;'
-            ret += '<button type="button" class="btn btn-success btn-sm" '
-            ret += 'onclick="newEditStep(' + i + ', 999999, \'pause\');">New Pause Step</button>&nbsp;&nbsp;'
-            ret += '<button type="button" class="btn btn-success btn-sm" '
-            ret += 'onclick="newEditStep(' + i + ', 999999, \'lidOpen\');">New Lid Open Step</button><br />'
+            ret += 'onclick="newEditRun(' + i + ', 999999, \'temperature\');">New Run</button>'
             ret += '</div>\n</div><br />\n'
 
             var doc = '<div class="card">\n<div class="card-body">\n'
@@ -2097,7 +2202,11 @@ function showDocSecElement(prim_key, prim_pos, sec_key, sec_pos, id_source, div_
         exp = window.rdmlData.rdml.therm_cyc_cons[prim_pos].documentations
     }
     if (prim_key == "experiment") {
-        exp = window.rdmlData.rdml.experiments[prim_pos].documentations
+        if (sec_key == "run") {
+            exp = window.rdmlData.rdml.experiments[prim_pos].runs[sec_pos].documentations
+        } else {
+            exp = window.rdmlData.rdml.experiments[prim_pos].documentations
+        }
     }
     var ret = '<p><br />'
     for (var i = 0; i < exp.length; i++) {
@@ -2221,7 +2330,16 @@ function selectSecElement(prim_key, prim_pos, sec_key, sec_pos, id_source, div_t
         }
     }
     if (prim_key == "experiment") {
-        var elem = window.rdmlData.rdml.experiments[prim_pos].documentations
+        var elem = null
+        if (sec_key == "run") {
+            if (id_source == "experimenter") {
+                elem = window.rdmlData.rdml.experiments[prim_pos].runs[sec_pos].experimenters
+            } else {
+                elem = window.rdmlData.rdml.experiments[prim_pos].runs[sec_pos].documentations
+            }
+        } else {
+            elem = window.rdmlData.rdml.experiments[prim_pos].documentations
+        }
         for (var i = 0; i < elem.length; i++) {
             sel[elem[i]] = true
         }
