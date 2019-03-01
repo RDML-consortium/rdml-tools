@@ -70,6 +70,17 @@ function saveUndefKey(base, key) {
     return ""
 }
 
+function saveUndefKeyKey(base, key, skey) {
+    if (base) {
+        if(base.hasOwnProperty(key)) {
+            if(base[key].hasOwnProperty(skey)) {
+                return base[key][skey]
+            }
+        }
+    }
+    return ""
+}
+
 function tarSeqHtml(base, key) {
     var has_data = true
     if (!(base) || !(base.hasOwnProperty("sequences")) || !(base.sequences.hasOwnProperty(key))) {
@@ -582,8 +593,10 @@ function updateClientData() {
                 ret += '</div>\n</div><br />\n'
             }
 
+            ret += '<div id="pRun-experiment-' + i + '"></div>'
+
             ret += '<button type="button" class="btn btn-success btn-sm" '
-            ret += 'onclick="newEditRun(' + i + ', 999999, \'temperature\');">New Run</button>'
+            ret += 'onclick="newEditRun(' + i + ', 999999);">New Run</button>'
             ret += '</div>\n</div><br />\n'
 
             var doc = '<div class="card">\n<div class="card-body">\n'
@@ -2617,6 +2630,156 @@ function newEditStep(prim_pos, step_pos, type) {
     ret += 'onclick="disChangesSecElement(\'pStep-therm_cyc_cons-' + prim_pos + '\');">Discard Changes</button>'
     ret += '</div>\n</div><br />\n'
     var ele = document.getElementById('pStep-therm_cyc_cons-' + prim_pos)
+    ele.innerHTML = ret
+    ele.scrollIntoView();
+}
+
+// Edit or create an experiment run
+window.newEditRun = newEditRun;
+function newEditRun(prim_pos, sec_pos) {
+    if (!(window.rdmlData.hasOwnProperty("rdml"))) {
+        return
+    }
+    if (window.editMode == true) {
+        return
+    }
+    var edit = false
+    var run = null
+    var ret = '<div class="card">\n<div class="card-body">\n'
+    var id_val = ""
+    if (sec_pos < 999999) {
+        edit = true
+        run = window.rdmlData.rdml.experiments[prim_pos].runs[sec_pos]
+        id_val = run.id
+        ret += '<h5 class="card-title">Edit Run:</h5>\n'
+    } else {
+        edit = false
+        id_val = "New Run"
+        ret += '<h5 class="card-title">New Run:</h5>\n'
+    }
+    ret += '<p><table style="width:100%;">'
+    ret += '  <tr>\n    <td style="width:25%;">ID:</td>\n'
+    ret += '    <td style="width:75%"><input type="text" class="form-control" '
+    ret += 'id="inRunId" value="'+ id_val + '"></td>\n'
+    ret += '  </tr>'
+    ret += '  <tr>\n    <td style="width:25%;">Place at Position:</td>\n'
+    ret += '    <td style="width:75%"><input type="text" class="form-control" '
+    ret += 'id="inRunPos" value="' + (sec_pos + 1) + '"></td>\n'
+    ret += '  </tr>'
+    ret += '  <tr>\n    <td style="width:25%;">Description:</td>\n'
+    ret += '    <td style="width:75%"><input type="text" class="form-control" '
+    ret += 'id="inRunDescription" value="'+ saveUndefKey(run, "description") + '"></td>\n'
+    ret += '  </tr>'
+    ret += '  <tr>\n    <td style="width:25%;">Run Date:</td>\n'
+    ret += '    <td style="width:75%">\n<input type="text" class="form-control" '
+    ret += 'id="inRunRunDate" value="' + saveUndefKey(run, "runDate") + '"></td>\n'
+    ret += '  </tr>'
+    ret += '  <tr>\n    <td style="width:25%;">Thermal Cycling Conditions:</td>\n'
+    ret += '    <td style="width:75%">\n<input type="text" class="form-control" '
+    ret += 'id="inRunThermalCyclingConditions" value="' + saveUndefKey(run, "thermalCyclingConditions") + '"></td>\n'
+    ret += '  </tr>'
+    // Todo add dropdown selector
+    var select_val = saveUndefKey(run, "cqDetectionMethod")
+    ret += '  <tr>\n    <td style="width:25%;">Cq Detection Method:</td>\n'
+    ret += '    <td style="width:75%"><select class="form-control" id="inRunCqDetectionMethod">\n'
+    ret += '        <option value=""'
+    if (select_val == "") {
+        ret += ' selected'
+    }
+    ret += '>No value selected</option>\n'
+    ret += '        <option value="automated threshold and baseline settings"'
+    if (select_val == "automated threshold and baseline settings") {
+        ret += ' selected'
+    }
+    ret += '>automated threshold and baseline settings</option>\n'
+    ret += '        <option value="manual threshold and baseline settings"'
+    if (select_val == "manual threshold and baseline settings") {
+        ret += ' selected'
+    }
+    ret += '>manual threshold and baseline settings</option>\n'
+    ret += '        <option value="second derivative maximum"'
+    if (select_val == "second derivative maximum") {
+        ret += ' selected'
+    }
+    ret += '>second derivative maximum</option>\n'
+    ret += '        <option value="other"'
+    if (select_val == "other") {
+        ret += ' selected'
+    }
+    ret += '>other</option>\n'
+    ret += '      </select></td>\n'
+    ret += '  </tr>'
+    ret += '  <tr>\n    <td style="width:25%;">Background Determination Method:</td>\n'
+    ret += '    <td style="width:75%">\n<input type="text" class="form-control" '
+    ret += 'id="inRunBackgroundDeterminationMethod" value="' + saveUndefKey(run, "backgroundDeterminationMethod") + '"></td>\n'
+    ret += '  </tr>'
+    ret += '  <tr>\n    <td style="width:25%;">PCR Format - Columns:</td>\n'
+    ret += '    <td style="width:75%">\n<input type="text" class="form-control" '
+    ret += 'id="inRunPcrFormat_columns" value="' + saveUndefKeyKey(run, "pcrFormat", "columns") + '"></td>\n'
+    ret += '  </tr>'
+    select_val = saveUndefKeyKey(run, "pcrFormat", "columnLabel")
+    ret += '  <tr>\n    <td style="width:25%;">PCR Format - Column Label:</td>\n'
+    ret += '    <td style="width:75%"><select class="form-control" id="inRunPcrFormat_columnLabel">\n'
+    ret += '        <option value="ABC"'
+    if (select_val == "ABC") {
+        ret += ' selected'
+    }
+    ret += '>ABC</option>\n'
+    ret += '        <option value="123"'
+    if (select_val == "123") {
+        ret += ' selected'
+    }
+    ret += '>123</option>\n'
+    ret += '        <option value="A1a1"'
+    if (select_val == "A1a1") {
+        ret += ' selected'
+    }
+    ret += '>A1a1</option>\n'
+    ret += '      </select></td>\n'
+    ret += '  </tr>'
+    ret += '  <tr>\n    <td style="width:25%;">PCR Format - Rows:</td>\n'
+    ret += '    <td style="width:75%">\n<input type="text" class="form-control" '
+    ret += 'id="inRunPcrFormat_rows" value="' + saveUndefKeyKey(run, "pcrFormat", "rows") + '"></td>\n'
+    ret += '  </tr>'
+    select_val = saveUndefKeyKey(run, "pcrFormat", "rowLabel")
+    ret += '  <tr>\n    <td style="width:25%;">PCR Format - Row Label:</td>\n'
+    ret += '    <td style="width:75%"><select class="form-control" id="inRunPcrFormat_rowLabel">\n'
+    ret += '        <option value="ABC"'
+    if (select_val == "ABC") {
+        ret += ' selected'
+    }
+    ret += '>ABC</option>\n'
+    ret += '        <option value="123"'
+    if (select_val == "123") {
+        ret += ' selected'
+    }
+    ret += '>123</option>\n'
+    ret += '        <option value="A1a1"'
+    if (select_val == "A1a1") {
+        ret += ' selected'
+    }
+    ret += '>A1a1</option>\n'
+    ret += '      </select></td>\n'
+    ret += '  </tr>'
+    ret += '  <tr>\n    <td style="width:25%;">Instrument:</td>\n'
+    ret += '    <td style="width:75%">\n<input type="text" class="form-control" '
+    ret += 'id="inRunInstrument" value="' + saveUndefKey(run, "instrument") + '"></td>\n'
+    ret += '  </tr>'
+    ret += '  <tr>\n    <td style="width:25%;">Software - Name:</td>\n'
+    ret += '    <td style="width:75%">\n<input type="text" class="form-control" '
+    ret += 'id="inRunDataCollectionSoftware_name" value="' + saveUndefKeyKey(run, "dataCollectionSoftware", "name") + '"></td>\n'
+    ret += '  </tr>'
+    ret += '  <tr>\n    <td style="width:25%;">Software - Version:</td>\n'
+    ret += '    <td style="width:75%">\n<input type="text" class="form-control" '
+    ret += 'id="inRunDataCollectionSoftware_version" value="' + saveUndefKeyKey(run, "dataCollectionSoftware", "version") + '"></td>\n'
+    ret += '  </tr>'
+    ret += '</table></p>\n'
+    ret += '<button type="button" class="btn btn-success btn-sm" '
+    ret += 'onclick="saveRun(' + prim_pos + ', ' + sec_pos + ', ' + edit + ');">Save Changes</button>'
+    ret += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button type="button" class="btn btn-success btn-sm" '
+    ret += 'onclick="disChangesSecElement(\'pRun-experiment-' + prim_pos + '\');">Discard Changes</button>'
+    ret += '</div>\n</div><br />\n'
+    var ele = document.getElementById('pRun-experiment-' + prim_pos)
     ele.innerHTML = ret
     ele.scrollIntoView();
 }
