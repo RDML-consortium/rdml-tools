@@ -2833,6 +2833,43 @@ function saveStep(prim_pos, step_pos, useType, edit){
 }
 
 
+// Save edit run changes, create new ones
+window.saveRun = saveRun;
+function saveRun(prim_pos, run_pos, edit){
+    if (!(window.rdmlData.hasOwnProperty("rdml"))) {
+        return
+    }
+    if (window.editMode == true) {
+        return
+    }
+    var ret = {}
+    if (edit == false) {
+        ret["mode"] = "create-run"
+    } else {
+        ret["mode"] = "edit-run"
+    }
+    ret["primary-position"] = prim_pos
+    ret["run-position"] = run_pos
+    ret["new-position"] = getSaveHtmlData("inRunPos") - 1
+    var el = {}
+    el["id"] = getSaveHtmlData("inRunId")
+    el["description"] = getSaveHtmlData("inRunDescription")
+    el["runDate"] = getSaveHtmlData("inRunRunDate")
+    el["thermalCyclingConditions"] = getSaveHtmlData("inRunThermalCyclingConditions")
+    el["cqDetectionMethod"] = getSaveHtmlData("inRunCqDetectionMethod")
+    el["backgroundDeterminationMethod"] = getSaveHtmlData("inRunBackgroundDeterminationMethod")
+    el["pcrFormat_columns"] = getSaveHtmlData("inRunPcrFormat_columns")
+    el["pcrFormat_columnLabel"] = getSaveHtmlData("inRunPcrFormat_columnLabel")
+    el["pcrFormat_rows"] = getSaveHtmlData("inRunPcrFormat_rows")
+    el["pcrFormat_rowLabel"] = getSaveHtmlData("inRunPcrFormat_rowLabel")
+    el["instrument"] = getSaveHtmlData("inRunInstrument")
+    el["dataCollectionSoftware_name"] = getSaveHtmlData("inRunDataCollectionSoftware_name")
+    el["dataCollectionSoftware_version"] = getSaveHtmlData("inRunDataCollectionSoftware_version")
+    ret["data"] = el
+    updateServerData(uuid, JSON.stringify(ret))
+}
+
+
 // Save edit step changes, create new ones
 window.deleteStep = deleteStep;
 function deleteStep(prim_pos, step_pos){

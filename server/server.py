@@ -296,6 +296,78 @@ def handle_data():
                 else:
                     modified = True
 
+        if "mode" in reqdata and reqdata["mode"] in ["create-run", "edit-run"]:
+            if "primary-position" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - run primary-position missing!"}]), 400
+            if "run-position" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - run run-position missing!"}]), 400
+            if "new-position" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - run new-position missing!"}]), 400
+            if "data" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - run data missing!"}]), 400
+            if "id" not in reqdata["data"]:
+                return jsonify(errors=[{"title": "Invalid server request - run id missing!"}]), 400
+            if "description" not in reqdata["data"]:
+                return jsonify(errors=[{"title": "Invalid server request - run description missing!"}]), 400
+            if "runDate" not in reqdata["data"]:
+                return jsonify(errors=[{"title": "Invalid server request - run runDate missing!"}]), 400
+            if "thermalCyclingConditions" not in reqdata["data"]:
+                return jsonify(errors=[{"title": "Invalid server request - run thermalCyclingConditions missing!"}]), 400
+            if "cqDetectionMethod" not in reqdata["data"]:
+                return jsonify(errors=[{"title": "Invalid server request - run cqDetectionMethod missing!"}]), 400
+            if "backgroundDeterminationMethod" not in reqdata["data"]:
+                return jsonify(errors=[{"title": "Invalid server request - run backgroundDeterminationMethod missing!"}]), 400
+            if "pcrFormat_columns" not in reqdata["data"]:
+                return jsonify(errors=[{"title": "Invalid server request - run pcrFormat_columns missing!"}]), 400
+            if "pcrFormat_columnLabel" not in reqdata["data"]:
+                return jsonify(errors=[{"title": "Invalid server request - run pcrFormat_columnLabel missing!"}]), 400
+            if "pcrFormat_rows" not in reqdata["data"]:
+                return jsonify(errors=[{"title": "Invalid server request - run pcrFormat_rows missing!"}]), 400
+            if "pcrFormat_rowLabel" not in reqdata["data"]:
+                return jsonify(errors=[{"title": "Invalid server request - run pcrFormat_rowLabel missing!"}]), 400
+            if reqdata["data"]["pcrFormat_columns"] == "":
+                return jsonify(errors=[{"title": "Invalid server request - run pcrFormat_columns value missing!"}]), 400
+            if reqdata["data"]["pcrFormat_columnLabel"] == "":
+                return jsonify(errors=[{"title": "Invalid server request - run pcrFormat_columnLabel value missing!"}]), 400
+            if reqdata["data"]["pcrFormat_rows"] == "":
+                return jsonify(errors=[{"title": "Invalid server request - run pcrFormat_rows value missing!"}]), 400
+            if reqdata["data"]["pcrFormat_rowLabel"] == "":
+                return jsonify(errors=[{"title": "Invalid server request - run pcrFormat_rowLabel value missing!"}]), 400
+            if "instrument" not in reqdata["data"]:
+                return jsonify(errors=[{"title": "Invalid server request - run instrument missing!"}]), 400
+            if "dataCollectionSoftware_name" not in reqdata["data"]:
+                return jsonify(errors=[{"title": "Invalid server request - run dataCollectionSoftware_name missing!"}]), 400
+            if "dataCollectionSoftware_version" not in reqdata["data"]:
+                return jsonify(errors=[{"title": "Invalid server request - run dataCollectionSoftware_version missing!"}]), 400
+            elem = rd.get_experiment(byposition=reqdata["primary-position"])
+            if elem is None:
+                return jsonify(errors=[{"title": "Invalid server request - experiment at position not found!"}]), 400
+            try:
+                run_ele = None
+                if reqdata["mode"] == "create-run":
+                    elem.new_run(id=reqdata["data"]["id"], newposition=int(reqdata["new-position"]))
+                    run_ele = elem.get_run(byid=reqdata["data"]["id"])
+                if reqdata["mode"] == "edit-run":
+                    run_ele = elem.get_run(byposition=int(reqdata["run-position"]))
+                    run_ele["id"] = reqdata["data"]["id"]
+                    elem.move_run(reqdata["data"]["id"], int(reqdata["new-position"]))
+                run_ele["description"] = reqdata["data"]["description"]
+                run_ele["runDate"] = reqdata["data"]["runDate"]
+                run_ele["thermalCyclingConditions"] = reqdata["data"]["thermalCyclingConditions"]
+                run_ele["cqDetectionMethod"] = reqdata["data"]["cqDetectionMethod"]
+                run_ele["backgroundDeterminationMethod"] = reqdata["data"]["backgroundDeterminationMethod"]
+                run_ele["pcrFormat_columns"] = reqdata["data"]["pcrFormat_columns"]
+                run_ele["pcrFormat_columnLabel"] = reqdata["data"]["pcrFormat_columnLabel"]
+                run_ele["pcrFormat_rows"] = reqdata["data"]["pcrFormat_rows"]
+                run_ele["pcrFormat_rowLabel"] = reqdata["data"]["pcrFormat_rowLabel"]
+                run_ele["instrument"] = reqdata["data"]["instrument"]
+                run_ele["dataCollectionSoftware_name"] = reqdata["data"]["dataCollectionSoftware_name"]
+                run_ele["dataCollectionSoftware_version"] = reqdata["data"]["dataCollectionSoftware_version"]
+            except rdml.RdmlError as err:
+                data["error"] = str(err)
+            else:
+                modified = True
+
         if "mode" in reqdata and reqdata["mode"] in ["create-step", "edit-step"]:
             if "primary-position" not in reqdata:
                 return jsonify(errors=[{"title": "Invalid server request - step primary-position missing!"}]), 400
@@ -333,13 +405,13 @@ def handle_data():
                                                   ramp=reqdata["data"]["ramp"],
                                                   nr=reqdata["new-position"])
                     if reqdata["mode"] == "edit-step":
-                        stp = elem.get_step(bystep=int(reqdata["step-position"]))
-                        stp["temperature"] = reqdata["data"]["temperature"]
-                        stp["duration"] = reqdata["data"]["duration"]
-                        stp["temperatureChange"] = reqdata["data"]["temperatureChange"]
-                        stp["durationChange"] = reqdata["data"]["durationChange"]
-                        stp["measure"] = reqdata["data"]["measure"]
-                        stp["ramp"] = reqdata["data"]["ramp"]
+                        run_ele = elem.get_step(bystep=int(reqdata["step-position"]))
+                        run_ele["temperature"] = reqdata["data"]["temperature"]
+                        run_ele["duration"] = reqdata["data"]["duration"]
+                        run_ele["temperatureChange"] = reqdata["data"]["temperatureChange"]
+                        run_ele["durationChange"] = reqdata["data"]["durationChange"]
+                        run_ele["measure"] = reqdata["data"]["measure"]
+                        run_ele["ramp"] = reqdata["data"]["ramp"]
                         if int(reqdata["step-position"]) != int(reqdata["new-position"]):
                             if int(reqdata["step-position"]) < int(reqdata["new-position"]):
                                 elem.move_step(int(reqdata["step-position"]), int(reqdata["new-position"]) + 1)
@@ -370,14 +442,14 @@ def handle_data():
                                                ramp=reqdata["data"]["ramp"],
                                                nr=reqdata["new-position"])
                     if reqdata["mode"] == "edit-step":
-                        stp = elem.get_step(bystep=int(reqdata["step-position"]))
-                        stp["highTemperature"] = reqdata["data"]["highTemperature"]
-                        stp["lowTemperature"] = reqdata["data"]["lowTemperature"]
-                        stp["duration"] = reqdata["data"]["duration"]
-                        stp["temperatureChange"] = reqdata["data"]["temperatureChange"]
-                        stp["durationChange"] = reqdata["data"]["durationChange"]
-                        stp["measure"] = reqdata["data"]["measure"]
-                        stp["ramp"] = reqdata["data"]["ramp"]
+                        run_ele = elem.get_step(bystep=int(reqdata["step-position"]))
+                        run_ele["highTemperature"] = reqdata["data"]["highTemperature"]
+                        run_ele["lowTemperature"] = reqdata["data"]["lowTemperature"]
+                        run_ele["duration"] = reqdata["data"]["duration"]
+                        run_ele["temperatureChange"] = reqdata["data"]["temperatureChange"]
+                        run_ele["durationChange"] = reqdata["data"]["durationChange"]
+                        run_ele["measure"] = reqdata["data"]["measure"]
+                        run_ele["ramp"] = reqdata["data"]["ramp"]
                         if int(reqdata["step-position"]) != int(reqdata["new-position"]):
                             if int(reqdata["step-position"]) < int(reqdata["new-position"]):
                                 elem.move_step(int(reqdata["step-position"]), int(reqdata["new-position"]) + 1)
@@ -393,9 +465,9 @@ def handle_data():
                                            repeat=reqdata["data"]["repeat"],
                                            nr=reqdata["new-position"])
                     if reqdata["mode"] == "edit-step":
-                        stp = elem.get_step(bystep=int(reqdata["step-position"]))
-                        stp["goto"] = reqdata["data"]["goto"]
-                        stp["repeat"] = reqdata["data"]["repeat"]
+                        run_ele = elem.get_step(bystep=int(reqdata["step-position"]))
+                        run_ele["goto"] = reqdata["data"]["goto"]
+                        run_ele["repeat"] = reqdata["data"]["repeat"]
                         if int(reqdata["step-position"]) != int(reqdata["new-position"]):
                             if int(reqdata["step-position"]) < int(reqdata["new-position"]):
                                 elem.move_step(int(reqdata["step-position"]), int(reqdata["new-position"]) + 1)
@@ -408,8 +480,8 @@ def handle_data():
                         elem.new_step_pause(temperature=reqdata["data"]["temperature"],
                                             nr=reqdata["new-position"])
                     if reqdata["mode"] == "edit-step":
-                        stp = elem.get_step(bystep=int(reqdata["step-position"]))
-                        stp["temperature"] = reqdata["data"]["temperature"]
+                        run_ele = elem.get_step(bystep=int(reqdata["step-position"]))
+                        run_ele["temperature"] = reqdata["data"]["temperature"]
                         if int(reqdata["step-position"]) != int(reqdata["new-position"]):
                             if int(reqdata["step-position"]) < int(reqdata["new-position"]):
                                 elem.move_step(int(reqdata["step-position"]), int(reqdata["new-position"]) + 1)
@@ -419,7 +491,7 @@ def handle_data():
                     if reqdata["mode"] == "create-step":
                         elem.new_step_lidOpen(nr=reqdata["new-position"])
                     if reqdata["mode"] == "edit-step":
-                        stp = elem.get_step(bystep=int(reqdata["step-position"]))
+                        run_ele = elem.get_step(bystep=int(reqdata["step-position"]))
                         if int(reqdata["step-position"]) != int(reqdata["new-position"]):
                             if int(reqdata["step-position"]) < int(reqdata["new-position"]):
                                 elem.move_step(int(reqdata["step-position"]), int(reqdata["new-position"]) + 1)
