@@ -61,6 +61,8 @@ def validate_file():
             uuidstr = request.form['uuid']
             if uuidstr == "error.rdml":
                 fexpname = os.path.join(RDMLWS, "error.rdml")
+            elif uuidstr == "sample.rdml":
+                fexpname = os.path.join(RDMLWS, "sample.rdml")
             else:
                 if not is_valid_uuid(uuidstr):
                     return jsonify(errors=[{"title": "Invalid UUID - UUID link outdated or invalid!"}]), 400
@@ -158,6 +160,10 @@ def handle_data():
 
         data = {"uuid": uuidstr}
         rd = rdml.Rdml(fexpname)
+        if rd.version() == "1.0":
+            rd.migrate_version_1_0_to_1_1()
+            rd.save(fexpname)
+            rd = rdml.Rdml(fexpname)
         modified = False
 
         if "validate" in reqdata and reqdata["validate"] is True:
