@@ -36,6 +36,7 @@ window.uuid = "";
 window.rdmlData = "";
 window.isvalid = "untested";
 
+window.showEditButt = false;
 window.editMode = false;
 window.editType = "";
 window.editIsNew = false;
@@ -52,6 +53,26 @@ function resetAllGlobalVal() {
 document.addEventListener("DOMContentLoaded", function() {
     checkForUUID();
 });
+
+
+window.showEditButtons = showEditButtons;
+function showEditButtons() {
+    var butt = document.getElementById('btn-show-edit-buttons')
+    var elem = document.getElementsByClassName('rdml-btn-edit');
+    if (window.showEditButt == true) {
+        butt.textContent = "Enable Edit Mode"
+        window.showEditButt = false;
+        for (var i = 0 ; i < elem.length ; i++) {
+            elem[i].style.display = "none";
+        }
+    } else {
+        butt.textContent = "Enable Read-Only Mode"
+        window.showEditButt = true;
+        for (var i = 0 ; i < elem.length ; i++) {
+            elem[i].style.display = "inline";
+        }
+    }
+}
 
 function saveUndef(tst) {
     if (tst) {
@@ -532,16 +553,16 @@ function updateClientData() {
                         // Todo make link
                         xref += '    <td style="width:25%">\n'
                         if (j == 0) {
-                            xref += '<button type="button" class="btn btn-success btn-sm disabled">Move Up</button>&nbsp;&nbsp;'
+                            xref += '<button type="button" class="btn btn-success rdml-btn-edit btn-sm disabled">Move Up</button>&nbsp;&nbsp;'
                         } else {
-                            xref += '<button type="button" class="btn btn-success btn-sm" '
+                            xref += '<button type="button" class="btn btn-success rdml-btn-edit btn-sm" '
                             xref += 'onclick="moveSecElement(\'experiment\', ' + i + ', \'run\', ' + s + ', \'experimenter\', ' + j
                             xref += ', ' + (j - 1) + ');">Move Up</button>&nbsp;&nbsp;'
                         }
                         if (j == k - 1) {
-                            xref += '<button type="button" class="btn btn-success btn-sm disabled">Move Down</button>&nbsp;&nbsp;&nbsp;'
+                            xref += '<button type="button" class="btn btn-success rdml-btn-edit btn-sm disabled">Move Down</button>&nbsp;&nbsp;&nbsp;'
                         } else {
-                            xref += '<button type="button" class="btn btn-success btn-sm" '
+                            xref += '<button type="button" class="btn btn-success rdml-btn-edit btn-sm" '
                             xref += 'onclick="moveSecElement(\'experiment\', ' + i + ', \'run\', ' + s + ', \'experimenter\', ' + j
                             xref += ', ' + (j + 2) + ');">Move Down</button>'
                         }
@@ -564,38 +585,38 @@ function updateClientData() {
                 idoc += '<button type="button" class="btn btn-success btn-sm" '
                 idoc += ' onclick="showDocSecElement(\'experiment\', ' + i + ', \'run\', ' + s + ', \'documentation\', '
                 idoc += '\'pDoc-experiment-' + i + '-run-' + s + '\', this);">Show All Document Information</button>'
-                idoc += '&nbsp;&nbsp;<button type="button" class="btn btn-success btn-sm" '
+                idoc += '&nbsp;&nbsp;<button type="button" class="btn btn-success rdml-btn-edit btn-sm" '
                 idoc += 'onclick="selectSecElement(\'experiment\', ' + i + ', \'run\', ' + s + ', \'documentation\', '
                 idoc += '\'pDoc-experiment-' + i + '-run-' + s + '\');">Change Attached Document Ids</button>'
                 idoc += '<div id="pDoc-experiment-' + i + '-run-' + s + '"></div>'
                 idoc += '</div>\n</div><br />\n'
                 ret += idoc
 
-                ret += '<button type="button" class="btn btn-success btn-sm" '
+                ret += '<button type="button" class="btn btn-success rdml-btn-edit btn-sm" '
                 ret += 'onclick="newEditRun(' + i + ', ' + s + ', \'edit\');">Edit Run</button>&nbsp;&nbsp;'
-                ret += '<button type="button" class="btn btn-success btn-sm" '
+                ret += '<button type="button" class="btn btn-success rdml-btn-edit btn-sm" '
                 ret += 'onclick="selectSecElement(\'experiment\', ' + i + ', \'run\', ' + s + ', \'experimenter\', '
                 ret += '\'pExp-experiment-' + i + '-run-' + s + '\');"">Change Attached Experimenters</button>&nbsp;&nbsp;&nbsp;&nbsp;'
                 if (i == 0) {
-                    ret += '<button type="button" class="btn btn-success btn-sm disabled">Move Up</button>&nbsp;&nbsp;'
+                    ret += '<button type="button" class="btn btn-success rdml-btn-edit btn-sm disabled">Move Up</button>&nbsp;&nbsp;'
                 } else {
-                    ret += '<button type="button" class="btn btn-success btn-sm" '
+                    ret += '<button type="button" class="btn btn-success rdml-btn-edit btn-sm" '
                 ret += 'onclick="moveEditElement(\'experiment\', \'' + exp[i].id + '\', ' + (i - 1) + ');">Move Up</button>&nbsp;&nbsp;'
                 }
                 if (i == exp.length - 1) {
-                    ret += '<button type="button" class="btn btn-success btn-sm disabled">Move Down</button>&nbsp;&nbsp;&nbsp;'
+                    ret += '<button type="button" class="btn btn-success rdml-btn-edit btn-sm disabled">Move Down</button>&nbsp;&nbsp;&nbsp;'
                 } else {
-                    ret += '<button type="button" class="btn btn-success btn-sm" '
+                    ret += '<button type="button" class="btn btn-success rdml-btn-edit btn-sm" '
                 ret += 'onclick="moveEditElement(\'experiment\', \'' + exp[i].id + '\', ' + (i + 2) + ');">Move Down</button>&nbsp;&nbsp;&nbsp;'
                 }
-                ret += '<button type="button" class="btn btn-success btn-sm" '
+                ret += '<button type="button" class="btn btn-success rdml-btn-edit btn-sm" '
                 ret += 'onclick="deleteRun(' + i + ', ' + s + ');">Delete Run</button>&nbsp;&nbsp;'
                 ret += '</div>\n</div><br />\n'
             }
 
             ret += '<div id="pRun-experiment-' + i + '"></div>'
 
-            ret += '<button type="button" class="btn btn-success btn-sm" '
+            ret += '<button type="button" class="btn btn-success rdml-btn-edit btn-sm" '
             ret += 'onclick="newEditRun(' + i + ', 999999);">New Run</button>'
             ret += '</div>\n</div><br />\n'
 
@@ -608,31 +629,31 @@ function updateClientData() {
             doc += '<button type="button" class="btn btn-success btn-sm" '
             doc += ' onclick="showDocSecElement(\'experiment\', ' + i + ', \'\', 0, \'documentation\', '
             doc += '\'pDoc-experiment-' + i + '\', this);">Show All Document Information</button>'
-            doc += '&nbsp;&nbsp;<button type="button" class="btn btn-success btn-sm" '
+            doc += '&nbsp;&nbsp;<button type="button" class="btn btn-success rdml-btn-edit btn-sm" '
             doc += 'onclick="selectSecElement(\'experiment\', ' + i + ', \'\', 0, \'documentation\', '
             doc += '\'pDoc-experiment-' + i + '\');">Change Attached Document Ids</button>'
             doc += '<div id="pDoc-experiment-' + i + '"></div>'
             doc += '</div>\n</div><br />\n'
             ret += doc
 
-            ret += '<button type="button" class="btn btn-success" '
+            ret += '<button type="button" class="btn btn-success rdml-btn-edit" '
             ret += 'onclick="editPresentElement(\'experiment\', ' + i + ');">Edit</button>&nbsp;&nbsp;&nbsp;&nbsp;'
-            ret += '<button type="button" class="btn btn-success" '
+            ret += '<button type="button" class="btn btn-success rdml-btn-edit" '
             ret += 'onclick="selectSecElement(\'experiment\', ' + i + ', \'\', 0, \'experimenter\', '
             ret += '\'pExp-therm_cyc_cons-' + i + '\');"">Change Attached Experimenters</button>&nbsp;&nbsp;&nbsp;&nbsp;'
             if (i == 0) {
-                ret += '<button type="button" class="btn btn-success disabled">Move Up</button>&nbsp;&nbsp;'
+                ret += '<button type="button" class="btn btn-success rdml-btn-edit disabled">Move Up</button>&nbsp;&nbsp;'
             } else {
-                ret += '<button type="button" class="btn btn-success" '
+                ret += '<button type="button" class="btn btn-success rdml-btn-edit" '
             ret += 'onclick="moveEditElement(\'experiment\', \'' + exp[i].id + '\', ' + (i - 1) + ');">Move Up</button>&nbsp;&nbsp;'
             }
             if (i == exp.length - 1) {
-                ret += '<button type="button" class="btn btn-success disabled">Move Down</button>&nbsp;&nbsp;&nbsp;'
+                ret += '<button type="button" class="btn btn-success rdml-btn-edit disabled">Move Down</button>&nbsp;&nbsp;&nbsp;'
             } else {
-                ret += '<button type="button" class="btn btn-success" '
+                ret += '<button type="button" class="btn btn-success rdml-btn-edit" '
             ret += 'onclick="moveEditElement(\'experiment\', \'' + exp[i].id + '\', ' + (i + 2) + ');">Move Down</button>&nbsp;&nbsp;&nbsp;'
             }
-            ret += '&nbsp;<button type="button" class="btn btn-success" '
+            ret += '&nbsp;<button type="button" class="btn btn-success rdml-btn-edit" '
             ret += 'onclick="deleteEditElement(\'experiment\', ' + i + ');">Delete</button>&nbsp;&nbsp;&nbsp;'
             ret += '</div>\n</div>\n'
         }
@@ -904,24 +925,24 @@ function updateClientData() {
                     xref += '    <td style="width:30%;">Id: '
                     xref += saveUndef(exp[i].xRefs[j].id) + '</td>\n'
                     xref += '    <td style="width:40%">\n'
-                    xref += '<button type="button" class="btn btn-success btn-sm" '
+                    xref += '<button type="button" class="btn btn-success rdml-btn-edit btn-sm" '
                     xref += 'onclick="editXref(\'sample\', ' + i + ', ' + j + ');">Edit</button>&nbsp;&nbsp;'
 
                     if (j == 0) {
-                        xref += '<button type="button" class="btn btn-success btn-sm disabled">Move Up</button>&nbsp;&nbsp;'
+                        xref += '<button type="button" class="btn btn-success rdml-btn-edit btn-sm disabled">Move Up</button>&nbsp;&nbsp;'
                     } else {
-                        xref += '<button type="button" class="btn btn-success btn-sm" '
+                        xref += '<button type="button" class="btn btn-success rdml-btn-edit btn-sm" '
                         xref += 'onclick="moveSecElement(\'sample\', ' + i + ', \'\', 0, \'xRef\', ' + j
                         xref += ', ' + (j - 1) + ');">Move Up</button>&nbsp;&nbsp;'
                     }
                     if (j == k - 1) {
-                        xref += '<button type="button" class="btn btn-success btn-sm disabled">Move Down</button>&nbsp;&nbsp;&nbsp;'
+                        xref += '<button type="button" class="btn btn-success rdml-btn-edit btn-sm disabled">Move Down</button>&nbsp;&nbsp;&nbsp;'
                     } else {
-                        xref += '<button type="button" class="btn btn-success btn-sm" '
+                        xref += '<button type="button" class="btn btn-success rdml-btn-edit btn-sm" '
                         xref += 'onclick="moveSecElement(\'sample\', ' + i + ', \'\', 0, \'xRef\', ' + j
                         xref += ', ' + (j + 2) + ');">Move Down</button>&nbsp;&nbsp;&nbsp;'
                     }
-                    xref += '<button type="button" class="btn btn-success btn-sm" '
+                    xref += '<button type="button" class="btn btn-success rdml-btn-edit btn-sm" '
                     xref += 'onclick="deleteSecElement(\'sample\', ' + i + ', \'\', 0, \'xRef\', ' + j
                     xref += ');">Delete</button></td>\n  </tr>'
                 }
@@ -943,30 +964,30 @@ function updateClientData() {
             doc += '<button type="button" class="btn btn-success btn-sm" '
             doc += ' onclick="showDocSecElement(\'sample\', ' + i + ', \'\', 0, \'documentation\', '
             doc += '\'pDoc-sample-' + i + '\', this);">Show All Document Information</button>'
-            doc += '&nbsp;&nbsp;<button type="button" class="btn btn-success btn-sm" '
+            doc += '&nbsp;&nbsp;<button type="button" class="btn btn-success rdml-btn-edit btn-sm" '
             doc += 'onclick="selectSecElement(\'sample\', ' + i + ', \'\', 0, \'documentation\', '
             doc += '\'pDoc-sample-' + i + '\');">Change Attached Document Ids</button>'
             doc += '<div id="pDoc-sample-' + i + '"></div>'
             doc += '</div>\n</div><br />\n'
             ret += doc
 
-            ret += '<button type="button" class="btn btn-success" '
+            ret += '<button type="button" class="btn btn-success rdml-btn-edit" '
             ret += 'onclick="editPresentElement(\'sample\', ' + i + ');">Edit</button>&nbsp;&nbsp;&nbsp;&nbsp;'
-            ret += '<button type="button" class="btn btn-success" '
+            ret += '<button type="button" class="btn btn-success rdml-btn-edit" '
             ret += 'onclick="editXref(\'sample\', ' + i + ', -1);">New xRef</button>&nbsp;&nbsp;&nbsp;&nbsp;'
             if (i == 0) {
-                ret += '<button type="button" class="btn btn-success disabled">Move Up</button>&nbsp;&nbsp;'
+                ret += '<button type="button" class="btn btn-success rdml-btn-edit disabled">Move Up</button>&nbsp;&nbsp;'
             } else {
-                ret += '<button type="button" class="btn btn-success" '
+                ret += '<button type="button" class="btn btn-success rdml-btn-edit" '
             ret += 'onclick="moveEditElement(\'sample\', \'' + exp[i].id + '\', ' + (i - 1) + ');">Move Up</button>&nbsp;&nbsp;'
             }
             if (i == exp.length - 1) {
-                ret += '<button type="button" class="btn btn-success disabled">Move Down</button>&nbsp;&nbsp;&nbsp;'
+                ret += '<button type="button" class="btn btn-success rdml-btn-edit disabled">Move Down</button>&nbsp;&nbsp;&nbsp;'
             } else {
-                ret += '<button type="button" class="btn btn-success" '
+                ret += '<button type="button" class="btn btn-success rdml-btn-edit" '
             ret += 'onclick="moveEditElement(\'sample\', \'' + exp[i].id + '\', ' + (i + 2) + ');">Move Down</button>&nbsp;&nbsp;&nbsp;'
             }
-            ret += '&nbsp;<button type="button" class="btn btn-success" '
+            ret += '&nbsp;<button type="button" class="btn btn-success rdml-btn-edit" '
             ret += 'onclick="deleteEditElement(\'sample\', ' + i + ');">Delete</button>&nbsp;&nbsp;&nbsp;'
             ret += '</div>\n</div>\n'
         }
@@ -1204,24 +1225,24 @@ function updateClientData() {
                     xref += '    <td style="width:30%;">Id: '
                     xref += saveUndef(exp[i].xRefs[j].id) + '</td>\n'
                     xref += '    <td style="width:40%">\n'
-                    xref += '<button type="button" class="btn btn-success btn-sm" '
+                    xref += '<button type="button" class="btn btn-success rdml-btn-edit btn-sm" '
                     xref += 'onclick="editXref(\'target\', ' + i + ', ' + j + ');">Edit</button>&nbsp;&nbsp;'
 
                     if (j == 0) {
-                        xref += '<button type="button" class="btn btn-success btn-sm disabled">Move Up</button>&nbsp;&nbsp;'
+                        xref += '<button type="button" class="btn btn-success rdml-btn-edit btn-sm disabled">Move Up</button>&nbsp;&nbsp;'
                     } else {
-                        xref += '<button type="button" class="btn btn-success btn-sm" '
+                        xref += '<button type="button" class="btn btn-success rdml-btn-edit btn-sm" '
                         xref += 'onclick="moveSecElement(\'target\', ' + i + ', \'\', 0, \'xRef\', ' + j
                         xref += ', ' + (j - 1) + ');">Move Up</button>&nbsp;&nbsp;'
                     }
                     if (j == k - 1) {
-                        xref += '<button type="button" class="btn btn-success btn-sm disabled">Move Down</button>&nbsp;&nbsp;&nbsp;'
+                        xref += '<button type="button" class="btn btn-success rdml-btn-edit btn-sm disabled">Move Down</button>&nbsp;&nbsp;&nbsp;'
                     } else {
-                        xref += '<button type="button" class="btn btn-success btn-sm" '
+                        xref += '<button type="button" class="btn btn-success rdml-btn-edit btn-sm" '
                         xref += 'onclick="moveSecElement(\'target\', ' + i + ', \'\', 0, \'xRef\', ' + j
                         xref += ', ' + (j + 2) + ');">Move Down</button>&nbsp;&nbsp;&nbsp;'
                     }
-                    xref += '<button type="button" class="btn btn-success btn-sm" '
+                    xref += '<button type="button" class="btn btn-success rdml-btn-edit btn-sm" '
                     xref += 'onclick="deleteSecElement(\'target\', ' + i + ', \'\', 0, \'xRef\', ' + j
                     xref += ');">Delete</button></td>\n  </tr>'
                 }
@@ -1243,30 +1264,30 @@ function updateClientData() {
             doc += '<button type="button" class="btn btn-success btn-sm" '
             doc += ' onclick="showDocSecElement(\'target\', ' + i + ', \'\', 0, \'documentation\', '
             doc += '\'pDoc-target-' + i + '\', this);">Show All Document Information</button>'
-            doc += '&nbsp;&nbsp;<button type="button" class="btn btn-success btn-sm" '
+            doc += '&nbsp;&nbsp;<button type="button" class="btn btn-success rdml-btn-edit btn-sm" '
             doc += 'onclick="selectSecElement(\'target\', ' + i + ', \'\', 0, \'documentation\', '
             doc += '\'pDoc-target-' + i + '\');">Change Attached Document Ids</button>'
             doc += '<div id="pDoc-target-' + i + '"></div>'
             doc += '</div>\n</div><br />\n'
             ret += doc
 
-            ret += '<button type="button" class="btn btn-success" '
+            ret += '<button type="button" class="btn btn-success rdml-btn-edit" '
             ret += 'onclick="editPresentElement(\'target\', ' + i + ');">Edit</button>&nbsp;&nbsp;&nbsp;&nbsp;'
-            ret += '<button type="button" class="btn btn-success" '
+            ret += '<button type="button" class="btn btn-success rdml-btn-edit" '
             ret += 'onclick="editXref(\'target\', ' + i + ', -1);">New xRef</button>&nbsp;&nbsp;&nbsp;&nbsp;'
             if (i == 0) {
-                ret += '<button type="button" class="btn btn-success disabled">Move Up</button>&nbsp;&nbsp;'
+                ret += '<button type="button" class="btn btn-success rdml-btn-edit disabled">Move Up</button>&nbsp;&nbsp;'
             } else {
-                ret += '<button type="button" class="btn btn-success" '
+                ret += '<button type="button" class="btn btn-success rdml-btn-edit" '
             ret += 'onclick="moveEditElement(\'target\', \'' + exp[i].id + '\', ' + (i - 1) + ');">Move Up</button>&nbsp;&nbsp;'
             }
             if (i == exp.length - 1) {
-                ret += '<button type="button" class="btn btn-success disabled">Move Down</button>&nbsp;&nbsp;&nbsp;'
+                ret += '<button type="button" class="btn btn-success rdml-btn-edit disabled">Move Down</button>&nbsp;&nbsp;&nbsp;'
             } else {
-                ret += '<button type="button" class="btn btn-success" '
+                ret += '<button type="button" class="btn btn-success rdml-btn-edit" '
             ret += 'onclick="moveEditElement(\'target\', \'' + exp[i].id + '\', ' + (i + 2) + ');">Move Down</button>&nbsp;&nbsp;&nbsp;'
             }
-            ret += '&nbsp;<button type="button" class="btn btn-success" '
+            ret += '&nbsp;<button type="button" class="btn btn-success rdml-btn-edit" '
             ret += 'onclick="deleteEditElement(\'target\', ' + i + ');">Delete</button>&nbsp;&nbsp;&nbsp;'
             ret += '</div>\n</div>\n'
         }
@@ -1407,24 +1428,22 @@ function updateClientData() {
                     ret += '  </tr>'
                 }
                 ret += '</table></p>\n'
-                ret += '<button type="button" class="btn btn-success btn-sm" '
+                ret += '<button type="button" class="btn btn-success rdml-btn-edit btn-sm" '
                 ret += 'onclick="newEditStep(' + i + ', ' + (s + 1) + ', \'edit\');">Edit Step</button>&nbsp;&nbsp;'
-                ret += '<button type="button" class="btn btn-success btn-sm" '
+                ret += '<button type="button" class="btn btn-success rdml-btn-edit btn-sm" '
                 ret += 'onclick="deleteStep(' + i + ', ' + (s + 1) + ');">Delete Step</button>&nbsp;&nbsp;'
-
-
                 ret += '</div>\n</div><br />\n'
             }
             ret += '<div id="pStep-therm_cyc_cons-' + i + '"></div>'
-            ret += '<button type="button" class="btn btn-success btn-sm" '
+            ret += '<button type="button" class="btn btn-success rdml-btn-edit btn-sm" '
             ret += 'onclick="newEditStep(' + i + ', 999999, \'temperature\');">New Temperature Step</button>&nbsp;&nbsp;'
-            ret += '<button type="button" class="btn btn-success btn-sm" '
+            ret += '<button type="button" class="btn btn-success rdml-btn-edit btn-sm" '
             ret += 'onclick="newEditStep(' + i + ', 999999, \'gradient\');">New Gradient Step</button>&nbsp;&nbsp;'
-            ret += '<button type="button" class="btn btn-success btn-sm" '
+            ret += '<button type="button" class="btn btn-success rdml-btn-edit btn-sm" '
             ret += 'onclick="newEditStep(' + i + ', 999999, \'loop\');">New Loop Step</button>&nbsp;&nbsp;'
-            ret += '<button type="button" class="btn btn-success btn-sm" '
+            ret += '<button type="button" class="btn btn-success rdml-btn-edit btn-sm" '
             ret += 'onclick="newEditStep(' + i + ', 999999, \'pause\');">New Pause Step</button>&nbsp;&nbsp;'
-            ret += '<button type="button" class="btn btn-success btn-sm" '
+            ret += '<button type="button" class="btn btn-success rdml-btn-edit btn-sm" '
             ret += 'onclick="newEditStep(' + i + ', 999999, \'lidOpen\');">New Lid Open Step</button><br />'
             ret += '</div>\n</div><br />\n'
 
@@ -1440,16 +1459,16 @@ function updateClientData() {
                     // Todo make link
                     xref += '    <td style="width:25%">\n'
                     if (j == 0) {
-                        xref += '<button type="button" class="btn btn-success btn-sm disabled">Move Up</button>&nbsp;&nbsp;'
+                        xref += '<button type="button" class="btn btn-success rdml-btn-edit btn-sm disabled">Move Up</button>&nbsp;&nbsp;'
                     } else {
-                        xref += '<button type="button" class="btn btn-success btn-sm" '
+                        xref += '<button type="button" class="btn btn-success rdml-btn-edit btn-sm" '
                         xref += 'onclick="moveSecElement(\'therm_cyc_cons\', ' + i + ', \'\', 0, \'experimenter\', ' + j
                         xref += ', ' + (j - 1) + ');">Move Up</button>&nbsp;&nbsp;'
                     }
                     if (j == k - 1) {
-                        xref += '<button type="button" class="btn btn-success btn-sm disabled">Move Down</button>&nbsp;&nbsp;&nbsp;'
+                        xref += '<button type="button" class="btn btn-success rdml-btn-edit btn-sm disabled">Move Down</button>&nbsp;&nbsp;&nbsp;'
                     } else {
-                        xref += '<button type="button" class="btn btn-success btn-sm" '
+                        xref += '<button type="button" class="btn btn-success rdml-btn-edit btn-sm" '
                         xref += 'onclick="moveSecElement(\'therm_cyc_cons\', ' + i + ', \'\', 0, \'experimenter\', ' + j
                         xref += ', ' + (j + 2) + ');">Move Down</button>'
                     }
@@ -1472,31 +1491,31 @@ function updateClientData() {
             doc += '<button type="button" class="btn btn-success btn-sm" '
             doc += ' onclick="showDocSecElement(\'therm_cyc_cons\', ' + i + ', \'\', 0, \'documentation\', '
             doc += '\'pDoc-therm_cyc_cons-' + i + '\', this);">Show All Document Information</button>'
-            doc += '&nbsp;&nbsp;<button type="button" class="btn btn-success btn-sm" '
+            doc += '&nbsp;&nbsp;<button type="button" class="btn btn-success rdml-btn-edit btn-sm" '
             doc += 'onclick="selectSecElement(\'therm_cyc_cons\', ' + i + ', \'\', 0, \'documentation\', '
             doc += '\'pDoc-therm_cyc_cons-' + i + '\');">Change Attached Document Ids</button>'
             doc += '<div id="pDoc-therm_cyc_cons-' + i + '"></div>'
             doc += '</div>\n</div><br />\n'
             ret += doc
 
-            ret += '<button type="button" class="btn btn-success" '
+            ret += '<button type="button" class="btn btn-success rdml-btn-edit" '
             ret += 'onclick="editPresentElement(\'therm_cyc_cons\', ' + i + ');">Edit</button>&nbsp;&nbsp;&nbsp;&nbsp;'
-            ret += '<button type="button" class="btn btn-success" '
+            ret += '<button type="button" class="btn btn-success rdml-btn-edit" '
             ret += 'onclick="selectSecElement(\'therm_cyc_cons\', ' + i + ', \'\', 0, \'experimenter\', '
             ret += '\'pExp-therm_cyc_cons-' + i + '\');"">Change Attached Experimenters</button>&nbsp;&nbsp;&nbsp;&nbsp;'
             if (i == 0) {
-                ret += '<button type="button" class="btn btn-success disabled">Move Up</button>&nbsp;&nbsp;'
+                ret += '<button type="button" class="btn btn-success rdml-btn-edit disabled">Move Up</button>&nbsp;&nbsp;'
             } else {
-                ret += '<button type="button" class="btn btn-success" '
+                ret += '<button type="button" class="btn btn-success rdml-btn-edit" '
             ret += 'onclick="moveEditElement(\'therm_cyc_cons\', \'' + exp[i].id + '\', ' + (i - 1) + ');">Move Up</button>&nbsp;&nbsp;'
             }
             if (i == exp.length - 1) {
-                ret += '<button type="button" class="btn btn-success disabled">Move Down</button>&nbsp;&nbsp;&nbsp;'
+                ret += '<button type="button" class="btn btn-success rdml-btn-edit disabled">Move Down</button>&nbsp;&nbsp;&nbsp;'
             } else {
-                ret += '<button type="button" class="btn btn-success" '
+                ret += '<button type="button" class="btn btn-success rdml-btn-edit" '
             ret += 'onclick="moveEditElement(\'therm_cyc_cons\', \'' + exp[i].id + '\', ' + (i + 2) + ');">Move Down</button>&nbsp;&nbsp;&nbsp;'
             }
-            ret += '&nbsp;<button type="button" class="btn btn-success" '
+            ret += '&nbsp;<button type="button" class="btn btn-success rdml-btn-edit" '
             ret += 'onclick="deleteEditElement(\'therm_cyc_cons\', ' + i + ');">Delete</button>&nbsp;&nbsp;&nbsp;'
             ret += '</div>\n</div>\n'
         }
@@ -1568,21 +1587,21 @@ function updateClientData() {
               ret += '  </tr>'
             }
             ret += '</table></p>\n'
-            ret += '<button type="button" class="btn btn-success" '
+            ret += '<button type="button" class="btn btn-success rdml-btn-edit" '
             ret += 'onclick="editPresentElement(\'experimenter\', ' + i + ');">Edit</button>&nbsp;&nbsp;&nbsp;&nbsp;'
             if (i == 0) {
-                ret += '<button type="button" class="btn btn-success disabled">Move Up</button>&nbsp;&nbsp;'
+                ret += '<button type="button" class="btn btn-success rdml-btn-edit disabled">Move Up</button>&nbsp;&nbsp;'
             } else {
-                ret += '<button type="button" class="btn btn-success" '
+                ret += '<button type="button" class="btn btn-success rdml-btn-edit" '
             ret += 'onclick="moveEditElement(\'experimenter\', \'' + exp[i].id + '\', ' + (i - 1) + ');">Move Up</button>&nbsp;&nbsp;'
             }
             if (i == exp.length - 1) {
-                ret += '<button type="button" class="btn btn-success disabled">Move Down</button>&nbsp;&nbsp;&nbsp;'
+                ret += '<button type="button" class="btn btn-success rdml-btn-edit disabled">Move Down</button>&nbsp;&nbsp;&nbsp;'
             } else {
-                ret += '<button type="button" class="btn btn-success" '
+                ret += '<button type="button" class="btn btn-success rdml-btn-edit" '
             ret += 'onclick="moveEditElement(\'experimenter\', \'' + exp[i].id + '\', ' + (i + 2) + ');">Move Down</button>&nbsp;&nbsp;&nbsp;'
             }
-            ret += '&nbsp;<button type="button" class="btn btn-success" '
+            ret += '&nbsp;<button type="button" class="btn btn-success rdml-btn-edit" '
             ret += 'onclick="deleteEditElement(\'experimenter\', ' + i + ');">Delete</button>&nbsp;&nbsp;&nbsp;'
             ret += '</div>\n</div>\n'
         }
@@ -1615,21 +1634,21 @@ function updateClientData() {
             ret += '<br /><div class="card">\n<div class="card-body">\n'
             ret += '<h5 class="card-title">' + (i + 1) + '. Documentation ID: ' + exp[i].id + '</h5>\n<p>'
             ret += '<p>' + htmllize(saveUndef(exp[i].text)) + '</p>\n'
-            ret += '<button type="button" class="btn btn-success" '
+            ret += '<button type="button" class="btn btn-success rdml-btn-edit" '
             ret += 'onclick="editPresentElement(\'documentation\', ' + i + ');">Edit</button>&nbsp;&nbsp;&nbsp;&nbsp;'
             if (i == 0) {
-                ret += '<button type="button" class="btn btn-success disabled">Move Up</button>&nbsp;&nbsp;'
+                ret += '<button type="button" class="btn btn-success rdml-btn-edit disabled">Move Up</button>&nbsp;&nbsp;'
             } else {
-                ret += '<button type="button" class="btn btn-success" '
+                ret += '<button type="button" class="btn btn-success rdml-btn-edit" '
             ret += 'onclick="moveEditElement(\'documentation\', \'' + exp[i].id + '\', ' + (i - 1) + ');">Move Up</button>&nbsp;&nbsp;'
             }
             if (i == exp.length - 1) {
-                ret += '<button type="button" class="btn btn-success disabled">Move Down</button>&nbsp;&nbsp;&nbsp;'
+                ret += '<button type="button" class="btn btn-success rdml-btn-edit disabled">Move Down</button>&nbsp;&nbsp;&nbsp;'
             } else {
-                ret += '<button type="button" class="btn btn-success" '
+                ret += '<button type="button" class="btn btn-success rdml-btn-edit" '
             ret += 'onclick="moveEditElement(\'documentation\', \'' + exp[i].id + '\', ' + (i + 2) + ');">Move Down</button>&nbsp;&nbsp;&nbsp;'
             }
-            ret += '&nbsp;<button type="button" class="btn btn-success" '
+            ret += '&nbsp;<button type="button" class="btn btn-success rdml-btn-edit" '
             ret += 'onclick="deleteEditElement(\'documentation\', ' + i + ');">Delete</button>&nbsp;&nbsp;&nbsp;'
             ret += '</div>\n</div>\n'
         }
@@ -1700,21 +1719,21 @@ function updateClientData() {
               ret += '  </tr>'
             }
             ret += '</table></p>\n'
-            ret += '<button type="button" class="btn btn-success" '
+            ret += '<button type="button" class="btn btn-success rdml-btn-edit" '
             ret += 'onclick="editPresentElement(\'rdmlid\', ' + i + ');">Edit</button>&nbsp;&nbsp;&nbsp;&nbsp;'
             if (i == 0) {
-                ret += '<button type="button" class="btn btn-success disabled">Move Up</button>&nbsp;&nbsp;'
+                ret += '<button type="button" class="btn btn-success rdml-btn-edit disabled">Move Up</button>&nbsp;&nbsp;'
             } else {
-                ret += '<button type="button" class="btn btn-success" '
+                ret += '<button type="button" class="btn btn-success rdml-btn-edit" '
             ret += 'onclick="moveEditElement(\'rdmlid\', \'' + i + '\', ' + (i - 1) + ');">Move Up</button>&nbsp;&nbsp;'
             }
             if (i == exp.length - 1) {
-                ret += '<button type="button" class="btn btn-success disabled">Move Down</button>&nbsp;&nbsp;&nbsp;'
+                ret += '<button type="button" class="btn btn-success rdml-btn-edit disabled">Move Down</button>&nbsp;&nbsp;&nbsp;'
             } else {
-                ret += '<button type="button" class="btn btn-success" '
+                ret += '<button type="button" class="btn btn-success rdml-btn-edit" '
             ret += 'onclick="moveEditElement(\'rdmlid\', \'' + i + '\', ' + (i + 2) + ');">Move Down</button>&nbsp;&nbsp;&nbsp;'
             }
-            ret += '&nbsp;<button type="button" class="btn btn-success" '
+            ret += '&nbsp;<button type="button" class="btn btn-success rdml-btn-edit" '
             ret += 'onclick="deleteEditElement(\'rdmlid\', ' + i + ');">Delete</button>&nbsp;&nbsp;&nbsp;'
             ret += '</div>\n</div>\n'
         }
@@ -1748,21 +1767,21 @@ function updateClientData() {
             ret += '<br /><div class="card">\n<div class="card-body">\n'
             ret += '<h5 class="card-title">' + (i + 1) + '. Dye ID: ' + exp[i].id + '</h5>\n<p>'
             ret += '<p>' + saveUndef(exp[i].description) + '</p>\n'
-            ret += '<button type="button" class="btn btn-success" '
+            ret += '<button type="button" class="btn btn-success rdml-btn-edit" '
             ret += 'onclick="editPresentElement(\'dye\', ' + i + ');">Edit</button>&nbsp;&nbsp;&nbsp;&nbsp;'
             if (i == 0) {
-                ret += '<button type="button" class="btn btn-success disabled">Move Up</button>&nbsp;&nbsp;'
+                ret += '<button type="button" class="btn btn-success rdml-btn-edit disabled">Move Up</button>&nbsp;&nbsp;'
             } else {
-                ret += '<button type="button" class="btn btn-success" '
+                ret += '<button type="button" class="btn btn-success rdml-btn-edit" '
             ret += 'onclick="moveEditElement(\'dye\', \'' + exp[i].id + '\', ' + (i - 1) + ');">Move Up</button>&nbsp;&nbsp;'
             }
             if (i == exp.length - 1) {
-                ret += '<button type="button" class="btn btn-success disabled">Move Down</button>&nbsp;&nbsp;&nbsp;'
+                ret += '<button type="button" class="btn btn-success rdml-btn-edit disabled">Move Down</button>&nbsp;&nbsp;&nbsp;'
             } else {
-                ret += '<button type="button" class="btn btn-success" '
+                ret += '<button type="button" class="btn btn-success rdml-btn-edit" '
             ret += 'onclick="moveEditElement(\'dye\', \'' + exp[i].id + '\', ' + (i + 2) + ');">Move Down</button>&nbsp;&nbsp;&nbsp;'
             }
-            ret += '&nbsp;<button type="button" class="btn btn-success" '
+            ret += '&nbsp;<button type="button" class="btn btn-success rdml-btn-edit" '
             ret += 'onclick="deleteEditElement(\'dye\', ' + i + ');">Delete</button>&nbsp;&nbsp;&nbsp;'
             ret += '</div>\n</div>\n'
         }
@@ -2225,16 +2244,16 @@ function showDocSecElement(prim_key, prim_pos, sec_key, sec_pos, id_source, div_
     for (var i = 0; i < exp.length; i++) {
             ret += '<h3>' + exp[i] + '</h3>\n'
             if (i == 0) {
-                ret += '<button type="button" class="btn btn-success btn-sm disabled">Move Up</button>&nbsp;&nbsp;'
+                ret += '<button type="button" class="btn btn-success rdml-btn-edit btn-sm disabled">Move Up</button>&nbsp;&nbsp;'
             } else {
-                ret += '<button type="button" class="btn btn-success btn-sm" '
+                ret += '<button type="button" class="btn btn-success rdml-btn-edit btn-sm" '
                 ret += 'onclick="moveSecElement(\'' + prim_key + '\', ' + prim_pos + ', \'' + sec_key + '\', ' + sec_pos + ', \''
                 ret +=  id_source + '\', ' +  i + ', ' + (i - 1) + ');">Move Up</button>&nbsp;&nbsp;'
             }
             if (i == exp.length - 1) {
-                ret += '<button type="button" class="btn btn-success btn-sm disabled">Move Down</button>'
+                ret += '<button type="button" class="btn btn-success rdml-btn-edit btn-sm disabled">Move Down</button>'
             } else {
-                ret += '<button type="button" class="btn btn-success btn-sm" '
+                ret += '<button type="button" class="btn btn-success rdml-btn-edit btn-sm" '
                 ret += 'onclick="moveSecElement(\'' + prim_key + '\', ' + prim_pos + ', \'' + sec_key + '\', ' + sec_pos + ', \''
                 ret +=  id_source + '\', ' + i + ', ' + (i + 2) + ');">Move Down</button>'
             }
