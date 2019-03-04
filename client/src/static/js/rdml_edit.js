@@ -959,6 +959,48 @@ function updateClientData() {
             }
             ret += '</table></p>\n'
 
+            var au = 0
+            var xref = '<div class="card">\n<div class="card-body">\n'
+            xref += '<h5 class="card-title">Annotation:</h5>\n'
+            xref += '<table style="width:100%;">'
+            if (exp[i].hasOwnProperty("annotations")) {
+                au = exp[i].annotations.length
+                for (var j = 0; j < au; j++) {
+                    xref += '  <tr>\n    <td style="width:15%;">'
+                    xref += saveUndef(exp[i].annotations[j].property) + ': </td>\n'
+                    xref += '    <td style="width:45%;">'
+                    xref += saveUndef(exp[i].annotations[j].value) + '</td>\n'
+                    xref += '    <td style="width:40%">\n'
+                    xref += '<button type="button" class="btn btn-success rdml-btn-edit btn-sm" '
+                    xref += 'onclick="editAnnotation(\'sample\', ' + i + ', ' + j + ');">Edit</button>&nbsp;&nbsp;'
+
+                    if (j == 0) {
+                        xref += '<button type="button" class="btn btn-success rdml-btn-edit btn-sm disabled">Move Up</button>&nbsp;&nbsp;'
+                    } else {
+                        xref += '<button type="button" class="btn btn-success rdml-btn-edit btn-sm" '
+                        xref += 'onclick="moveSecElement(\'sample\', ' + i + ', \'\', 0, \'annotation\', ' + j
+                        xref += ', ' + (j - 1) + ');">Move Up</button>&nbsp;&nbsp;'
+                    }
+                    if (j == au - 1) {
+                        xref += '<button type="button" class="btn btn-success rdml-btn-edit btn-sm disabled">Move Down</button>&nbsp;&nbsp;&nbsp;'
+                    } else {
+                        xref += '<button type="button" class="btn btn-success rdml-btn-edit btn-sm" '
+                        xref += 'onclick="moveSecElement(\'sample\', ' + i + ', \'\', 0, \'annotation\', ' + j
+                        xref += ', ' + (j + 2) + ');">Move Down</button>&nbsp;&nbsp;&nbsp;'
+                    }
+                    xref += '<button type="button" class="btn btn-success rdml-btn-edit btn-sm" '
+                    xref += 'onclick="deleteSecElement(\'sample\', ' + i + ', \'\', 0, \'annotation\', ' + j
+                    xref += ');">Delete</button></td>\n  </tr>'
+                }
+            }
+            xref += '</table></p>\n'
+            xref += '</div>\n</div><br />\n'
+            if (au > 0) {
+                ret += xref
+            }
+
+            ret += '<div id="pAnnotation-sample-' + i + '"></div>'
+
             var k = 0
             var xref = '<div class="card">\n<div class="card-body">\n'
             xref += '<h5 class="card-title">References (xRef):</h5>\n'
@@ -1019,6 +1061,10 @@ function updateClientData() {
 
             ret += '<button type="button" class="btn btn-success rdml-btn-edit" '
             ret += 'onclick="editPresentElement(\'sample\', ' + i + ');">Edit</button>&nbsp;&nbsp;&nbsp;&nbsp;'
+            if (window.rdmlData.rdml.version != "1.1") {
+                ret += '<button type="button" class="btn btn-success rdml-btn-edit" '
+                ret += 'onclick="editAnnotation(\'sample\', ' + i + ', -1);">New Annotation</button>&nbsp;&nbsp;&nbsp;&nbsp;'
+            }
             ret += '<button type="button" class="btn btn-success rdml-btn-edit" '
             ret += 'onclick="editXref(\'sample\', ' + i + ', -1);">New xRef</button>&nbsp;&nbsp;&nbsp;&nbsp;'
             if (i == 0) {
@@ -2018,7 +2064,6 @@ function deleteSecElement(prim_key, prim_pos, sec_key, sec_pos, id_source, cur_p
     }
     // If edit mode, ignore the other delete buttons
 }
-deleteSecElement
 
 // Move the selected secondary element
 window.moveEditElement = moveEditElement;
@@ -2276,6 +2321,32 @@ function saveXref(prim_key, prim_pos, xref_pos, edit){
     updateServerData(uuid, JSON.stringify(ret))
 }
 
+// Save edit annotation changes, create new ones
+window.saveAnnotation = saveAnnotation;
+function saveAnnotation(prim_key, prim_pos, anno_pos, edit){
+    if (!(window.rdmlData.hasOwnProperty("rdml"))) {
+        return
+    }
+    if (window.editMode == true) {
+        return
+    }
+    var ret = {}
+    if (edit == false) {
+        ret["mode"] = "create-annotation"
+    } else {
+        ret["mode"] = "edit-annotation"
+    }
+    ret["primary-key"] = prim_key
+    ret["primary-position"] = prim_pos
+    ret["annotation-position"] = anno_pos
+    ret["new-position"] = getSaveHtmlData("inAnnoPos") - 1
+    var el = {}
+    el["property"] = getSaveHtmlData("inAnnoProperty")
+    el["value"] = getSaveHtmlData("inAnnoValue")
+    ret["data"] = el
+    updateServerData(uuid, JSON.stringify(ret))
+}
+
 // Show documentation for selected ids
 window.showDocSecElement = showDocSecElement;
 function showDocSecElement(prim_key, prim_pos, sec_key, sec_pos, id_source, div_target, par) {
@@ -2399,6 +2470,57 @@ function editXref(prim_key, prim_pos, xref_pos) {
     ret += 'onclick="disChangesSecElement(\'pXref-' + prim_key + '-' + prim_pos + '\');">Discard Changes</button>'
     ret += '</div>\n</div><br />\n'
     var ele = document.getElementById('pXref-' + prim_key + '-' + prim_pos)
+    ele.innerHTML = ret
+}
+
+// Edit or create an Annotation
+window.editAnnotation = editAnnotation;
+function editAnnotation(prim_key, prim_pos, anno_pos) {
+    if (!(window.rdmlData.hasOwnProperty("rdml"))) {
+        return
+    }
+    if (window.editMode == true) {
+        return
+    }
+    var exp = null
+    exp = window.rdmlData.rdml.samples
+    var property = ""
+    var value = ""
+    var edit = true
+    if (anno_pos == -1) {
+        anno_pos = 0
+        edit = false
+    }
+    if ((edit == true) && (exp != null) && (prim_pos < exp.length) && (anno_pos < exp[anno_pos].xRefs.length)) {
+        if ((exp[prim_pos].xRefs[anno_pos]) && (exp[prim_pos].xRefs[anno_pos].hasOwnProperty("property"))){
+            property = exp[prim_pos].xRefs[anno_pos].property
+        }
+        if ((exp[prim_pos].xRefs[anno_pos]) && (exp[prim_pos].xRefs[anno_pos].hasOwnProperty("value"))){
+            value = exp[prim_pos].xRefs[anno_pos].value
+        }
+    }
+    var ret = '<div class="card">\n<div class="card-body">\n'
+    ret += '<h5 class="card-title">New Annotation:</h5>\n'
+    ret += '<p><table style="width:100%;">'
+    ret += '  <tr>\n    <td style="width:15%;">Property:</td>\n'
+    ret += '    <td style="width:85%">\n<input type="text" class="form-control" '
+    ret += 'id="inAnnoProperty" value="' + property + '"></td>\n'
+    ret += '  </tr>'
+    ret += '  <tr>\n    <td style="width:15%;">Value:</td>\n'
+    ret += '    <td style="width:85%">\n<input type="text" class="form-control" '
+    ret += 'id="inAnnoValue" value="' + value + '"></td>\n'
+    ret += '  </tr>'
+    ret += '  <tr>\n    <td style="width:15%;">Place at Position:</td>\n'
+    ret += '    <td style="width:85%"><input type="text" class="form-control" '
+    ret += 'id="inAnnoPos" value="' + (anno_pos + 1) + '"></td>\n'
+    ret += '  </tr>'
+    ret += '</table></p>\n'
+    ret += '<button type="button" class="btn btn-success btn-sm" '
+    ret += 'onclick="saveAnnotation(\'' + prim_key + '\', ' + prim_pos + ', ' + anno_pos + ', ' + edit + ');">Save Changes</button>'
+    ret += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button type="button" class="btn btn-success btn-sm" '
+    ret += 'onclick="disChangesSecElement(\'pAnnotation-' + prim_key + '-' + prim_pos + '\');">Discard Changes</button>'
+    ret += '</div>\n</div><br />\n'
+    var ele = document.getElementById('pAnnotation-' + prim_key + '-' + prim_pos)
     ele.innerHTML = ret
 }
 

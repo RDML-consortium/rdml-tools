@@ -227,6 +227,8 @@ def handle_data():
                         return jsonify(errors=[{"title": "Invalid server request - sample primary-position not found!"}]), 400
                     if reqdata["id-source"] == "xRef":
                         elem.delete_xref(byposition=int(reqdata["old-position"]))
+                    if reqdata["id-source"] == "annotation":
+                        elem.delete_annotation(byposition=int(reqdata["old-position"]))
                 if reqdata["primary-key"] == "target":
                     elem = rd.get_target(byposition=reqdata["primary-position"])
                     if elem is None:
@@ -307,6 +309,40 @@ def handle_data():
                                    newposition=reqdata["new-position"],
                                    name=reqdata["data"]["name"],
                                    id=reqdata["data"]["id"])
+                except rdml.RdmlError as err:
+                    data["error"] = str(err)
+                else:
+                    modified = True
+
+        if "mode" in reqdata and reqdata["mode"] in ["create-annotation", "edit-annotation"]:
+            if "primary-key" not in reqdata or "primary-position" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - primary-key or primary-position missing!"}]), 400
+            if "annotation-position" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - annotation-position missing!"}]), 400
+            if "new-position" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - new-position missing!"}]), 400
+            if "data" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - data missing!"}]), 400
+            elem = None
+            if reqdata["primary-key"] == "sample":
+                elem = rd.get_sample(byposition=reqdata["primary-position"])
+                if elem is None:
+                    return jsonify(errors=[{"title": "Invalid server request - sample at position not found!"}]), 400
+            if reqdata["mode"] == "create-annotation":
+                try:
+                    elem.new_annotation(property=reqdata["data"]["property"],
+                                        value=reqdata["data"]["value"],
+                                        newposition=reqdata["new-position"])
+                except rdml.RdmlError as err:
+                    data["error"] = str(err)
+                else:
+                    modified = True
+            if reqdata["mode"] == "edit-annotation":
+                try:
+                    elem.edit_annotation(oldposition=reqdata["annotation-position"],
+                                         newposition=reqdata["new-position"],
+                                         property=reqdata["data"]["property"],
+                                         value=reqdata["data"]["value"])
                 except rdml.RdmlError as err:
                     data["error"] = str(err)
                 else:
@@ -954,6 +990,9 @@ def handle_data():
                 if reqdata["id-source"] == "xRef":
                     elem.move_xref(oldposition=int(reqdata["old-position"]),
                                    newposition=int(reqdata["new-position"]))
+                if reqdata["id-source"] == "annotation":
+                    elem.move_annotation(oldposition=int(reqdata["old-position"]),
+                                         newposition=int(reqdata["new-position"]))
                 if reqdata["id-source"] == "experimenter":
                     elem.move_experimenter(oldposition=int(reqdata["old-position"]),
                                            newposition=int(reqdata["new-position"]))
