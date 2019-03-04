@@ -788,39 +788,77 @@ function updateClientData() {
             ret += saveUndefKey(exp[i].cdnaSynthesisMethod, "thermalCyclingConditions") + '"></td>\n'
             ret += '  </tr>'
               // Todo: make dropdown selection
-
-            ret += '  <tr>\n    <td style="width:25%;">Template RNA Quantity:</td>\n'
-            ret += '    <td style="width:75%"><table style="width:100%;">'
-            ret += '      <tr><td style="width:50%;">'
-            ret += '        <input type="text" class="form-control" id="inExpTemplateRNAQuantity_Value" value="'
-            ret += saveUndefKey(exp[i].templateRNAQuantity, "value") + '">'
-            ret += '        </td>\n<td style="width:50%">'
-            ret += htmlUnitSelector("inExpTemplateRNAQuantity_Unit", exp[i].templateRNAQuantity) + '</td>\n</tr>\n</table>'
-            ret += '  </tr>'
-            ret += '  <tr>\n    <td style="width:25%;">Template RNA Quality - Method:</td>\n'
-            ret += '    <td style="width:75%"><input type="text" class="form-control" '
-            ret += 'id="inExpTemplateRNAQuality_Method" value="'+ saveUndefKey(exp[i].templateRNAQuality, "method") + '"></td>\n'
-            ret += '  </tr>'
-            ret += '  <tr>\n    <td style="width:25%;">Template RNA Quality - Result:</td>\n'
-            ret += '    <td style="width:75%"><input type="text" class="form-control" '
-            ret += 'id="inExpTemplateRNAQuality_Result" value="'+ saveUndefKey(exp[i].templateRNAQuality, "result") + '"></td>\n'
-            ret += '  </tr>'
-            ret += '  <tr>\n    <td style="width:25%;">Template DNA Quantity:</td>\n'
-            ret += '    <td style="width:75%"><table style="width:100%;">'
-            ret += '      <tr><td style="width:50%;">'
-            ret += '        <input type="text" class="form-control" id="inExpTemplateDNAQuantity_Value" value="'
-            ret += saveUndefKey(exp[i].templateDNAQuantity, "value") + '">'
-            ret += '        </td>\n<td style="width:50%">'
-            ret += htmlUnitSelector("inExpTemplateDNAQuantity_Unit", exp[i].templateDNAQuantity) + '</td>\n</tr>\n</table>'
-            ret += '  </tr>'
-            ret += '  <tr>\n    <td style="width:25%;">Template DNA Quality - Method:</td>\n'
-            ret += '    <td style="width:75%"><input type="text" class="form-control" '
-            ret += 'id="inExpTemplateDNAQuality_Method" value="'+ saveUndefKey(exp[i].templateDNAQuality, "method") + '"></td>\n'
-            ret += '  </tr>'
-            ret += '  <tr>\n    <td style="width:25%;">Template DNA Quality - Result:</td>\n'
-            ret += '    <td style="width:75%"><input type="text" class="form-control" '
-            ret += 'id="inExpTemplateDNAQuality_Result" value="'+ saveUndefKey(exp[i].templateDNAQuality, "result") + '"></td>\n'
-            ret += '  </tr>'
+            if (window.rdmlData.rdml.version == "1.1") {
+                ret += '  <tr>\n    <td style="width:25%;">Template RNA Quantity:</td>\n'
+                ret += '    <td style="width:75%"><table style="width:100%;">'
+                ret += '      <tr><td style="width:50%;">'
+                ret += '        <input type="text" class="form-control" id="inExpTemplateRNAQuantity_Value" value="'
+                ret += saveUndefKey(exp[i].templateRNAQuantity, "value") + '">'
+                ret += '        </td>\n<td style="width:50%">'
+                ret += htmlUnitSelector("inExpTemplateRNAQuantity_Unit", exp[i].templateRNAQuantity) + '</td>\n</tr>\n</table>'
+                ret += '  </tr>'
+                ret += '  <tr>\n    <td style="width:25%;">Template RNA Quality - Method:</td>\n'
+                ret += '    <td style="width:75%"><input type="text" class="form-control" '
+                ret += 'id="inExpTemplateRNAQuality_Method" value="'+ saveUndefKey(exp[i].templateRNAQuality, "method") + '"></td>\n'
+                ret += '  </tr>'
+                ret += '  <tr>\n    <td style="width:25%;">Template RNA Quality - Result:</td>\n'
+                ret += '    <td style="width:75%"><input type="text" class="form-control" '
+                ret += 'id="inExpTemplateRNAQuality_Result" value="'+ saveUndefKey(exp[i].templateRNAQuality, "result") + '"></td>\n'
+                ret += '  </tr>'
+                ret += '  <tr>\n    <td style="width:25%;">Template DNA Quantity:</td>\n'
+                ret += '    <td style="width:75%"><table style="width:100%;">'
+                ret += '      <tr><td style="width:50%;">'
+                ret += '        <input type="text" class="form-control" id="inExpTemplateDNAQuantity_Value" value="'
+                ret += saveUndefKey(exp[i].templateDNAQuantity, "value") + '">'
+                ret += '        </td>\n<td style="width:50%">'
+                ret += htmlUnitSelector("inExpTemplateDNAQuantity_Unit", exp[i].templateDNAQuantity) + '</td>\n</tr>\n</table>'
+                ret += '  </tr>'
+                ret += '  <tr>\n    <td style="width:25%;">Template DNA Quality - Method:</td>\n'
+                ret += '    <td style="width:75%"><input type="text" class="form-control" '
+                ret += 'id="inExpTemplateDNAQuality_Method" value="'+ saveUndefKey(exp[i].templateDNAQuality, "method") + '"></td>\n'
+                ret += '  </tr>'
+                ret += '  <tr>\n    <td style="width:25%;">Template DNA Quality - Result:</td>\n'
+                ret += '    <td style="width:75%"><input type="text" class="form-control" '
+                ret += 'id="inExpTemplateDNAQuality_Result" value="'+ saveUndefKey(exp[i].templateDNAQuality, "result") + '"></td>\n'
+                ret += '  </tr>'
+            }
+            if (window.rdmlData.rdml.version != "1.1") {
+                ret += '  <tr>\n    <td style="width:25%;">Template Quantity:</td>\n'
+                ret += '    <td style="width:75%"><table style="width:100%;">'
+                ret += '      <tr><td style="width:50%;">'
+                ret += '        <input type="text" class="form-control" id="inExpTemplateQuantity_conc" value="'
+                ret += saveUndefKey(exp[i].templateQuantity, "value") + '">'
+                ret += '        </td>\n<td style="width:50%">'
+                var selUnit = saveUndefKey(exp[i].templateQuantity, "value")
+                ret += '<select class="form-control" id="inExpTemplateQuantity_nucleotide">\n'
+                ret += '        <option value=""'
+                if (selUnit == "") {
+                    ret += ' selected'
+                }
+                ret += '>not set</option>\n'
+                ret += '        <option value="DNA"'
+                if (selUnit == "DNA") {
+                    ret += ' selected'
+                }
+                ret += '>DNA</option>\n'
+                ret += '        <option value="genomic DNA"'
+                if (selUnit == "genomic DNA") {
+                    ret += ' selected'
+                }
+                ret += '>genomic DNA</option>\n'
+                ret += '        <option value="cDNA"'
+                if (selUnit == "cDNA") {
+                    ret += ' selected'
+                }
+                ret += '>cDNA</option>\n'
+                ret += '        <option value="RNA"'
+                if (selUnit == "RNA") {
+                    ret += ' selected'
+                }
+                ret += '>RNA</option>\n'
+                ret += '</td>\n</tr>\n</table>'
+                ret += '  </tr>'
+            }
             ret += '</table></p>\n'
             ret += '<button type="button" class="btn btn-success" '
             ret += 'onclick="saveEditElement(\'sample\', ' + i + ', \'' + exp[i].id + '\');">Save Changes</button>'
@@ -909,6 +947,14 @@ function updateClientData() {
               ret += '  <tr>\n    <td style="width:25%;">Template DNA Quality:</td>\n'
               ret += '    <td style="width:75%">\n'+ exp[i].templateDNAQuality.method
               ret += ' is ' + niceUnitType(exp[i].templateDNAQuality.result) + '</td>\n'
+              ret += '  </tr>'
+            }
+            if (exp[i].hasOwnProperty("templateQuantity")) {
+              ret += '  <tr>\n    <td style="width:25%;">Template Nucleotide Type:</td>\n'
+              ret += '    <td style="width:75%">\n'+ exp[i].templateQuantity.nucleotide + '</td>\n'
+              ret += '  </tr>'
+              ret += '  <tr>\n    <td style="width:25%;">Template Quantity:</td>\n'
+              ret += '    <td style="width:75%">\n'+ exp[i].templateQuantity.conc + ' ng/&micro;l</td>\n'
               ret += '  </tr>'
             }
             ret += '</table></p>\n'
@@ -1036,6 +1082,12 @@ function updateClientData() {
             ret += '    <td style="width:75%"><input type="text" class="form-control" '
             ret += 'id="inTarAmplificationEfficiency" value="'+ saveUndef(exp[i].amplificationEfficiency) + '"></td>\n'
             ret += '  </tr>'
+            if (window.rdmlData.rdml.version != "1.1") {
+                ret += '  <tr>\n    <td style="width:25%;">Amplification Efficiency Std Err:</td>\n'
+                ret += '    <td style="width:75%"><input type="text" class="form-control" '
+                ret += 'id="inTarAmplificationEfficiencySE" value="'+ saveUndef(exp[i].amplificationEfficiencySE) + '"></td>\n'
+                ret += '  </tr>'
+            }
             ret += '  <tr>\n    <td style="width:25%;">Detection Limit:</td>\n'
             ret += '    <td style="width:75%"><input type="text" class="form-control" '
             ret += 'id="inTarDetectionLimit" value="'+ saveUndef(exp[i].detectionLimit) + '"></td>\n'
@@ -1079,6 +1131,11 @@ function updateClientData() {
             if (exp[i].hasOwnProperty("amplificationEfficiency")) {
                 ret += '  <tr>\n    <td style="width:25%;">Amplification Efficiency:</td>\n'
                 ret += '    <td style="width:75%">\n'+ exp[i].amplificationEfficiency + '</td>\n'
+                ret += '  </tr>'
+            }
+            if (exp[i].hasOwnProperty("amplificationEfficiencySE")) {
+                ret += '  <tr>\n    <td style="width:25%;">Amplification Efficiency Std Err:</td>\n'
+                ret += '    <td style="width:75%">\n'+ exp[i].amplificationEfficiencySE + '</td>\n'
                 ret += '  </tr>'
             }
             if (exp[i].hasOwnProperty("detectionLimit")) {
@@ -1798,6 +1855,18 @@ function updateClientData() {
             window.docIdOpen = ""
         }
     }
+
+    var elem = document.getElementsByClassName('rdml-btn-edit')
+    if (window.showEditButt == false) {
+        for (var i = 0 ; i < elem.length ; i++) {
+            elem[i].style.display = "none"
+        }
+    } else {
+        for (var i = 0 ; i < elem.length ; i++) {
+            elem[i].style.display = "inline"
+        }
+    }
+
 }
 
 function deleteAllData() {
@@ -2062,6 +2131,7 @@ function saveEditElement(typ, pos, oldId){
     ret["current-position"] = pos
     ret["new-position"] = getSaveHtmlData("inPos") - 1
     ret["old-id"] = oldId
+    ret["version"] = window.rdmlData.rdml.version
     if (typ == "rdmlid") {
         ret["type"] = "rdmlid"
         el["publisher"] = getSaveHtmlData("inRdmlidPublisher")
@@ -2105,22 +2175,30 @@ function saveEditElement(typ, pos, oldId){
         el["cdnaSynthesisMethod_primingMethod"] = getSaveHtmlData("inExpCdnaSynthesisMethod_primingMethod")
         el["cdnaSynthesisMethod_dnaseTreatment"] = readTriState("inExpCdnaSynthesisMethod_dnaseTreatment")
         el["cdnaSynthesisMethod_thermalCyclingConditions"] = getSaveHtmlData("inExpCdnaSynthesisMethod_thermalCyclingConditions")
-        quant = {}
-        quant["value"] = getSaveHtmlData("inExpTemplateRNAQuantity_Value")
-        quant["unit"] = getSaveHtmlData("inExpTemplateRNAQuantity_Unit")
-        el["templateRNAQuantity"] = quant
-        quant = {}
-        quant["method"] = getSaveHtmlData("inExpTemplateRNAQuality_Method")
-        quant["result"] = getSaveHtmlData("inExpTemplateRNAQuality_Result")
-        el["templateRNAQuality"] = quant
-        quant = {}
-        quant["value"] = getSaveHtmlData("inExpTemplateDNAQuantity_Value")
-        quant["unit"] = getSaveHtmlData("inExpTemplateDNAQuantity_Unit")
-        el["templateDNAQuantity"] = quant
-        quant = {}
-        quant["method"] = getSaveHtmlData("inExpTemplateDNAQuality_Method")
-        quant["result"] = getSaveHtmlData("inExpTemplateDNAQuality_Result")
-        el["templateDNAQuality"] = quant
+        if (window.rdmlData.rdml.version == "1.1") {
+            quant = {}
+            quant["value"] = getSaveHtmlData("inExpTemplateRNAQuantity_Value")
+            quant["unit"] = getSaveHtmlData("inExpTemplateRNAQuantity_Unit")
+            el["templateRNAQuantity"] = quant
+            quant = {}
+            quant["method"] = getSaveHtmlData("inExpTemplateRNAQuality_Method")
+            quant["result"] = getSaveHtmlData("inExpTemplateRNAQuality_Result")
+            el["templateRNAQuality"] = quant
+            quant = {}
+            quant["value"] = getSaveHtmlData("inExpTemplateDNAQuantity_Value")
+            quant["unit"] = getSaveHtmlData("inExpTemplateDNAQuantity_Unit")
+            el["templateDNAQuantity"] = quant
+            quant = {}
+            quant["method"] = getSaveHtmlData("inExpTemplateDNAQuality_Method")
+            quant["result"] = getSaveHtmlData("inExpTemplateDNAQuality_Result")
+            el["templateDNAQuality"] = quant
+        }
+        if (window.rdmlData.rdml.version == "1.2") {
+            quant = {}
+            quant["conc"] = getSaveHtmlData("inExpTemplateQuantity_conc")
+            quant["nucleotide"] = getSaveHtmlData("inExpTemplateQuantity_nucleotide")
+            el["templateQuantity"] = quant
+        }
         el["description"] = getSaveHtmlData("inExpDescription")
         ret["data"] = el
     }
@@ -2150,6 +2228,10 @@ function saveEditElement(typ, pos, oldId){
         el["commercialAssay_company"] = getSaveHtmlData("inTarCommercialAssay_company")
         el["commercialAssay_orderNumber"] = getSaveHtmlData("inTarCommercialAssay_orderNumber")
         el["description"] = getSaveHtmlData("inTarDescription")
+        var ver_sense = document.getElementById("inTarAmplificationEfficiencySE")
+        if (ver_sense) {
+            el["amplificationEfficiencySE"] = ver_sense.value
+        }
         ret["data"] = el
     }
     if (typ == "therm_cyc_cons") {
@@ -2902,6 +2984,25 @@ function deleteStep(prim_pos, step_pos){
     ret["mode"] = "delete-step"
     ret["primary-position"] = prim_pos
     ret["step-position"] = step_pos
+    updateServerData(uuid, JSON.stringify(ret))
+}
+
+
+// Migrate RDML version
+window.migrateRDMLversion = migrateRDMLversion;
+function migrateRDMLversion(new_ver) {
+    if (!(window.rdmlData.hasOwnProperty("rdml"))) {
+        return
+    }
+    if (window.editMode == true) {
+        return
+    }
+    if (window.rdmlData.rdml.version == new_ver) {
+        return
+    }
+    var ret = {}
+    ret["mode"] = "migrate-version"
+    ret["new-version"] = new_ver
     updateServerData(uuid, JSON.stringify(ret))
 }
 

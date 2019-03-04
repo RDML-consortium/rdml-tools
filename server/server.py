@@ -169,6 +169,16 @@ def handle_data():
         if "validate" in reqdata and reqdata["validate"] is True:
             data["isvalid"] = rd.isvalid(fexpname)
 
+        if "mode" in reqdata and reqdata["mode"] == "migrate-version":
+            if "new-version" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - new-version missing!"}]), 400
+            if reqdata["new-version"] == "1.1":
+                rd.migrate_version_1_2_to_1_1()
+                modified = True
+            if reqdata["new-version"] == "1.2":
+                rd.migrate_version_1_1_to_1_2()
+                modified = True
+
         if "mode" in reqdata and reqdata["mode"] == "delete":
             if "type" not in reqdata or "position" not in reqdata:
                 return jsonify(errors=[{"title": "Invalid server request - type or position missing!"}]), 400
@@ -690,14 +700,20 @@ def handle_data():
                     return jsonify(errors=[{"title": "Invalid server request - sample cdnaSynthesisMethod_dnaseTreatment missing!"}]), 400
                 if "cdnaSynthesisMethod_thermalCyclingConditions" not in reqdata["data"]:
                     return jsonify(errors=[{"title": "Invalid server request - sample cdnaSynthesisMethod_thermalCyclingConditions missing!"}]), 400
-                if "templateRNAQuantity" not in reqdata["data"]:
-                    return jsonify(errors=[{"title": "Invalid server request - sample templateRNAQuantity missing!"}]), 400
-                if "templateRNAQuality" not in reqdata["data"]:
-                    return jsonify(errors=[{"title": "Invalid server request - sample templateRNAQuality missing!"}]), 400
-                if "templateDNAQuantity" not in reqdata["data"]:
-                    return jsonify(errors=[{"title": "Invalid server request - sample templateDNAQuantity missing!"}]), 400
-                if "templateDNAQuality" not in reqdata["data"]:
-                    return jsonify(errors=[{"title": "Invalid server request - sample templateDNAQuality missing!"}]), 400
+                if "version" not in reqdata:
+                    return jsonify(errors=[{"title": "Invalid server request - version information missing!"}]), 400
+                if reqdata["version"] == "1.1":
+                    if "templateRNAQuantity" not in reqdata["data"]:
+                        return jsonify(errors=[{"title": "Invalid server request - sample templateRNAQuantity missing!"}]), 400
+                    if "templateRNAQuality" not in reqdata["data"]:
+                        return jsonify(errors=[{"title": "Invalid server request - sample templateRNAQuality missing!"}]), 400
+                    if "templateDNAQuantity" not in reqdata["data"]:
+                        return jsonify(errors=[{"title": "Invalid server request - sample templateDNAQuantity missing!"}]), 400
+                    if "templateDNAQuality" not in reqdata["data"]:
+                        return jsonify(errors=[{"title": "Invalid server request - sample templateDNAQuality missing!"}]), 400
+                if reqdata["version"] != "1.1":
+                    if "templateQuantity" not in reqdata["data"]:
+                        return jsonify(errors=[{"title": "Invalid server request - sample templateQuantity missing!"}]), 400
                 if "current-position" not in reqdata or "new-position" not in reqdata:
                     return jsonify(errors=[{"title": "Invalid server request - position information missing!"}]), 400
                 if reqdata["mode"] in ["create", "edit"]:
@@ -724,10 +740,13 @@ def handle_data():
                         elem["cdnaSynthesisMethod_primingMethod"] = reqdata["data"]["cdnaSynthesisMethod_primingMethod"]
                         elem["cdnaSynthesisMethod_dnaseTreatment"] = reqdata["data"]["cdnaSynthesisMethod_dnaseTreatment"]
                         elem["cdnaSynthesisMethod_thermalCyclingConditions"] = reqdata["data"]["cdnaSynthesisMethod_thermalCyclingConditions"]
-                        elem["templateRNAQuantity"] = reqdata["data"]["templateRNAQuantity"]
-                        elem["templateRNAQuality"] = reqdata["data"]["templateRNAQuality"]
-                        elem["templateDNAQuantity"] = reqdata["data"]["templateDNAQuantity"]
-                        elem["templateDNAQuality"] = reqdata["data"]["templateDNAQuality"]
+                        if reqdata["version"] == "1.1":
+                            elem["templateRNAQuantity"] = reqdata["data"]["templateRNAQuantity"]
+                            elem["templateRNAQuality"] = reqdata["data"]["templateRNAQuality"]
+                            elem["templateDNAQuantity"] = reqdata["data"]["templateDNAQuantity"]
+                            elem["templateDNAQuality"] = reqdata["data"]["templateDNAQuality"]
+                        if reqdata["version"] != "1.1":
+                            elem["templateQuantity"] = reqdata["data"]["templateQuantity"]
                     except rdml.RdmlError as err:
                         data["error"] = str(err)
                     else:
@@ -784,6 +803,8 @@ def handle_data():
                     return jsonify(errors=[{"title": "Invalid server request - target commercialAssay_orderNumber missing!"}]), 400
                 if "current-position" not in reqdata or "new-position" not in reqdata:
                     return jsonify(errors=[{"title": "Invalid server request - position information missing!"}]), 400
+                if "version" not in reqdata:
+                    return jsonify(errors=[{"title": "Invalid server request - version information missing!"}]), 400
                 if reqdata["mode"] in ["create", "edit"]:
                     if reqdata["mode"] == "edit" and "old-id" not in reqdata:
                         return jsonify(
@@ -823,6 +844,8 @@ def handle_data():
                         elem["sequences_amplicon_threePrimeTag"] = reqdata["data"]["sequences_amplicon_threePrimeTag"]
                         elem["commercialAssay_company"] = reqdata["data"]["commercialAssay_company"]
                         elem["commercialAssay_orderNumber"] = reqdata["data"]["commercialAssay_orderNumber"]
+                        if "amplificationEfficiencySE" in reqdata["data"]:
+                            elem["amplificationEfficiencySE"] = reqdata["data"]["amplificationEfficiencySE"]
                     except rdml.RdmlError as err:
                         data["error"] = str(err)
                     else:
