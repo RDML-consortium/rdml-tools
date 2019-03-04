@@ -1065,6 +1065,24 @@ def handle_data():
                 else:
                     modified = True
 
+        if "mode" in reqdata and reqdata["mode"] in ["get-run-data"]:
+            if "sel-experiment" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - sel-experiment id missing!"}]), 400
+            if "sel-run" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - sel-run firstName missing!"}]), 400
+            try:
+                experiment = rd.get_experiment(byid=reqdata["sel-experiment"])
+                if experiment is None:
+                    return jsonify(errors=[{"title": "Invalid server request - experimenter id not found!"}]), 400
+                s_run = experiment.get_run(byid=reqdata["sel-run"])
+                if s_run is None:
+                    return jsonify(errors=[{"title": "Invalid server request - run id not found!"}]), 400
+                data["reactsdata"] = s_run.getreactjson()
+            except rdml.RdmlError as err:
+                data["error"] = str(err)
+            else:
+                modified = True
+
         if modified is True:
             if uuidstr == "sample.rdml":
                 uuidstr = str(uuid.uuid4())

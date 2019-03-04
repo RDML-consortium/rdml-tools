@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <title>RDML-Edit | GEAR</title>
-  <meta name="description" content="View and edit RDML files.">
+  <meta name="description" content="View single runs of RDML files.">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.0/css/all.css">
   <link rel="stylesheet" href="static/css/gear.css">
@@ -15,8 +15,8 @@
 
   <header class="px-0 py-4">
     <div class="container">
-      <h1 class="display-4 app-name">RDML-Edit</h1>
-        <p class="lead">View and edit RDML-Files.</p>
+      <h1 class="display-4 app-name">RDML-RunView</h1>
+        <p class="lead">View single runs of RDML-Files.</p>
         <a class="plain" href="https://www-db.embl.de/EMBLPersonGroup-PersonPicture/MailForm/?recipient=ggenomics" target="_blank">
           <i class="fas fa-question"></i> Get help
         </a>
@@ -31,7 +31,7 @@
     </div>
   </header>
 
-  <main class="container">
+  <main class="container-fluid">
     <div id="result-error" class="alert alert-danger d-none" role="alert">
     </div>
     <div id="result-info" class="alert alert-info d-none" role="alert">
@@ -43,25 +43,10 @@
         <a class="nav-link active" href="#main-tab" id="link-main">Main</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="#experiments-tab" id="link-experiments">Experiments</a>
+        <a class="nav-link" href="#runs-tab" id="link-runs">RunView</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="#samples-tab" id="link-samples">Samples</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#targets-tab" id="link-targets">Targets</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#cycling-conditions-tab" id="link-cycling-conditions">Cycling Conditions</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#experimenters-tab" id="link-experimenters">Experimenters</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#documentation-tab" id="link-documentation">Documentation</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#more-tab" id="link-more">More...</a>
+        <a class="nav-link" href="#settings-tab" id="link-settings">Settings</a>
       </li>
       <li class="nav-item">
         <a class="nav-link" href="#help-tab" id="link-help">Help</a>
@@ -69,8 +54,6 @@
     </ul>
     <div class="tab-content" id="main-tabs">
       <div class="tab-pane show active" id="main-tab">
-        <button id="btn-show-edit-buttons" onclick="showEditButtons();" type="button"
-                class="btn btn-success">Enable Edit Mode</button><br /><br />
         <div class="card">
           <div class="card-body">
             <h5 class="card-title">Load RDML file</h5>
@@ -84,100 +67,37 @@
               <i class="fas fa-rocket" style="margin-right: 5px;"></i>
               Upload File
             </button>
-            <button type="submit" class="btn btn-outline-primary" id="btn-create-new">
-              <i class="far fa-file" style="margin-right: 5px;"></i>
-              Create New File
-            </button>
             <button type="submit" class="btn btn-outline-primary" id="btn-example">
               <i class="fas fa-eye" style="margin-right: 5px;"></i>
               Load Example
-            </button>
-            <button type="submit" class="btn btn-outline-primary" id="btn-save">
-              <i class="far fa-save" style="margin-right: 5px;"></i>
-              Save File
             </button>
           </div>
         </div>
         <div id="uuid-link-box"></div>
       </div>
 
-      <div class="tab-pane" id="experiments-tab">
-        <p>An experiment can contain several runs. A run is a set of reactions performed in one "run", for example
-          one plate, one rotor, one array, one chip.</p>
-        <button id="btn-new-experiment" onclick="createNewElement('experiment');" type="button"
-                class="btn btn-success rdml-btn-edit">Create New Experiment</button>
-        <div id="experiments-data"></div>
+      <div class="tab-pane" id="runs-tab">
+        <p>An experiment cchip.</p>
+        <div id="selectors-data"></div><br />
+        <div id="plate-data"></div>
+        <div id="curves-data"></div>
       </div>
 
-      <div class="tab-pane" id="samples-tab">
+      <div class="tab-pane" id="settings-tab">
         <p>A "samples" is a defined template solution. Dilutions of the same material differ in concentration and are
           considered different samples. A technical replicate samples should contain the same name (reactions are
           performed on the same material), and biological replicates should contain different names (the nucleic acids
           derived from the different biological replicates are not the same). Serial dilutions in a standard curve
           must have different names.</p>
-        <button id="btn-new-sample" onclick="createNewElement('sample');" type="button"
-                class="btn btn-success rdml-btn-edit">Create New Sample</button>
-        <div id="samples-data"></div>
-      </div>
-
-      <div class="tab-pane" id="targets-tab">
-        <p>A target is a defined PCR reaction. PCR reactions for the same gene
-          which differ in primer sequences are considered different targets.</p>
-        <button id="btn-new-target" onclick="createNewElement('target');" type="button"
-                class="btn btn-success rdml-btn-edit">Create New Target</button>
-        <div id="targets-data"></div>
-      </div>
-
-      <div class="tab-pane" id="cycling-conditions-tab">
-        <p>A cycling program for PCR or to amplify cDNA.</p>
-        <button id="btn-new-cyclingConditions" onclick="createNewElement('therm_cyc_cons');" type="button"
-                class="btn btn-success rdml-btn-edit">Create New Cycling Conditions</button>
-        <div id="cyclingConditions-data"></div>
-      </div>
-
-      <div class="tab-pane" id="experimenters-tab">
-        <p>The "experimenter" elements save the contact details of experimenters.</p>
-        <button id="btn-new-experimenter" onclick="createNewElement('experimenter');" type="button"
-                class="btn btn-success rdml-btn-edit">Create New Experimenter</button>
-        <div id="experimenters-data"></div>
-      </div>
-
-      <div class="tab-pane" id="documentation-tab">
-        <p>The "documentation" description can be linked to many samples, targets or experiments.</p>
-        <button id="btn-new-documentation" onclick="createNewElement('documentation');" type="button"
-                class="btn btn-success rdml-btn-edit">Create New Documentation</button>
-        <div id="documentations-data"></div>
-      </div>
-
-      <div class="tab-pane" id="more-tab">
-        <button id="btn-migrate-1_1" onclick="migrateRDMLversion('1.1');" type="button"
-                class="btn btn-success rdml-btn-edit">Migrate to RDML Version 1.1</button>&nbsp;&nbsp;
-        <button id="btn-migrate-1_2" onclick="migrateRDMLversion('1.2');" type="button"
-                class="btn btn-success rdml-btn-edit">Migrate to RDML Version 1.2</button>
-        <div id="file-info-data"></div>
-        <br />
-        <h3>RDML-File Ids</h3>
-        <p>The "id" element assigns a publisher and id/serial number/accession number to the RDML file.</p>
-        <button id="btn-new-rdmlid" onclick="createNewElement('rdmlid');" type="button"
-                class="btn btn-success rdml-btn-edit">Create New Id</button><br /><br />
-        <div id="rdmlids-data"></div>
-        <br />
-        <h3>Dyes</h3>
-        <p>The "dye" element documents a fluorescent dye and is required by the targets.</p>
-        <button id="btn-new-dye" onclick="createNewElement('dye');" type="button"
-                class="btn btn-success rdml-btn-edit">Create New Dye</button>
-        <div id="dyes-data"></div>
-        <br />
-        <h3>Debug</h3>
         <div class="form-group">
           <label for="debug-data">Debug Response</label>
           <textarea class="form-control" id="debug-data" rows="80"></textarea>
         </div>
       </div>
 
-      <div class="tab-pane" id="help-tab">
+       <div class="tab-pane" id="help-tab">
         <h4>Application Description</h4>
-        <p> RDML-Edit is a tool to view and edit RDML files.
+        <p> RDML-RunView is a tool to view single runs of a RDML files.
             Just select a file and hit submit.</p>
         <h4>Accepted Input</h4>
         <p> The RDML files can be provided in rdml or xml format (*.rdml, *.rdm,
@@ -230,7 +150,7 @@
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
   <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-  <script src="static/js/rdml_edit.js"></script>
+  <script src="static/js/rdml_runview.js"></script>
 
 </body>
 
