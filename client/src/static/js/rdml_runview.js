@@ -244,8 +244,6 @@ function updateClientData() {
         return
     }
     var ret = ''
-
-    // The Experiments tab
     var exp = window.rdmlData.rdml.experiments;
 
     ret = '<table style="width:100%;">'
@@ -276,12 +274,14 @@ function updateClientData() {
     ret += '  <label for="dropSelRun">Selected Run:</label>'
     ret += '  <select class="form-control" id="dropSelRun" onchange="updateRun()">'
     ret += '    <option value="">No run selected</option>\n'
+    var runPos = -1
     if (experimentPos > -1) {
         var runs = exp[experimentPos].runs
         for (var i = 0; i < runs.length; i++) {
             ret += '        <option value="' + runs[i].id + '"'
             if (window.selRun == runs[i].id) {
                 ret += ' selected'
+                runPos = i
             }
             ret += '>' + runs[i].id + '</option>\n'
         }
@@ -289,7 +289,53 @@ function updateClientData() {
     ret += '</td>\n</tr>\n</table>\n'
     selectorsData.innerHTML = ret
 
+    var dataPos = 0
 
+    if ((experimentPos > -1) && (runPos > -1)) {
+        var the_run = exp[experimentPos].runs[runPos]
+        var rows = parseInt(the_run.pcrFormat.rows)
+        var columns = parseInt(the_run.pcrFormat.columns)
+        var rowLabel = the_run.pcrFormat.rowLabel
+        var columnLabel = the_run.pcrFormat.columnLabel
+        ret = '<table id="rdmlPlateTab" style="width:100%;">'
+        ret += '<tr><td></td>'
+        for (var h = 0; h < columns; h++) {
+            if (columnLabel == "123") {
+                ret += '  <td>' + (h + 1) + '</td>'
+            } else if (columnLabel == "ABC") {
+                ret += '  <td>' + String.fromCharCode('A'.charCodeAt(0) + h) + '</td>'
+            }
+        }
+        ret += '</tr>\n'
+        for (var r = 0; r < rows; r++) {
+            ret += '  <tr>'
+            if (rowLabel == "123") {
+                ret += '  <td>' + (r + 1) + '</td>'
+            } else if (rowLabel == "ABC") {
+                ret += '  <td>' + String.fromCharCode('A'.charCodeAt(0) + r) + '</td>'
+            }
+            for (var c = 0; c < columns; c++) {
+                var id = r * columns + c + 1
+                var cell = '  <td></td>'
+                for (var reac = 0; reac < reactData.length; reac++) {
+                    if (parseInt(reactData[reac].id) == id) {
+                        cell = '  <td style="font-size:0.7em;">' + reactData[reac].sample + '<br />'
+                        cell += reactData[reac].datas[dataPos].tar + '<br />'
+                        cell += reactData[reac].datas[dataPos].cq + '</td>'
+                    }
+                }
+                ret += cell
+            }
+            ret += '</tr>\n'
+        }
+        ret += '</table>'
+        plateData.innerHTML = ret
+
+
+
+
+
+    }
 }
 
 window.updateExperimenter = updateExperimenter;
