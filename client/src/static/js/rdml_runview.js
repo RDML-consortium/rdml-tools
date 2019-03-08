@@ -29,6 +29,9 @@ window.isvalid = "untested";
 window.selExperiment = "";
 window.selRun = "";
 
+window.dyeType = "pos"
+window.dyeSel = 0
+
 // Global Values
 window.winXst = 0;
 window.winXend = 75;
@@ -255,9 +258,7 @@ function updateClientData() {
     var exp = window.rdmlData.rdml.experiments;
 
     ret = '<table style="width:100%;">'
-    ret += '  <tr>\n    <td style="width:50%;">'
-    ret += '<div class="form-group">\n'
-    ret += '  <label for="dropSelExperiment">Selected Experiment:</label>'
+    ret += '  <tr>\n    <td style="width:10%;">Experiment:</td>\n<td style="width:35%;">'
     ret += '  <select class="form-control" id="dropSelExperiment" onchange="updateExperimenter()">'
     ret += '    <option value="">No experiment selected</option>\n'
     window.experimentPos = -1
@@ -268,18 +269,11 @@ function updateClientData() {
             window.experimentPos = i
         }
         ret += '>' + exp[i].id + '</option>\n'
-
-
-
-     //   var runs = exp[i].runs
-     //   for (var s = 0 ; s < runs.length ; s++){
-
-       // }
     }
     ret += '  </select>\n'
-    ret += '</div></td>\n    <td style="width:50%;">\n'
-    ret += '<div class="form-group">\n'
-    ret += '  <label for="dropSelRun">Selected Run:</label>'
+    ret += '</td>\n'
+    ret += '<td style="width:10%;"></td>'
+    ret += '    <td style="width:10%;">Run:</td>\n<td style="width:35%;">'
     ret += '  <select class="form-control" id="dropSelRun" onchange="updateRun()">'
     ret += '    <option value="">No run selected</option>\n'
     window.runPos = -1
@@ -294,7 +288,64 @@ function updateClientData() {
             ret += '>' + runs[i].id + '</option>\n'
         }
     }
-    ret += '</td>\n</tr>\n</table>\n'
+    ret += '</td>\n</tr>\n'
+    ret += '</table>\n'
+    ret += '<table style="width:100%;">'
+    ret += '  <tr>\n    <td style="width:20%;">'
+    ret += '  <select class="form-control" id="dropSelDyeType" onchange="updateDyeType()">'
+    ret += '        <option value="pos"'
+    if (window.dyeType == "pos") {
+        ret += ' selected'
+    }
+    ret += '>Dye by Position</option>\n'
+    ret += '        <option value="id"'
+    if (window.dyeType == "id") {
+        ret += ' selected'
+    }
+    ret += '>Dye by ID</option>\n'
+    ret += '  </select>\n'
+    ret += '</td>\n'
+    ret += '  <td style="width:5%;">: </td>\n'
+    ret += '  <td style="width:20%;">'
+    ret += '  <select class="form-control" id="dropSelDyeSel" onchange="updateDyeSel()">'
+    if (window.dyeType == "pos") {
+        for (var i = 0; i < window.reactData.max_data_len; i++) {
+            ret += '        <option value="' + i + '"'
+            if (parseInt(window.dyeSel) == i) {
+                ret += ' selected'
+            }
+            ret += '>' + (i + 1) + '</option>\n'
+        }
+    } else {
+        var dyesEle = window.rdmlData.rdml.dyes;
+        for (var i = 0; i < dyesEle.length; i++) {
+            ret += '        <option value="' + dyesEle[i].id + '"'
+            if (parseInt(window.dyeSel) == dyesEle[i].id) {
+                ret += ' selected'
+            }
+            ret += '>' + dyesEle[i].id + '</option>\n'
+        }
+    }
+    ret += '</td>\n'
+
+
+    ret += '<td style="width:10%;"></td>'
+    ret += '    <td style="width:10%;">Run:</td>\n<td style="width:35%;">'
+    ret += '  <select class="form-control" id="dropSelRun" onchange="updateRun()">'
+    ret += '    <option value="">No run selected</option>\n'
+    if (window.experimentPos > -1) {
+        var runs = exp[window.experimentPos].runs
+        for (var i = 0; i < runs.length; i++) {
+            ret += '        <option value="' + runs[i].id + '"'
+            if (window.selRun == runs[i].id) {
+                ret += ' selected'
+                window.runPos = i
+            }
+            ret += '>' + runs[i].id + '</option>\n'
+        }
+    }
+    ret += '</td>\n</tr>\n'
+    ret += '</table>\n'
     selectorsData.innerHTML = ret
 
     var dataPos = 0
@@ -381,6 +432,30 @@ function updateRun() {
     updateServerData(uuid, JSON.stringify(ret))
 }
 
+window.updateDyeType = updateDyeType;
+function updateDyeType() {
+    var newData = getSaveHtmlData("dropSelDyeType")
+    if (window.dyeType == newData) {
+        return
+    }
+    window.dyeType = newData
+    if (window.dyeType == "pos") {
+        window.dyeSel = 0
+    } else {
+        window.dyeSel =  window.rdmlData.rdml.dyes[0].id;
+    }
+    // todo repaint
+}
+
+window.updateDyeSel = updateDyeSel;
+function updateDyeSel() {
+    var newData = getSaveHtmlData("dropSelDyeSel")
+    if (window.dyeSel == newData) {
+        return
+    }
+    window.dyeSel = newData
+}
+
 window.showSVG = showSVG;
 function showSVG() {
     var retVal = createSVG(window.reactData, window.winXst, window.winXend, window.winYend,
@@ -453,7 +528,6 @@ function createAllCurves(tr,startX,endX,endY,wdXst,wdXend,wdYst,wdYend){
     for (var r = 0; r < rows; r++) {
         for (var c = 0; c < columns; c++) {
             var id = r * columns + c + 1
-            var cell = '  <td></td>'
             for (var reac = 0; reac < reacts.length; reac++) {
                 if (parseInt(reacts[reac].id) == id) {
                     retVal += createOneCurve(reacts[reac].datas[dataPos].adps,"#000000",startX,endX,endY,wdXst,wdXend,wdYst,wdYend);
@@ -464,21 +538,23 @@ function createAllCurves(tr,startX,endX,endY,wdXst,wdXend,wdYst,wdYend){
     return retVal;
 }
 
-function createOneCurve(trace,col,startX,endX,endY,wdXst,wdXend,wdYst,wdYend){
-return retVal;
-    var startTag = "<polyline fill='none' stroke-linejoin='round' stroke='" + col[0];
-    startTag += "' stroke-width='" + col[1] + "' points='";
-    var retVal = "";
-    var lastVal = -99;
-    for (var i = startX; i < endX; i++) {
-        if(!(typeof trace[i] === 'undefined')){
+function createOneCurve(curveDots,col,startX,endX,endY,wdXst,wdXend,wdYst,wdYend){
+    var retVal = "<polyline fill='none' stroke-linejoin='round' stroke='" + col;
+    retVal += "' stroke-width='1.2' points='";
+    for (var i = 0; i < curveDots.length; i++) {
+
+
+        var xPos = wdXst + parseFloat(curveDots[i][0]) / (endX - startX) * (wdXend - wdXst);
+        var yPos = wdYend - parseFloat(curveDots[i][1]) / endY * (wdYend - wdYst);
+
+
+
+
+
+
+
+        if (0) {
             var iden = parseFloat(trace[i]);
-            if ((lastVal < -90) && (iden > -90)) {
-                retVal += startTag;
-            }
-            if ((lastVal > -90) && (iden < -90)) {
-                retVal += "'/>";
-            }
             lastVal = iden;
             iden = parseFloat(trace[i]) / endY;
             if (iden > 1.0) {
@@ -486,12 +562,10 @@ return retVal;
             }
             var xPos = wdXst + (i - startX) / (endX - startX)  * (wdXend - wdXst);
             var yPos = wdYend - iden * (wdYend - wdYst);
-            retVal += xPos + "," + yPos + " ";
-        }
+            }
+         retVal += xPos + "," + yPos + " ";
     }
-    if (lastVal > -90) {
-        retVal += "'/>";
-    }
+    retVal += "'/>";
     return retVal;
 }
 
