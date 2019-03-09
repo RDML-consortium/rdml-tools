@@ -31,10 +31,17 @@ window.selRun = "";
 
 window.dyeType = "pos"
 window.dyeSel = 0
+window.yScale = "lin"
+window.curveSource = "adp"
+window.colorStyle = "tarsam"
+
+window.tarToDye = {}
+
 
 // Global Values
 window.winXst = 0;
 window.winXend = 75;
+window.winYst = 0;
 window.winYend = 5000;
 window.frameXst = 0;
 window.frameXend = 500;
@@ -201,6 +208,7 @@ function updateServerData(stat, reqData) {
                 } else {
                     hideElement(resultError)
                 }
+                fillLookupDics()
                 updateClientData()
             }
         })
@@ -217,6 +225,18 @@ function updateServerData(stat, reqData) {
             err += errorMessage + '</span>'
             resultError.innerHTML = err
         })
+}
+
+window.fillLookupDics = fillLookupDics
+function fillLookupDics() {
+    var exp = window.rdmlData.rdml.targets;
+    var ret = {}
+    for (var i = 0; i < exp.length; i++) {
+        ret[exp[i].id] = exp[i].dyeId
+    }
+    window.tarToDye = ret
+
+
 }
 
 window.updateClientData = updateClientData
@@ -258,7 +278,7 @@ function updateClientData() {
     var exp = window.rdmlData.rdml.experiments;
 
     ret = '<table style="width:100%;">'
-    ret += '  <tr>\n    <td style="width:10%;">Experiment:</td>\n<td style="width:35%;">'
+    ret += '  <tr>\n    <td style="width:10%;">Experiment:</td>\n<td style="width:37%;">'
     ret += '  <select class="form-control" id="dropSelExperiment" onchange="updateExperimenter()">'
     ret += '    <option value="">No experiment selected</option>\n'
     window.experimentPos = -1
@@ -272,8 +292,8 @@ function updateClientData() {
     }
     ret += '  </select>\n'
     ret += '</td>\n'
-    ret += '<td style="width:10%;"></td>'
-    ret += '    <td style="width:10%;">Run:</td>\n<td style="width:35%;">'
+    ret += '<td style="width:6%;"></td>'
+    ret += '    <td style="width:10%;">Run:</td>\n<td style="width:37%;">'
     ret += '  <select class="form-control" id="dropSelRun" onchange="updateRun()">'
     ret += '    <option value="">No run selected</option>\n'
     window.runPos = -1
@@ -290,6 +310,7 @@ function updateClientData() {
     }
     ret += '</td>\n</tr>\n'
     ret += '</table>\n'
+
     ret += '<table style="width:100%;">'
     ret += '  <tr>\n    <td style="width:20%;">'
     ret += '  <select class="form-control" id="dropSelDyeType" onchange="updateDyeType()">'
@@ -306,7 +327,7 @@ function updateClientData() {
     ret += '  </select>\n'
     ret += '</td>\n'
     ret += '  <td style="width:5%;">: </td>\n'
-    ret += '  <td style="width:20%;">'
+    ret += '  <td style="width:22%;">'
     ret += '  <select class="form-control" id="dropSelDyeSel" onchange="updateDyeSel()">'
     if (window.dyeType == "pos") {
         for (var i = 0; i < window.reactData.max_data_len; i++) {
@@ -327,28 +348,68 @@ function updateClientData() {
         }
     }
     ret += '</td>\n'
+    ret += '<td style="width:6%;"></td>'
 
-
-    ret += '<td style="width:10%;"></td>'
-    ret += '    <td style="width:10%;">Run:</td>\n<td style="width:35%;">'
-    ret += '  <select class="form-control" id="dropSelRun" onchange="updateRun()">'
-    ret += '    <option value="">No run selected</option>\n'
-    if (window.experimentPos > -1) {
-        var runs = exp[window.experimentPos].runs
-        for (var i = 0; i < runs.length; i++) {
-            ret += '        <option value="' + runs[i].id + '"'
-            if (window.selRun == runs[i].id) {
-                ret += ' selected'
-                window.runPos = i
-            }
-            ret += '>' + runs[i].id + '</option>\n'
-        }
+    ret += '  <td style="width:13%;">'
+    ret += '  <select class="form-control" id="dropSelYScale" onchange="updateYScale()">'
+    ret += '        <option value="lin"'
+    if (window.yScale == "lin") {
+        ret += ' selected'
     }
+    ret += '>Linear Scale</option>\n'
+    ret += '        <option value="log"'
+    if (window.yScale == "log") {
+        ret += ' selected'
+    }
+    ret += '>Logarithmic Scale</option>\n'
+    ret += '  </select>\n'
+    ret += '</td>\n'
+    ret += '  <td style="width:5%;"></td>\n'
+
+
+    ret += '  <td style="width:10%;">'
+    ret += '  <select class="form-control" id="dropSelCurveSource" onchange="updateCurveSource()">'
+    ret += '        <option value="adp"'
+    if (window.curveSource == "adp") {
+        ret += ' selected'
+    }
+    ret += '>Amplification</option>\n'
+    ret += '        <option value="mdp"'
+    if (window.curveSource == "mdp") {
+        ret += ' selected'
+    }
+    ret += '>Meltcurve</option>\n'
+    ret += '  </select>\n'
+    ret += '</td>\n'
+    ret += '  <td style="width:5%;"></td>\n'
+
+
+    ret += '  <td style="width:14%;">'
+    ret += '  <select class="form-control" id="dropSelColorStyle" onchange="updateColorStyle()">'
+    ret += '        <option value="tarsam"'
+    if (window.colorStyle == "tarsam") {
+        ret += ' selected'
+    }
+    ret += '>Target & Sample</option>\n'
+    ret += '        <option value="type"'
+    if (window.colorStyle == "type") {
+        ret += ' selected'
+    }
+    ret += '>Type</option>\n'
+    ret += '        <option value="tar"'
+    if (window.colorStyle == "tar") {
+        ret += ' selected'
+    }
+    ret += '>Target</option>\n'
+    ret += '        <option value="sam"'
+    if (window.colorStyle == "sam") {
+        ret += ' selected'
+    }
+    ret += '>Sample</option>\n'
+    ret += '  </select>\n'
     ret += '</td>\n</tr>\n'
     ret += '</table>\n'
     selectorsData.innerHTML = ret
-
-    var dataPos = 0
 
     var reacts = window.reactData.reacts
     if ((window.experimentPos > -1) && (window.runPos > -1)) {
@@ -379,9 +440,24 @@ function updateClientData() {
                 var cell = '  <td></td>'
                 for (var reac = 0; reac < reacts.length; reac++) {
                     if (parseInt(reacts[reac].id) == id) {
-                        cell = '  <td style="font-size:0.7em;">' + reacts[reac].sample + '<br />'
-                        cell += reacts[reac].datas[dataPos].tar + '<br />'
-                        cell += reacts[reac].datas[dataPos].cq + '</td>'
+                        if ((window.dyeType == "pos") && (window.dyeSel < reacts[reac].datas.length)){
+                            cell = '  <td style="font-size:0.7em;">' + reacts[reac].sample + '<br />'
+                            cell += reacts[reac].datas[window.dyeSel].tar + '<br />'
+                            cell += reacts[reac].datas[window.dyeSel].cq + '</td>'
+                        }
+                        if (window.dyeType == "id") {
+                            var dataPos = -1
+                            for (var fi = 0; fi < reacts[reac].datas.length; fi++) {
+                                if (window.tarToDye[reacts[reac].datas[fi].tar] == window.dyeSel) {
+                                    dataPos = fi
+                                }
+                            }
+                            if (dataPos > -1){
+                                cell = '  <td style="font-size:0.7em;">' + reacts[reac].sample + '<br />'
+                                cell += reacts[reac].datas[dataPos].tar + '<br />'
+                                cell += reacts[reac].datas[dataPos].cq + '</td>'
+                            }
+                        }
                     }
                 }
                 ret += cell
@@ -391,12 +467,17 @@ function updateClientData() {
         ret += '</table>'
         plateData.innerHTML = ret
 
-        window.reactData.adp_cyc_max
-
-        window.winXst = 0;
-        window.winXend = window.reactData.adp_cyc_max;
-        window.winYend = window.reactData.adp_fluor_max;
-
+        if (window.curveSource == "adp") {
+            window.winXst = 0;
+            window.winXend = 5 * Math.ceil(window.reactData.adp_cyc_max / 5);
+            window.winYst = window.reactData.adp_fluor_min;
+            window.winYend = window.reactData.adp_fluor_max;
+        } else {
+            window.winXst = 5 * Math.floor(window.reactData.mdp_tmp_min / 5);
+            window.winXend = 5 * Math.ceil(window.reactData.mdp_tmp_max / 5);
+            window.winYst = window.reactData.mdp_fluor_min;
+            window.winYend = window.reactData.mdp_fluor_max;
+        }
         showSVG();
     }
 }
@@ -444,7 +525,7 @@ function updateDyeType() {
     } else {
         window.dyeSel =  window.rdmlData.rdml.dyes[0].id;
     }
-    // todo repaint
+    updateClientData()
 }
 
 window.updateDyeSel = updateDyeSel;
@@ -454,11 +535,42 @@ function updateDyeSel() {
         return
     }
     window.dyeSel = newData
+    updateClientData()
+}
+
+window.updateYScale = updateYScale;
+function updateYScale() {
+    var newData = getSaveHtmlData("dropSelYScale")
+    if (window.yScale == newData) {
+        return
+    }
+    window.yScale = newData
+    updateClientData()
+}
+
+window.updateCurveSource = updateCurveSource;
+function updateCurveSource() {
+    var newData = getSaveHtmlData("dropSelCurveSource")
+    if (window.curveSource == newData) {
+        return
+    }
+    window.curveSource = newData
+    updateClientData()
+}
+
+window.updateColorStyle = updateColorStyle;
+function updateColorStyle() {
+    var newData = getSaveHtmlData("dropSelColorStyle")
+    if (window.colorStyle == newData) {
+        return
+    }
+    window.colorStyle = newData
+    updateClientData()
 }
 
 window.showSVG = showSVG;
 function showSVG() {
-    var retVal = createSVG(window.reactData, window.winXst, window.winXend, window.winYend,
+    var retVal = createSVG(window.reactData, window.winXst, window.winXend, window.winYst, window.winYend,
                            window.frameXst, window.frameXend, window.frameYst, window.frameYend);
     var regEx1 = /</g;
     retVal = retVal.replace(regEx1, "%3C");
@@ -471,15 +583,15 @@ function showSVG() {
     sectionResults.innerHTML = retVal;
 }
 
-function createSVG(tr,startX,endX,endY,wdXst,wdXend,wdYst,wdYend) {
-    var retVal = createAllCurves(tr,startX,endX,endY,wdXst,wdXend,wdYst,wdYend);
-    retVal += createCoodinates (tr,startX,endX,endY,wdXst,wdXend,wdYst,wdYend);
+function createSVG(tr,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend) {
+    var retVal = createAllCurves(tr,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend);
+    retVal += createCoodinates (tr,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend);
     retVal += "</svg>";
     var head = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='-60 -40 600 400'>";
     return head + retVal;
 }
 
-function createCoodinates (tr,startX,endX,endY,wdXst,wdXend,wdYst,wdYend){
+function createCoodinates (tr,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend){
     var lineXst = wdXst;
     var lineXend = wdXend + 5;
     var lineYst = wdYst - 5;
@@ -491,36 +603,45 @@ function createCoodinates (tr,startX,endX,endY,wdXst,wdXend,wdYst,wdYend){
 
     // The X-Axis
     var xStep = 5;
-    for (var i = startX; i * xStep <= endX; i++) {
+    for (var i = 0; (i * xStep + startX) < (endX + xStep); i++) {
         var xPos = wdXst + i * xStep / (endX - startX) * (wdXend - wdXst);
         retVal += "<line x1='" + xPos + "' y1='" + lineYend;
         retVal += "' x2='" + xPos + "' y2='" + (lineYend + 7) + "' stroke-width='2' stroke='black' />";
         retVal += "<text x='" + xPos + "' y='" + (lineYend + 26);
         retVal += "' font-family='Arial' font-size='20' fill='black' text-anchor='middle'>";
-        retVal += (i * xStep) + "</text>";
+        retVal += (i * xStep + startX) + "</text>";
     }
 
     // The Y-Axis
-    var yPow = Math.pow(10, Math.floor(Math.log10(endY/10)));
-    var yStep = Math.floor(endY/10/yPow) * yPow;
-    for (var i = 0; i * yStep < endY; i++) {
-        var yPos = wdYend - i * yStep / endY * (wdYend - wdYst);
-        retVal += "<line x1='" + lineXst + "' y1='" + yPos;
-        retVal += "' x2='" + (lineXst - 7) + "' y2='" + yPos + "' stroke-width='2' stroke='black' />";
-        retVal += "<text x='" + (lineXst - 11) + "' y='" + (yPos + 3);
-        retVal += "' font-family='Arial' font-size='10' fill='black' text-anchor='end'>";
-        retVal += (i * yStep) + "</text>";
+    if (window.yScale == "lin") {
+        var yPow = Math.pow(10, Math.floor(Math.log10(endY/10)));
+        var yStep = Math.floor(endY/10/yPow) * yPow;
+        for (var i = 0; i * yStep < endY; i++) {
+            var yPos = wdYend - i * yStep / endY * (wdYend - wdYst);
+            retVal += "<line x1='" + lineXst + "' y1='" + yPos;
+            retVal += "' x2='" + (lineXst - 7) + "' y2='" + yPos + "' stroke-width='2' stroke='black' />";
+            retVal += "<text x='" + (lineXst - 11) + "' y='" + (yPos + 3);
+            retVal += "' font-family='Arial' font-size='10' fill='black' text-anchor='end'>";
+            retVal += (i * yStep) + "</text>";
+        }
+    } else {
+        var yPow = Math.pow(10, Math.floor(Math.log10((Math.log10(endY)-Math.log10(startY))/10)));
+        var yStep = Math.floor((Math.log10(endY)-Math.log10(startY))/10/yPow) * yPow;
+        var minVal = Math.ceil(10 * Math.log10(startY)) / 10
+        for (var i = 0; i * yStep < (Math.log10(endY)-Math.log10(startY)) ; i++) {
+            var yPos = wdYend - (i * yStep + (minVal - Math.log10(startY))) / (Math.log10(endY) - Math.log10(startY)) * (wdYend - wdYst);
+            retVal += "<line x1='" + lineXst + "' y1='" + yPos;
+            retVal += "' x2='" + (lineXst - 7) + "' y2='" + yPos + "' stroke-width='2' stroke='black' />";
+            retVal += "<text x='" + (lineXst - 11) + "' y='" + (yPos + 3);
+            retVal += "' font-family='Arial' font-size='10' fill='black' text-anchor='end'>";
+            retVal += (i * yStep + minVal).toFixed(1) + "</text>";
+        }
     }
-
-    var sqrY = -20;
-    var txtY = -9;
-
     return retVal;
 }
 
-function createAllCurves(tr,startX,endX,endY,wdXst,wdXend,wdYst,wdYend){
+function createAllCurves(tr,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend){
     var retVal = ""
-    var dataPos = 0
     var reacts = window.reactData.reacts
     var the_run = window.rdmlData.rdml.experiments[window.experimentPos].runs[window.runPos]
     var rows = parseInt(the_run.pcrFormat.rows)
@@ -530,7 +651,25 @@ function createAllCurves(tr,startX,endX,endY,wdXst,wdXend,wdYst,wdYend){
             var id = r * columns + c + 1
             for (var reac = 0; reac < reacts.length; reac++) {
                 if (parseInt(reacts[reac].id) == id) {
-                    retVal += createOneCurve(reacts[reac].datas[dataPos].adps,"#000000",startX,endX,endY,wdXst,wdXend,wdYst,wdYend);
+                    var dataPos = -1
+                    if ((window.dyeType == "pos") && (window.dyeSel < reacts[reac].datas.length)){
+                        dataPos = window.dyeSel
+                    }
+                    if (window.dyeType == "id") {
+                        var dataPos = -1
+                        for (var fi = 0; fi < reacts[reac].datas.length; fi++) {
+                            if (window.tarToDye[reacts[reac].datas[fi].tar] == window.dyeSel) {
+                                dataPos = fi
+                            }
+                        }
+                    }
+                    if (dataPos > -1){
+                        if (window.curveSource == "adp") {
+                            retVal += createOneCurve(reacts[reac].datas[dataPos].adps,"#000000",startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend);
+                        } else {
+                            retVal += createOneCurve(reacts[reac].datas[dataPos].mdps,"#000000",startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend);
+                        }
+                    }
                 }
             }
         }
@@ -538,32 +677,17 @@ function createAllCurves(tr,startX,endX,endY,wdXst,wdXend,wdYst,wdYend){
     return retVal;
 }
 
-function createOneCurve(curveDots,col,startX,endX,endY,wdXst,wdXend,wdYst,wdYend){
+function createOneCurve(curveDots,col,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend){
     var retVal = "<polyline fill='none' stroke-linejoin='round' stroke='" + col;
     retVal += "' stroke-width='1.2' points='";
     for (var i = 0; i < curveDots.length; i++) {
-
-
-        var xPos = wdXst + parseFloat(curveDots[i][0]) / (endX - startX) * (wdXend - wdXst);
-        var yPos = wdYend - parseFloat(curveDots[i][1]) / endY * (wdYend - wdYst);
-
-
-
-
-
-
-
-        if (0) {
-            var iden = parseFloat(trace[i]);
-            lastVal = iden;
-            iden = parseFloat(trace[i]) / endY;
-            if (iden > 1.0) {
-                iden = 1;
-            }
-            var xPos = wdXst + (i - startX) / (endX - startX)  * (wdXend - wdXst);
-            var yPos = wdYend - iden * (wdYend - wdYst);
-            }
-         retVal += xPos + "," + yPos + " ";
+        var xPos = wdXst + (parseFloat(curveDots[i][0]) - startX) / (endX - startX) * (wdXend - wdXst);
+        if (window.yScale == "lin") {
+            var yPos = wdYend - parseFloat(curveDots[i][1]) / endY * (wdYend - wdYst);
+        } else {
+            var yPos = wdYend - (Math.log10(parseFloat(curveDots[i][1])) - Math.log10(startY)) / (Math.log10(endY) - Math.log10(startY)) * (wdYend - wdYst);
+        }
+        retVal += xPos + "," + yPos + " ";
     }
     retVal += "'/>";
     return retVal;
