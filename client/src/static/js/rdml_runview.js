@@ -36,7 +36,9 @@ window.curveSource = "adp"
 window.colorStyle = "tarsam"
 
 window.tarToDye = {}
-
+window.tarToNr = {}
+window.samToNr = {}
+window.samToType = {}
 
 // Global Values
 window.winXst = 0;
@@ -230,13 +232,20 @@ function updateServerData(stat, reqData) {
 window.fillLookupDics = fillLookupDics
 function fillLookupDics() {
     var exp = window.rdmlData.rdml.targets;
-    var ret = {}
+    window.tarToDye = {}
+    window.tarToNr = {}
     for (var i = 0; i < exp.length; i++) {
-        ret[exp[i].id] = exp[i].dyeId
+        window.tarToDye[exp[i].id] = exp[i].dyeId
+        window.tarToNr[exp[i].id] = i
     }
-    window.tarToDye = ret
 
-
+    exp = window.rdmlData.rdml.samples;
+    window.samToNr = {}
+    window.samToType = {}
+    for (var i = 0; i < exp.length; i++) {
+        window.samToNr[exp[i].id] = i
+        window.samToType[exp[i].id] = exp[i].type
+    }
 }
 
 window.updateClientData = updateClientData
@@ -664,10 +673,69 @@ function createAllCurves(tr,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend){
                         }
                     }
                     if (dataPos > -1){
+                        var exlReact = reacts[reac].datas[dataPos].hasOwnProperty("excl")
+                        var colo = "#000000"
+                        if (window.colorStyle == "type") {
+                            var samType = window.samToType[reacts[reac].sample]
+                            if (samType =="unkn") {
+                                colo = "#000000"
+                            }
+                            if (samType =="std") {
+                                colo = "#a9a9a9"
+                            }
+                            if (samType =="ntc") {
+                                colo = "#ff0000"
+                            }
+                            if (samType =="nac") {
+                                colo = "#ff0000"
+                            }
+                            if (samType =="ntp") {
+                                colo = "#ff0000"
+                            }
+                            if (samType =="nrt") {
+                                colo = "#ff0000"
+                            }
+                            if (samType =="pos") {
+                                colo = "#006400"
+                            }
+                            if (samType =="opt") {
+                                colo = "#8b008b"
+                            }
+                            if (exlReact) {
+                                colo = "#ffff00"
+                            }
+                        }
+                        if (window.colorStyle == "tar") {
+                            var tarNr = window.tarToNr[reacts[reac].datas[dataPos].tar]
+                            if (exlReact) {
+                                colo = "#ff0000"
+                            } else {
+                                colo = colorByNr(tarNr)
+                            }
+                        }
+                        if (window.colorStyle == "sam") {
+                            var samNr = window.samToNr[reacts[reac].sample]
+                            if (exlReact) {
+                                colo = "#ff0000"
+                            } else {
+                                colo = colorByNr(samNr)
+                            }
+                        }
+                        if (window.colorStyle == "tarsam") {
+                            var samNr = window.samToNr[reacts[reac].sample]
+                            var tarNr = window.tarToNr[reacts[reac].datas[dataPos].tar]
+                            var samCount = window.rdmlData.rdml.samples.length
+                            var samTarNr = tarNr * samCount + samNr
+                            if (exlReact) {
+                                colo = "#ff0000"
+                            } else {
+                                colo = colorByNr(samTarNr)
+                            }
+                        }
                         if (window.curveSource == "adp") {
-                            retVal += createOneCurve(reacts[reac].datas[dataPos].adps,"#000000",startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend);
+                            retVal += createOneCurve(reacts[reac].datas[dataPos].adps,colo,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend);
                         } else {
-                            retVal += createOneCurve(reacts[reac].datas[dataPos].mdps,"#000000",startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend);
+                            retVal += createOneCurve(reacts[reac].datas[dataPos].mdps,colo,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend);
                         }
                     }
                 }
@@ -675,6 +743,48 @@ function createAllCurves(tr,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend){
         }
     }
     return retVal;
+}
+
+function colorByNr(number) {
+    number = parseInt(number) + 1;
+    var base = Math.floor(number / 3);
+    var jump = number % 3;
+
+    if (jump == 0) {
+        return "rgb(" + rdmlNumberInverter(base) + ", " + rdmlNumberInverter(base) + ", " + rdmlNumberInverter(base) + ")"
+    }
+    if (jump == 1) {
+        return "rgb(" + rdmlNumberInverter(base + 1) + ", " + rdmlNumberInverter(base) + ", " +  rdmlNumberInverter(base) + ")"
+    }
+    if (jump == 2) {
+        return "rgb(" + rdmlNumberInverter(base + 1) + ", " + rdmlNumberInverter(base + 1) + ", " +  rdmlNumberInverter(base) + ")"
+    }
+    alert(number + "-" + jump)
+    return "#ffffff";
+}
+
+function rdmlNumberInverter(number) {
+    var ret = 0;
+    if (number % 2 == 0) {
+        ret += 128;
+    }
+    var proc = (number % 32) / 2;
+    if (proc % 2 == 0) {
+        ret += 64;
+    }
+    proc = proc / 2;
+    if (proc % 2 == 0) {
+        ret += 32;
+    }
+    proc = proc / 2;
+    if (proc % 2 == 0) {
+        ret += 16;
+    }
+    proc = proc / 2;
+    if (proc % 2 == 0) {
+        ret += 8;
+    }
+    return 256 - ret;
 }
 
 function createOneCurve(curveDots,col,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend){
