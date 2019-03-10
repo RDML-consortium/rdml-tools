@@ -40,6 +40,8 @@ window.tarToNr = {}
 window.samToNr = {}
 window.samToType = {}
 
+window.lastSelReact = ""
+
 // Global Values
 window.winXst = 0;
 window.winXend = 75;
@@ -449,23 +451,89 @@ function updateClientData() {
                 var cell = '  <td></td>'
                 for (var reac = 0; reac < reacts.length; reac++) {
                     if (parseInt(reacts[reac].id) == id) {
+                        var dataPos = -1
                         if ((window.dyeType == "pos") && (window.dyeSel < reacts[reac].datas.length)){
-                            cell = '  <td style="font-size:0.7em;">' + reacts[reac].sample + '<br />'
-                            cell += reacts[reac].datas[window.dyeSel].tar + '<br />'
-                            cell += reacts[reac].datas[window.dyeSel].cq + '</td>'
+                            dataPos = window.dyeSel
                         }
                         if (window.dyeType == "id") {
-                            var dataPos = -1
                             for (var fi = 0; fi < reacts[reac].datas.length; fi++) {
                                 if (window.tarToDye[reacts[reac].datas[fi].tar] == window.dyeSel) {
                                     dataPos = fi
                                 }
                             }
-                            if (dataPos > -1){
-                                cell = '  <td style="font-size:0.7em;">' + reacts[reac].sample + '<br />'
-                                cell += reacts[reac].datas[dataPos].tar + '<br />'
-                                cell += reacts[reac].datas[dataPos].cq + '</td>'
+                        }
+
+
+                        var exlReact = reacts[reac].datas[dataPos].hasOwnProperty("excl")
+                        var colo = "#000000"
+                        if (window.colorStyle == "type") {
+                            var samType = window.samToType[reacts[reac].sample]
+                            if (samType =="unkn") {
+                                colo = "#000000"
                             }
+                            if (samType =="std") {
+                                colo = "#a9a9a9"
+                            }
+                            if (samType =="ntc") {
+                                colo = "#ff0000"
+                            }
+                            if (samType =="nac") {
+                                colo = "#ff0000"
+                            }
+                            if (samType =="ntp") {
+                                colo = "#ff0000"
+                            }
+                            if (samType =="nrt") {
+                                colo = "#ff0000"
+                            }
+                            if (samType =="pos") {
+                                colo = "#006400"
+                            }
+                            if (samType =="opt") {
+                                colo = "#8b008b"
+                            }
+                            if (exlReact) {
+                                colo = "#ffff00"
+                            }
+                        }
+                        if (window.colorStyle == "tar") {
+                            var tarNr = window.tarToNr[reacts[reac].datas[dataPos].tar]
+                            if (exlReact) {
+                                colo = "#ff0000"
+                            } else {
+                                colo = colorByNr(tarNr)
+                            }
+                        }
+                        if (window.colorStyle == "sam") {
+                            var samNr = window.samToNr[reacts[reac].sample]
+                            if (exlReact) {
+                                colo = "#ff0000"
+                            } else {
+                                colo = colorByNr(samNr)
+                            }
+                        }
+                        if (window.colorStyle == "tarsam") {
+                            var samNr = window.samToNr[reacts[reac].sample]
+                            var tarNr = window.tarToNr[reacts[reac].datas[dataPos].tar]
+                            var samCount = window.rdmlData.rdml.samples.length
+                            var samTarNr = tarNr * samCount + samNr
+                            if (exlReact) {
+                                colo = "#ff0000"
+                            } else {
+                                colo = colorByNr(samTarNr)
+                            }
+                        }
+                        // colo = colorByNr(id)
+                        var fon_col = "#000000"
+                        if (hexToGrey(colo) < 128) {
+                            fon_col = "#ffffff"
+                        }
+                        if (dataPos > -1){
+                            cell = '  <td id="plateTab_' + id + '" style="font-size:0.7em;background-color:' + colo
+                            cell += ';color:' + fon_col + ';" onclick="showReactSel(' + id + ')">'
+                            cell += reacts[reac].sample + '<br />'
+                            cell += reacts[reac].datas[dataPos].tar + '<br />'
+                            cell += reacts[reac].datas[dataPos].cq + '</td>'
                         }
                     }
                 }
@@ -581,6 +649,7 @@ window.showSVG = showSVG;
 function showSVG() {
     var retVal = createSVG(window.reactData, window.winXst, window.winXend, window.winYst, window.winYend,
                            window.frameXst, window.frameXend, window.frameYst, window.frameYend);
+    if (0) {
     var regEx1 = /</g;
     retVal = retVal.replace(regEx1, "%3C");
     var regEx2 = />/g;
@@ -588,6 +657,7 @@ function showSVG() {
     var regEx3 = /#/g;
     retVal = retVal.replace(regEx3, "%23");
     retVal = '<img src="data:image/svg+xml,' + retVal + '" alt="Digest-SVG"  width="100%">';
+    }
     var sectionResults = document.getElementById('curves-data')
     sectionResults.innerHTML = retVal;
 }
@@ -595,8 +665,9 @@ function showSVG() {
 function createSVG(tr,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend) {
     var retVal = createAllCurves(tr,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend);
     retVal += createCoodinates (tr,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend);
+    retVal += "<g id='svgHighCurve'></g>"
     retVal += "</svg>";
-    var head = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='-60 -40 600 400'>";
+    var head = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='-60 -40 600 400' width='100%'>";
     return head + retVal;
 }
 
@@ -733,9 +804,9 @@ function createAllCurves(tr,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend){
                             }
                         }
                         if (window.curveSource == "adp") {
-                            retVal += createOneCurve(reacts[reac].datas[dataPos].adps,colo,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend);
+                            retVal += createOneCurve(parseInt(reacts[reac].id),"1.2",reacts[reac].datas[dataPos].adps,colo,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend);
                         } else {
-                            retVal += createOneCurve(reacts[reac].datas[dataPos].mdps,colo,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend);
+                            retVal += createOneCurve(parseInt(reacts[reac].id),"1.2",reacts[reac].datas[dataPos].mdps,colo,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend);
                         }
                     }
                 }
@@ -745,51 +816,224 @@ function createAllCurves(tr,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend){
     return retVal;
 }
 
+function createOneHighCurve(id) {
+    var theSvg = document.getElementById('svgHighCurve')
+    if (id == "") {
+        theSvg.innerHTML = ""
+        return
+    }
+    var retVal = ""
+    var reacts = window.reactData.reacts
+    for (var reac = 0; reac < reacts.length; reac++) {
+        if (parseInt(reacts[reac].id) == parseInt(id)) {
+            var dataPos = -1
+            if ((window.dyeType == "pos") && (window.dyeSel < reacts[reac].datas.length)){
+                dataPos = window.dyeSel
+            }
+            if (window.dyeType == "id") {
+                var dataPos = -1
+                for (var fi = 0; fi < reacts[reac].datas.length; fi++) {
+                    if (window.tarToDye[reacts[reac].datas[fi].tar] == window.dyeSel) {
+                        dataPos = fi
+                    }
+                }
+            }
+            if (dataPos > -1){
+                var exlReact = reacts[reac].datas[dataPos].hasOwnProperty("excl")
+                var colo = "#000000"
+                if (window.colorStyle == "type") {
+                    var samType = window.samToType[reacts[reac].sample]
+                    if (samType =="unkn") {
+                        colo = "#000000"
+                    }
+                    if (samType =="std") {
+                        colo = "#a9a9a9"
+                    }
+                    if (samType =="ntc") {
+                        colo = "#ff0000"
+                    }
+                    if (samType =="nac") {
+                        colo = "#ff0000"
+                    }
+                    if (samType =="ntp") {
+                        colo = "#ff0000"
+                    }
+                    if (samType =="nrt") {
+                        colo = "#ff0000"
+                    }
+                    if (samType =="pos") {
+                        colo = "#006400"
+                    }
+                    if (samType =="opt") {
+                        colo = "#8b008b"
+                    }
+                    if (exlReact) {
+                        colo = "#ffff00"
+                    }
+                }
+                if (window.colorStyle == "tar") {
+                    var tarNr = window.tarToNr[reacts[reac].datas[dataPos].tar]
+                    if (exlReact) {
+                        colo = "#ff0000"
+                    } else {
+                        colo = colorByNr(tarNr)
+                    }
+                }
+                if (window.colorStyle == "sam") {
+                    var samNr = window.samToNr[reacts[reac].sample]
+                    if (exlReact) {
+                        colo = "#ff0000"
+                    } else {
+                        colo = colorByNr(samNr)
+                    }
+                }
+                if (window.colorStyle == "tarsam") {
+                    var samNr = window.samToNr[reacts[reac].sample]
+                    var tarNr = window.tarToNr[reacts[reac].datas[dataPos].tar]
+                    var samCount = window.rdmlData.rdml.samples.length
+                    var samTarNr = tarNr * samCount + samNr
+                    if (exlReact) {
+                        colo = "#ff0000"
+                    } else {
+                        colo = colorByNr(samTarNr)
+                    }
+                }
+                if (window.curveSource == "adp") {
+                    retVal += createOneCurve(parseInt(reacts[reac].id),"3.0",reacts[reac].datas[dataPos].adps,colo,
+                                             window.winXst, window.winXend, window.winYst, window.winYend,
+                                             window.frameXst, window.frameXend, window.frameYst, window.frameYend);
+                } else {
+                    retVal += createOneCurve(parseInt(reacts[reac].id),"3.0",reacts[reac].datas[dataPos].mdps,colo,
+                                             window.winXst, window.winXend, window.winYst, window.winYend,
+                                             window.frameXst, window.frameXend, window.frameYst, window.frameYend);
+                }
+            }
+        }
+    }
+    theSvg.innerHTML = retVal;
+}
+
+window.showReactSel = showReactSel;
+function showReactSel(react) {
+    if (window.lastSelReact == react) {
+        if (window.lastSelReact != "") {
+            document.getElementById('plateTab_' + window.lastSelReact).style.border = "none";
+            createOneHighCurve("")
+            window.lastSelReact = ""
+        }
+    } else {
+        document.getElementById('plateTab_' + react).style.border = "thick solid #006400";
+        createOneHighCurve(react)
+        if (window.lastSelReact != "") {
+            document.getElementById('plateTab_' + window.lastSelReact).style.border = "none";
+        }
+        window.lastSelReact = react
+    }
+}
+
 function colorByNr(number) {
+    var col = [
+                                                    "#FF4A46", "#008941", "#006FA6", "#A30059",
+                   "#7A4900", "#0000A6", "#63FFAC", "#B79762", "#004D43", "#8FB0FF", "#997D87",
+        "#5A0007", "#809693",            "#1B4400", "#4FC601", "#3B5DFF", "#4A3B53", "#FF2F80",
+        "#61615A", "#BA0900", "#6B7900", "#00C2A0", "#FFAA92", "#FF90C9", "#B903AA", "#D16100",
+                   "#000035", "#7B4F4B", "#A1C299", "#300018", "#0AA6D8", "#013349", "#00846F",
+        "#372101", "#FFB500",            "#A079BF", "#CC0744", "#C0B9B2", "#C2FF99", "#001E09",
+        "#00489C", "#6F0062", "#0CBD66", "#EEC3FF", "#456D75", "#B77B68", "#7A87A1", "#788D66",
+        "#885578", "#FAD09F", "#FF8A9A", "#D157A0", "#BEC459", "#456648", "#0086ED", "#886F4C",
+
+        "#34362D", "#B4A8BD", "#00A6AA", "#452C2C", "#636375", "#A3C8C9", "#FF913F", "#938A81",
+        "#575329", "#00FECF", "#B05B6F", "#8CD0FF", "#3B9700", "#04F757", "#C8A1A1", "#1E6E00",
+        "#7900D7", "#A77500", "#6367A9", "#A05837", "#6B002C", "#772600", "#D790FF", "#9B9700",
+        "#549E79", "#FFF69F", "#201625", "#72418F", "#BC23FF", "#99ADC0", "#3A2465", "#922329",
+        "#5B4534", "#FDE8DC", "#404E55", "#0089A3", "#CB7E98", "#A4E804", "#324E72", "#6A3A4C",
+        "#83AB58", "#001C1E", "#D1F7CE", "#004B28", "#C8D0F6", "#A3A489", "#806C66", "#222800",
+        "#BF5650", "#E83000", "#66796D", "#DA007C", "#FF1A59", "#8ADBB4", "#1E0200", "#5B4E51",
+        "#C895C5", "#320033", "#FF6832", "#66E1D3", "#CFCDAC", "#D0AC94", "#7ED379", "#012C58",
+        "#FFFF00", "#1CE6FF", "#FF34FF"
+    ]
+    if (parseInt(number) < 128) {
+        return col[parseInt(number)]
+    } else {
+        return "#000000"
+    }
+}
+
+function hexToGrey(hex) {
+    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return Math.floor((parseInt(result[1], 16) + parseInt(result[2], 16) + parseInt(result[3], 16)) / 3)
+}
+
+
+function colorByNr2(number) {
     number = parseInt(number) + 1;
-    var base = Math.floor(number / 3);
-    var jump = number % 3;
+    var base = Math.floor(number / 7);
+    var jump = number % 7;
 
     if (jump == 0) {
         return "rgb(" + rdmlNumberInverter(base) + ", " + rdmlNumberInverter(base) + ", " + rdmlNumberInverter(base) + ")"
     }
     if (jump == 1) {
-        return "rgb(" + rdmlNumberInverter(base + 1) + ", " + rdmlNumberInverter(base) + ", " +  rdmlNumberInverter(base) + ")"
+        return "rgb(" + rdmlNumberInverter(base) + ", " + rdmlNumberInverter(base) + ", " +  rdmlNumberInverter(base + 1) + ")"
     }
     if (jump == 2) {
+        return "rgb(" + rdmlNumberInverter(base) + ", " + rdmlNumberInverter(base + 1) + ", " +  rdmlNumberInverter(base) + ")"
+    }
+    if (jump == 3) {
+        return "rgb(" + rdmlNumberInverter(base) + ", " + rdmlNumberInverter(base + 1) + ", " + rdmlNumberInverter(base + 1) + ")"
+    }
+    if (jump == 4) {
+        return "rgb(" + rdmlNumberInverter(base + 1) + ", " + rdmlNumberInverter(base) + ", " +  rdmlNumberInverter(base) + ")"
+    }
+    if (jump == 5) {
+        return "rgb(" + rdmlNumberInverter(base + 1) + ", " + rdmlNumberInverter(base) + ", " +  rdmlNumberInverter(base + 1 ) + ")"
+    }
+    if (jump == 6) {
         return "rgb(" + rdmlNumberInverter(base + 1) + ", " + rdmlNumberInverter(base + 1) + ", " +  rdmlNumberInverter(base) + ")"
     }
-    alert(number + "-" + jump)
     return "#ffffff";
 }
 
 function rdmlNumberInverter(number) {
     var ret = 0;
-    if (number % 2 == 0) {
-        ret += 128;
-    }
-    var proc = (number % 32) / 2;
+    var proc = number
     if (proc % 2 == 0) {
-        ret += 64;
+        ret += 128
     }
-    proc = proc / 2;
+    proc = Math.floor(proc / 2)
     if (proc % 2 == 0) {
-        ret += 32;
+        ret += 64
     }
-    proc = proc / 2;
+    proc = Math.floor(proc / 2)
     if (proc % 2 == 0) {
-        ret += 16;
+        ret += 32
     }
-    proc = proc / 2;
+    proc = Math.floor(proc / 2)
     if (proc % 2 == 0) {
-        ret += 8;
+        ret += 16
     }
-    return 256 - ret;
+    proc = Math.floor(proc / 2)
+    if (proc % 2 == 0) {
+        ret += 8
+    }
+    proc = Math.floor(proc / 2)
+    if (proc % 2 == 0) {
+        ret += 4
+    }
+    proc = Math.floor(proc / 2)
+    if (proc % 2 == 0) {
+        ret += 2
+    }
+    proc = Math.floor(proc / 2)
+    if (proc % 2 == 0) {
+        ret += 1
+    }
+    return ret;
 }
 
-function createOneCurve(curveDots,col,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend){
+function createOneCurve(id,stroke_str,curveDots,col,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend){
     var retVal = "<polyline fill='none' stroke-linejoin='round' stroke='" + col;
-    retVal += "' stroke-width='1.2' points='";
+    retVal += "' stroke-width='" + stroke_str + "' points='";
     for (var i = 0; i < curveDots.length; i++) {
         var xPos = wdXst + (parseFloat(curveDots[i][0]) - startX) / (endX - startX) * (wdXend - wdXst);
         if (window.yScale == "lin") {
@@ -799,7 +1043,7 @@ function createOneCurve(curveDots,col,startX,endX,startY,endY,wdXst,wdXend,wdYst
         }
         retVal += xPos + "," + yPos + " ";
     }
-    retVal += "'/>";
+    retVal += "' onclick='showReactSel(" + id + ")'/>";
     return retVal;
 }
 
