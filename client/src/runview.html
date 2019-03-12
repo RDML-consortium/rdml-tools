@@ -46,9 +46,6 @@
         <a class="nav-link" href="#runs-tab" id="link-runs">RunView</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="#settings-tab" id="link-settings">Settings</a>
-      </li>
-      <li class="nav-item">
         <a class="nav-link" href="#help-tab" id="link-help">Help</a>
       </li>
     </ul>
@@ -77,10 +74,6 @@
       </div>
 
       <div class="tab-pane" id="runs-tab">
-            <button type="submit" class="btn btn-outline-primary" id="btn-dddd" onclick="showSVG()">
-              <i class="fas fa-eye" style="margin-right: 5px;"></i>
-              Stuff
-            </button>
         <div id="selectors-data"></div><br />
         <table style="width:100%;">
           <tr>
@@ -91,21 +84,10 @@
               <div id="curves-data"></div>
             </td>
           </tr>
+        </table>
       </div>
 
-      <div class="tab-pane" id="settings-tab">
-        <p>A "samples" is a defined template solution. Dilutions of the same material differ in concentration and are
-          considered different samples. A technical replicate samples should contain the same name (reactions are
-          performed on the same material), and biological replicates should contain different names (the nucleic acids
-          derived from the different biological replicates are not the same). Serial dilutions in a standard curve
-          must have different names.</p>
-        <div class="form-group">
-          <label for="debug-data">Debug Response</label>
-          <textarea class="form-control" id="debug-data" rows="80"></textarea>
-        </div>
-      </div>
-
-       <div class="tab-pane" id="help-tab">
+      <div class="tab-pane" id="help-tab">
         <h4>Application Description</h4>
         <p> RDML-RunView is a tool to view single runs of a RDML files.
             Just select a file and hit submit.</p>

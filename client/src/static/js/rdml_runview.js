@@ -19,8 +19,6 @@ const selectorsData = document.getElementById('selectors-data')
 const plateData = document.getElementById('plate-data')
 const curvesData = document.getElementById('curves-data')
 
-const debugData = document.getElementById('debug-data')
-
 window.uuid = "";
 window.rdmlData = "";
 window.reactData = "";
@@ -190,7 +188,6 @@ function updateServerData(stat, reqData) {
                 window.uuid = res.data.data.uuid
                 if (res.data.data.hasOwnProperty("reactsdata")) {
                     window.reactData = res.data.data.reactsdata
-                    debugData.value = JSON.stringify(res.data.data.reactsdata, null, 2)
                 } else {
                     window.reactData = ""
                 }
