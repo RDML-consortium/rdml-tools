@@ -43,6 +43,8 @@ window.editIsNew = false;
 window.editNumber = -1;
 window.docIdOpen = "";
 
+window.selIdOnLoad = "";
+
 function resetAllGlobalVal() {
     window.editMode = false;
     window.editType = "";
@@ -248,9 +250,33 @@ function getSaveHtmlData(key) {
 }
 
 function checkForUUID() {
-    var path = window.location.search; // .pathname;
-    if (path.match(/UUID=.+/)) {
-        var uuid = path.split("UUID=")[1];
+    var uuid = ""
+    var tab = ""
+
+    var path = (window.location.search + "").replace(/^\?/, "") // .pathname decodeURIComponent(;
+    path = path.replace(/&/g, ";")
+    var allPairs = path.split(";")
+    for (var i = 0 ; i < allPairs.length ; i++) {
+        var pair = allPairs[i].split("=")
+        var pKey = decodeURIComponent(pair[0])
+        var pVal = ""
+        if (pair.length > 1) {
+            pVal = decodeURIComponent(pair[1])
+        }
+        if (pKey == "UUID") {
+            uuid = pVal
+        }
+        if (pKey == "TAB") {
+            tab = pVal
+        }
+        if (pKey == "ID") {
+            window.selIdOnLoad = pVal
+        }
+    }
+    if (tab != "") {
+        $('[href="#' + tab + '"]').tab('show')
+    }
+    if (uuid != "") {
         updateServerData(uuid, '{"mode": "upload", "validate": true}')
     }
 }
@@ -541,8 +567,11 @@ function updateClientData() {
                 }
                 ret += '  <tr>\n    <td style="width:25%;">Number of Reactions:</td>\n'
                 ret += '    <td style="width:75%">\n'+ runs[s].react + '</td>\n'
-                ret += '  </tr>'
-                ret += '</table></p>\n'
+                ret += '  </tr>\n</table>'
+                ret += '<a href="' + `${API_LINK}` + "runview.html?UUID=" + window.uuid + ';TAB=runs-tab'
+                ret += ';EXP=' + encodeURIComponent(exp[i].id) + ';RUN=' + encodeURIComponent(runs[s].id) + '" '
+                ret += 'target="_blank">View Run in RunView</a> (valid for 3 days)\n<br />\n'
+                ret += '</p>\n'
 
                 var k = 0
                 var xref = '<div class="card">\n<div class="card-body">\n'
@@ -1916,6 +1945,13 @@ function updateClientData() {
         }
     }
 
+    if (window.selIdOnLoad != "") {
+        var lElem = document.getElementById(window.selIdOnLoad)
+        window.selIdOnLoad = ""
+        if (lElem) {
+            lElem.scrollIntoView()
+        }
+    }
 }
 
 function deleteAllData() {

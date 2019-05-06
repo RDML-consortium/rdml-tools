@@ -26,6 +26,7 @@ window.isvalid = "untested";
 
 window.selExperiment = "";
 window.selRun = "";
+window.selRunOnLoad = "";
 
 window.dyeType = "pos"
 window.dyeSel = 0
@@ -144,9 +145,44 @@ function getSaveHtmlData(key) {
 }
 
 function checkForUUID() {
-    var path = window.location.search; // .pathname;
-    if (path.match(/UUID=.+/)) {
-        var uuid = path.split("UUID=")[1];
+    var uuid = ""
+    var tab = ""
+    var vExp = ""
+    var vRun = ""
+
+    var path = (window.location.search + "").replace(/^\?/, "") // .pathname decodeURIComponent(;
+    path = path.replace(/&/g, ";")
+    var allPairs = path.split(";")
+    for (var i = 0 ; i < allPairs.length ; i++) {
+        var pair = allPairs[i].split("=")
+        var pKey = decodeURIComponent(pair[0])
+        var pVal = ""
+        if (pair.length > 1) {
+            pVal = decodeURIComponent(pair[1])
+        }
+        if (pKey == "UUID") {
+            uuid = pVal
+        }
+        if (pKey == "TAB") {
+            tab = pVal
+        }
+        if (pKey == "EXP") {
+            vExp = pVal
+        }
+        if (pKey == "RUN") {
+            vRun = pVal
+        }
+    }
+    if (tab != "") {
+        $('[href="#' + tab + '"]').tab('show')
+    }
+    if (vExp != "") {
+        window.selExperiment = vExp
+        if (vRun != "") {
+            window.selRunOnLoad = vRun
+        }
+    }
+    if (uuid != "") {
         updateServerData(uuid, '{"mode": "upload", "validate": true}')
     }
 }
@@ -249,6 +285,18 @@ function fillLookupDics() {
 
 window.updateClientData = updateClientData
 function updateClientData() {
+    if (window.selRunOnLoad != "") {
+        window.selRun = window.selRunOnLoad
+        if ((window.rdmlData.hasOwnProperty("rdml")) && (window.selExperiment != "") && (window.selRun != "")){
+            var ret = {}
+            ret["mode"] = "get-run-data"
+            ret["sel-experiment"] = window.selExperiment
+            ret["sel-run"] = window.selRun
+            window.selRunOnLoad = ""
+            updateServerData(uuid, JSON.stringify(ret))
+        }
+        return
+    }
     // The UUID box
     var ret = '<br /><div class="card">\n<div class="card-body">\n'
     ret += '<h5 class="card-title">Links to other RDML tools</h5>\n<p>Link to this result page:<br />'
@@ -570,7 +618,7 @@ function updateExperimenter() {
 window.updateRun = updateRun;
 function updateRun() {
     var newData = getSaveHtmlData("dropSelRun")
-    if (window.selExperiment == newData) {
+    if (window.selRun == newData) {
         return
     }
     window.selRun = newData
