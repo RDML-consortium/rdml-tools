@@ -570,7 +570,7 @@ function updateClientData() {
                 ret += '  </tr>\n</table>'
                 ret += '<a href="' + `${API_LINK}` + "runview.html?UUID=" + window.uuid + ';TAB=runs-tab'
                 ret += ';EXP=' + encodeURIComponent(exp[i].id) + ';RUN=' + encodeURIComponent(runs[s].id) + '" '
-                ret += 'target="_blank">View Run in RunView</a> (valid for 3 days)\n<br />\n'
+                ret += 'target="_blank">View Run in RunView</a><br />\n'
                 ret += '</p>\n'
 
                 var k = 0
@@ -815,11 +815,24 @@ function updateClientData() {
             ret += htmlTriState("cDNA - DNase Treatment", 85,"inExpCdnaSynthesisMethod_dnaseTreatment", newBaseCyc,
                                 "dnaseTreatment", "Yes", "No", "Not Set")
             ret += '  <tr>\n    <td style="width:25%;">cDNA - Thermal Cycling Conditions:</td>\n'
-            ret += '    <td style="width:75%"><input type="text" class="form-control" '
-            ret += 'id="inExpCdnaSynthesisMethod_thermalCyclingConditions" value="'
-            ret += saveUndefKey(exp[i].cdnaSynthesisMethod, "thermalCyclingConditions") + '"></td>\n'
+            ret += '    <td style="width:75%">'
+            var cycProt = saveUndefKey(exp[i].cdnaSynthesisMethod, "thermalCyclingConditions")
+            ret += '<select class="form-control" id="inExpCdnaSynthesisMethod_thermalCyclingConditions">\n'
+            ret += '        <option value=""'
+            if (cycProt == "") {
+                ret += ' selected'
+            }
+            ret += '>not set</option>\n'
+            var allCycs = window.rdmlData.rdml.therm_cyc_cons;
+            for (var cc = 0; cc < allCycs.length; cc++) {
+                ret += '        <option value="' + allCycs[cc].id + '"'
+                if (cycProt == allCycs[cc].id) {
+                    ret += ' selected'
+                }
+                ret += '>' + allCycs[cc].id + '</option>\n'
+            }
+            ret += '</select>\n</td>\n'
             ret += '  </tr>'
-              // Todo: make dropdown selection
             if (window.rdmlData.rdml.version == "1.1") {
                 ret += '  <tr>\n    <td style="width:25%;">Template RNA Quantity:</td>\n'
                 ret += '    <td style="width:75%"><table style="width:100%;">'
@@ -888,6 +901,7 @@ function updateClientData() {
                     ret += ' selected'
                 }
                 ret += '>RNA</option>\n'
+                ret += '</select>\n'
                 ret += '</td>\n</tr>\n</table>'
                 ret += '  </tr>'
             }
@@ -1171,10 +1185,24 @@ function updateClientData() {
             ret += 'id="inTarDetectionLimit" value="'+ saveUndef(exp[i].detectionLimit) + '"></td>\n'
             ret += '  </tr>'
             ret += '  <tr>\n    <td style="width:25%;">Dye ID:</td>\n'
-            ret += '    <td style="width:75%"><input type="text" class="form-control" '
-            ret += 'id="inTarDyeId" value="'+ saveUndef(exp[i].dyeId) + '"></td>\n'
+            ret += '    <td style="width:75%">'
+            var selDye = saveUndef(exp[i].dyeId)
+            ret += '<select class="form-control" id="inTarDyeId">\n'
+            ret += '        <option value=""'
+            if (selDye == "") {
+                ret += ' selected'
+            }
+            ret += '>not set</option>\n'
+            var allDyes = window.rdmlData.rdml.dyes;
+            for (var cc = 0; cc < allDyes.length; cc++) {
+                ret += '        <option value="' + allDyes[cc].id + '"'
+                if (selDye == allDyes[cc].id) {
+                    ret += ' selected'
+                }
+                ret += '>' + allDyes[cc].id + '</option>\n'
+            }
+            ret += '</select>\n</td>\n'
             ret += '  </tr>'
-                    // Todo: create special selector
             ret += tarSeqHtml(exp[i], "forwardPrimer")
             ret += tarSeqHtml(exp[i], "reversePrimer")
             ret += tarSeqHtml(exp[i], "probe1")
@@ -2937,10 +2965,23 @@ function newEditRun(prim_pos, sec_pos) {
     ret += 'id="inRunRunDate" value="' + saveUndefKey(run, "runDate") + '"></td>\n'
     ret += '  </tr>'
     ret += '  <tr>\n    <td style="width:25%;">Thermal Cycling Conditions:</td>\n'
-    ret += '    <td style="width:75%">\n<input type="text" class="form-control" '
-    ret += 'id="inRunThermalCyclingConditions" value="' + saveUndefKey(run, "thermalCyclingConditions") + '"></td>\n'
-    ret += '  </tr>'
-    // Todo add dropdown selector
+    ret += '    <td style="width:75%">\n'
+    var cycProt = saveUndefKey(run, "thermalCyclingConditions")
+    ret += '<select class="form-control" id="inRunThermalCyclingConditions">\n'
+    ret += '        <option value=""'
+    if (cycProt == "") {
+        ret += ' selected'
+    }
+    ret += '>not set</option>\n'
+    var allCycs = window.rdmlData.rdml.therm_cyc_cons;
+    for (var cc = 0; cc < allCycs.length; cc++) {
+        ret += '        <option value="' + allCycs[cc].id + '"'
+        if (cycProt == allCycs[cc].id) {
+            ret += ' selected'
+        }
+        ret += '>' + allCycs[cc].id + '</option>\n'
+    }
+    ret += '</select>\n</td>\n'
     var select_val = saveUndefKey(run, "cqDetectionMethod")
     ret += '  <tr>\n    <td style="width:25%;">Cq Detection Method:</td>\n'
     ret += '    <td style="width:75%"><select class="form-control" id="inRunCqDetectionMethod">\n'
