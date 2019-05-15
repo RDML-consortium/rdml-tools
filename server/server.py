@@ -172,6 +172,12 @@ def handle_data():
         if "validate" in reqdata and reqdata["validate"] is True:
             data["isvalid"] = rd.isvalid(fexpname)
 
+        if "mode" in reqdata and reqdata["mode"] == "recreate-lost-ids":
+            errRec = rd.recreate_lost_ids()
+            if errRec:
+                data["error"] = errRec
+            modified = True
+
         if "mode" in reqdata and reqdata["mode"] == "migrate-version":
             if "new-version" not in reqdata:
                 return jsonify(errors=[{"title": "Invalid server request - new-version missing!"}]), 400

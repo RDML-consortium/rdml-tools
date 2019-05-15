@@ -1188,11 +1188,6 @@ function updateClientData() {
             ret += '    <td style="width:75%">'
             var selDye = saveUndef(exp[i].dyeId)
             ret += '<select class="form-control" id="inTarDyeId">\n'
-            ret += '        <option value=""'
-            if (selDye == "") {
-                ret += ' selected'
-            }
-            ret += '>not set</option>\n'
             var allDyes = window.rdmlData.rdml.dyes;
             for (var cc = 0; cc < allDyes.length; cc++) {
                 ret += '        <option value="' + allDyes[cc].id + '"'
@@ -3205,6 +3200,16 @@ function migrateRDMLversion(new_ver) {
     var ret = {}
     ret["mode"] = "migrate-version"
     ret["new-version"] = new_ver
+    updateServerData(uuid, JSON.stringify(ret))
+}
+
+window.recreateLostIds = recreateLostIds;
+function recreateLostIds() {
+    if (!(window.rdmlData.hasOwnProperty("rdml"))) {
+        return
+    }
+    var ret = {}
+    ret["mode"] = "recreate-lost-ids"
     updateServerData(uuid, JSON.stringify(ret))
 }
 
