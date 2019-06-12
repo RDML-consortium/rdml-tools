@@ -3213,6 +3213,16 @@ function recreateLostIds() {
     updateServerData(uuid, JSON.stringify(ret))
 }
 
+window.repairRDMLFile = repairRDMLFile;
+function repairRDMLFile() {
+    if (!(window.rdmlData.hasOwnProperty("rdml"))) {
+        return
+    }
+    var ret = {}
+    ret["mode"] = "repair-rdml-file"
+    updateServerData(uuid, JSON.stringify(ret))
+}
+
 
 // Create a selector for ids
 window.disChangesSecElement = disChangesSecElement;

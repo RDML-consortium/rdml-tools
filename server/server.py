@@ -176,7 +176,13 @@ def handle_data():
             errRec = rd.recreate_lost_ids()
             if errRec:
                 data["error"] = errRec
-            modified = True
+                modified = True
+
+        if "mode" in reqdata and reqdata["mode"] == "repair-rdml-file":
+            errRec = rd.repair_rdml_file()
+            if errRec:
+                data["error"] = errRec
+                modified = True
 
         if "mode" in reqdata and reqdata["mode"] == "migrate-version":
             if "new-version" not in reqdata:
