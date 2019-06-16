@@ -11,6 +11,15 @@ submitButton.addEventListener('click', showUpload)
 const exampleButton = document.getElementById('btn-example')
 exampleButton.addEventListener('click', showExample)
 
+// const jsDebugButton = document.getElementById('btn-jsDebug')
+// jsDebugButton.addEventListener('click', jsDebugFunction)
+
+function jsDebugFunction() {
+    alert("Ready to debug")
+    updateClientData()
+}
+
+
 const inputFile = document.getElementById('inputFile')
 const resultInfo = document.getElementById('result-info')
 const resultError = document.getElementById('result-error')
@@ -701,7 +710,7 @@ function showSVG() {
     retVal = retVal.replace(regEx2, "%3E");
     var regEx3 = /#/g;
     retVal = retVal.replace(regEx3, "%23");
-    retVal = '<img src="data:image/svg+xml,' + retVal + '" alt="Digest-SVG"  width="100%">';
+    retVal = '<img src="data:image/svg+xml,' + retVal + '" alt="Digest-SVG" width="900px">';
     }
     var sectionResults = document.getElementById('curves-data')
     sectionResults.innerHTML = retVal;
@@ -712,7 +721,7 @@ function createSVG(tr,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend) {
     retVal += createCoodinates (tr,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend);
     retVal += "<g id='svgHighCurve'></g>"
     retVal += "</svg>";
-    var head = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='-60 -40 600 400' width='100%'>";
+    var head = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='-60 -40 600 400' width='900px'>";
     return head + retVal;
 }
 
@@ -740,6 +749,10 @@ function createCoodinates (tr,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend)
     // The Y-Axis
     if (window.yScale == "lin") {
         var yPow = Math.pow(10, Math.floor(Math.log10(endY/10)));
+        var yRound = Math.floor(Math.log10(endY/10)) * -1;
+        if (yRound < 0) {
+            yRound = 0;
+        }
         var yStep = Math.floor(endY/10/yPow) * yPow;
         for (var i = 0; i * yStep < endY; i++) {
             var yPos = wdYend - i * yStep / endY * (wdYend - wdYst);
@@ -747,7 +760,7 @@ function createCoodinates (tr,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend)
             retVal += "' x2='" + (lineXst - 7) + "' y2='" + yPos + "' stroke-width='2' stroke='black' />";
             retVal += "<text x='" + (lineXst - 11) + "' y='" + (yPos + 3);
             retVal += "' font-family='Arial' font-size='10' fill='black' text-anchor='end'>";
-            retVal += (i * yStep) + "</text>";
+           retVal += (i * yStep).toFixed(yRound) + "</text>";
         }
     } else {
         var yPow = Math.pow(10, Math.floor(Math.log10((Math.log10(endY)-Math.log10(startY))/10)));
@@ -997,11 +1010,8 @@ function colorByNr(number) {
         "#C895C5", "#320033", "#FF6832", "#66E1D3", "#CFCDAC", "#D0AC94", "#7ED379", "#012C58",
         "#FFFF00", "#1CE6FF", "#FF34FF"
     ]
-    if (parseInt(number) < 128) {
-        return col[parseInt(number)]
-    } else {
-        return "#000000"
-    }
+    var num = parseInt(number) % (col.length - 1)
+    return col[num]
 }
 
 function hexToGrey(hex) {

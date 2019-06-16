@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <title>RDML-Edit | GEAR</title>
+  <title>RDML-RunView | GEAR</title>
   <meta name="description" content="View single runs of RDML files.">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.0/css/all.css">
@@ -74,17 +74,14 @@
       </div>
 
       <div class="tab-pane" id="runs-tab">
+        <!-- <button type="button" class="btn btn-outline-primary" id="btn-jsDebug">Debug JS</button> -->
         <div id="selectors-data"></div><br />
-        <table style="width:100%;">
-          <tr>
-            <td style="width:50%;">
-              <div id="plate-data"></div>
-            </td>
-            <td style="width:50%;">
-              <div id="curves-data"></div>
-            </td>
-          </tr>
-        </table>
+        <div class="container">
+          <div class="row">
+            <div class="col" id="plate-data"></div>
+            <div class="col" id="curves-data"></div>
+          </div>
+        </div>
       </div>
 
       <div class="tab-pane" id="help-tab">
