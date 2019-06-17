@@ -28,6 +28,8 @@ const selectorsData = document.getElementById('selectors-data')
 const plateData = document.getElementById('plate-data')
 const curvesData = document.getElementById('curves-data')
 
+window.minLogCutoff = 0.01;
+
 window.uuid = "";
 window.rdmlData = "";
 window.reactData = "";
@@ -763,11 +765,15 @@ function createCoodinates (tr,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend)
            retVal += (i * yStep).toFixed(yRound) + "</text>";
         }
     } else {
-        var yPow = Math.pow(10, Math.floor(Math.log10((Math.log10(endY)-Math.log10(startY))/10)));
-        var yStep = Math.floor((Math.log10(endY)-Math.log10(startY))/10/yPow) * yPow;
-        var minVal = Math.ceil(10 * Math.log10(startY)) / 10
-        for (var i = 0; i * yStep < (Math.log10(endY)-Math.log10(startY)) ; i++) {
-            var yPos = wdYend - (i * yStep + (minVal - Math.log10(startY))) / (Math.log10(endY) - Math.log10(startY)) * (wdYend - wdYst);
+        var fixStart = startY
+        if (window.minLogCutoff > fixStart) {
+            fixStart = window.minLogCutoff;
+        }
+        var yPow = Math.pow(10, Math.floor(Math.log10((Math.log10(endY)-Math.log10(fixStart))/10)));
+        var yStep = Math.floor((Math.log10(endY)-Math.log10(fixStart))/10/yPow) * yPow;
+        var minVal = Math.ceil(10 * Math.log10(fixStart)) / 10
+        for (var i = 0; i * yStep < (Math.log10(endY)-Math.log10(fixStart)) ; i++) {
+            var yPos = wdYend - (i * yStep + (minVal - Math.log10(fixStart))) / (Math.log10(endY) - Math.log10(fixStart)) * (wdYend - wdYst);
             retVal += "<line x1='" + lineXst + "' y1='" + yPos;
             retVal += "' x2='" + (lineXst - 7) + "' y2='" + yPos + "' stroke-width='2' stroke='black' />";
             retVal += "<text x='" + (lineXst - 11) + "' y='" + (yPos + 3);
@@ -1089,12 +1095,20 @@ function rdmlNumberInverter(number) {
 function createOneCurve(id,stroke_str,curveDots,col,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend){
     var retVal = "<polyline fill='none' stroke-linejoin='round' stroke='" + col;
     retVal += "' stroke-width='" + stroke_str + "' points='";
+    var fixStart = startY
+    if (window.minLogCutoff > fixStart) {
+        fixStart = window.minLogCutoff;
+    }
     for (var i = 0; i < curveDots.length; i++) {
         var xPos = wdXst + (parseFloat(curveDots[i][0]) - startX) / (endX - startX) * (wdXend - wdXst);
         if (window.yScale == "lin") {
             var yPos = wdYend - parseFloat(curveDots[i][1]) / endY * (wdYend - wdYst);
         } else {
-            var yPos = wdYend - (Math.log10(parseFloat(curveDots[i][1])) - Math.log10(startY)) / (Math.log10(endY) - Math.log10(startY)) * (wdYend - wdYst);
+            if (window.minLogCutoff > parseFloat(curveDots[i][1])) {
+                var yPos = wdYend;
+            } else {
+                var yPos = wdYend - (Math.log10(parseFloat(curveDots[i][1])) - Math.log10(fixStart)) / (Math.log10(endY) - Math.log10(fixStart)) * (wdYend - wdYst);
+            }
         }
         retVal += xPos + "," + yPos + " ";
     }
