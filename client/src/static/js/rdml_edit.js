@@ -346,6 +346,9 @@ function updateServerData(stat, reqData) {
                 } else {
                     hideElement(resultError)
                 }
+                if (res.data.data.hasOwnProperty("exporttable")) {
+                    saveFile("rdml_export.tsv", res.data.data.exporttable, "tsv")
+                }
                 updateClientData()
             }
         })
@@ -363,6 +366,52 @@ function updateServerData(stat, reqData) {
             resultError.innerHTML = err
         })
 }
+
+window.detectBrowser = detectBrowser;
+function detectBrowser() {
+    var browser = window.navigator.userAgent.toLowerCase();
+    if (browser.indexOf("edge") != -1) {
+        return "edge";
+    }
+    if (browser.indexOf("firefox") != -1) {
+        return "firefox";
+    }
+    if (browser.indexOf("chrome") != -1) {
+        return "chrome";
+    }
+    if (browser.indexOf("safari") != -1) {
+        return "safari";
+    }
+    alert("Unknown Browser: Functionality may be impaired!\n\n" +browser);
+    return browser;
+}
+
+window.saveFile = saveFile;
+function saveFile(fileName,content,type) {
+    var a = document.createElement("a");
+    document.body.appendChild(a);
+    a.style.display = "none";
+    var blob;
+    if (type == "tsv") {
+        blob = new Blob([content], {type: "text/tab-separated-values"});
+    } else if (type == "svg") {
+        blob = new Blob([content], {type: "image/svg+xml"});
+    } else {
+        blob = new Blob([content], {type: "text/plain"});
+    }
+    var browser = detectBrowser();
+    if (browser != "edge") {
+	    var url = window.URL.createObjectURL(blob);
+	    a.href = url;
+	    a.download = fileName;
+	    a.click();
+	    window.URL.revokeObjectURL(url);
+    } else {
+        window.navigator.msSaveBlob(blob, fileName);
+    }
+    return "";
+};
+
 
 
 function htmlTriState(desc, div, tag, base, key, trV, faV, unV) {
@@ -623,6 +672,16 @@ function updateClientData() {
                 idoc += '<div id="pDoc-experiment-' + i + '-run-' + s + '"></div>'
                 idoc += '</div>\n</div><br />\n'
                 ret += idoc
+
+                ret += '<button type="button" class="btn btn-success btn-sm" '
+                ret += 'onclick="exportTable(\'' + exp[i].id + '\', \'' + runs[s].id + '\', \'amp\');"'
+                ret += '>Export Amplification Data</button>&nbsp;&nbsp;'
+                ret += '<button type="button" class="btn btn-success btn-sm" '
+                ret += 'onclick="exportTable(\'' + exp[i].id + '\', \'' + runs[s].id + '\', \'melt\');"'
+                ret += '>Export Melting Data</button>&nbsp;&nbsp;'
+
+
+                ret += '<br />'
 
                 ret += '<button type="button" class="btn btn-success rdml-btn-edit btn-sm" '
                 ret += 'onclick="newEditRun(' + i + ', ' + s + ', \'edit\');">Edit Run</button>&nbsp;&nbsp;'
@@ -3223,6 +3282,18 @@ function repairRDMLFile() {
     updateServerData(uuid, JSON.stringify(ret))
 }
 
+window.exportTable = exportTable;
+function exportTable(sExp, sRun, sMode) {
+    if (!(window.rdmlData.hasOwnProperty("rdml"))) {
+        return
+    }
+    var ret = {}
+    ret["mode"] = "export-run"
+    ret["experiment"] = sExp
+    ret["run"] = sRun
+    ret["export-mode"] = sMode
+    updateServerData(uuid, JSON.stringify(ret))
+}
 
 // Create a selector for ids
 window.disChangesSecElement = disChangesSecElement;

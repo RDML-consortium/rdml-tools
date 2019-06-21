@@ -184,6 +184,25 @@ def handle_data():
                 data["error"] = errRec
                 modified = True
 
+        if "mode" in reqdata and reqdata["mode"] == "export-run":
+            if "export-mode" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - export-mode missing!"}]), 400
+            if "experiment" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - experiment information missing!"}]), 400
+            if "run" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - run information missing!"}]), 400
+
+            try:
+                elem = rd.get_experiment(byid=reqdata["experiment"])
+                if elem is None:
+                    return jsonify(errors=[{"title": "Invalid server request - experiment id not found!"}]), 400
+                sElem = elem.get_run(byid=reqdata["run"])
+                if sElem is None:
+                    return jsonify(errors=[{"title": "Invalid server request - run id not found!"}]), 400
+                data["exporttable"] = sElem.export_table(reqdata["export-mode"])
+            except rdml.RdmlError as err:
+                data["error"] = str(err)
+
         if "mode" in reqdata and reqdata["mode"] == "migrate-version":
             if "new-version" not in reqdata:
                 return jsonify(errors=[{"title": "Invalid server request - new-version missing!"}]), 400
