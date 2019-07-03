@@ -314,6 +314,13 @@ function updateServerData(stat, reqData) {
         formData.append('createNew', 'createNew')
     } else {
         formData.append('uuid', stat)
+        var checkReq = JSON.parse(reqData)
+        if (checkReq.hasOwnProperty("tableUploadAmplification") && (checkReq["tableUploadAmplification"] == true)) {
+            formData.append('tableUploadAmplification', document.getElementById("inRunUploadAmplification").files[0])
+        }
+        if (checkReq.hasOwnProperty("tableUploadMelting") && (checkReq["tableUploadMelting"] == true)) {
+            formData.append('tableUploadMelting', document.getElementById("inRunUploadMelting").files[0])
+        }
     }
     formData.append('reqData', reqData)
 
@@ -3127,6 +3134,12 @@ function newEditRun(prim_pos, sec_pos) {
     ret += '    <td style="width:75%">\n<input type="text" class="form-control" '
     ret += 'id="inRunDataCollectionSoftware_version" value="' + saveUndefKeyKey(run, "dataCollectionSoftware", "version") + '"></td>\n'
     ret += '  </tr>'
+    ret += '  <tr>\n    <td style="width:25%;">Import Amplification Data:</td>\n'
+    ret += '    <td style="width:75%">\n<input type="file" class="form-control-file" id="inRunUploadAmplification"></td>\n'
+    ret += '  </tr>'
+    ret += '  <tr>\n    <td style="width:25%;">Import Melting Data:</td>\n'
+    ret += '    <td style="width:75%">\n<input type="file" class="form-control-file" id="inRunUploadMelting"></td>\n'
+    ret += '  </tr>'
     ret += '</table></p>\n'
     ret += '<button type="button" class="btn btn-success btn-sm" '
     ret += 'onclick="saveRun(' + prim_pos + ', ' + sec_pos + ', ' + edit + ');">Save Changes</button>'
@@ -3219,6 +3232,12 @@ function saveRun(prim_pos, run_pos, edit){
     el["instrument"] = getSaveHtmlData("inRunInstrument")
     el["dataCollectionSoftware_name"] = getSaveHtmlData("inRunDataCollectionSoftware_name")
     el["dataCollectionSoftware_version"] = getSaveHtmlData("inRunDataCollectionSoftware_version")
+    if (document.getElementById("inRunUploadAmplification").value) {
+         ret["tableUploadAmplification"] = true
+    }
+    if (document.getElementById("inRunUploadMelting").value) {
+         ret["tableUploadMelting"] = true
+    }
     ret["data"] = el
     updateServerData(uuid, JSON.stringify(ret))
 }

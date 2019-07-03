@@ -26,6 +26,9 @@ app.config['MAX_CONTENT_LENGTH'] = 32 * 1024 * 1024   # maximum of 32MB
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in set(['rdml', 'rdm', 'xml'])
 
+def allowed_tab_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in set(['txt', 'tsv', 'csv', 'tab'])
+
 
 uuid_re = re.compile(r'(^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})-{0,1}([ap]{0,1})([cj]{0,1})$')
 
@@ -449,6 +452,40 @@ def handle_data():
                 run_ele["instrument"] = reqdata["data"]["instrument"]
                 run_ele["dataCollectionSoftware_name"] = reqdata["data"]["dataCollectionSoftware_name"]
                 run_ele["dataCollectionSoftware_version"] = reqdata["data"]["dataCollectionSoftware_version"]
+                if "tableUploadAmplification" in request.files:
+                    tabAmpUpload = request.files['tableUploadAmplification']
+                    modified = True
+                    if uuidstr == "sample.rdml":
+                        uuidstr = str(uuid.uuid4())
+                        data["uuid"] = uuidstr
+                        # Get subfolder
+                        sf = os.path.join(app.config['UPLOAD_FOLDER'], uuidstr[0:2])
+                        if not os.path.exists(sf):
+                            os.makedirs(sf)
+                        fexpname = os.path.join(sf, "rdml_" + uuidstr + ".rdml")
+                    if tabAmpUpload.filename != '':
+                        if not allowed_tab_file(tabAmpUpload.filename):
+                            return jsonify(errors=[{"title": "Tab file has incorrect file type!"}]), 400
+                        tabAmpFilename = os.path.join(sf, "rdml_" + uuidstr + "_amplification_upload.tsv")
+                        tabAmpUpload.save(tabAmpFilename)
+                        run_ele.import_table(rd, tabAmpFilename, "amp")
+                if "tableUploadMelting" in request.files:
+                    tabMeltUpload = request.files['tableUploadMelting']
+                    modified = True
+                    if uuidstr == "sample.rdml":
+                        uuidstr = str(uuid.uuid4())
+                        data["uuid"] = uuidstr
+                        # Get subfolder
+                        sf = os.path.join(app.config['UPLOAD_FOLDER'], uuidstr[0:2])
+                        if not os.path.exists(sf):
+                            os.makedirs(sf)
+                        fexpname = os.path.join(sf, "rdml_" + uuidstr + ".rdml")
+                    if tabMeltUpload.filename != '':
+                        if not allowed_tab_file(tabMeltUpload.filename):
+                            return jsonify(errors=[{"title": "Tab file has incorrect file type!"}]), 400
+                        tabMeltFilename = os.path.join(sf, "rdml_" + uuidstr + "_melting_upload.tsv")
+                        tabMeltUpload.save(tabMeltFilename)
+                        run_ele.import_table(rd, tabMeltFilename, "melt")
             except rdml.RdmlError as err:
                 data["error"] = str(err)
             else:
