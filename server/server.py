@@ -452,6 +452,7 @@ def handle_data():
                 run_ele["instrument"] = reqdata["data"]["instrument"]
                 run_ele["dataCollectionSoftware_name"] = reqdata["data"]["dataCollectionSoftware_name"]
                 run_ele["dataCollectionSoftware_version"] = reqdata["data"]["dataCollectionSoftware_version"]
+                errRec = ""
                 if "tableUploadAmplification" in request.files:
                     tabAmpUpload = request.files['tableUploadAmplification']
                     modified = True
@@ -468,7 +469,7 @@ def handle_data():
                             return jsonify(errors=[{"title": "Tab file has incorrect file type!"}]), 400
                         tabAmpFilename = os.path.join(sf, "rdml_" + uuidstr + "_amplification_upload.tsv")
                         tabAmpUpload.save(tabAmpFilename)
-                        run_ele.import_table(rd, tabAmpFilename, "amp")
+                        errRec += run_ele.import_table(rd, tabAmpFilename, "amp")
                 if "tableUploadMelting" in request.files:
                     tabMeltUpload = request.files['tableUploadMelting']
                     modified = True
@@ -485,9 +486,11 @@ def handle_data():
                             return jsonify(errors=[{"title": "Tab file has incorrect file type!"}]), 400
                         tabMeltFilename = os.path.join(sf, "rdml_" + uuidstr + "_melting_upload.tsv")
                         tabMeltUpload.save(tabMeltFilename)
-                        run_ele.import_table(rd, tabMeltFilename, "melt")
+                        errRec += run_ele.import_table(rd, tabMeltFilename, "melt")
+                if errRec:
+                    data["error"] = errRec
             except rdml.RdmlError as err:
-                data["error"] = str(err)
+                data["error"] = errRec + str(err)
             else:
                 modified = True
 
