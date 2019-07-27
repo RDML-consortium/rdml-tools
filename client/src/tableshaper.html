@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>RDML-TableShaper | GEAR</title>
+  <meta name="description" content="Shape a table for import into RDML.">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.0/css/all.css">
+  <link rel="stylesheet" href="static/css/gear.css">
+</head>
+
+<body>
+
+  <header class="px-0 py-4">
+    <div class="container">
+      <h1 class="display-4 app-name">RDML-TableShaper</h1>
+        <p class="lead">Shape a table for import into RDML.</p>
+        <a class="plain" href="https://www-db.embl.de/EMBLPersonGroup-PersonPicture/MailForm/?recipient=ggenomics" target="_blank">
+          <i class="fas fa-question"></i> Get help
+        </a>
+        ·
+        <a class="plain" href="index.html" target="_blank">
+          <i class="fas fa-landmark"></i> RDML-Tools
+        </a>
+        ·
+        <a class="plain" target="_blank" href="https://github.com/RDML-consortium/rdml-tools">
+          <i class="fab fa-github-alt"></i> Source
+        </a>
+    </div>
+  </header>
+
+  <main class="container-fluid">
+    <div id="result-error" class="alert alert-danger d-none" role="alert">
+    </div>
+    <ul class="nav nav-fill mb-4" id="mainTab">
+      <li class="nav-item">
+        <a class="nav-link active" href="#main-tab" id="link-main">Load</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#modify-tab" id="link-modify">Modify</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#save-tab" id="link-save">Save</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#help-tab" id="link-help">Help</a>
+      </li>
+    </ul>
+    <div class="tab-content" id="main-tabs">
+      <div class="tab-pane show active" id="main-tab">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Load table file</h5>
+            <div class="form-group">
+              <label for="inputFile">
+                Table file (<code>.tsv</code>, <code>.csv</code> or <code>.txt</code>)
+              </label>
+              <input type="file" class="form-control-file" id="inputFile">
+            </div>
+            <button type="submit" class="btn btn-outline-primary" id="btn-submit">
+              <i class="fas fa-rocket" style="margin-right: 5px;"></i>
+              Upload File
+            </button>
+            <button type="submit" class="btn btn-outline-primary" id="btn-example">
+              <i class="fas fa-eye" style="margin-right: 5px;"></i>
+              Load Example
+            </button>
+          </div>
+        </div>
+        <br />
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Select column separator for import</h5>
+            <div class="form-check-inline">
+              <label class="form-check-label">
+                <input type="radio" class="form-check-input" name="radio-column-sep" id="sep-radio-tab" value="\t">
+                <a id="sep-opt-tab">Tab (\t - Found: -)</a>
+              </label>
+            </div>
+            <div class="form-check-inline">
+              <label class="form-check-label">
+                <input type="radio" class="form-check-input" name="radio-column-sep" id="sep-radio-comma" value=",">
+                <a id="sep-opt-comma">Comma (, - Found: -)</a>
+              </label>
+            </div>
+            <div class="form-check-inline">
+              <label class="form-check-label">
+                <input type="radio" class="form-check-input" name="radio-column-sep" id="sep-radio-semicolon" value=";">
+                <a id="sep-opt-semicolon">Semicolon (; - Found: -)</a>
+              </label>
+            </div>
+            <div class="form-check-inline">
+              <label class="form-check-label">
+                <input type="radio" class="form-check-input" name="radio-column-sep" id="sep-radio-colon" value=":">
+                <a id="sep-opt-colon">Colon (: - Found: -)</a>
+              </label>
+            </div>
+          </div>
+        </div>
+        <br />
+        <div class="card tableCard">
+          <div class="card-body">
+            <h5 class="card-title">Table after import</h5>
+            <div id="import-table-view"></div>
+          </div>
+        </div>
+        <br />
+      </div>
+
+      <div class="tab-pane" id="modify-tab">
+        <!-- <button type="button" class="btn btn-outline-primary" id="btn-jsDebug">Debug JS</button> -->
+        <div id="selectors-data"></div><br />
+        <div class="container">
+          <div class="row">
+            <div class="col" id="plate-data"></div>
+            <div class="col" id="curves-data"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-pane" id="save-tab">
+        <!-- <button type="button" class="btn btn-outline-primary" id="btn-jsDebug">Debug JS</button> -->
+        <div id="selectors-data"></div><br />
+        <div class="container">
+          <div class="row">
+            <div class="col" id="plate-data"></div>
+            <div class="col" id="curves-data"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-pane" id="help-tab">
+        <h4>Application Description</h4>
+        <p> RDML-TableShaper is a tool to shape tables with amplification data for
+            the import with RDML-tools. Most qPCR machines export Excel files. Please
+            convert them by opening in Excel (Microsoft) or Calc (Libre Office),
+            selecting the table with the amplification data and save as tab separated
+            text file. The tab separated text file can be modified using TableShaper.
+            </p>
+        <h4>Accepted Input</h4>
+        <p> The table files can be provided in text format with tab, comma or semicolon
+            as separator(*.txt, *.tsv, and *.csv).</p>
+        <h4>Sample Data</h4>
+        <p> The "Show Example" button loads an example table file
+            <a href="static/bin/sample.tsv">(click to download file)</a>.
+        </p>
+      </div>
+
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="float-left">
+        <a class="plain" target="_blank" href="https://gear.embl.de">
+          GEAR + RDML Consortium &#126;
+          <i class="fas fa-home"></i>
+        </a>
+        ·
+        <a class="plain" target="_blank" href="https://github.com/gear-genomics">
+          <i class="fab fa-github-alt"></i>
+        </a>
+        ·
+        <a class="plain" target="_blank" href="http://rdml.org">
+          RDML Consortium 
+        </a>
+        ·
+        <a class="plain" target="_blank" href="https://gear.embl.de/terms">
+          Terms of Use
+        </a>
+        ·
+        <a class="plain" target="_blank" href="https://gear.embl.de/contact">
+          Contact Us
+        </a>
+      </div>
+      <div class="float-right">
+        Hosted with
+        <i class="fas fa-heart embl-red"></i> by
+        <a class="plain" target="_blank" href="https://www.embl.de/">
+          <img class="footer-logo" alt="EMBL logo" src="static/img/embl.svg">
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script src="static/js/rdml_tableshaper.js"></script>
+
+</body>
+
+</html>

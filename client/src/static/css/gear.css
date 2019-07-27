@@ -68,3 +68,14 @@ a.plain:hover {
   border: 1px solid black;
   text-align: center;
 }
+
+.tablePreview, .tablePreview td, .tablePreview th {
+  border: 1px solid black;
+  border-collapse: collapse;
+}
+
+.tableCard {
+overflow-x: scroll;
+white-space: nowrap;
+padding: 1rem;
+}
