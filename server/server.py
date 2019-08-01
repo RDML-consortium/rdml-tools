@@ -209,11 +209,19 @@ def handle_data():
         if "mode" in reqdata and reqdata["mode"] == "migrate-version":
             if "new-version" not in reqdata:
                 return jsonify(errors=[{"title": "Invalid server request - new-version missing!"}]), 400
+            migOldVersion = rd.version()
             if reqdata["new-version"] == "1.1":
                 rd.migrate_version_1_2_to_1_1()
                 modified = True
             if reqdata["new-version"] == "1.2":
-                rd.migrate_version_1_1_to_1_2()
+                if migOldVersion in ["1.0", "1.1"]:
+                    rd.migrate_version_1_1_to_1_2()
+                    modified = True
+                if migOldVersion in ["1.3"]:
+                    rd.migrate_version_1_3_to_1_2()
+                    modified = True
+            if reqdata["new-version"] == "1.3":
+                rd.migrate_version_1_2_to_1_3()
                 modified = True
 
         if "mode" in reqdata and reqdata["mode"] == "delete":
