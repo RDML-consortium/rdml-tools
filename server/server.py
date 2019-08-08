@@ -1181,5 +1181,10 @@ def handle_data():
     return jsonify(errors=[{"title": "Error in handling POST request!"}]), 400
 
 
+@app.route('/api/v1/health', methods=['GET'])
+def health():
+    return jsonify(status="OK")
+
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=3300, debug=True, threaded=True)

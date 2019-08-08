@@ -79,3 +79,7 @@ overflow-x: scroll;
 white-space: nowrap;
 padding: 1rem;
 }
+
+.table-list-only {
+display: none;
+}

@@ -114,6 +114,24 @@
       </div>
 
       <div class="tab-pane" id="modify-tab">
+        <div class="row">
+          <div class="col">
+            <div class="form-group">
+              <label for="inputJsonFile">
+                Load settings JSON file (<code>.json</code>)
+              </label>
+              <input type="file" class="form-control-file" id="inputJsonFile">
+            </div>
+          </div>
+          <div class="col">
+            <div class="form-group">
+              <button type="submit" class="btn btn-outline-primary" id="btn-save-Json">
+                <i class="far fa-save" style="margin-right: 5px;"></i>
+                Save settings JSON file
+              </button>
+            </div>
+          </div>
+        </div>
         <div class="card">
           <div class="card-body">
             <h5 class="card-title">Load predefined settings</h5>
@@ -129,29 +147,41 @@
         <div class="card">
           <div class="card-body">
             <h5 class="card-title">Settings to reshape the table</h5>
+            <div class="form-group">
+              <label for="modSetName">Settings identifier:</label>
+              <input type="text" class="form-control" id="modSetName" value="User Settings" onchange="updateModification()">
+            </div>
             <select id="modReformatTableShape" onchange="updateModification()">
               <option value="keep" selected="true">Keep table shape</option>
               <option value="flip">Flip columns and rows</option>
               <option value="create">Create table from list</option>
             </select>
             <br /><br />
-            <div class="form-group create-Info">
+            <div class="form-group table-list-only">
               <label for="modReformatCutStart">Number of heading rows to delete:</label>
               <input type="text" class="form-control" id="modReformatCutStart" value="0" onchange="updateModification()">
             </div>
-            <div class="form-group create-Info">
+            <div class="form-group table-list-only">
               <label for="modReformatNewColum">Number of rows for one well:</label>
               <input type="text" class="form-control" id="modReformatNewColum" value="40" onchange="updateModification()">
             </div>
-            <br />
+          </div>
+        </div>
+        <br />
+        <div class="card">
+          <div class="card-body">
             <h5 class="card-title">Settings to extract the fluorescence data block</h5>
             <div class="form-group">
-              <label for="modDelColStart">Number of heading columns to delete:</label>
-              <input type="text" class="form-control" id="modDelColStart" value="0" onchange="updateModification()">
+              <label for="modDelRowStart">Number of heading rows to delete:</label>
+              <input type="text" class="form-control" id="modDelRowStart" value="1" onchange="updateModification()">
             </div>
             <div class="form-group">
-              <label for="modDelRowStart">Number of heading rows to delete:</label>
-              <input type="text" class="form-control" id="modDelRowStart" value="0" onchange="updateModification()">
+              <label for="modDelRowEnd">Number of rows to keep (maximal):</label>
+              <input type="text" class="form-control" id="modDelRowEnd" value="" onchange="updateModification()">
+            </div>
+            <div class="form-group">
+              <label for="modDelColStart">Number of heading columns to delete:</label>
+              <input type="text" class="form-control" id="modDelColStart" value="1" onchange="updateModification()">
             </div>
             <div class="form-group">
               <label for="modDelOtherCol">Number of columns to delete between values:</label>
@@ -161,10 +191,6 @@
               <label for="modDelColEnd">Number of colums to keep (maximal):</label>
               <input type="text" class="form-control" id="modDelColEnd" value="" onchange="updateModification()">
             </div>
-            <div class="form-group">
-              <label for="modDelRowEnd">Number of rows to keep (maximal):</label>
-              <input type="text" class="form-control" id="modDelRowEnd" value="" onchange="updateModification()">
-            </div>
 
             <div class="form-check">
               <label class="form-check-label">
@@ -172,6 +198,45 @@
                        value="" onchange="updateModification()">Replace all commas by dots
               </label>
             </div>
+          </div>
+        </div>
+        <br />
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Settings to extract data</h5>
+            <div class="row">
+              <div class="col">
+                <div class="form-group">
+                  <label for="modExCycRow">Extract cycle information from row:</label>
+                  <input type="text" class="form-control" id="modExCycRow" value="1" onchange="updateModification()">
+                </div>
+              </div>
+              <div class="col">
+                <div class="form-group">
+                  <div class="form-group">
+                    <label for="modExCycRegEx">Apply regex:</label>
+                    <input type="text" class="form-control" id="modExCycRegEx" value="([0-9])" onchange="updateModification()">
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col">
+                <div class="form-group">
+                  <label for="modExWellCol">Extract well information from column:</label>
+                  <input type="text" class="form-control" id="modExWellCol" value="1" onchange="updateModification()">
+                </div>
+              </div>
+              <div class="col">
+                <div class="form-group">
+                  <div class="form-group">
+                    <label for="modExWellRegEx">Apply regex:</label>
+                    <input type="text" class="form-control" id="modExWellRegEx" value="(^[A-Za-z]+[0-9]+)" onchange="updateModification()">
+                  </div>
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
         <br />
@@ -185,6 +250,12 @@
       </div>
 
       <div class="tab-pane" id="save-tab">
+        <div class="form-group">
+          <button type="submit" class="btn btn-outline-primary" id="btn-save-Tsv">
+            <i class="far fa-save" style="margin-right: 5px;"></i>
+            Save table file (.tsv)
+          </button>
+        </div>
         <div class="card tableCard">
           <div class="card-body">
             <h5 class="card-title">Table for export</h5>
