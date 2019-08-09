@@ -75,11 +75,11 @@ a.plain:hover {
 }
 
 .tableCard {
-overflow-x: scroll;
-white-space: nowrap;
-padding: 1rem;
+  overflow-x: scroll;
+  white-space: nowrap;
+  padding: 1rem;
 }
 
 .table-list-only {
-display: none;
+  display: none;
 }
