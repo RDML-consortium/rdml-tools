@@ -349,6 +349,61 @@
             Save table file (.tsv)
           </button>
         </div>
+        <br />
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Complement columns 1 to 5 (required)</h5>
+            <select id="inCompSelection" onchange="selCompSelection()">
+              <option value="1" selected="true">Sample</option>
+              <option value="2">Sample Type</option>
+              <option value="3">Target</option>
+              <option value="4">Target Type</option>
+              <option value="5">Dye</option>
+            </select>
+            <br />
+            <br />
+            <div class="form-group">
+              <label for="inCompStart">Start at well (leave empty for all):</label>
+              <input type="text" class="form-control" id="inCompStart" value="A1">
+            </div>
+            <div class="form-group">
+              <label for="inCompEnd">Stop at well (leave empty for only start well):</label>
+              <input type="text" class="form-control" id="inCompEnd" value="">
+            </div>
+            <div class="form-group" id="idCompText">
+              <label for="inCompText">Text to enter:</label>
+              <input type="text" class="form-control" id="inCompText" value="">
+            </div>
+            <div id="idCompSamType" style="display: None;">
+              <select id="inCompSamType">
+                <option value="ref">ref - reference target</option>
+                <option value="toi" selected="true">toi - target of interest</option>
+              </select>
+              <br />
+            </div>
+            <div id="idCompTarType" style="display: None;">
+              <select id="inCompTarType">
+                <option value="unkn" selected="true">unkn - unknown sample</option>
+                <option value="ntc">ntc - non template control</option>
+                <option value="nac">nac - no amplification control</option>
+                <option value="std">std - standard sample</option>
+                <option value="ntp">ntp - no target present</option>
+                <option value="nrt">nrt - minusRT</option>
+                <option value="pos">pos - positive control</option>
+                <option value="opt">opt - optical calibrator sample</option>
+              </select>
+              <br />
+            </div>
+            <br />
+            <div class="form-group">
+              <button type="submit" class="btn btn-outline-primary" id="btn-apply-comp">
+                <i class="far fa-edit" style="margin-right: 5px;"></i>
+                Complement table
+              </button>
+            </div>
+          </div>
+        </div>
+        <br />
         <div class="card tableCard">
           <div class="card-body">
             <h5 class="card-title">Table for export</h5>

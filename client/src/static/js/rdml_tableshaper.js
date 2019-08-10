@@ -9,6 +9,9 @@ submitButton.addEventListener('click', loadInputFile)
 const exampleButton = document.getElementById('btn-example')
 exampleButton.addEventListener('click', showExample)
 
+const compButton = document.getElementById('btn-apply-comp')
+compButton.addEventListener('click', compResTable)
+
 const inputFile = document.getElementById('inputFile')
 const inputTableView = document.getElementById('import-table-view')
 const reshapeTableView = document.getElementById('reshape-table-view')
@@ -562,6 +565,91 @@ function updateModification() {
     }
 
     window.resultTab = ftab;
+    updateExport();
+}
+
+window.selCompSelection = selCompSelection;
+function selCompSelection() {
+    var modSel = document.getElementById('inCompSelection').value;
+    if ((modSel != "2") && (modSel != "4")) {
+        document.getElementById('idCompText').style.display = "inline";
+        document.getElementById('idCompSamType').style.display = "none";
+        document.getElementById('idCompTarType').style.display = "none";
+    } else {
+        document.getElementById('idCompText').style.display = "none";
+        if (modSel == "2") {
+            document.getElementById('idCompSamType').style.display = "inline";
+            document.getElementById('idCompTarType').style.display = "none";
+        }
+        if (modSel == "4") {
+            document.getElementById('idCompSamType').style.display = "none";
+            document.getElementById('idCompTarType').style.display = "inline";
+        }
+    }
+}
+
+window.compResTable = compResTable;
+function compResTable() {
+    var modSel = document.getElementById('inCompSelection').value;
+    var repText = document.getElementById('inCompText').value;
+    if (modSel == "2") {
+        repText = document.getElementById('inCompSamType').value;
+    }
+    if (modSel == "4") {
+        repText = document.getElementById('inCompTarType').value;
+    }
+    var startAll = document.getElementById('inCompStart').value;
+    var endAll = document.getElementById('inCompEnd').value;
+    var letterNumberRe = /([A-Za-z])(\d)/;
+    var onlyNumberRe = /(\d)/;
+    var startLetter = null;
+    var startNumber = null;
+    var endLetter = null;
+    var endNumber = null;
+    if (letterNumberRe.test(startAll)) {
+        var match = letterNumberRe.exec(startAll);
+        startLetter = match[1];
+        startNumber = parseInt(match[2]);
+    } else if (onlyNumberRe.test(startAll)) {
+        var match = onlyNumberRe.exec(startAll);
+        startNumber = parseInt(match[1]);
+    }
+    if (letterNumberRe.test(endAll)) {
+        var match = letterNumberRe.exec(endAll);
+        endLetter = match[1];
+        endNumber = parseInt(match[2]);
+    } else if (onlyNumberRe.test(endAll)) {
+        var match = onlyNumberRe.exec(endAll);
+        endNumber = parseInt(match[1]);
+    } else {
+        // Only the one element at start
+        if ((startNumber != null) || (startLetter != null)) {
+        endLetter = startLetter;
+        endNumber = startNumber;
+        }
+    }
+
+    for (var r = 1 ; r < window.resultTab.length ; r++) {
+        var well = window.resultTab[r][0];
+        var wellLetter = null;
+        var wellNumber = null;
+        if (letterNumberRe.test(well)) {
+            var match = letterNumberRe.exec(well);
+            wellLetter = match[1];
+            wellNumber = parseInt(match[2]);
+        } else if (onlyNumberRe.test(well)) {
+            var match = onlyNumberRe.exec(well);
+            wellNumber = parseInt(match[1]);
+        }
+        if (((startLetter == null) && (startNumber == null) && (endLetter == null) && (endNumber == null)) ||
+            ((wellLetter == null) && (wellNumber >= startNumber) && (wellNumber <= endNumber)) ||
+            ((wellLetter.charCodeAt(0) >= startLetter.charCodeAt(0)) &&
+             (wellLetter.charCodeAt(0) <= endLetter.charCodeAt(0)) &&
+             (wellNumber >= startNumber) &&
+             (wellNumber <= endNumber))) {
+            window.resultTab[r][modSel] = repText;
+        }
+    }
     updateExport();
 }
 
