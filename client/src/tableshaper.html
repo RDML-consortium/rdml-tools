@@ -137,9 +137,6 @@
             <h5 class="card-title">Load predefined settings</h5>
             <select id="selMachineSettings" onchange="selectMachineSettings()">
               <option value="-1" selected="true">Default Settings</option>
-              <option value="0">Machine 1</option>
-              <option value="1">Machine 2</option>
-              <option value="2">Machine 3</option>
             </select>
           </div>
         </div>
@@ -210,7 +207,7 @@
                   <div class="form-group">
                     <div class="form-group">
                       <label for="modExCycRowRegEx">Apply regex:</label>
-                      <input type="text" class="form-control" id="modExCycRowRegEx" value="([0-9])" onchange="updateModification()">
+                      <input type="text" class="form-control" id="modExCycRowRegEx" value="([0-9]+)" onchange="updateModification()">
                     </div>
                   </div>
                 </div>
@@ -371,7 +368,7 @@
               <input type="text" class="form-control" id="inCompEnd" value="">
             </div>
             <div class="form-group" id="idCompText">
-              <label for="inCompText">Text to enter:</label>
+              <label for="inCompText">Text to enter (leave empty for unique id):</label>
               <input type="text" class="form-control" id="inCompText" value="">
             </div>
             <div id="idCompSamType" style="display: None;">
@@ -419,7 +416,31 @@
             convert them by opening in Excel (Microsoft) or Calc (Libre Office),
             selecting the table with the amplification data and save as tab separated
             text file. The tab separated text file can be modified using TableShaper.
-            </p>
+        </p>
+        <h4>The use of TableShaper</h4>
+        <p>
+             TableShaper follows three consecutive steps:
+        </p>
+        <p>
+            1. The table separators have to be identified on the first tab. If it does
+            not work out automatically, the separator has to be selected manually. The
+            table columns need to be recognized in the table below.
+        </p>
+        <p>
+            2. The content need to be recognized in the second tab. If your table
+            format is not found in the predefined settings, you may iteratively select
+            the parameters and load / save them for later use. "Settings to reshape
+            the table" is the most dramatic shaping option. You can opt to flip the
+            table or to build a table from value list. The result is drawn below and
+            can be used to select the columns for data extraction.
+        </p>
+        <p>
+           3. Fill the missing content in the third tab. To be able to import the
+            table into RDML, the first six columns have to be filled. Using the fields
+            on the third tab eases this step as squares B2-D7 can be used. Take care in
+            this step as errors in the target id and sample id can not be fixed in RDML
+            later.
+        </p>
         <h4>Accepted Input</h4>
         <p> The table files can be provided in text format with tab, comma or semicolon
             as separator(*.txt, *.tsv, and *.csv).</p>

@@ -26,12 +26,34 @@ loadJFile.addEventListener('change', loadJsonFile, false);
 
 
 // Global data
-window.inputFile = ""
-window.inputSeparator = "\t"
-window.modifySettings = {}
-window.resultTab = []
+window.inputFile = "";
+window.inputSeparator = "\t";
+window.modifySettings = {};
+window.resultTab = [];
 
-window.loadInputFile = loadInputFile
+window.setArr = {};
+
+document.addEventListener("DOMContentLoaded", function() {
+    var selEl = document.getElementById('selMachineSettings');
+    window.setArr = getSettingsArr();
+    for (var i = 0 ; i < window.setArr.length ; i++) {
+        var option = document.createElement("option");
+        option.text = window.setArr[0]["settingsID"];
+        option.value = i;
+        selEl.add(option);
+    }
+});
+
+window.selectMachineSettings = selectMachineSettings;
+function selectMachineSettings(){
+    var sel = document.getElementById('selMachineSettings').value;
+    if (sel >= 0) {
+        loadModification(window.setArr[sel]);
+        updateModification();
+    }
+}
+
+window.loadInputFile = loadInputFile;
 function loadInputFile(){
     var file = inputFile.files[0];
     if (file) { // && file.type.match("text/*")) {
@@ -591,7 +613,6 @@ function selCompSelection() {
 window.compResTable = compResTable;
 function compResTable() {
     var modSel = document.getElementById('inCompSelection').value;
-    var repText = document.getElementById('inCompText').value;
     if (modSel == "2") {
         repText = document.getElementById('inCompSamType').value;
     }
@@ -600,8 +621,8 @@ function compResTable() {
     }
     var startAll = document.getElementById('inCompStart').value;
     var endAll = document.getElementById('inCompEnd').value;
-    var letterNumberRe = /([A-Za-z])(\d)/;
-    var onlyNumberRe = /(\d)/;
+    var letterNumberRe = /([A-Za-z])([0-9]+)/;
+    var onlyNumberRe = /([0-9]+)/;
     var startLetter = null;
     var startNumber = null;
     var endLetter = null;
@@ -630,6 +651,7 @@ function compResTable() {
     }
 
     for (var r = 1 ; r < window.resultTab.length ; r++) {
+        var repText = document.getElementById('inCompText').value;
         var well = window.resultTab[r][0];
         var wellLetter = null;
         var wellNumber = null;
@@ -647,6 +669,12 @@ function compResTable() {
              (wellLetter.charCodeAt(0) <= endLetter.charCodeAt(0)) &&
              (wellNumber >= startNumber) &&
              (wellNumber <= endNumber))) {
+            if ((repText == "") && (modSel == "1")) {
+                repText = "Sample " + r;
+            }
+            if ((repText == "") && (modSel == "3")) {
+                repText = "Target " + r;
+            }
             window.resultTab[r][modSel] = repText;
         }
     }
@@ -683,4 +711,35 @@ function errorMessage(err) {
     html += '</div>';
     var trTrc = document.getElementById('traceView-Traces');
     trTrc.innerHTML = html;
+}
+
+function getSettingsArr() {
+    var ret = [{
+               "settingsID":"Roche LC96",
+               "reformatTableShape":"keep",
+               "fluorDelColStart":1,
+               "fluorDelRowStart":1,
+               "fluorDelOtherCol":0,
+               "fluorDelColEnd":null,
+               "fluorDelRowEnd":null,
+               "fluorCommaDot":true,
+               "exFluorCol":4,
+               "exCycRow":1,
+               "exCycRowRegEx":"([0-9]+)",
+               "exCycCol":1,
+               "exCycColRegEx":"([0-9]+)",
+               "exWellCol":1,
+               "exWellRegEx":"(^[A-Za-z]+[0-9]+)",
+               "exSamCol":null,"exSamRegEx":"(.*)",
+               "exSamTypeCol":null,
+               "exSamTypeRegEx":"(.*)",
+               "exTarCol":null,
+               "exTarRegEx":"(.*)",
+               "exTarTypeCol":null,
+               "exTarTypeRegEx":"(.*)",
+               "exDyeCol":1,
+               "exDyeRegEx":"^[A-Za-z]+[0-9]+ (.*)"
+               }
+              ];
+    return ret;
 }
