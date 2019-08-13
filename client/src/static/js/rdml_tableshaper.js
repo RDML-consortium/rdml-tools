@@ -38,7 +38,7 @@ document.addEventListener("DOMContentLoaded", function() {
     window.setArr = getSettingsArr();
     for (var i = 0 ; i < window.setArr.length ; i++) {
         var option = document.createElement("option");
-        option.text = window.setArr[0]["settingsID"];
+        option.text = window.setArr[i]["settingsID"];
         option.value = i;
         selEl.add(option);
     }
@@ -456,8 +456,12 @@ function updateModification() {
             var realColNr = 5;
             for (var c = minColNr ; c < maxColNr ; c += jumpStep) {
                 realColNr++;
-                var match = cycRowRe.exec(tab[fRow][c]);
-                ftab[0][realColNr] = match[1];
+                if (cycRowRe.test(tab[fRow][c])) {
+                    var match = cycRowRe.exec(tab[fRow][c]);
+                    ftab[0][realColNr] = match[1];
+                } else {
+                    ftab[0][realColNr] = "";
+                }
             }
         }
         // Well information
@@ -465,8 +469,12 @@ function updateModification() {
             var wellColRe = new RegExp(window.modifySettings["exWellRegEx"]);
             var wellCol = window.modifySettings["exWellCol"] - 1;
             for (var r = minRowNr ; r < maxRowNr ; r++) {
-                var match = wellColRe.exec(tab[r][wellCol]);
-                ftab[(r - minRowNr + 1)][0] = match[1];
+                if (wellColRe.test(tab[r][wellCol])) {
+                    var match = wellColRe.exec(tab[r][wellCol]);
+                    ftab[(r - minRowNr + 1)][0] = match[1];
+                } else {
+                    ftab[(r - minRowNr + 1)][0] = "";
+                }
             }
         }
         // Sample information
@@ -474,8 +482,12 @@ function updateModification() {
             var samColRe = new RegExp(window.modifySettings["exSamRegEx"]);
             var samCol = window.modifySettings["exSamCol"] - 1;
             for (var r = minRowNr ; r < maxRowNr ; r++) {
-                var match = samColRe.exec(tab[r][samCol]);
-                ftab[(r - minRowNr + 1)][1] = match[1];
+                if (samColRe.test(tab[r][samCol])) {
+                    var match = samColRe.exec(tab[r][samCol]);
+                    ftab[(r - minRowNr + 1)][1] = match[1];
+                } else {
+                    ftab[(r - minRowNr + 1)][1] = "";
+                }
             }
         }
         // Sample Type information
@@ -483,8 +495,12 @@ function updateModification() {
             var samTypeColRe = new RegExp(window.modifySettings["exSamTypeRegEx"]);
             var samTypeCol = window.modifySettings["exSamTypeCol"] - 1;
             for (var r = minRowNr ; r < maxRowNr ; r++) {
-                var match = samTypeColRe.exec(tab[r][samTypeCol]);
-                ftab[(r - minRowNr + 1)][2] = match[1];
+                if (samTypeColRe.test(tab[r][samTypeCol])) {
+                    var match = samTypeColRe.exec(tab[r][samTypeCol]);
+                    ftab[(r - minRowNr + 1)][2] = match[1];
+                } else {
+                    ftab[(r - minRowNr + 1)][2] = "";
+                }
             }
         }
 
@@ -493,8 +509,12 @@ function updateModification() {
             var tarColRe = new RegExp(window.modifySettings["exTarRegEx"]);
             var tarCol = window.modifySettings["exTarCol"] - 1;
             for (var r = minRowNr ; r < maxRowNr ; r++) {
-                var match = tarColRe.exec(tab[r][tarCol]);
-                ftab[(r - minRowNr + 1)][3] = match[1];
+                if (tarColRe.test(tab[r][tarCol])) {
+                    var match = tarColRe.exec(tab[r][tarCol]);
+                    ftab[(r - minRowNr + 1)][3] = match[1];
+                } else {
+                    ftab[(r - minRowNr + 1)][3] = "";
+                }
             }
         }
         // Target Type information
@@ -502,8 +522,12 @@ function updateModification() {
             var tarTypeColRe = new RegExp(window.modifySettings["exTarTypeRegEx"]);
             var tarTypeCol = window.modifySettings["exTarTypeCol"] - 1;
             for (var r = minRowNr ; r < maxRowNr ; r++) {
-                var match = tarTypeColRe.exec(tab[r][tarTypeCol]);
-                ftab[(r - minRowNr + 1)][4] = match[1];
+                if (tarTypeColRe.test(tab[r][tarTypeCol])) {
+                    var match = tarTypeColRe.exec(tab[r][tarTypeCol]);
+                    ftab[(r - minRowNr + 1)][4] = match[1];
+                } else {
+                    ftab[(r - minRowNr + 1)][4] = "";
+                }
             }
         }
         // Dye information
@@ -511,8 +535,12 @@ function updateModification() {
             var dyeColRe = new RegExp(window.modifySettings["exDyeRegEx"]);
             var dyeCol = window.modifySettings["exDyeCol"] - 1;
             for (var r = minRowNr ; r < maxRowNr ; r++) {
-                var match = dyeColRe.exec(tab[r][dyeCol]);
-                ftab[(r - minRowNr + 1)][5] = match[1];
+                if (dyeColRe.test(tab[r][dyeCol])) {
+                    var match = dyeColRe.exec(tab[r][dyeCol]);
+                    ftab[(r - minRowNr + 1)][5] = match[1];
+                } else {
+                    ftab[(r - minRowNr + 1)][5] = "";
+                }
             }
         }
     } else {
@@ -579,9 +607,46 @@ function updateModification() {
             }
             if (window.modifySettings["fluorCommaDot"] == true) {
                 var resVal = tab[r][fluorCol].replace(/\./g, "");;
-                ftab[wellLookUp[wellVal]][cycLookUp[cycVal]] = resVal.replace(/,/g, ".");;
+                ftab[wellLookUp[wellVal]][cycLookUp[cycVal]] = resVal.replace(/,/g, ".");
             } else {
                 ftab[wellLookUp[wellVal]][cycLookUp[cycVal]] = tab[r][fluorCol];
+            }
+        }
+    }
+
+    // Remove empty rows
+    var wordChar = /\w/;
+    for (var r = ftab.length - 1 ; r > 0 ; r--) {
+        var rowCount = false;
+        for (var c = 0 ; c < ftab[r].length ; c++) {
+            if (wordChar.test(ftab[r][c])) {
+                rowCount = true;
+            }
+        }
+        if (rowCount == false) {
+            ftab.splice(r,1);
+        }
+    }
+
+    // Remove empty colums
+    var maxCol = 0;
+    for (var r = 0 ; r < ftab.length ; r++) {
+        if (maxCol < ftab[r].length) {
+            maxCol = ftab[r].length;
+        }
+    }
+    for (var c = maxCol - 1 ; c >= 0 ; c--) {
+        var colCount = false;
+        for (var r = 0 ; r < ftab.length ; r++) {
+            if ((c < ftab[r].length) && (wordChar.test(ftab[r][c]))) {
+                colCount = true;
+            }
+        }
+        if (colCount == false) {
+            for (var r = 0 ; r < ftab.length ; r++) {
+                if (c < ftab[r].length) {
+                    ftab[r].splice(c,1);
+                }
             }
         }
     }
@@ -678,6 +743,7 @@ function compResTable() {
             window.resultTab[r][modSel] = repText;
         }
     }
+
     updateExport();
 }
 
@@ -739,6 +805,58 @@ function getSettingsArr() {
                "exTarTypeRegEx":"(.*)",
                "exDyeCol":1,
                "exDyeRegEx":"^[A-Za-z]+[0-9]+ (.*)"
+               },{
+               "settingsID":"Roche_LightCycler480",
+               "reformatTableShape":"keep",
+               "fluorDelColStart":2,
+               "fluorDelRowStart":1,
+               "fluorDelOtherCol":0,
+               "fluorDelColEnd":null,
+               "fluorDelRowEnd":null,
+               "fluorCommaDot":true,
+               "exFluorCol":4,
+               "exCycRow":1,
+               "exCycRowRegEx":"([0-9]+)",
+               "exCycCol":1,
+               "exCycColRegEx":"([0-9]+)",
+               "exWellCol":1,
+               "exWellRegEx":"(^[A-Za-z]+[0-9]+)",
+               "exSamCol":2,
+               "exSamRegEx":"(.*)",
+               "exSamTypeCol":null,
+               "exSamTypeRegEx":"(.*)",
+               "exTarCol":null,
+               "exTarRegEx":"(.*)",
+               "exTarTypeCol":null,
+               "exTarTypeRegEx":"(.*)",
+               "exDyeCol":null,
+               "exDyeRegEx":"(.*)"
+               },{
+               "settingsID":"Rotorgene",
+               "reformatTableShape":"keep",
+               "fluorDelColStart":6,
+               "fluorDelRowStart":4,
+               "fluorDelOtherCol":0,
+               "fluorDelColEnd":46,
+               "fluorDelRowEnd":68,
+               "fluorCommaDot":false,
+               "exFluorCol":4,
+               "exCycRow":4,
+               "exCycRowRegEx":"([0-9]+)",
+               "exCycCol":1,
+               "exCycColRegEx":"([0-9]+)",
+               "exWellCol":1,
+               "exWellRegEx":"(^[A-Za-z]+[0-9]+)",
+               "exSamCol":3,
+               "exSamRegEx":"(.*)",
+               "exSamTypeCol":2,
+               "exSamTypeRegEx":"(.*)",
+               "exTarCol":5,
+               "exTarRegEx":"(.*)",
+               "exTarTypeCol":null,
+               "exTarTypeRegEx":"(.*)",
+               "exDyeCol":6,
+               "exDyeRegEx":"(.*)"
                }
               ];
     return ret;
