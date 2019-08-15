@@ -186,7 +186,7 @@
             <div class="form-check">
               <label class="form-check-label">
                 <input type="checkbox" class="form-check-input" id="modCommaDot"
-                       value="" onchange="updateModification()">Replace all commas by dots
+                       value="" onchange="updateModification()" checked>Replace all commas by dots
               </label>
             </div>
           </div>
@@ -412,7 +412,9 @@
       <div class="tab-pane" id="help-tab">
         <h4>Application Description</h4>
         <p> RDML-TableShaper is a tool to shape tables with amplification data for
-            the import with RDML-tools. Most qPCR machines export Excel files. Please
+            the import with RDML-tools. This is error-prone and second best to
+            original RDML export by the machine. As some machines do not offer RDML
+            export, TableShaper might help. Most qPCR machines export Excel files. Please
             convert them by opening in Excel (Microsoft) or Calc (Libre Office),
             selecting the table with the amplification data and save as tab separated
             text file. The tab separated text file can be modified using TableShaper.
