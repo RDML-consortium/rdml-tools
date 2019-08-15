@@ -300,7 +300,7 @@ function loadModification(newSett) {
     updateKeyEl(newSett,"reformatTableShape","modReformatTableShape");
     updateKeyEl(newSett,"fluorDelColStart","modDelColStart");
     updateKeyEl(newSett,"fluorDelRowStart","modDelRowStart");
-    updateKeyEl(newSett,"fluorDelOtherCol","modDelOtherCol");
+    updateKeyEl(newSett,"fluorDelOtherRow","modDelOtherRow");
     updateKeyEl(newSett,"fluorDelColEnd","modDelColEnd");
     updateKeyEl(newSett,"fluorDelRowEnd","modDelRowEnd");
     updateKeyElCheck(newSett,"fluorCommaDot","modCommaDot");
@@ -330,7 +330,7 @@ function updateModification() {
     window.modifySettings["reformatTableShape"] = document.getElementById('modReformatTableShape').value;
     window.modifySettings["fluorDelColStart"] = parseInt(document.getElementById('modDelColStart').value);
     window.modifySettings["fluorDelRowStart"] = parseInt(document.getElementById('modDelRowStart').value);
-    window.modifySettings["fluorDelOtherCol"] = parseInt(document.getElementById('modDelOtherCol').value);
+    window.modifySettings["fluorDelOtherRow"] = parseInt(document.getElementById('modDelOtherRow').value);
     window.modifySettings["fluorDelColEnd"] = parseInt(document.getElementById('modDelColEnd').value);
     window.modifySettings["fluorDelRowEnd"] = parseInt(document.getElementById('modDelRowEnd').value);
     window.modifySettings["fluorCommaDot"] = document.getElementById("modCommaDot").checked;
@@ -409,8 +409,14 @@ function updateModification() {
     var ftab = [["Well", "Sample", "Sample Type", "Target", "Target Type", "Dye"]];
     if (window.modifySettings["reformatTableShape"] != "create") {
         // Insert columns and extract the fluorescence data
-        for (var r = minRowNr ; r < maxRowNr ; r++) {
-            ftab[(r - minRowNr + 1)] = ["", "", "", "", "", ""];
+        var jumpStep = 1;
+        if (window.modifySettings["fluorDelOtherRow"] > 0) {
+             jumpStep = window.modifySettings["fluorDelOtherRow"] + 1 ;
+        }
+        var realRowNr = 0;
+        for (var r = minRowNr ; r < maxRowNr ; r += jumpStep) {
+            realRowNr++;
+            ftab[realRowNr] = ["", "", "", "", "", ""];
             var minColNr = 0;
             if (window.modifySettings["fluorDelColStart"] > 0) {
                  minColNr = window.modifySettings["fluorDelColStart"];
@@ -420,18 +426,18 @@ function updateModification() {
                 (window.modifySettings["fluorDelColEnd"] < tab[r].length)) {
                  maxColNr = window.modifySettings["fluorDelColEnd"];
             }
-            var jumpStep = 1;
-            if (window.modifySettings["fluorDelOtherCol"] > 0) {
-                 jumpStep = window.modifySettings["fluorDelOtherCol"] + 1 ;
-            }
             var realColNr = 5;
-            for (var c = minColNr ; c < maxColNr ; c += jumpStep) {
+            for (var c = minColNr ; c < maxColNr ; c++) {
                 realColNr++;
                 if (window.modifySettings["fluorCommaDot"] == true) {
-                    var resVal = tab[r][c].replace(/\./g, "");;
-                    ftab[(r - minRowNr + 1)][realColNr] = resVal.replace(/,/g, ".");;
+                    if (tab[r][c].match(/,/) != null) {
+                        var resVal = tab[r][c].replace(/\./g, "");;
+                        ftab[realRowNr][realColNr] = resVal.replace(/,/g, ".");;
+                    } else {
+                        ftab[realRowNr][realColNr] = tab[r][c];
+                    }
                 } else {
-                    ftab[(r - minRowNr + 1)][realColNr] = tab[r][c];
+                    ftab[realRowNr][realColNr] = tab[r][c];
                 }
             }
         }
@@ -449,18 +455,18 @@ function updateModification() {
                 (window.modifySettings["fluorDelColEnd"] < tab[fRow].length)) {
                  maxColNr = window.modifySettings["fluorDelColEnd"];
             }
-            var jumpStep = 1;
-            if (window.modifySettings["fluorDelOtherCol"] > 0) {
-                 jumpStep = window.modifySettings["fluorDelOtherCol"] + 1 ;
-            }
             var realColNr = 5;
-            for (var c = minColNr ; c < maxColNr ; c += jumpStep) {
+            for (var c = minColNr ; c < maxColNr ; c++) {
                 realColNr++;
                 if (cycRowRe.test(tab[fRow][c])) {
                     var match = cycRowRe.exec(tab[fRow][c]);
                     if (window.modifySettings["fluorCommaDot"] == true) {
-                        var colVal = match[1].replace(/\./g, "");;
-                        ftab[0][realColNr] = Math.ceil(parseFloat(colVal.replace(/,/g, ".")));
+                        if (match[1].match(/,/) != null) {
+                            var resVal = match[1].replace(/\./g, "");;
+                            ftab[0][realColNr] = resVal.replace(/,/g, ".");;
+                        } else {
+                            ftab[0][realColNr] = Math.ceil(parseFloat(match[1]));
+                        }
                     } else {
                         ftab[0][realColNr] = Math.ceil(parseFloat(match[1]));
                     }
@@ -473,12 +479,14 @@ function updateModification() {
         if (window.modifySettings["exWellCol"] > 0) {
             var wellColRe = new RegExp(window.modifySettings["exWellRegEx"]);
             var wellCol = window.modifySettings["exWellCol"] - 1;
-            for (var r = minRowNr ; r < maxRowNr ; r++) {
+            realRowNr = 0;
+            for (var r = minRowNr ; r < maxRowNr ; r += jumpStep) {
+                realRowNr++;
                 if (wellColRe.test(tab[r][wellCol])) {
                     var match = wellColRe.exec(tab[r][wellCol]);
-                    ftab[(r - minRowNr + 1)][0] = match[1];
+                    ftab[realRowNr][0] = match[1];
                 } else {
-                    ftab[(r - minRowNr + 1)][0] = "";
+                    ftab[realRowNr][0] = "";
                 }
             }
         }
@@ -486,12 +494,14 @@ function updateModification() {
         if (window.modifySettings["exSamCol"] > 0) {
             var samColRe = new RegExp(window.modifySettings["exSamRegEx"]);
             var samCol = window.modifySettings["exSamCol"] - 1;
-            for (var r = minRowNr ; r < maxRowNr ; r++) {
+            realRowNr = 0;
+            for (var r = minRowNr ; r < maxRowNr ; r += jumpStep) {
+                realRowNr++;
                 if (samColRe.test(tab[r][samCol])) {
                     var match = samColRe.exec(tab[r][samCol]);
-                    ftab[(r - minRowNr + 1)][1] = match[1];
+                    ftab[realRowNr][1] = match[1];
                 } else {
-                    ftab[(r - minRowNr + 1)][1] = "";
+                    ftab[realRowNr][1] = "";
                 }
             }
         }
@@ -499,12 +509,14 @@ function updateModification() {
         if (window.modifySettings["exSamTypeCol"] > 0) {
             var samTypeColRe = new RegExp(window.modifySettings["exSamTypeRegEx"]);
             var samTypeCol = window.modifySettings["exSamTypeCol"] - 1;
-            for (var r = minRowNr ; r < maxRowNr ; r++) {
+            realRowNr = 0;
+            for (var r = minRowNr ; r < maxRowNr ; r += jumpStep) {
+                realRowNr++;
                 if (samTypeColRe.test(tab[r][samTypeCol])) {
                     var match = samTypeColRe.exec(tab[r][samTypeCol]);
-                    ftab[(r - minRowNr + 1)][2] = match[1];
+                    ftab[realRowNr][2] = match[1];
                 } else {
-                    ftab[(r - minRowNr + 1)][2] = "";
+                    ftab[realRowNr][2] = "";
                 }
             }
         }
@@ -513,12 +525,14 @@ function updateModification() {
         if (window.modifySettings["exTarCol"] > 0) {
             var tarColRe = new RegExp(window.modifySettings["exTarRegEx"]);
             var tarCol = window.modifySettings["exTarCol"] - 1;
-            for (var r = minRowNr ; r < maxRowNr ; r++) {
+            realRowNr = 0;
+            for (var r = minRowNr ; r < maxRowNr ; r += jumpStep) {
+                realRowNr++;
                 if (tarColRe.test(tab[r][tarCol])) {
                     var match = tarColRe.exec(tab[r][tarCol]);
-                    ftab[(r - minRowNr + 1)][3] = match[1];
+                    ftab[realRowNr][3] = match[1];
                 } else {
-                    ftab[(r - minRowNr + 1)][3] = "";
+                    ftab[realRowNr][3] = "";
                 }
             }
         }
@@ -526,12 +540,14 @@ function updateModification() {
         if (window.modifySettings["exTarTypeCol"] > 0) {
             var tarTypeColRe = new RegExp(window.modifySettings["exTarTypeRegEx"]);
             var tarTypeCol = window.modifySettings["exTarTypeCol"] - 1;
-            for (var r = minRowNr ; r < maxRowNr ; r++) {
+            realRowNr = 0;
+            for (var r = minRowNr ; r < maxRowNr ; r += jumpStep) {
+                realRowNr++;
                 if (tarTypeColRe.test(tab[r][tarTypeCol])) {
                     var match = tarTypeColRe.exec(tab[r][tarTypeCol]);
-                    ftab[(r - minRowNr + 1)][4] = match[1];
+                    ftab[realRowNr][4] = match[1];
                 } else {
-                    ftab[(r - minRowNr + 1)][4] = "";
+                    ftab[realRowNr][4] = "";
                 }
             }
         }
@@ -539,12 +555,14 @@ function updateModification() {
         if (window.modifySettings["exDyeCol"] > 0) {
             var dyeColRe = new RegExp(window.modifySettings["exDyeRegEx"]);
             var dyeCol = window.modifySettings["exDyeCol"] - 1;
-            for (var r = minRowNr ; r < maxRowNr ; r++) {
+            realRowNr = 0;
+            for (var r = minRowNr ; r < maxRowNr ; r += jumpStep) {
+                realRowNr++;
                 if (dyeColRe.test(tab[r][dyeCol])) {
                     var match = dyeColRe.exec(tab[r][dyeCol]);
-                    ftab[(r - minRowNr + 1)][5] = match[1];
+                    ftab[realRowNr][5] = match[1];
                 } else {
-                    ftab[(r - minRowNr + 1)][5] = "";
+                    ftab[realRowNr][5] = "";
                 }
             }
         }
@@ -611,8 +629,12 @@ function updateModification() {
                 ftab[wellLookUp[wellVal]][5] = match[1];
             }
             if (window.modifySettings["fluorCommaDot"] == true) {
-                var resVal = tab[r][fluorCol].replace(/\./g, "");;
-                ftab[wellLookUp[wellVal]][cycLookUp[cycVal]] = resVal.replace(/,/g, ".");
+                if (tab[r][fluorCol].match(/,/) != null) {
+                    var resVal = tab[r][fluorCol].replace(/\./g, "");
+                    ftab[wellLookUp[wellVal]][cycLookUp[cycVal]] = resVal.replace(/,/g, ".");;
+                } else {
+                    ftab[wellLookUp[wellVal]][cycLookUp[cycVal]] = tab[r][fluorCol];
+                }
             } else {
                 ftab[wellLookUp[wellVal]][cycLookUp[cycVal]] = tab[r][fluorCol];
             }
@@ -791,7 +813,7 @@ function getSettingsArr() {
                "reformatTableShape":"keep",
                "fluorDelColStart":3,
                "fluorDelRowStart":2,
-               "fluorDelOtherCol":0,
+               "fluorDelOtherRow":0,
                "fluorDelColEnd":null,
                "fluorDelRowEnd":null,
                "fluorCommaDot":true,
@@ -817,7 +839,7 @@ function getSettingsArr() {
                "reformatTableShape":"keep",
                "fluorDelColStart":2,
                "fluorDelRowStart":1,
-               "fluorDelOtherCol":0,
+               "fluorDelOtherRow":0,
                "fluorDelColEnd":null,
                "fluorDelRowEnd":null,
                "fluorCommaDot":true,
@@ -843,7 +865,7 @@ function getSettingsArr() {
                "reformatTableShape":"flip",
                "fluorDelColStart":1,
                "fluorDelRowStart":2,
-               "fluorDelOtherCol":0,
+               "fluorDelOtherRow":0,
                "fluorDelColEnd":null,
                "fluorDelRowEnd":null,
                "fluorCommaDot":true,
@@ -868,7 +890,7 @@ function getSettingsArr() {
                "reformatTableShape":"flip",
                "fluorDelColStart":2,
                "fluorDelRowStart":1,
-               "fluorDelOtherCol":0,
+               "fluorDelOtherRow":0,
                "fluorDelColEnd":null,
                "fluorDelRowEnd":null,
                "fluorCommaDot":true,
@@ -893,7 +915,7 @@ function getSettingsArr() {
                "reformatTableShape":"keep",
                "fluorDelColStart":6,
                "fluorDelRowStart":4,
-               "fluorDelOtherCol":0,
+               "fluorDelOtherRow":0,
                "fluorDelColEnd":null,
                "fluorDelRowEnd":49,
                "fluorCommaDot":true,
@@ -919,7 +941,7 @@ function getSettingsArr() {
                "reformatTableShape":"keep",
                "fluorDelColStart":3,
                "fluorDelRowStart":9,
-               "fluorDelOtherCol":0,
+               "fluorDelOtherRow":0,
                "fluorDelColEnd":null,
                "fluorDelRowEnd":null,
                "fluorCommaDot":true,
@@ -945,7 +967,7 @@ function getSettingsArr() {
                "reformatTableShape":"flip",
                "fluorDelColStart":1,
                "fluorDelRowStart":1,
-               "fluorDelOtherCol":0,
+               "fluorDelOtherRow":0,
                "fluorDelColEnd":null,
                "fluorDelRowEnd":null,
                "fluorCommaDot":true,
@@ -971,7 +993,7 @@ function getSettingsArr() {
                "reformatTableShape":"flip",
                "fluorDelColStart":1,
                "fluorDelRowStart":3,
-               "fluorDelOtherCol":0,
+               "fluorDelOtherRow":0,
                "fluorDelColEnd":41,
                "fluorDelRowEnd":null,
                "fluorCommaDot":false,
@@ -993,11 +1015,36 @@ function getSettingsArr() {
                "exDyeCol":null,
                "exDyeRegEx":"(.*)"
                },{
+               "settingsID":"QuantStudio 12K Flex",
+               "reformatTableShape":"create",
+               "fluorDelColStart":1,
+               "fluorDelRowStart":18,
+               "fluorDelOtherRow":0,
+               "fluorDelColEnd":null,
+               "fluorDelRowEnd":null,
+               "fluorCommaDot":true,
+               "exFluorCol":4,
+               "exCycRow":1,
+               "exCycRowRegEx":"([0-9]+)",
+               "exCycCol":3,
+               "exCycColRegEx":"([0-9]+)",
+               "exWellCol":2,
+               "exWellRegEx":"(^[A-Za-z]+[0-9]+[A-Za-z]+[0-9]+)",
+               "exSamCol":null,
+               "exSamRegEx":"(.*)",
+               "exSamTypeCol":null,
+               "exSamTypeRegEx":"(.*)",
+               "exTarCol":null,"exTarRegEx":"(.*)",
+               "exTarTypeCol":null,
+               "exTarTypeRegEx":"(.*)",
+               "exDyeCol":null,
+               "exDyeRegEx":"(.*)"
+               },{
                "settingsID":"Roche LC96",
                "reformatTableShape":"keep",
                "fluorDelColStart":1,
                "fluorDelRowStart":1,
-               "fluorDelOtherCol":0,
+               "fluorDelOtherRow":0,
                "fluorDelColEnd":null,
                "fluorDelRowEnd":null,
                "fluorCommaDot":true,
@@ -1018,11 +1065,37 @@ function getSettingsArr() {
                "exDyeCol":1,
                "exDyeRegEx":"^[A-Za-z]+[0-9]+ (.*)"
                },{
+               "settingsID":"Roche LC96 (flip)",
+               "reformatTableShape":"flip",
+               "fluorDelColStart":1,
+               "fluorDelRowStart":1,
+               "fluorDelOtherRow":0,
+               "fluorDelColEnd":null,
+               "fluorDelRowEnd":null,
+               "fluorCommaDot":true,
+               "exFluorCol":4,
+               "exCycRow":1,
+               "exCycRowRegEx":"([0-9]+)",
+               "exCycCol":1,
+               "exCycColRegEx":"([0-9]+)",
+               "exWellCol":1,
+               "exWellRegEx":"(^[A-Za-z]+[0-9]+) .*",
+               "exSamCol":null,
+               "exSamRegEx":"(.*)",
+               "exSamTypeCol":null,
+               "exSamTypeRegEx":"(.*)",
+               "exTarCol":null,
+               "exTarRegEx":"(.*)",
+               "exTarTypeCol":null,
+               "exTarTypeRegEx":"(.*)",
+               "exDyeCol":1,
+               "exDyeRegEx":"^[A-Za-z]+[0-9]+ (.*)"
+               },{
                "settingsID":"Roche LightCycler480",
                "reformatTableShape":"keep",
                "fluorDelColStart":2,
                "fluorDelRowStart":1,
-               "fluorDelOtherCol":0,
+               "fluorDelOtherRow":0,
                "fluorDelColEnd":null,
                "fluorDelRowEnd":null,
                "fluorCommaDot":true,
@@ -1044,11 +1117,62 @@ function getSettingsArr() {
                "exDyeCol":null,
                "exDyeRegEx":"(.*)"
                },{
+               "settingsID":"Roche LightCycler480 (flip)",
+               "reformatTableShape":"flip",
+               "fluorDelColStart":1,
+               "fluorDelRowStart":2,
+               "fluorDelOtherRow":1,
+               "fluorDelColEnd":null,
+               "fluorDelRowEnd":null,
+               "fluorCommaDot":true,
+               "exFluorCol":4,
+               "exCycRow":1,
+               "exCycRowRegEx":"([0-9]+)",
+               "exCycCol":1,
+               "exCycColRegEx":"([0-9]+)",
+               "exWellCol":1,
+               "exWellRegEx":"(^[A-Za-z]+[0-9]+):.*",
+               "exSamCol":1,
+               "exSamRegEx":"^[A-Za-z]+[0-9]+: (.*)",
+               "exSamTypeCol":null,
+               "exSamTypeRegEx":"(.*)",
+               "exTarCol":null,"exTarRegEx":"(.*)",
+               "exTarTypeCol":null,
+               "exTarTypeRegEx":"(.*)",
+               "exDyeCol":null,
+               "exDyeRegEx":"(.*)"
+               },{
+               "settingsID":"Roche LightCycler480 (create)",
+               "reformatTableShape":"create",
+               "fluorDelColStart":1,
+               "fluorDelRowStart":2,
+               "fluorDelOtherRow":0,
+               "fluorDelColEnd":null,
+               "fluorDelRowEnd":null,
+               "fluorCommaDot":true,
+               "exFluorCol":8,
+               "exCycRow":1,
+               "exCycRowRegEx":"([0-9]+)",
+               "exCycCol":5,
+               "exCycColRegEx":"([0-9]+)",
+               "exWellCol":1,
+               "exWellRegEx":"(^[A-Za-z]+[0-9]+)",
+               "exSamCol":2,
+               "exSamRegEx":"(.*)",
+               "exSamTypeCol":null,
+               "exSamTypeRegEx":"(.*)",
+               "exTarCol":null,
+               "exTarRegEx":"(.*)",
+               "exTarTypeCol":null,
+               "exTarTypeRegEx":"(.*)",
+               "exDyeCol":null,
+               "exDyeRegEx":"(.*)"
+               },{
                "settingsID":"Rotorgene",
                "reformatTableShape":"keep",
                "fluorDelColStart":6,
                "fluorDelRowStart":4,
-               "fluorDelOtherCol":0,
+               "fluorDelOtherRow":0,
                "fluorDelColEnd":46,
                "fluorDelRowEnd":68,
                "fluorCommaDot":true,
@@ -1068,6 +1192,58 @@ function getSettingsArr() {
                "exTarTypeCol":null,
                "exTarTypeRegEx":"(.*)",
                "exDyeCol":6,
+               "exDyeRegEx":"(.*)"
+               },{
+               "settingsID":"Stratagene Mx3000P",
+               "reformatTableShape":"flip",
+               "fluorDelColStart":4,
+               "fluorDelRowStart":2,
+               "fluorDelOtherRow":0,
+               "fluorDelColEnd":44,
+               "fluorDelRowEnd":null,
+               "fluorCommaDot":true,
+               "exFluorCol":4,
+               "exCycRow":2,
+               "exCycRowRegEx":"([0-9]+)",
+               "exCycCol":1,
+               "exCycColRegEx":"([0-9]+)",
+               "exWellCol":3,
+               "exWellRegEx":"(^[A-Za-z]+[0-9]+),.*",
+               "exSamCol":3,
+               "exSamRegEx":"[^,]*, ([^,]*,[^,]*),.*",
+               "exSamTypeCol":null,
+               "exSamTypeRegEx":"(.*)",
+               "exTarCol":null,
+               "exTarRegEx":"(.*)",
+               "exTarTypeCol":null,
+               "exTarTypeRegEx":"(.*)",
+               "exDyeCol":3,
+               "exDyeRegEx":"[^,]*,[^,]*,[^,]*, (.*)"
+               },{
+               "settingsID":"ThermoFisher StepOnePlus",
+               "reformatTableShape":"create",
+               "fluorDelColStart":1,
+               "fluorDelRowStart":8,
+               "fluorDelOtherRow":0,
+               "fluorDelColEnd":null,
+               "fluorDelRowEnd":null,
+               "fluorCommaDot":true,
+               "exFluorCol":3,
+               "exCycRow":1,
+               "exCycRowRegEx":"([0-9]+)",
+               "exCycCol":2,
+               "exCycColRegEx":"([0-9]+)",
+               "exWellCol":1,
+               "exWellRegEx":"(^[A-Za-z]+[0-9]+)",
+               "exSamCol":null,
+               "exSamRegEx":"(.*)",
+               "exSamTypeCol":null,
+               "exSamTypeRegEx":"(.*)",
+               "exTarCol":null,
+               "exTarRegEx":"(.*)",
+               "exTarTypeCol":null,
+               "exTarTypeRegEx":"(.*)",
+               "exDyeCol":null,
                "exDyeRegEx":"(.*)"
                }
               ];
