@@ -439,18 +439,27 @@
             can be used to select the columns for data extraction.
         </p>
         <p>
-           3. Fill the missing content in the third tab. To be able to import the
+            3. Fill the missing content in the third tab. To be able to import the
             table into RDML, the first six columns have to be filled. Using the fields
             on the third tab eases this step as squares B2-D7 can be used. Take care in
             this step as errors in the target id and sample id can not be fixed in RDML
-            later.
+            later. Save the result as .tsv file.
+        </p>
+        <p>
+            4. To import the data, open RDML-Edit. Create a new file and enable editing
+            with the "enable edit mode button". Now change to the experiments tab and
+            create a new experiment. In the experiment, create a new run. Take care to
+            set the ID and PCR-Format fields correctly. Now select the exported .tsv
+            file in "Import Amplification Data". Once saved you can inspect the result
+            using RunView or save it as RDML file on the first tab.
         </p>
         <h4>Accepted Input</h4>
         <p> The table files can be provided in text format with tab, comma or semicolon
             as separator(*.txt, *.tsv, and *.csv).</p>
         <h4>Sample Data</h4>
         <p> The "Show Example" button loads an example table file
-            <a href="static/bin/sample.tsv">(click to download file)</a>.
+            <a href="static/bin/sample.tsv">(click to download file)</a> from a BioRad
+            iCycler v9.35.
         </p>
       </div>
 
