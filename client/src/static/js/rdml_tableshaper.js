@@ -253,7 +253,7 @@ function saveTabFile() {
     if (browser != "edge") {
 	    var url = window.URL.createObjectURL(blob);
 	    a.href = url;
-	    a.download = "silica_primers.tsv";
+	    a.download = "shaped_qPCR_data.tsv";
 	    a.click();
 	    window.URL.revokeObjectURL(url);
     } else {
@@ -463,7 +463,7 @@ function updateModification() {
                     if (window.modifySettings["fluorCommaDot"] == true) {
                         if (match[1].match(/,/) != null) {
                             var resVal = match[1].replace(/\./g, "");;
-                            ftab[0][realColNr] = resVal.replace(/,/g, ".");;
+                            ftab[0][realColNr] = Math.ceil(parseFloat(resVal.replace(/,/g, ".")));
                         } else {
                             ftab[0][realColNr] = Math.ceil(parseFloat(match[1]));
                         }
@@ -706,12 +706,6 @@ function selCompSelection() {
 window.compResTable = compResTable;
 function compResTable() {
     var modSel = document.getElementById('inCompSelection').value;
-    if (modSel == "2") {
-        repText = document.getElementById('inCompSamType').value;
-    }
-    if (modSel == "4") {
-        repText = document.getElementById('inCompTarType').value;
-    }
     var startAll = document.getElementById('inCompStart').value;
     var endAll = document.getElementById('inCompEnd').value;
     var letterNumberRe = /([A-Za-z])([0-9]+)/;
@@ -745,6 +739,12 @@ function compResTable() {
 
     for (var r = 1 ; r < window.resultTab.length ; r++) {
         var repText = document.getElementById('inCompText').value;
+        if (modSel == "2") {
+            repText = document.getElementById('inCompSamType').value;
+        }
+        if (modSel == "4") {
+            repText = document.getElementById('inCompTarType').value;
+        }
         var well = window.resultTab[r][0];
         var wellLetter = null;
         var wellNumber = null;
@@ -901,11 +901,12 @@ function getSettingsArr() {
                "exCycColRegEx":"([0-9]+)",
                "exWellCol":2,
                "exWellRegEx":"(^[A-Za-z]+[0-9]+).*",
-               "exSamCol":2,
+               "exSamCol":null,
                "exSamRegEx":"^[A-Za-z]+[0-9]+ (.*)",
                "exSamTypeCol":null,
                "exSamTypeRegEx":"(.*)",
-               "exTarCol":null,"exTarRegEx":"(.*)",
+               "exTarCol":2,
+               "exTarRegEx":"^[A-Za-z]+[0-9]+ (.*)",
                "exTarTypeCol":null,
                "exTarTypeRegEx":"(.*)",
                "exDyeCol":null,
