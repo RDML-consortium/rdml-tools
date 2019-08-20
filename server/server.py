@@ -21,6 +21,7 @@ CORS(app)
 app.config['RDML'] = os.path.join(RDMLWS, "..")
 app.config['UPLOAD_FOLDER'] = os.path.join(app.config['RDML'], "data")
 app.config['MAX_CONTENT_LENGTH'] = 32 * 1024 * 1024   # maximum of 32MB
+app.config['MAX_NUMBER_UPLOAD_FILES'] = 120
 
 
 def allowed_file(filename):
@@ -474,7 +475,7 @@ def handle_data():
                         fexpname = os.path.join(sf, "rdml_" + uuidstr + ".rdml")
                     if tabAmpUpload.filename != '':
                         if not allowed_tab_file(tabAmpUpload.filename):
-                            return jsonify(errors=[{"title": "Tab file has incorrect file type!"}]), 400
+                            return jsonify(errors=[{"title": "Tab amplification file has incorrect file type!"}]), 400
                         tabAmpFilename = os.path.join(sf, "rdml_" + uuidstr + "_amplification_upload.tsv")
                         tabAmpUpload.save(tabAmpFilename)
                         errRec += run_ele.import_table(rd, tabAmpFilename, "amp")
@@ -491,10 +492,57 @@ def handle_data():
                         fexpname = os.path.join(sf, "rdml_" + uuidstr + ".rdml")
                     if tabMeltUpload.filename != '':
                         if not allowed_tab_file(tabMeltUpload.filename):
-                            return jsonify(errors=[{"title": "Tab file has incorrect file type!"}]), 400
+                            return jsonify(errors=[{"title": "Tab meltcurve file has incorrect file type!"}]), 400
                         tabMeltFilename = os.path.join(sf, "rdml_" + uuidstr + "_melting_upload.tsv")
                         tabMeltUpload.save(tabMeltFilename)
                         errRec += run_ele.import_table(rd, tabMeltFilename, "melt")
+                if "tableUploadDigOverview" in request.files:
+                    tabDigOverviewUpload = request.files['tableUploadDigOverview']
+                    modified = True
+                    if uuidstr == "sample.rdml":
+                        uuidstr = str(uuid.uuid4())
+                        data["uuid"] = uuidstr
+                        # Get subfolder
+                        sf = os.path.join(app.config['UPLOAD_FOLDER'], uuidstr[0:2])
+                        if not os.path.exists(sf):
+                            os.makedirs(sf)
+                        fexpname = os.path.join(sf, "rdml_" + uuidstr + ".rdml")
+                    if tabDigOverviewUpload.filename != '':
+                        if not allowed_tab_file(tabDigOverviewUpload.filename):
+                            return jsonify(errors=[{"title": "Tab digital overview file has incorrect file type!"}]), 400
+                        tabDigOverviewFilename = os.path.join(sf, "rdml_" + uuidstr + "_dig_upload_overview.tsv")
+                        print(tabDigOverviewFilename)
+                      #  tabDigOverviewUpload.save(tabMeltFilename)
+                      #  errRec += run_ele.import_table(rd, tabMeltFilename, "melt")
+                if "tableUploadDigWellsCount" in request.form.keys():
+                    wellFileNames = []
+                    digWellCount = int(request.form["tableUploadDigWellsCount"])
+                    modified = True
+                    if uuidstr == "sample.rdml":
+                        uuidstr = str(uuid.uuid4())
+                        data["uuid"] = uuidstr
+                        # Get subfolder
+                        sf = os.path.join(app.config['UPLOAD_FOLDER'], uuidstr[0:2])
+                        if not os.path.exists(sf):
+                            os.makedirs(sf)
+                        fexpname = os.path.join(sf, "rdml_" + uuidstr + ".rdml")
+                    if digWellCount < 0:
+                        digWellCount = 0
+                    if digWellCount > app.config['MAX_NUMBER_UPLOAD_FILES']:
+                        digWellCount = app.config['MAX_NUMBER_UPLOAD_FILES']
+                    for i in range(0, digWellCount):
+                        if 'tableUploadDigWell_' + str(i) not in request.files:
+                            return jsonify(errors=[{"title": "Digital well file " + str(i) + " is missing!"}]), 400
+                        wellFile = request.files['tableUploadDigWell_' + str(i)]
+                        if wellFile.filename == '':
+                            return jsonify(errors=[{"title": "Digital well file " + str(i) + " filename is missing!"}]), 400
+                        if not allowed_tab_file(wellFile.filename):
+                            return jsonify(errors=[{"title": "Digital well file \"" + wellFile.filename + "\" has incorrect file type!"}]), 400
+                        wellFileName = os.path.join(sf, "rdml_" + uuidstr + "_" + secure_filename(wellFile.filename))
+                        wellFileNames.append(wellFileName)
+                        print (wellFileName)
+                     #   wellFile.save(wellFileName)
+                      #  errRec += run_ele.import_table(rd, tabMeltFilename, "melt")
                 if errRec:
                     data["error"] = errRec
             except rdml.RdmlError as err:

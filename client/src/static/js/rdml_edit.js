@@ -321,6 +321,16 @@ function updateServerData(stat, reqData) {
         if (checkReq.hasOwnProperty("tableUploadMelting") && (checkReq["tableUploadMelting"] == true)) {
             formData.append('tableUploadMelting', document.getElementById("inRunUploadMelting").files[0])
         }
+        if (checkReq.hasOwnProperty("tableUploadDigOverview") && (checkReq["tableUploadDigOverview"] == true)) {
+            formData.append('tableUploadDigOverview', document.getElementById("inRunUploadDigOverview").files[0])
+        }
+        if (checkReq.hasOwnProperty("tableUploadDigWells") && (checkReq["tableUploadDigWells"] == true)) {
+            var inputFiles = document.getElementById("inRunUploadDigWells");
+            formData.append('tableUploadDigWellsCount', inputFiles.files.length);
+            for (var i = 0 ; i < inputFiles.files.length ; i++) {
+                formData.append('tableUploadDigWell_' + i, inputFiles.files[i]);
+            }
+        }
     }
     formData.append('reqData', reqData)
 
@@ -3140,6 +3150,14 @@ function newEditRun(prim_pos, sec_pos) {
     ret += '  <tr>\n    <td style="width:25%;">Import Melting Data:</td>\n'
     ret += '    <td style="width:75%">\n<input type="file" class="form-control-file" id="inRunUploadMelting"></td>\n'
     ret += '  </tr>'
+    if (window.rdmlData.rdml.version == "1.3") {
+        ret += '  <tr>\n    <td style="width:25%;">Import Digital Data Overview:</td>\n'
+        ret += '    <td style="width:75%">\n<input type="file" class="form-control-file" id="inRunUploadDigOverview"></td>\n'
+        ret += '  </tr>'
+        ret += '  <tr>\n    <td style="width:25%;">Import Digital Data Wells:</td>\n'
+        ret += '    <td style="width:75%">\n<input type="file" class="form-control-file" id="inRunUploadDigWells" multiple></td>\n'
+        ret += '  </tr>'
+    }
     ret += '</table></p>\n'
     ret += '<button type="button" class="btn btn-success btn-sm" '
     ret += 'onclick="saveRun(' + prim_pos + ', ' + sec_pos + ', ' + edit + ');">Save Changes</button>'
@@ -3237,6 +3255,12 @@ function saveRun(prim_pos, run_pos, edit){
     }
     if (document.getElementById("inRunUploadMelting").value) {
          ret["tableUploadMelting"] = true
+    }
+    if (document.getElementById("inRunUploadDigOverview").value) {
+         ret["tableUploadDigOverview"] = true
+    }
+    if (document.getElementById("inRunUploadDigWells").value) {
+         ret["tableUploadDigWells"] = true
     }
     ret["data"] = el
     updateServerData(uuid, JSON.stringify(ret))
