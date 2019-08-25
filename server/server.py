@@ -511,9 +511,8 @@ def handle_data():
                         if not allowed_tab_file(tabDigOverviewUpload.filename):
                             return jsonify(errors=[{"title": "Tab digital overview file has incorrect file type!"}]), 400
                         tabDigOverviewFilename = os.path.join(sf, "rdml_" + uuidstr + "_dig_upload_overview.tsv")
-                        print(tabDigOverviewFilename)
-                      #  tabDigOverviewUpload.save(tabMeltFilename)
-                      #  errRec += run_ele.import_table(rd, tabMeltFilename, "melt")
+                        tabDigOverviewUpload.save(tabDigOverviewFilename)
+                        errRec += run_ele.import_digital_overview(rd, tabDigOverviewFilename)
                 if "tableUploadDigWellsCount" in request.form.keys():
                     wellFileNames = []
                     digWellCount = int(request.form["tableUploadDigWellsCount"])
