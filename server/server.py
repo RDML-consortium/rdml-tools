@@ -111,6 +111,7 @@ def validate_file():
 @app.route('/api/v1/data', methods=['POST'])
 def handle_data():
     if request.method == 'POST':
+        sf = ""
         if 'showExample' in request.form.keys():
             fexpname = os.path.join(RDMLWS, "sample.rdml")
             uuidstr = "sample.rdml"
@@ -395,6 +396,7 @@ def handle_data():
                     modified = True
 
         if "mode" in reqdata and reqdata["mode"] in ["create-run", "edit-run"]:
+            errRec = ""
             if "primary-position" not in reqdata:
                 return jsonify(errors=[{"title": "Invalid server request - run primary-position missing!"}]), 400
             if "run-position" not in reqdata:
@@ -533,9 +535,10 @@ def handle_data():
                             if not allowed_tab_file(wellFile.filename):
                                 return jsonify(errors=[{"title": "Digital well file \"" + wellFile.filename + "\" has incorrect file type!"}]), 400
                             wellFileName = os.path.join(sf, "rdml_" + uuidstr + "_" + secure_filename(wellFile.filename))
+                            wellFile.save(wellFileName)
                             wellFileNames.append(wellFileName)
 
-                    errRec += run_ele.import_digital_data(rd, tabDigOverviewFilename, wellFileNames)
+                    errRec += run_ele.import_digital_data(rd, fexpname, tabDigOverviewFilename, wellFileNames)
                 if errRec:
                     data["error"] = errRec
             except rdml.RdmlError as err:
@@ -666,7 +669,7 @@ def handle_data():
                     if reqdata["mode"] == "create-step":
                         elem.new_step_lidOpen(nr=reqdata["new-position"])
                     if reqdata["mode"] == "edit-step":
-                        run_ele = elem.get_step(bystep=int(reqdata["step-position"]))
+                        # run_ele = elem.get_step(bystep=int(reqdata["step-position"]))
                         if int(reqdata["step-position"]) != int(reqdata["new-position"]):
                             if int(reqdata["step-position"]) < int(reqdata["new-position"]):
                                 elem.move_step(int(reqdata["step-position"]), int(reqdata["new-position"]) + 1)
