@@ -11,8 +11,8 @@ submitButton.addEventListener('click', showUpload)
 const exampleButton = document.getElementById('btn-example')
 exampleButton.addEventListener('click', showExample)
 
-// const jsDebugButton = document.getElementById('btn-jsDebug')
-// jsDebugButton.addEventListener('click', jsDebugFunction)
+const jsDebugButton = document.getElementById('btn-jsDebug')
+jsDebugButton.addEventListener('click', jsDebugFunction)
 
 function jsDebugFunction() {
     alert("Ready to debug")
@@ -25,8 +25,7 @@ const resultInfo = document.getElementById('result-info')
 const resultError = document.getElementById('result-error')
 
 const selectorsData = document.getElementById('selectors-data')
-const plateData = document.getElementById('plate-data')
-const curvesData = document.getElementById('curves-data')
+const resultData = document.getElementById('result-data')
 
 window.minLogCutoff = 0.01;
 
@@ -37,6 +36,7 @@ window.isvalid = "untested";
 
 window.selExperiment = "";
 window.selRun = "";
+window.selPCRStyle = "classic";
 window.selRunOnLoad = "";
 
 window.dyeType = "pos"
@@ -235,6 +235,7 @@ function updateServerData(stat, reqData) {
                 window.uuid = res.data.data.uuid
                 if (res.data.data.hasOwnProperty("reactsdata")) {
                     window.reactData = res.data.data.reactsdata
+                    document.getElementById('text-jsDebug').value = JSON.stringify(window.reactData, null, 2)
                 } else {
                     window.reactData = ""
                 }
@@ -345,7 +346,7 @@ function updateClientData() {
     var exp = window.rdmlData.rdml.experiments;
 
     ret = '<table style="width:100%;">'
-    ret += '  <tr>\n    <td style="width:10%;">Experiment:</td>\n<td style="width:37%;">'
+    ret += '  <tr>\n    <td style="width:7%;">Experiment:</td>\n<td style="width:30%;">'
     ret += '  <select class="form-control" id="dropSelExperiment" onchange="updateExperimenter()">'
     ret += '    <option value="">No experiment selected</option>\n'
     window.experimentPos = -1
@@ -359,8 +360,8 @@ function updateClientData() {
     }
     ret += '  </select>\n'
     ret += '</td>\n'
-    ret += '<td style="width:6%;"></td>'
-    ret += '    <td style="width:10%;">Run:</td>\n<td style="width:37%;">'
+    ret += '<td style="width:4%;"></td>'
+    ret += '    <td style="width:4%;">Run:</td>\n<td style="width:33%;">'
     ret += '  <select class="form-control" id="dropSelRun" onchange="updateRun()">'
     ret += '    <option value="">No run selected</option>\n'
     window.runPos = -1
@@ -375,107 +376,120 @@ function updateClientData() {
             ret += '>' + runs[i].id + '</option>\n'
         }
     }
-    ret += '</td>\n</tr>\n'
-    ret += '</table>\n'
-
-    ret += '<table style="width:100%;">'
-    ret += '  <tr>\n    <td style="width:20%;">'
-    ret += '  <select class="form-control" id="dropSelDyeType" onchange="updateDyeType()">'
-    ret += '        <option value="pos"'
-    if (window.dyeType == "pos") {
-        ret += ' selected'
-    }
-    ret += '>Dye by Position</option>\n'
-    ret += '        <option value="id"'
-    if (window.dyeType == "id") {
-        ret += ' selected'
-    }
-    ret += '>Dye by ID</option>\n'
-    ret += '  </select>\n'
     ret += '</td>\n'
-    ret += '  <td style="width:5%;">: </td>\n'
-    ret += '  <td style="width:22%;">'
-    ret += '  <select class="form-control" id="dropSelDyeSel" onchange="updateDyeSel()">'
-    if (window.dyeType == "pos") {
-        for (var i = 0; i < window.reactData.max_data_len; i++) {
-            ret += '        <option value="' + i + '"'
-            if (parseInt(window.dyeSel) == i) {
-                ret += ' selected'
-            }
-            ret += '>' + (i + 1) + '</option>\n'
-        }
+    ret += '<td style="width:4%;"></td>'
+    ret += '    <td style="width:7%;">PCR type:</td>\n<td style="width:11%;">'
+    ret += '  <select class="form-control" id="dropSelPCRStyle" onchange="updatePCRStyle()">'
+    if (window.selPCRStyle == "classic") {
+        ret += '    <option value="classic" selected>classic</option>\n'
+        ret += '    <option value="digital">digital</option>\n'
     } else {
-        var dyesEle = window.rdmlData.rdml.dyes;
-        for (var i = 0; i < dyesEle.length; i++) {
-            ret += '        <option value="' + dyesEle[i].id + '"'
-            if (parseInt(window.dyeSel) == dyesEle[i].id) {
-                ret += ' selected'
-            }
-            ret += '>' + dyesEle[i].id + '</option>\n'
-        }
+        ret += '    <option value="classic">classic</option>\n'
+        ret += '    <option value="digital" selected>digital</option>\n'
     }
-    ret += '</td>\n'
-    ret += '<td style="width:6%;"></td>'
-
-    ret += '  <td style="width:13%;">'
-    ret += '  <select class="form-control" id="dropSelYScale" onchange="updateYScale()">'
-    ret += '        <option value="lin"'
-    if (window.yScale == "lin") {
-        ret += ' selected'
-    }
-    ret += '>Linear Scale</option>\n'
-    ret += '        <option value="log"'
-    if (window.yScale == "log") {
-        ret += ' selected'
-    }
-    ret += '>Logarithmic Scale</option>\n'
-    ret += '  </select>\n'
-    ret += '</td>\n'
-    ret += '  <td style="width:5%;"></td>\n'
-
-
-    ret += '  <td style="width:10%;">'
-    ret += '  <select class="form-control" id="dropSelCurveSource" onchange="updateCurveSource()">'
-    ret += '        <option value="adp"'
-    if (window.curveSource == "adp") {
-        ret += ' selected'
-    }
-    ret += '>Amplification</option>\n'
-    ret += '        <option value="mdp"'
-    if (window.curveSource == "mdp") {
-        ret += ' selected'
-    }
-    ret += '>Meltcurve</option>\n'
-    ret += '  </select>\n'
-    ret += '</td>\n'
-    ret += '  <td style="width:5%;"></td>\n'
-
-
-    ret += '  <td style="width:14%;">'
-    ret += '  <select class="form-control" id="dropSelColorStyle" onchange="updateColorStyle()">'
-    ret += '        <option value="tarsam"'
-    if (window.colorStyle == "tarsam") {
-        ret += ' selected'
-    }
-    ret += '>Target & Sample</option>\n'
-    ret += '        <option value="type"'
-    if (window.colorStyle == "type") {
-        ret += ' selected'
-    }
-    ret += '>Type</option>\n'
-    ret += '        <option value="tar"'
-    if (window.colorStyle == "tar") {
-        ret += ' selected'
-    }
-    ret += '>Target</option>\n'
-    ret += '        <option value="sam"'
-    if (window.colorStyle == "sam") {
-        ret += ' selected'
-    }
-    ret += '>Sample</option>\n'
-    ret += '  </select>\n'
     ret += '</td>\n</tr>\n'
     ret += '</table>\n'
+
+    if (window.selPCRStyle == "classic") {
+        ret += '<table style="width:100%;">'
+        ret += '  <tr>\n    <td style="width:20%;">'
+        ret += '  <select class="form-control" id="dropSelDyeType" onchange="updateDyeType()">'
+        ret += '        <option value="pos"'
+        if (window.dyeType == "pos") {
+            ret += ' selected'
+        }
+        ret += '>Dye by Position</option>\n'
+        ret += '        <option value="id"'
+        if (window.dyeType == "id") {
+            ret += ' selected'
+        }
+        ret += '>Dye by ID</option>\n'
+        ret += '  </select>\n'
+        ret += '</td>\n'
+        ret += '  <td style="width:5%;">: </td>\n'
+        ret += '  <td style="width:22%;">'
+        ret += '  <select class="form-control" id="dropSelDyeSel" onchange="updateDyeSel()">'
+        if (window.dyeType == "pos") {
+            for (var i = 0; i < window.reactData.max_data_len; i++) {
+                ret += '        <option value="' + i + '"'
+                if (parseInt(window.dyeSel) == i) {
+                    ret += ' selected'
+                }
+                ret += '>' + (i + 1) + '</option>\n'
+            }
+        } else {
+            var dyesEle = window.rdmlData.rdml.dyes;
+            for (var i = 0; i < dyesEle.length; i++) {
+                ret += '        <option value="' + dyesEle[i].id + '"'
+                if (parseInt(window.dyeSel) == dyesEle[i].id) {
+                    ret += ' selected'
+                }
+                ret += '>' + dyesEle[i].id + '</option>\n'
+            }
+        }
+        ret += '</td>\n'
+        ret += '<td style="width:6%;"></td>'
+
+        ret += '  <td style="width:13%;">'
+        ret += '  <select class="form-control" id="dropSelYScale" onchange="updateYScale()">'
+        ret += '        <option value="lin"'
+        if (window.yScale == "lin") {
+            ret += ' selected'
+        }
+        ret += '>Linear Scale</option>\n'
+        ret += '        <option value="log"'
+        if (window.yScale == "log") {
+            ret += ' selected'
+        }
+        ret += '>Logarithmic Scale</option>\n'
+        ret += '  </select>\n'
+        ret += '</td>\n'
+        ret += '  <td style="width:5%;"></td>\n'
+
+
+        ret += '  <td style="width:10%;">'
+        ret += '  <select class="form-control" id="dropSelCurveSource" onchange="updateCurveSource()">'
+        ret += '        <option value="adp"'
+        if (window.curveSource == "adp") {
+            ret += ' selected'
+        }
+        ret += '>Amplification</option>\n'
+        ret += '        <option value="mdp"'
+        if (window.curveSource == "mdp") {
+            ret += ' selected'
+        }
+        ret += '>Meltcurve</option>\n'
+        ret += '  </select>\n'
+        ret += '</td>\n'
+        ret += '  <td style="width:5%;"></td>\n'
+
+
+        ret += '  <td style="width:14%;">'
+        ret += '  <select class="form-control" id="dropSelColorStyle" onchange="updateColorStyle()">'
+        ret += '        <option value="tarsam"'
+        if (window.colorStyle == "tarsam") {
+            ret += ' selected'
+        }
+        ret += '>Target & Sample</option>\n'
+        ret += '        <option value="type"'
+        if (window.colorStyle == "type") {
+            ret += ' selected'
+        }
+        ret += '>Type</option>\n'
+        ret += '        <option value="tar"'
+        if (window.colorStyle == "tar") {
+            ret += ' selected'
+        }
+        ret += '>Target</option>\n'
+        ret += '        <option value="sam"'
+        if (window.colorStyle == "sam") {
+            ret += ' selected'
+        }
+        ret += '>Sample</option>\n'
+        ret += '  </select>\n'
+        ret += '</td>\n</tr>\n'
+        ret += '</table>\n'
+    }
     selectorsData.innerHTML = ret
 
     var reacts = window.reactData.reacts
@@ -507,89 +521,139 @@ function updateClientData() {
                 var cell = '  <td></td>'
                 for (var reac = 0; reac < reacts.length; reac++) {
                     if (parseInt(reacts[reac].id) == id) {
-                        var dataPos = -1
-                        if ((window.dyeType == "pos") && (window.dyeSel < reacts[reac].datas.length)){
-                            dataPos = window.dyeSel
-                        }
-                        if (window.dyeType == "id") {
-                            for (var fi = 0; fi < reacts[reac].datas.length; fi++) {
-                                if (window.tarToDye[reacts[reac].datas[fi].tar] == window.dyeSel) {
-                                    dataPos = fi
+                        if (window.selPCRStyle == "classic") {
+                            var dataPos = -1
+                            if ((window.dyeType == "pos") && (window.dyeSel < reacts[reac].datas.length)){
+                                dataPos = window.dyeSel
+                            }
+                            if (window.dyeType == "id") {
+                                for (var fi = 0; fi < reacts[reac].datas.length; fi++) {
+                                    if (window.tarToDye[reacts[reac].datas[fi].tar] == window.dyeSel) {
+                                        dataPos = fi
+                                    }
                                 }
                             }
-                        }
 
-
-                        var exlReact = reacts[reac].datas[dataPos].hasOwnProperty("excl")
-                        var colo = "#000000"
-                        if (window.colorStyle == "type") {
-                            var samType = window.samToType[reacts[reac].sample]
-                            if (samType =="unkn") {
-                                colo = "#000000"
+                            var exlReact = false;
+                            if ((reacts[reac].hasOwnProperty("datas")) && (window.reactData.max_data_len > 0)) {
+                                exlReact = reacts[reac].datas[dataPos].hasOwnProperty("excl")
                             }
-                            if (samType =="std") {
-                                colo = "#a9a9a9"
+                            var colo = "#000000"
+                            if (window.colorStyle == "type") {
+                                var samType = window.samToType[reacts[reac].sample]
+                                if (samType =="unkn") {
+                                    colo = "#000000"
+                                }
+                                if (samType =="std") {
+                                    colo = "#a9a9a9"
+                                }
+                                if (samType =="ntc") {
+                                    colo = "#ff0000"
+                                }
+                                if (samType =="nac") {
+                                    colo = "#ff0000"
+                                }
+                                if (samType =="ntp") {
+                                    colo = "#ff0000"
+                                }
+                                if (samType =="nrt") {
+                                    colo = "#ff0000"
+                                }
+                                if (samType =="pos") {
+                                    colo = "#006400"
+                                }
+                                if (samType =="opt") {
+                                    colo = "#8b008b"
+                                }
+                                if (exlReact) {
+                                    colo = "#ffff00"
+                                }
                             }
-                            if (samType =="ntc") {
-                                colo = "#ff0000"
+                            if (window.colorStyle == "tar") {
+                                var tarNr = 0
+                                if ((reacts[reac].hasOwnProperty("datas")) && (window.reactData.max_data_len > 0)) {
+                                    tarNr = window.tarToNr[reacts[reac].datas[dataPos].tar]
+                                }
+                                if (exlReact) {
+                                    colo = "#ff0000"
+                                } else {
+                                    colo = colorByNr(tarNr)
+                                }
                             }
-                            if (samType =="nac") {
-                                colo = "#ff0000"
+                            if (window.colorStyle == "sam") {
+                                var samNr = window.samToNr[reacts[reac].sample]
+                                if (exlReact) {
+                                    colo = "#ff0000"
+                                } else {
+                                    colo = colorByNr(samNr)
+                                }
                             }
-                            if (samType =="ntp") {
-                                colo = "#ff0000"
+                            if (window.colorStyle == "tarsam") {
+                                var samNr = window.samToNr[reacts[reac].sample]
+                                var tarNr = 0
+                                if ((reacts[reac].hasOwnProperty("datas")) && (window.reactData.max_data_len > 0)) {
+                                    tarNr = window.tarToNr[reacts[reac].datas[dataPos].tar]
+                                }
+                                var samCount = window.rdmlData.rdml.samples.length
+                                var samTarNr = tarNr * samCount + samNr
+                                if (exlReact) {
+                                    colo = "#ff0000"
+                                } else {
+                                    colo = colorByNr(samTarNr)
+                                }
                             }
-                            if (samType =="nrt") {
-                                colo = "#ff0000"
+                            // colo = colorByNr(id)
+                            var fon_col = "#000000"
+                            if (hexToGrey(colo) < 128) {
+                                fon_col = "#ffffff"
                             }
-                            if (samType =="pos") {
-                                colo = "#006400"
-                            }
-                            if (samType =="opt") {
-                                colo = "#8b008b"
-                            }
-                            if (exlReact) {
-                                colo = "#ffff00"
-                            }
-                        }
-                        if (window.colorStyle == "tar") {
-                            var tarNr = window.tarToNr[reacts[reac].datas[dataPos].tar]
-                            if (exlReact) {
-                                colo = "#ff0000"
-                            } else {
-                                colo = colorByNr(tarNr)
-                            }
-                        }
-                        if (window.colorStyle == "sam") {
-                            var samNr = window.samToNr[reacts[reac].sample]
-                            if (exlReact) {
-                                colo = "#ff0000"
-                            } else {
-                                colo = colorByNr(samNr)
-                            }
-                        }
-                        if (window.colorStyle == "tarsam") {
-                            var samNr = window.samToNr[reacts[reac].sample]
-                            var tarNr = window.tarToNr[reacts[reac].datas[dataPos].tar]
-                            var samCount = window.rdmlData.rdml.samples.length
-                            var samTarNr = tarNr * samCount + samNr
-                            if (exlReact) {
-                                colo = "#ff0000"
-                            } else {
-                                colo = colorByNr(samTarNr)
-                            }
-                        }
-                        // colo = colorByNr(id)
-                        var fon_col = "#000000"
-                        if (hexToGrey(colo) < 128) {
-                            fon_col = "#ffffff"
-                        }
-                        if (dataPos > -1){
                             cell = '  <td id="plateTab_' + id + '" style="font-size:0.7em;background-color:' + colo
                             cell += ';color:' + fon_col + ';" onclick="showReactSel(' + id + ')">'
                             cell += reacts[reac].sample + '<br />'
-                            cell += reacts[reac].datas[dataPos].tar + '<br />'
-                            cell += reacts[reac].datas[dataPos].cq + '</td>'
+                            if ((reacts[reac].hasOwnProperty("datas")) && (window.reactData.max_data_len > 0)) {
+                                cell += reacts[reac].datas[dataPos].tar + '<br />'
+                                cell += 'Cq: ' + reacts[reac].datas[dataPos].cq + '</td>'
+                            } else {
+                                cell += '---</td>'
+                            }
+                        } else {
+                            if ((reacts[reac].hasOwnProperty("partitions")) &&
+                                (reacts[reac].partitions.hasOwnProperty("datas")) &&
+                                (window.reactData.max_partition_data_len > 0)) {
+                                var samNr = window.samToNr[reacts[reac].sample]
+                                var colo = colorByNr(samNr)
+                                var fon_col = "#000000"
+                                if (hexToGrey(colo) < 128) {
+                                    fon_col = "#ffffff"
+                                }
+                                cell = '  <td id="plateTab_' + id + '" style="font-size:0.8em;background-color:' + colo
+                                cell += ';color:' + fon_col + ';vertical-align:top;" onclick="showReactSel(' + id + ')">'
+                                cell += '<b><u>' + reacts[reac].sample + '</u></b><br />'
+                                for (var dData = 0; dData < reacts[reac].partitions.datas.length; dData++) {
+                                    cell += '<br />'
+                                    cell += '<b>' + reacts[reac].partitions.datas[dData].tar + '</b><br />'
+                                    cell += "Pos: " + reacts[reac].partitions.datas[dData].pos + '<br />'
+                                    cell += "Neg: " + reacts[reac].partitions.datas[dData].neg + '<br />'
+                                    if (reacts[reac].partitions.datas[dData].hasOwnProperty("undef")) {
+                                        cell += "Undef: " + reacts[reac].partitions.datas[dData].undef + '<br />'
+
+                                    }
+                                    if (reacts[reac].partitions.datas[dData].hasOwnProperty("excl")) {
+                                        cell += "Excl: " + reacts[reac].partitions.datas[dData].excl + '<br />'
+
+                                    }
+                                    if (reacts[reac].partitions.datas[dData].hasOwnProperty("conc")) {
+                                        cell += "Conc: " + reacts[reac].partitions.datas[dData].conc + ' copies/&micro;l<br />'
+
+                                    }
+                                }
+                                if (reacts[reac].partitions.hasOwnProperty("endPtTable")) {
+                                    cell += '<br />'
+                                    cell += reacts[reac].partitions.endPtTable + '<br />'
+
+                                }
+                                cell += '</td>'
+                            }
                         }
                     }
                 }
@@ -598,20 +662,31 @@ function updateClientData() {
             ret += '</tr>\n'
         }
         ret += '</table>'
-        plateData.innerHTML = ret
 
-        if (window.curveSource == "adp") {
-            window.winXst = 0;
-            window.winXend = 5 * Math.ceil(window.reactData.adp_cyc_max / 5);
-            window.winYst = window.reactData.adp_fluor_min;
-            window.winYend = window.reactData.adp_fluor_max;
+        if ((window.reactData.max_data_len > 0) && (window.selPCRStyle == "classic")) {
+            var finRet = '        <div class="container">'
+            finRet += '          <div class="row">'
+            finRet += '            <div class="col" id="plate-data">' + ret + '</div>'
+            finRet += '            <div class="col" id="curves-data"></div>'
+            finRet += '          </div>'
+            finRet += '        </div>'
+            resultData.innerHTML = finRet;
+
+            if (window.curveSource == "adp") {
+                window.winXst = 0;
+                window.winXend = 5 * Math.ceil(window.reactData.adp_cyc_max / 5);
+                window.winYst = window.reactData.adp_fluor_min;
+                window.winYend = window.reactData.adp_fluor_max;
+            } else {
+                window.winXst = 5 * Math.floor(window.reactData.mdp_tmp_min / 5);
+                window.winXend = 5 * Math.ceil(window.reactData.mdp_tmp_max / 5);
+                window.winYst = window.reactData.mdp_fluor_min;
+                window.winYend = window.reactData.mdp_fluor_max;
+            }
+            showSVG();
         } else {
-            window.winXst = 5 * Math.floor(window.reactData.mdp_tmp_min / 5);
-            window.winXend = 5 * Math.ceil(window.reactData.mdp_tmp_max / 5);
-            window.winYst = window.reactData.mdp_fluor_min;
-            window.winYend = window.reactData.mdp_fluor_max;
+            resultData.innerHTML = ret
         }
-        showSVG();
     }
 }
 
@@ -644,6 +719,13 @@ function updateRun() {
     ret["sel-experiment"] = window.selExperiment
     ret["sel-run"] = window.selRun
     updateServerData(uuid, JSON.stringify(ret))
+}
+
+window.updatePCRStyle = updatePCRStyle;
+function updatePCRStyle() {
+    var newData = getSaveHtmlData("dropSelPCRStyle")
+    window.selPCRStyle = newData
+    updateClientData()
 }
 
 window.updateDyeType = updateDyeType;
