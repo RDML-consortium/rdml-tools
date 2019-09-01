@@ -241,7 +241,7 @@ function saveJsonFile() {
 	    a.click();
 	    window.URL.revokeObjectURL(url);
     } else {
-        window.navigator.msSaveBlob(blob, fileName);
+        window.navigator.msSaveBlob(blob, "TableShaper_settings.json");
     }
     return;
 };
@@ -270,7 +270,7 @@ function saveTabFile() {
 	    a.click();
 	    window.URL.revokeObjectURL(url);
     } else {
-        window.navigator.msSaveBlob(blob, fileName);
+        window.navigator.msSaveBlob(blob, "shaped_qPCR_data.tsv");
     }
     return;
 };

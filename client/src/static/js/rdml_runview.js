@@ -11,8 +11,9 @@ submitButton.addEventListener('click', showUpload)
 const exampleButton = document.getElementById('btn-example')
 exampleButton.addEventListener('click', showExample)
 
-const jsDebugButton = document.getElementById('btn-jsDebug')
-jsDebugButton.addEventListener('click', jsDebugFunction)
+// For debugging
+// const jsDebugButton = document.getElementById('btn-jsDebug')
+// jsDebugButton.addEventListener('click', jsDebugFunction)
 
 function jsDebugFunction() {
     alert("Ready to debug")
@@ -205,6 +206,7 @@ $('#mainTab a').on('click', function(e) {
 
 function showExample() {
     updateServerData("example", '{"mode": "upload", "validate": true}')
+    $('[href="#runs-tab"]').tab('show')
 }
 
 function showUpload() {
@@ -235,7 +237,8 @@ function updateServerData(stat, reqData) {
                 window.uuid = res.data.data.uuid
                 if (res.data.data.hasOwnProperty("reactsdata")) {
                     window.reactData = res.data.data.reactsdata
-                    document.getElementById('text-jsDebug').value = JSON.stringify(window.reactData, null, 2)
+                    // For debugging
+                    // document.getElementById('text-jsDebug').value = JSON.stringify(window.reactData, null, 2)
                 } else {
                     window.reactData = ""
                 }
@@ -339,7 +342,6 @@ function updateClientData() {
     resultLink.innerHTML = ret
 
     if (!(window.rdmlData.hasOwnProperty("rdml"))) {
-        deleteAllData()
         return
     }
     var ret = ''
@@ -627,8 +629,14 @@ function updateClientData() {
                                     fon_col = "#ffffff"
                                 }
                                 cell = '  <td id="plateTab_' + id + '" style="font-size:0.8em;background-color:' + colo
-                                cell += ';color:' + fon_col + ';vertical-align:top;" onclick="showReactSel(' + id + ')">'
+                                cell += ';color:' + fon_col + ';vertical-align:top;">'
                                 cell += '<b><u>' + reacts[reac].sample + '</u></b><br />'
+                                if (reacts[reac].partitions.hasOwnProperty("endPtTable")) {
+                                    cell += '<a onclick="getDigitalFile(\'' + id + '\',\'' + reacts[reac].partitions.endPtTable
+                                    cell += '\')">Download raw data (.tsv)</a><br />'
+                               } else {
+                                    cell += '<br />'
+                               }
                                 for (var dData = 0; dData < reacts[reac].partitions.datas.length; dData++) {
                                     cell += '<br />'
                                     cell += '<b>' + reacts[reac].partitions.datas[dData].tar + '</b><br />'
@@ -646,11 +654,6 @@ function updateClientData() {
                                         cell += "Conc: " + reacts[reac].partitions.datas[dData].conc + ' copies/&micro;l<br />'
 
                                     }
-                                }
-                                if (reacts[reac].partitions.hasOwnProperty("endPtTable")) {
-                                    cell += '<br />'
-                                    cell += reacts[reac].partitions.endPtTable + '<br />'
-
                                 }
                                 cell += '</td>'
                             }
@@ -720,6 +723,85 @@ function updateRun() {
     ret["sel-run"] = window.selRun
     updateServerData(uuid, JSON.stringify(ret))
 }
+
+window.getDigitalFile = getDigitalFile;
+function getDigitalFile(well, fileName) {
+    if ((window.selExperiment == "") || (window.selRun == "") || (well == "")){
+        return
+    }
+    var ret = {}
+    ret["mode"] = "get-digital-file"
+    ret["sel-experiment"] = window.selExperiment
+    ret["sel-run"] = window.selRun
+    ret["sel-well"] = well
+
+    const formData = new FormData()
+    formData.append('uuid', uuid)
+    formData.append('reqData', JSON.stringify(ret))
+
+    axios
+        .post(`${API_URL}/data`, formData)
+        .then(res => {
+	        if (res.status === 200) {
+                if (res.data.data.hasOwnProperty("rawdigitalfile")) {
+                    saveTabFile(fileName, res.data.data.rawdigitalfile)
+                }
+                if (res.data.data.hasOwnProperty("error")) {
+                    alert(res.data.data.error)
+                }
+            }
+        })
+        .catch(err => {
+            let errorMessage = err
+            if (err.response) {
+                errorMessage = err.response.data.errors
+               .map(error => error.title)
+               .join('; ')
+            }
+            alert(errorMessage)
+        })
+}
+
+window.detectBrowser = detectBrowser;
+function detectBrowser() {
+    var browser = window.navigator.userAgent.toLowerCase();
+    if (browser.indexOf("edge") != -1) {
+        return "edge";
+    }
+    if (browser.indexOf("firefox") != -1) {
+        return "firefox";
+    }
+    if (browser.indexOf("chrome") != -1) {
+        return "chrome";
+    }
+    if (browser.indexOf("safari") != -1) {
+        return "safari";
+    }
+    alert("Unknown Browser: Functionality may be impaired!\n\n" + browser);
+    return browser;
+}
+
+window.saveTabFile = saveTabFile;
+function saveTabFile(fileName, content) {
+    if (content == "") {
+        return;
+    }
+    var a = document.createElement("a");
+    document.body.appendChild(a);
+    a.style.display = "none";
+    var blob = new Blob([content], {type: "text/tab-separated-values"});
+    var browser = detectBrowser();
+    if (browser != "edge") {
+	    var url = window.URL.createObjectURL(blob);
+	    a.href = url;
+	    a.download = fileName;
+	    a.click();
+	    window.URL.revokeObjectURL(url);
+    } else {
+        window.navigator.msSaveBlob(blob, fileName);
+    }
+    return;
+};
 
 window.updatePCRStyle = updatePCRStyle;
 function updatePCRStyle() {

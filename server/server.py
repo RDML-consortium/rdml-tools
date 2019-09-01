@@ -1195,15 +1195,35 @@ def handle_data():
             if "sel-experiment" not in reqdata:
                 return jsonify(errors=[{"title": "Invalid server request - sel-experiment id missing!"}]), 400
             if "sel-run" not in reqdata:
-                return jsonify(errors=[{"title": "Invalid server request - sel-run firstName missing!"}]), 400
+                return jsonify(errors=[{"title": "Invalid server request - sel-run id missing!"}]), 400
             try:
                 experiment = rd.get_experiment(byid=reqdata["sel-experiment"])
                 if experiment is None:
-                    return jsonify(errors=[{"title": "Invalid server request - experimenter id not found!"}]), 400
+                    return jsonify(errors=[{"title": "Invalid server request - experiment id not found!"}]), 400
                 s_run = experiment.get_run(byid=reqdata["sel-run"])
                 if s_run is None:
                     return jsonify(errors=[{"title": "Invalid server request - run id not found!"}]), 400
                 data["reactsdata"] = s_run.getreactjson()
+            except rdml.RdmlError as err:
+                data["error"] = str(err)
+            else:
+                modified = True
+
+        if "mode" in reqdata and reqdata["mode"] in ["get-digital-file"]:
+            if "sel-experiment" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - sel-experiment id missing!"}]), 400
+            if "sel-run" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - sel-run id missing!"}]), 400
+            if "sel-well" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - sel-well id missing!"}]), 400
+            try:
+                experiment = rd.get_experiment(byid=reqdata["sel-experiment"])
+                if experiment is None:
+                    return jsonify(errors=[{"title": "Invalid server request - experiment id not found!"}]), 400
+                s_run = experiment.get_run(byid=reqdata["sel-run"])
+                if s_run is None:
+                    return jsonify(errors=[{"title": "Invalid server request - run id not found!"}]), 400
+                data["rawdigitalfile"] = s_run.get_digital_raw_data(fexpname, reqdata["sel-well"])
             except rdml.RdmlError as err:
                 data["error"] = str(err)
             else:
