@@ -633,7 +633,7 @@ function updateClientData() {
                                 cell += '<b><u>' + reacts[reac].sample + '</u></b><br />'
                                 if (reacts[reac].partitions.hasOwnProperty("endPtTable")) {
                                     cell += '<a onclick="getDigitalFile(\'' + id + '\',\'' + reacts[reac].partitions.endPtTable
-                                    cell += '\')">Download raw data (.tsv)</a><br />'
+                                    cell += '\')">Raw data (.tsv)</a><br />'
                                } else {
                                     cell += '<br />'
                                }
@@ -651,7 +651,7 @@ function updateClientData() {
 
                                     }
                                     if (reacts[reac].partitions.datas[dData].hasOwnProperty("conc")) {
-                                        cell += "Conc: " + reacts[reac].partitions.datas[dData].conc + ' copies/&micro;l<br />'
+                                        cell += reacts[reac].partitions.datas[dData].conc + ' cop/&micro;l<br />'
 
                                     }
                                 }

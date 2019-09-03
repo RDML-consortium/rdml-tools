@@ -178,7 +178,7 @@ def handle_data():
             data["isvalid"] = rd.isvalid(fexpname)
 
         if "mode" in reqdata and reqdata["mode"] == "recreate-lost-ids":
-            errRec = rd.recreate_lost_ids()
+            errRec = rd.recreate_lost_ids(rdmlFilename=fexpname)
             if errRec:
                 data["error"] = errRec
                 modified = True
