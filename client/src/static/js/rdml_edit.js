@@ -715,7 +715,8 @@ function updateClientData() {
                 ret += 'onclick="moveEditElement(\'experiment\', \'' + exp[i].id + '\', ' + (i + 2) + ');">Move Down</button>&nbsp;&nbsp;&nbsp;'
                 }
                 ret += '<button type="button" class="btn btn-success rdml-btn-edit btn-sm" '
-                ret += 'onclick="deleteRun(' + i + ', ' + s + ');">Delete Run</button>&nbsp;&nbsp;'
+                ret += 'onclick="deleteSecElement(\'experiment\', ' + i + ', \'\', 0, \'run\', ' + s
+                ret += ');">Delete Run</button>&nbsp;&nbsp;'
                 ret += '</div>\n</div><br />\n'
             }
 

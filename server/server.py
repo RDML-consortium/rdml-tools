@@ -282,6 +282,12 @@ def handle_data():
                         return jsonify(errors=[{"title": "Invalid server request - target primary-position not found!"}]), 400
                     if reqdata["id-source"] == "xRef":
                         elem.delete_xref(byposition=int(reqdata["old-position"]))
+                if reqdata["primary-key"] == "experiment":
+                    elem = rd.get_experiment(byposition=reqdata["primary-position"])
+                    if elem is None:
+                        return jsonify(errors=[{"title": "Invalid server request - experiment primary-position not found!"}]), 400
+                    if reqdata["id-source"] == "run":
+                        elem.delete_run(byposition=int(reqdata["old-position"]))
             except rdml.RdmlError as err:
                 data["error"] = str(err)
             else:

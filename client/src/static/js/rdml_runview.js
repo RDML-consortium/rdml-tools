@@ -205,12 +205,22 @@ $('#mainTab a').on('click', function(e) {
 })
 
 function showExample() {
+    window.selRun = "";
+    window.selPCRStyle = "classic";
+    window.selExperiment = "Experiment_1";
+    window.selRunOnLoad = "Run_1";
+
     updateServerData("example", '{"mode": "upload", "validate": true}')
     $('[href="#runs-tab"]').tab('show')
 }
 
 function showUpload() {
+    window.selRun = "";
+    window.selExperiment = "";
+    window.selRunOnLoad = "";
+
     updateServerData("data", '{"mode": "upload", "validate": true}')
+    $('[href="#runs-tab"]').tab('show')
 }
 
 // TODO client-side validation
@@ -235,6 +245,14 @@ function updateServerData(stat, reqData) {
                 resetAllGlobalVal()
                 window.rdmlData = res.data.data.filedata
                 window.uuid = res.data.data.uuid
+                if (stat == "data") {
+                    var exp = window.rdmlData.rdml.experiments;
+                    if (exp.length > 0) {
+                        window.selExperiment = exp[0].id;
+                        var runs = exp[0].runs
+                        window.selRunOnLoad = runs[0].id;
+                    }
+                }
                 if (res.data.data.hasOwnProperty("reactsdata")) {
                     window.reactData = res.data.data.reactsdata
                     // For debugging
@@ -493,9 +511,10 @@ function updateClientData() {
         ret += '</table>\n'
     }
     selectorsData.innerHTML = ret
+    ret = ""
 
-    var reacts = window.reactData.reacts
-    if ((window.experimentPos > -1) && (window.runPos > -1)) {
+    if ((window.experimentPos > -1) && (window.runPos > -1) && (window.reactData.hasOwnProperty("reacts"))) {
+        var reacts = window.reactData.reacts
         var the_run = exp[window.experimentPos].runs[window.runPos]
         var rows = parseInt(the_run.pcrFormat.rows)
         var columns = parseInt(the_run.pcrFormat.columns)
@@ -690,6 +709,8 @@ function updateClientData() {
         } else {
             resultData.innerHTML = ret
         }
+    } else {
+        resultData.innerHTML = ret
     }
 }
 
