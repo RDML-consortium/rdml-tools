@@ -520,7 +520,11 @@ function updateClientData() {
         var columns = parseInt(the_run.pcrFormat.columns)
         var rowLabel = the_run.pcrFormat.rowLabel
         var columnLabel = the_run.pcrFormat.columnLabel
-        ret = '<table id="rdmlPlateTab" style="width:100%;">'
+        if (window.selPCRStyle != "classic") {
+            ret += '<a onclick="getDigitalOverviewFile()" style="color: blue;text-decoration: underline;">'
+            ret += 'Overview as table data (.tsv)</a><br /><br />'
+        }
+        ret += '<table id="rdmlPlateTab" style="width:100%;">'
         ret += '<tr><td></td>'
         for (var h = 0; h < columns; h++) {
             if (columnLabel == "123") {
@@ -652,7 +656,7 @@ function updateClientData() {
                                 cell += '<b><u>' + reacts[reac].sample + '</u></b><br />'
                                 if (reacts[reac].partitions.hasOwnProperty("endPtTable")) {
                                     cell += '<a onclick="getDigitalFile(\'' + id + '\',\'' + reacts[reac].partitions.endPtTable
-                                    cell += '\')">Raw data (.tsv)</a><br />'
+                                    cell += '\')" style="color: blue;text-decoration: underline;">Raw data (.tsv)</a><br />'
                                } else {
                                     cell += '<br />'
                                }
@@ -755,6 +759,44 @@ function getDigitalFile(well, fileName) {
     ret["sel-experiment"] = window.selExperiment
     ret["sel-run"] = window.selRun
     ret["sel-well"] = well
+
+    const formData = new FormData()
+    formData.append('uuid', uuid)
+    formData.append('reqData', JSON.stringify(ret))
+
+    axios
+        .post(`${API_URL}/data`, formData)
+        .then(res => {
+	        if (res.status === 200) {
+                if (res.data.data.hasOwnProperty("rawdigitalfile")) {
+                    saveTabFile(fileName, res.data.data.rawdigitalfile)
+                }
+                if (res.data.data.hasOwnProperty("error")) {
+                    alert(res.data.data.error)
+                }
+            }
+        })
+        .catch(err => {
+            let errorMessage = err
+            if (err.response) {
+                errorMessage = err.response.data.errors
+               .map(error => error.title)
+               .join('; ')
+            }
+            alert(errorMessage)
+        })
+}
+
+window.getDigitalOverviewFile = getDigitalOverviewFile;
+function getDigitalOverviewFile() {
+    if ((window.selExperiment == "") || (window.selRun == "")){
+        return
+    }
+    var fileName = window.selExperiment + "_" + window.selRun + "_overview.tsv"
+    var ret = {}
+    ret["mode"] = "get-digital-overview-file"
+    ret["sel-experiment"] = window.selExperiment
+    ret["sel-run"] = window.selRun
 
     const formData = new FormData()
     formData.append('uuid', uuid)
