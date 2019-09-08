@@ -542,7 +542,8 @@ def handle_data():
                                     errors=[{"title": "Digital well file " + str(i) + " filename is missing!"}]), 400
                             if not allowed_tab_file(wellFile.filename):
                                 return jsonify(errors=[{"title": "Digital well file \"" + wellFile.filename + "\" has incorrect file type!"}]), 400
-                            wellFileName = os.path.join(sf, "rdml_" + uuidstr + "_" + secure_filename(wellFile.filename))
+                            improvedFilename = re.sub(r" \(\d+\)", "", wellFile.filename)
+                            wellFileName = os.path.join(sf, "rdml_" + uuidstr + "_" + secure_filename(improvedFilename))
                             wellFile.save(wellFileName)
                             wellFileNames.append(wellFileName)
 
