@@ -505,6 +505,8 @@ def handle_data():
                         tabMeltUpload.save(tabMeltFilename)
                         errRec += run_ele.import_table(rd, tabMeltFilename, "melt")
                 if "tableUploadDigOverview" in request.files or "tableUploadDigWellsCount" in request.form.keys():
+                    if "tableUploadDigFormat" not in reqdata["data"]:
+                        return jsonify(errors=[{"title": "Invalid server request - run tableUploadDigFormat missing!"}]), 400
                     modified = True
                     tabDigOverviewFilename = None
                     wellFileNames = []
@@ -544,7 +546,10 @@ def handle_data():
                             wellFile.save(wellFileName)
                             wellFileNames.append(wellFileName)
 
-                    errRec += run_ele.import_digital_data(rd, tabDigOverviewFilename, wellFileNames)
+                    errRec += run_ele.import_digital_data(rd,
+                                                          reqdata["data"]["tableUploadDigFormat"],
+                                                          tabDigOverviewFilename,
+                                                          wellFileNames)
                 if errRec:
                     data["error"] = errRec
             except rdml.RdmlError as err:

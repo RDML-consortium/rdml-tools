@@ -3133,6 +3133,11 @@ function newEditRun(prim_pos, sec_pos) {
     ret += '>A1a1</option>\n'
     ret += '      </select></td>\n'
     ret += '  </tr>'
+    ret += '  <tr>\n    <td style="width:25%;background-color:#ffcc99;">PCR Format - Predefined:</td>\n'
+    ret += '    <td style="width:75%"><button type="button" onclick="selPlate_Rotor();">Rotor</button>&nbsp;&nbsp;'
+    ret += ' <button type="button" onclick="selPlate_96_Well();">96 Well Plate</button>&nbsp;&nbsp;'
+    ret += ' <button type="button" onclick="selPlate_384_Well();">384 Well Plate</button></td>\n'
+    ret += '  </tr>'
     ret += '  <tr>\n    <td style="width:25%;">Instrument:</td>\n'
     ret += '    <td style="width:75%">\n<input type="text" class="form-control" '
     ret += 'id="inRunInstrument" value="' + saveUndefKey(run, "instrument") + '"></td>\n'
@@ -3152,6 +3157,12 @@ function newEditRun(prim_pos, sec_pos) {
     ret += '    <td style="width:75%">\n<input type="file" class="form-control-file" id="inRunUploadMelting"></td>\n'
     ret += '  </tr>'
     if (window.rdmlData.rdml.version == "1.3") {
+        ret += '  <tr>\n    <td style="width:25%;">Digital PCR Data Format:</td>\n'
+        ret += '    <td style="width:75%"><select class="form-control" id="inRunUploadDigFormat">\n'
+        ret += '        <option value="RDML"  selected >RDML</option>\n'
+        ret += '        <option value="Bio-Rad">Bio-Rad</option>\n'
+        ret += '      </select></td>\n'
+        ret += '  </tr>'
         ret += '  <tr>\n    <td style="width:25%;">Import Digital Data Overview:</td>\n'
         ret += '    <td style="width:75%">\n<input type="file" class="form-control-file" id="inRunUploadDigOverview"></td>\n'
         ret += '  </tr>'
@@ -3168,6 +3179,48 @@ function newEditRun(prim_pos, sec_pos) {
     var ele = document.getElementById('pRun-experiment-' + prim_pos)
     ele.innerHTML = ret
     ele.scrollIntoView();
+}
+
+// Select Rotor
+window.selPlate_Rotor = selPlate_Rotor;
+function selPlate_Rotor(){
+    var col = document.getElementById('inRunPcrFormat_columns');
+    col.value = "1"
+    var colLab = document.getElementById('inRunPcrFormat_columnLabel');
+    colLab.value = "123"
+    var row = document.getElementById('inRunPcrFormat_rows');
+    row.value = "Enter maximal number of rotor positions here."
+    var rowLab = document.getElementById('inRunPcrFormat_rowLabel');
+    rowLab.value = "123"
+    return;
+}
+
+// Select 96 Well Plate
+window.selPlate_96_Well = selPlate_96_Well;
+function selPlate_96_Well(){
+    var col = document.getElementById('inRunPcrFormat_columns');
+    col.value = "12"
+    var colLab = document.getElementById('inRunPcrFormat_columnLabel');
+    colLab.value = "123"
+    var row = document.getElementById('inRunPcrFormat_rows');
+    row.value = "8"
+    var rowLab = document.getElementById('inRunPcrFormat_rowLabel');
+    rowLab.value = "ABC"
+    return;
+}
+
+// Select 384 Well Plate
+window.selPlate_384_Well = selPlate_384_Well;
+function selPlate_384_Well(){
+    var col = document.getElementById('inRunPcrFormat_columns');
+    col.value = "24"
+    var colLab = document.getElementById('inRunPcrFormat_columnLabel');
+    colLab.value = "123"
+    var row = document.getElementById('inRunPcrFormat_rows');
+    row.value = "16"
+    var rowLab = document.getElementById('inRunPcrFormat_rowLabel');
+    rowLab.value = "ABC"
+    return;
 }
 
 // Save edit step changes, create new ones
@@ -3257,6 +3310,7 @@ function saveRun(prim_pos, run_pos, edit){
     if (document.getElementById("inRunUploadMelting").value) {
          ret["tableUploadMelting"] = true
     }
+    el["tableUploadDigFormat"] = getSaveHtmlData("inRunUploadDigFormat")
     if (document.getElementById("inRunUploadDigOverview").value) {
          ret["tableUploadDigOverview"] = true
     }
