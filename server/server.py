@@ -929,6 +929,8 @@ def handle_data():
             if reqdata["type"] == "target":
                 if "id" not in reqdata["data"]:
                     return jsonify(errors=[{"title": "Invalid server request - target id missing!"}]), 400
+                if "idUnique" not in reqdata["data"]:
+                    return jsonify(errors=[{"title": "Invalid server request - target idUnique missing!"}]), 400
                 if "type" not in reqdata["data"]:
                     return jsonify(errors=[{"title": "Invalid server request - target type missing!"}]), 400
                 if "description" not in reqdata["data"]:
@@ -994,7 +996,7 @@ def handle_data():
                             elem = rd.get_target(byid=reqdata["old-id"])
                             if elem is None:
                                 return jsonify(errors=[{"title": "Invalid server request - target id not found!"}]), 400
-                            elem["id"] = reqdata["data"]["id"]
+                            elem.change_id(reqdata["data"]["id"], merge_with_id=reqdata["data"]["idUnique"])
                             elem["type"] = reqdata["data"]["type"]
                         elem["description"] = reqdata["data"]["description"]
                         elem["amplificationEfficiencyMethod"] = reqdata["data"]["amplificationEfficiencyMethod"]

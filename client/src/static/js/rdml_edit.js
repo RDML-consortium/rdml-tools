@@ -1218,6 +1218,12 @@ function updateClientData() {
             ret += '    <td style="width:75%"><input type="text" class="form-control" '
             ret += 'id="inTarId" value="'+ exp[i].id + '"></td>\n'
             ret += '  </tr>'
+            ret += '  <tr>\n    <td style="width:25%;">Type:</td>\n'
+            ret += '    <td style="width:75%"><select class="form-control" id="inTarIdUnique">\n'
+            ret += '        <option value=false selected>Id must be unique and will be renamed</option>\n'
+            ret += '        <option value=true>Change all its uses to existing Id (dangerous - may corrupt data)</option>\n'
+            ret += '      </select></td>\n'
+            ret += '  </tr>'
             ret += '  <tr>\n    <td style="width:25%;">Place at Position:</td>\n'
             ret += '    <td style="width:75%"><input type="text" class="form-control" '
             ret += 'id="inPos" value="' + (i + 1) + '"></td>\n'
@@ -2386,6 +2392,7 @@ function saveEditElement(typ, pos, oldId){
     if (typ == "target") {
         ret["type"] = "target"
         el["id"] = getSaveHtmlData("inTarId")
+        el["idUnique"] = getSaveHtmlData("inTarIdUnique")
         el["type"] = getSaveHtmlData("inTarType")
         el["amplificationEfficiencyMethod"] = getSaveHtmlData("inTarAmplificationEfficiencyMethod")
         el["amplificationEfficiency"] = getSaveHtmlData("inTarAmplificationEfficiency")
@@ -3311,10 +3318,12 @@ function saveRun(prim_pos, run_pos, edit){
          ret["tableUploadMelting"] = true
     }
     el["tableUploadDigFormat"] = getSaveHtmlData("inRunUploadDigFormat")
-    if (document.getElementById("inRunUploadDigOverview").value) {
+    if ((document.getElementById("inRunUploadDigOverview")) &&
+        (document.getElementById("inRunUploadDigOverview").value)) {
          ret["tableUploadDigOverview"] = true
     }
-    if (document.getElementById("inRunUploadDigWells").value) {
+    if ((document.getElementById("inRunUploadDigWells")) &&
+        (document.getElementById("inRunUploadDigWells").value)) {
          ret["tableUploadDigWells"] = true
     }
     ret["data"] = el
