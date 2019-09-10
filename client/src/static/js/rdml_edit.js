@@ -778,6 +778,12 @@ function updateClientData() {
             ret += '    <td style="width:75%"><input type="text" class="form-control" '
             ret += 'id="inSampId" value="'+ exp[i].id + '"></td>\n'
             ret += '  </tr>'
+            ret += '  <tr>\n    <td style="width:25%;">Method of modification:</td>\n'
+            ret += '    <td style="width:75%"><select class="form-control" id="inSampIdUnique">\n'
+            ret += '        <option value=false selected>Id must be unique and will be renamed</option>\n'
+            ret += '        <option value=true>Change all its uses to existing Id (dangerous - may corrupt data)</option>\n'
+            ret += '      </select></td>\n'
+            ret += '  </tr>'
             ret += '  <tr>\n    <td style="width:25%;">Place at Position:</td>\n'
             ret += '    <td style="width:75%"><input type="text" class="form-control" '
             ret += 'id="inPos" value="' + (i + 1) + '"></td>\n'
@@ -1218,7 +1224,7 @@ function updateClientData() {
             ret += '    <td style="width:75%"><input type="text" class="form-control" '
             ret += 'id="inTarId" value="'+ exp[i].id + '"></td>\n'
             ret += '  </tr>'
-            ret += '  <tr>\n    <td style="width:25%;">Type:</td>\n'
+            ret += '  <tr>\n    <td style="width:25%;">Method of modification:</td>\n'
             ret += '    <td style="width:75%"><select class="form-control" id="inTarIdUnique">\n'
             ret += '        <option value=false selected>Id must be unique and will be renamed</option>\n'
             ret += '        <option value=true>Change all its uses to existing Id (dangerous - may corrupt data)</option>\n'
@@ -1544,6 +1550,12 @@ function updateClientData() {
             ret += '    <td style="width:75%"><input type="text" class="form-control" '
             ret += 'id="inCycId" value="'+ exp[i].id + '"></td>\n'
             ret += '  </tr>'
+            ret += '  <tr>\n    <td style="width:25%;">Method of modification:</td>\n'
+            ret += '    <td style="width:75%"><select class="form-control" id="inCycIdUnique">\n'
+            ret += '        <option value=false selected>Id must be unique and will be renamed</option>\n'
+            ret += '        <option value=true>Change all its uses to existing Id (dangerous - may corrupt data)</option>\n'
+            ret += '      </select></td>\n'
+            ret += '  </tr>'
             ret += '  <tr>\n    <td style="width:25%;">Place at Position:</td>\n'
             ret += '    <td style="width:75%"><input type="text" class="form-control" '
             ret += 'id="inPos" value="' + (i + 1) + '"></td>\n'
@@ -1772,6 +1784,12 @@ function updateClientData() {
             ret += '    <td style="width:85%"><input type="text" class="form-control" '
             ret += 'id="inExpId" value="'+ exp[i].id + '"></td>\n'
             ret += '  </tr>'
+            ret += '  <tr>\n    <td style="width:25%;">Method of modification:</td>\n'
+            ret += '    <td style="width:75%"><select class="form-control" id="inExpIdUnique">\n'
+            ret += '        <option value=false selected>Id must be unique and will be renamed</option>\n'
+            ret += '        <option value=true>Change all its uses to existing Id (dangerous - may corrupt data)</option>\n'
+            ret += '      </select></td>\n'
+            ret += '  </tr>'
             ret += '  <tr>\n    <td style="width:15%;">Place at Position:</td>\n'
             ret += '    <td style="width:85%"><input type="text" class="form-control" '
             ret += 'id="inPos" value="' + (i + 1) + '"></td>\n'
@@ -1857,6 +1875,12 @@ function updateClientData() {
             ret += '  <tr>\n    <td style="width:15%;background-color:#cc7a00;">ID:</td>\n'
             ret += '    <td style="width:85%"><input type="text" class="form-control" '
             ret += 'id="inDocId" value="'+ exp[i].id + '"></td>\n'
+            ret += '  </tr>'
+            ret += '  <tr>\n    <td style="width:25%;">Method of modification:</td>\n'
+            ret += '    <td style="width:75%"><select class="form-control" id="inDocIdUnique">\n'
+            ret += '        <option value=false selected>Id must be unique and will be renamed</option>\n'
+            ret += '        <option value=true>Change all its uses to existing Id (dangerous - may corrupt data)</option>\n'
+            ret += '      </select></td>\n'
             ret += '  </tr>'
             ret += '  <tr>\n    <td style="width:15%;">Place at Position:</td>\n'
             ret += '    <td style="width:85%"><input type="text" class="form-control" '
@@ -1989,6 +2013,12 @@ function updateClientData() {
             ret += '  <tr>\n    <td style="width:15%;background-color:#cc7a00;">ID:</td>\n'
             ret += '    <td style="width:85%"><input type="text" class="form-control" '
             ret += 'id="inDyeId" value="'+ exp[i].id + '"></td>\n'
+            ret += '  </tr>'
+            ret += '  <tr>\n    <td style="width:25%;">Method of modification:</td>\n'
+            ret += '    <td style="width:75%"><select class="form-control" id="inDyeIdUnique">\n'
+            ret += '        <option value=false selected>Id must be unique and will be renamed</option>\n'
+            ret += '        <option value=true>Change all its uses to existing Id (dangerous - may corrupt data)</option>\n'
+            ret += '      </select></td>\n'
             ret += '  </tr>'
             ret += '  <tr>\n    <td style="width:15%;">Place at Position:</td>\n'
             ret += '    <td style="width:85%"><input type="text" class="form-control" '
@@ -2329,6 +2359,7 @@ function saveEditElement(typ, pos, oldId){
     if (typ == "experimenter") {
         ret["type"] = "experimenter"
         el["id"] = getSaveHtmlData("inExpId")
+        el["idUnique"] = getSaveHtmlData("inExpIdUnique")
         el["firstName"] = getSaveHtmlData("inExpFirstName")
         el["lastName"] = getSaveHtmlData("inExpLastName")
         el["email"] = getSaveHtmlData("inExpEmail")
@@ -2339,18 +2370,21 @@ function saveEditElement(typ, pos, oldId){
     if (typ == "documentation") {
         ret["type"] = "documentation"
         el["id"] = getSaveHtmlData("inDocId")
+        el["idUnique"] = getSaveHtmlData("inDocIdUnique")
         el["text"] = getSaveHtmlData("inDocText")
         ret["data"] = el
     }
     if (typ == "dye") {
         ret["type"] = "dye"
         el["id"] = getSaveHtmlData("inDyeId")
+        el["idUnique"] = getSaveHtmlData("inDyeIdUnique")
         el["description"] = getSaveHtmlData("inDyeDescription")
         ret["data"] = el
     }
     if (typ == "sample") {
         ret["type"] = "sample"
         el["id"] = getSaveHtmlData("inSampId")
+        el["idUnique"] = getSaveHtmlData("inSampIdUnique")
         el["type"] = getSaveHtmlData("inSampType")
         el["calibratorSample"] = readTriState("inExpCalibratorSample")
         el["interRunCalibrator"] = readTriState("inExpInterRunCalibrator")
@@ -2425,6 +2459,7 @@ function saveEditElement(typ, pos, oldId){
     if (typ == "therm_cyc_cons") {
         ret["type"] = "therm_cyc_cons"
         el["id"] = getSaveHtmlData("inCycId")
+        el["idUnique"] = getSaveHtmlData("inCycIdUnique")
         el["lidTemperature"] = getSaveHtmlData("inCycLidTemperature")
         el["description"] = getSaveHtmlData("inCycDescription")
         ret["data"] = el

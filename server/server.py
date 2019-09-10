@@ -748,6 +748,8 @@ def handle_data():
             if reqdata["type"] == "experimenter":
                 if "id" not in reqdata["data"]:
                     return jsonify(errors=[{"title": "Invalid server request - experimenter id missing!"}]), 400
+                if "idUnique" not in reqdata["data"]:
+                    return jsonify(errors=[{"title": "Invalid server request - experimenter idUnique missing!"}]), 400
                 if "firstName" not in reqdata["data"]:
                     return jsonify(errors=[{"title": "Invalid server request - experimenter firstName missing!"}]), 400
                 if "lastName" not in reqdata["data"]:
@@ -780,7 +782,7 @@ def handle_data():
                         elem = rd.get_experimenter(byid=reqdata["old-id"])
                         if elem is None:
                             return jsonify(errors=[{"title": "Invalid server request - experimenter id not found!"}]), 400
-                        elem["id"] = reqdata["data"]["id"]
+                        elem.change_id(reqdata["data"]["id"], merge_with_id=reqdata["data"]["idUnique"])
                         elem["firstName"] = reqdata["data"]["firstName"]
                         elem["lastName"] = reqdata["data"]["lastName"]
                         elem["email"] = reqdata["data"]["email"]
@@ -794,6 +796,8 @@ def handle_data():
             if reqdata["type"] == "documentation":
                 if "id" not in reqdata["data"]:
                     return jsonify(errors=[{"title": "Invalid server request - documentation id missing!"}]), 400
+                if "idUnique" not in reqdata["data"]:
+                    return jsonify(errors=[{"title": "Invalid server request - documentation idUnique missing!"}]), 400
                 if "text" not in reqdata["data"]:
                     return jsonify(errors=[{"title": "Invalid server request - documentation text missing!"}]), 400
                 if "current-position" not in reqdata or "new-position" not in reqdata:
@@ -815,7 +819,7 @@ def handle_data():
                         elem = rd.get_documentation(byid=reqdata["old-id"])
                         if elem is None:
                             return jsonify(errors=[{"title": "Invalid server request - documentation id not found!"}]), 400
-                        elem["id"] = reqdata["data"]["id"]
+                        elem.change_id(reqdata["data"]["id"], merge_with_id=reqdata["data"]["idUnique"])
                         elem["text"] = reqdata["data"]["text"]
                     except rdml.RdmlError as err:
                         data["error"] = str(err)
@@ -825,6 +829,8 @@ def handle_data():
             if reqdata["type"] == "dye":
                 if "id" not in reqdata["data"]:
                     return jsonify(errors=[{"title": "Invalid server request - dye id missing!"}]), 400
+                if "idUnique" not in reqdata["data"]:
+                    return jsonify(errors=[{"title": "Invalid server request - dye idUnique missing!"}]), 400
                 if "description" not in reqdata["data"]:
                     return jsonify(errors=[{"title": "Invalid server request - dye description missing!"}]), 400
                 if "current-position" not in reqdata or "new-position" not in reqdata:
@@ -846,7 +852,7 @@ def handle_data():
                         elem = rd.get_dye(byid=reqdata["old-id"])
                         if elem is None:
                             return jsonify(errors=[{"title": "Invalid server request - dye id not found!"}]), 400
-                        elem["id"] = reqdata["data"]["id"]
+                        elem.change_id(reqdata["data"]["id"], merge_with_id=reqdata["data"]["idUnique"])
                         elem["description"] = reqdata["data"]["description"]
                     except rdml.RdmlError as err:
                         data["error"] = str(err)
@@ -856,6 +862,8 @@ def handle_data():
             if reqdata["type"] == "sample":
                 if "id" not in reqdata["data"]:
                     return jsonify(errors=[{"title": "Invalid server request - sample id missing!"}]), 400
+                if "idUnique" not in reqdata["data"]:
+                    return jsonify(errors=[{"title": "Invalid server request - sample idUnique missing!"}]), 400
                 if "type" not in reqdata["data"]:
                     return jsonify(errors=[{"title": "Invalid server request - sample type missing!"}]), 400
                 if "description" not in reqdata["data"]:
@@ -904,7 +912,7 @@ def handle_data():
                             elem = rd.get_sample(byid=reqdata["old-id"])
                             if elem is None:
                                 return jsonify(errors=[{"title": "Invalid server request - sample id not found!"}]), 400
-                            elem["id"] = reqdata["data"]["id"]
+                            elem.change_id(reqdata["data"]["id"], merge_with_id=reqdata["data"]["idUnique"])
                             elem["type"] = reqdata["data"]["type"]
                         elem["description"] = reqdata["data"]["description"]
                         elem["interRunCalibrator"] = reqdata["data"]["interRunCalibrator"]
@@ -1030,6 +1038,8 @@ def handle_data():
             if reqdata["type"] == "therm_cyc_cons":
                 if "id" not in reqdata["data"]:
                     return jsonify(errors=[{"title": "Invalid server request - thermal cycling conditions id missing!"}]), 400
+                if "idUnique" not in reqdata["data"]:
+                    return jsonify(errors=[{"title": "Invalid server request - thermal cycling conditions idUnique missing!"}]), 400
                 if "description" not in reqdata["data"]:
                     return jsonify(errors=[{"title": "Invalid server request - thermal cycling conditions description missing!"}]), 400
                 if "lidTemperature" not in reqdata["data"]:
@@ -1050,7 +1060,7 @@ def handle_data():
                             elem = rd.get_therm_cyc_cons(byid=reqdata["old-id"])
                             if elem is None:
                                 return jsonify(errors=[{"title": "Invalid server request - thermal cycling conditions id not found!"}]), 400
-                            elem["id"] = reqdata["data"]["id"]
+                            elem.change_id(reqdata["data"]["id"], merge_with_id=reqdata["data"]["idUnique"])
                         elem["description"] = reqdata["data"]["description"]
                         elem["lidTemperature"] = reqdata["data"]["lidTemperature"]
                     except rdml.RdmlError as err:
