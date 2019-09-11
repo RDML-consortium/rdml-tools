@@ -34,6 +34,10 @@
   <main class="container-fluid">
     <div id="result-error" class="alert alert-danger d-none" role="alert">
     </div>
+    <div id="result-info" class="alert alert-info d-none" role="alert">
+      <i class="fas fa-spinner spinner"></i>
+      Analysis is running, please be patient.
+    </div>
     <ul class="nav nav-fill mb-4" id="mainTab">
       <li class="nav-item">
         <a class="nav-link active" href="#main-tab" id="link-main">Load</a>
@@ -345,6 +349,72 @@
             <i class="far fa-save" style="margin-right: 5px;"></i>
             Save table file (.tsv)
           </button>
+        </div>
+        <br />
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Create RDML file</h5>
+            <table style="width:100%;">
+              <tr>
+                <td style="width:25%;">Experiment ID:</td>
+                <td style="width:75%">
+                  <input type="text" class="form-control" id="inExperimentID" value="Experiment 1">
+                </td>
+              </tr>
+              <tr>
+                <td style="width:25%;">Run ID:</td>
+                <td style="width:75%">
+                  <input type="text" class="form-control" id="inRunID" value="Run 1">
+                </td>
+              </tr>
+              <tr>
+                <td style="width:25%;">PCR Format - Columns:</td>
+                <td style="width:75%">
+                  <input type="text" class="form-control" id="inRunPcrFormat_columns" value="12">
+                </td>
+              </tr>
+              <tr>
+                <td style="width:25%;">PCR Format - Column Label:</td>
+                <td style="width:75%">
+                  <select class="form-control" id="inRunPcrFormat_columnLabel">
+                    <option value="ABC">ABC</option>
+                    <option value="123" selected>123</option>
+                    <option value="A1a1">A1a1</option>
+                  </select>
+                </td>
+              </tr>
+              <tr>
+                <td style="width:25%;">PCR Format - Rows:</td>
+                <td style="width:75%">
+                  <input type="text" class="form-control" id="inRunPcrFormat_rows" value="8">
+                </td>
+              </tr>
+              <tr>
+                <td style="width:25%;">PCR Format - Row Label:</td>
+                <td style="width:75%">
+                  <select class="form-control" id="inRunPcrFormat_rowLabel">
+                    <option value="ABC" selected>ABC</option>
+                    <option value="123">123</option>
+                    <option value="A1a1">A1a1</option>
+                  </select>
+                </td>
+              </tr>
+              <tr>
+                <td style="width:25%;">PCR Format - Predefined:</td>
+                <td style="width:75%">
+                  <button type="button" onclick="selPlate_Rotor();">Rotor</button>&nbsp;&nbsp;
+                  <button type="button" onclick="selPlate_96_Well();">96 Well Plate</button>&nbsp;&nbsp;
+                  <button type="button" onclick="selPlate_384_Well();">384 Well Plate</button>
+                </td>
+              </tr>
+            </table>
+            <br />
+            <button type="submit" class="btn btn-outline-primary" id="btn-save-RDML">
+              <i class="far fa-save" style="margin-right: 5px;"></i>
+              Create RDML
+            </button>
+            <div id="download-section"></div>
+          </div>
         </div>
         <br />
         <div class="card">

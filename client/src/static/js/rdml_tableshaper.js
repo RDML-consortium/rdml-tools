@@ -1,7 +1,7 @@
 "use strict";
 
-const API_URL = "dddd" //process.env.API_URL
-const API_LINK = " fffff" //process.env.API_LINK
+const API_URL = process.env.API_URL
+const API_LINK = process.env.API_LINK
 
 const submitButton = document.getElementById('btn-submit')
 submitButton.addEventListener('click', loadInputFile)
@@ -13,6 +13,9 @@ const compButton = document.getElementById('btn-apply-comp')
 compButton.addEventListener('click', compResTable)
 
 const inputFile = document.getElementById('inputFile')
+const resultInfo = document.getElementById('result-info')
+const resultError = document.getElementById('result-error')
+
 const inputTableView = document.getElementById('import-table-view')
 const reshapeTableView = document.getElementById('reshape-table-view')
 const exportTableView = document.getElementById('export-table-view')
@@ -21,6 +24,8 @@ const saveJsonButton = document.getElementById('btn-save-Json')
 saveJsonButton.addEventListener('click', saveJsonFile)
 const saveTabButton = document.getElementById('btn-save-Tsv')
 saveTabButton.addEventListener('click', saveTabFile)
+const createRdmlButton = document.getElementById('btn-save-RDML')
+createRdmlButton.addEventListener('click', createServerRdml)
 const loadJFile = document.getElementById('inputJsonFile')
 loadJFile.addEventListener('change', loadJsonFile, false);
 
@@ -43,6 +48,101 @@ document.addEventListener("DOMContentLoaded", function() {
         selEl.add(option);
     }
 });
+
+// TODO client-side validation
+function createServerRdml() {
+    if (window.resultTab == []) {
+        alert("Not sufficient data to create an RDML file.")
+        return;
+    }
+    var content = "";
+    var missingData = false
+    for (var i = 0 ; i < window.resultTab.length ; i++) {
+        for (var k = 0 ; k < window.resultTab[i].length ; k++) {
+            content += window.resultTab[i][k] + "\t"
+            if ((k < 6) && (window.resultTab[i][k] == "")) {
+                missingData = true
+            }
+        }
+        content = content.replace(/\t$/g, "\n");
+    }
+    if (missingData == true) {
+        alert("The columns 1 to 6 must be filled.")
+        return;
+    }
+
+    const formData = new FormData()
+    formData.append('createFromTableShaper', 'createFromTableShaper')
+    formData.append('experimentID', getSaveHtmlData('inExperimentID'))
+    formData.append('runID', getSaveHtmlData('inRunID'))
+    formData.append('pcrFormat_columns', getSaveHtmlData('inRunPcrFormat_columns'))
+    formData.append('pcrFormat_columnLabel', getSaveHtmlData('inRunPcrFormat_columnLabel'))
+    formData.append('pcrFormat_rows', getSaveHtmlData('inRunPcrFormat_rows'))
+    formData.append('pcrFormat_rowLabel', getSaveHtmlData('inRunPcrFormat_rowLabel'))
+    formData.append('tableData', content)
+
+    var section = document.getElementById('download-section')
+    section.innerHTML = ""
+
+    hideElement(resultError)
+    showElement(resultInfo)
+
+    axios
+        .post(`${API_URL}/data`, formData)
+        .then(res => {
+	        if (res.status === 200) {
+                var uuid = res.data.data.uuid
+                hideElement(resultInfo)
+
+                if (res.data.data.hasOwnProperty("error")) {
+                    showElement(resultError)
+                    var err = '<i class="fas fa-fire"></i>\n<span id="error-message">'
+                    err += res.data.data.error + '</span>'
+                    resultError.innerHTML = err
+                } else {
+                    var ret = '<br /><p>Go to RDML-edit:<br />'
+                    ret += '<a href="' + `${API_LINK}` + "edit.html?UUID=" + uuid + '" target="_blank" id="download-link">'
+                    ret += `${API_LINK}` + "edit.html?UUID=" + uuid + '</a> (valid for 3 days)\n</p>\n'
+                    section.innerHTML = ret
+
+                    var elem = document.getElementById('download-link')
+                    elem.click()
+
+                    hideElement(resultError)
+                }
+            }
+        })
+        .catch(err => {
+            let errorMessage = err
+            if (err.response) {
+                errorMessage = err.response.data.errors
+               .map(error => error.title)
+               .join('; ')
+            }
+            hideElement(resultInfo)
+            showElement(resultError)
+            var err = '<i class="fas fa-fire"></i>\n<span id="error-message">'
+            err += errorMessage + '</span>'
+            resultError.innerHTML = err
+        })
+}
+
+function showElement(element) {
+    element.classList.remove('d-none')
+}
+
+function hideElement(element) {
+    element.classList.add('d-none')
+}
+
+function getSaveHtmlData(key) {
+    var el = document.getElementById(key)
+    if (el) {
+        return el.value
+    } else {
+        return ""
+    }
+}
 
 window.selectMachineSettings = selectMachineSettings;
 function selectMachineSettings(){
@@ -792,6 +892,48 @@ window.updateExport = updateExport;
 function updateExport() {
     exportTableView.innerHTML = drawHtmlTable(window.resultTab)
 
+}
+
+// Select Rotor
+window.selPlate_Rotor = selPlate_Rotor;
+function selPlate_Rotor(){
+    var col = document.getElementById('inRunPcrFormat_columns');
+    col.value = "1"
+    var colLab = document.getElementById('inRunPcrFormat_columnLabel');
+    colLab.value = "123"
+    var row = document.getElementById('inRunPcrFormat_rows');
+    row.value = "Enter maximal number of rotor positions here."
+    var rowLab = document.getElementById('inRunPcrFormat_rowLabel');
+    rowLab.value = "123"
+    return;
+}
+
+// Select 96 Well Plate
+window.selPlate_96_Well = selPlate_96_Well;
+function selPlate_96_Well(){
+    var col = document.getElementById('inRunPcrFormat_columns');
+    col.value = "12"
+    var colLab = document.getElementById('inRunPcrFormat_columnLabel');
+    colLab.value = "123"
+    var row = document.getElementById('inRunPcrFormat_rows');
+    row.value = "8"
+    var rowLab = document.getElementById('inRunPcrFormat_rowLabel');
+    rowLab.value = "ABC"
+    return;
+}
+
+// Select 384 Well Plate
+window.selPlate_384_Well = selPlate_384_Well;
+function selPlate_384_Well(){
+    var col = document.getElementById('inRunPcrFormat_columns');
+    col.value = "24"
+    var colLab = document.getElementById('inRunPcrFormat_columnLabel');
+    colLab.value = "123"
+    var row = document.getElementById('inRunPcrFormat_rows');
+    row.value = "16"
+    var rowLab = document.getElementById('inRunPcrFormat_rowLabel');
+    rowLab.value = "ABC"
+    return;
 }
 
 $('#mainTab a').on('click', function(e) {

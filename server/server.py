@@ -84,12 +84,12 @@ def validate_file():
                     return jsonify(errors=[{"title": "Invalid file - UUID Link outdated or invalid!"}]), 400
         else:
             if 'queryFile' not in request.files:
-                return jsonify(errors = [{"title": "RDML file is missing!"}]), 400
+                return jsonify(errors=[{"title": "RDML file is missing!"}]), 400
             fexp = request.files['queryFile']
             if fexp.filename == '':
-                return jsonify(errors = [{"title": "RDML file name is missing!"}]), 400
+                return jsonify(errors=[{"title": "RDML file name is missing!"}]), 400
             if not allowed_file(fexp.filename):
-                return jsonify(errors = [{"title": "RDML file has incorrect file type!"}]), 400
+                return jsonify(errors=[{"title": "RDML file has incorrect file type!"}]), 400
             uuidstr = str(uuid.uuid4())
             # Get subfolder
             sf = os.path.join(app.config['UPLOAD_FOLDER'], uuidstr[0:2])
@@ -126,6 +126,50 @@ def handle_data():
             rd = rdml.Rdml()
             rd.save(fexpname)
             data["filedata"] = rd.tojson()
+            return jsonify(data=data)
+        elif 'createFromTableShaper' in request.form.keys():
+            if "experimentID" not in request.form.keys():
+                return jsonify(errors=[{"title": "Invalid server request - experimentID missing!"}]), 400
+            if "runID" not in request.form.keys():
+                return jsonify(errors=[{"title": "Invalid server request - runID missing!"}]), 400
+            if "pcrFormat_columns" not in request.form.keys():
+                return jsonify(errors=[{"title": "Invalid server request - pcrFormat_columns missing!"}]), 400
+            if "pcrFormat_columnLabel" not in request.form.keys():
+                return jsonify(errors=[{"title": "Invalid server request - pcrFormat_columnLabel missing!"}]), 400
+            if "pcrFormat_rows" not in request.form.keys():
+                return jsonify(errors=[{"title": "Invalid server request - pcrFormat_rows missing!"}]), 400
+            if "pcrFormat_rowLabel" not in request.form.keys():
+                return jsonify(errors=[{"title": "Invalid server request - pcrFormat_rowLabel missing!"}]), 400
+            if "tableData" not in request.form.keys():
+                return jsonify(errors=[{"title": "Invalid server request - tableData missing!"}]), 400
+            uuidstr = str(uuid.uuid4())
+            data = {"uuid": uuidstr}
+            # Get subfolder
+            sf = os.path.join(app.config['UPLOAD_FOLDER'], uuidstr[0:2])
+            if not os.path.exists(sf):
+                os.makedirs(sf)
+            fexpname = os.path.join(sf, "rdml_" + uuidstr + ".rdml")
+            rd = rdml.Rdml()
+            try:
+                rd.new_experiment(id=request.form['experimentID'], newposition=0)
+                elem = rd.get_experiment(byid=request.form['experimentID'])
+
+                elem.new_run(id=request.form['runID'], newposition=0)
+                run_ele = elem.get_run(byid=request.form['runID'])
+                run_ele["pcrFormat_columns"] = request.form['pcrFormat_columns']
+                run_ele["pcrFormat_columnLabel"] = request.form['pcrFormat_columnLabel']
+                run_ele["pcrFormat_rows"] = request.form['pcrFormat_rows']
+                run_ele["pcrFormat_rowLabel"] = request.form['pcrFormat_rowLabel']
+
+                tabAmpFilename = os.path.join(sf, "rdml_" + uuidstr + "_amplification_upload.tsv")
+                with open(tabAmpFilename, "w") as tabAmp:
+                    tabAmp.write(request.form['tableData'])
+                run_ele.import_table(rd, tabAmpFilename, "amp")
+
+            except rdml.RdmlError as err:
+                data["error"] = str(err)
+
+            rd.save(fexpname)
             return jsonify(data=data)
         elif 'uuid' in request.form.keys():
             uuidstr = request.form['uuid']
