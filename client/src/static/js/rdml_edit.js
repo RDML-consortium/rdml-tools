@@ -3203,6 +3203,7 @@ function newEditRun(prim_pos, sec_pos) {
         ret += '    <td style="width:75%"><select class="form-control" id="inRunUploadDigFormat">\n'
         ret += '        <option value="RDML"  selected >RDML</option>\n'
         ret += '        <option value="Bio-Rad">Bio-Rad</option>\n'
+        ret += '        <option value="Stilla">Stilla</option>\n'
         ret += '      </select></td>\n'
         ret += '  </tr>'
         ret += '  <tr>\n    <td style="width:25%;">Import Digital Data Overview:</td>\n'
