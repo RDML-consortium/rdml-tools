@@ -13,7 +13,7 @@ Update your local copy
 
 `git pull`
 
-`git submodule update --recursive`
+`git submodule update --recursive --remote`
 
 Setup and run the server
 ------------------------

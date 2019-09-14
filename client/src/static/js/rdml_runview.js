@@ -39,6 +39,7 @@ window.selExperiment = "";
 window.selRun = "";
 window.selPCRStyle = "classic";
 window.selRunOnLoad = "";
+window.selDigitalOnLoad = "none";
 
 window.dyeType = "pos"
 window.dyeSel = 0
@@ -209,6 +210,7 @@ function showExample() {
     window.selPCRStyle = "classic";
     window.selExperiment = "Experiment_1";
     window.selRunOnLoad = "Run_1";
+    window.selDigitalOnLoad = "none";
 
     updateServerData("example", '{"mode": "upload", "validate": true}')
     $('[href="#runs-tab"]').tab('show')
@@ -218,6 +220,7 @@ function showUpload() {
     window.selRun = "";
     window.selExperiment = "";
     window.selRunOnLoad = "";
+    window.selDigitalOnLoad = "none";
 
     updateServerData("data", '{"mode": "upload", "validate": true}')
     $('[href="#runs-tab"]').tab('show')
@@ -400,15 +403,46 @@ function updateClientData() {
     ret += '<td style="width:4%;"></td>'
     ret += '    <td style="width:7%;">PCR type:</td>\n<td style="width:11%;">'
     ret += '  <select class="form-control" id="dropSelPCRStyle" onchange="updatePCRStyle()">'
-    if (window.selPCRStyle == "classic") {
-        ret += '    <option value="classic" selected>classic</option>\n'
-        ret += '    <option value="digital">digital</option>\n'
+
+    if (window.selDigitalOnLoad == "none") {
+        if ((window.experimentPos > -1) && (window.runPos > -1) && (window.reactData.hasOwnProperty("reacts"))) {
+            var countData = 0
+            var countPart = 0
+            var eReacts = window.reactData.reacts
+            for (var reac = 0; reac < eReacts.length; reac++) {
+                if ((eReacts[reac].hasOwnProperty("datas")) &&
+                    (eReacts[reac].datas.length > 0)) {
+                    countData += 1;
+                }
+                if ((eReacts[reac].hasOwnProperty("partitions")) &&
+                    (eReacts[reac].partitions.hasOwnProperty("datas"))) {
+                    countPart += 1;
+                }
+            }
+            alert("in run" + countData +">"+ countPart )
+            if (countData > countPart) {
+                window.selPCRStyle = "classic"
+                ret += '    <option value="classic" selected>classic</option>\n'
+                ret += '    <option value="digital">digital</option>\n'
+            } else {
+                window.selPCRStyle = "digital"
+                ret += '    <option value="classic">classic</option>\n'
+                ret += '    <option value="digital" selected>digital</option>\n'
+            }
+            window.selDigitalOnLoad = ""
+        }
     } else {
-        ret += '    <option value="classic">classic</option>\n'
-        ret += '    <option value="digital" selected>digital</option>\n'
+        if (window.selPCRStyle == "classic") {
+            ret += '    <option value="classic" selected>classic</option>\n'
+            ret += '    <option value="digital">digital</option>\n'
+        } else {
+            ret += '    <option value="classic">classic</option>\n'
+            ret += '    <option value="digital" selected>digital</option>\n'
+        }
     }
     ret += '</td>\n</tr>\n'
     ret += '</table>\n'
+
 
     if (window.selPCRStyle == "classic") {
         ret += '<table style="width:100%;">'
