@@ -32,7 +32,7 @@
   </header>
 
   <main class="container">
-    <h4>Introduction</h4>
+    <h4 id="Introduction">Introduction</h4>
     <p>
       The <a href="https://rdml.org" target="_blank">Real-time PCR Data Markup Language (RDML)</a> is a structured and
       universal data standard for exchanging quantitative PCR (qPCR) data. The data standard should contain sufficient
@@ -51,7 +51,7 @@
       licensed.
     </p>
 
-    <h4>RDML Data Standard</h4>
+    <h4 id="Data-Standard">RDML Data Standard</h4>
     <p>
       The RDML data standard is a compressed text file in Extensible Markup Language (XML). By design, it collects the
       information of different experimenters, dyes, samples, targets and thermal cycling conditions separately to
@@ -67,25 +67,109 @@
       <br />
     </p>
 
-    <h4>Tool Overview</h4>
+    <h4 id="Import">Import Data into RDML</h4>
     <p>
-      sdfssdadfsafdsda<a href="help.html" target="_blank">RDML-Tools Help</a>
+      Importing data is always the second best choice to having a native RDML export in your qPCR machine. If a purchase
+      is planned, consider one of the
+      <a href="https://rdml.org/instruments.html" target="_blank">machines with RDML support</a>.<br />
+      Without RDML export in your machine, you have to recreate the data first. Run RDML-Edit and create a new file on
+      the main tab and and enable editing with the "enable edit mode" button. For digital PCR, the version needs to be
+      1.3 or above which can be set on the more... tab.
+      <br />
+      <br />
+      <b>Classic PCR</b><br />
+      Most machines offer an export of the raw data. Unfortunately, there is no consent on the format of this export.
+      Follow the instructions for <a href="#RDML-TableShaper">RDML-TableShaper</a> to convert the export into the standard table
+      RDML import format. Select or create a new experiment on the experiments tab. Create a new run and provide the
+      file from TableShaper at "Import Amplification Data".
+      <br />
+      <br />
+      <b>Digital PCR</b><br />
+      Currently only Bio-Rad and Stilla export files are supported. Select or create a new experiment on the experiments
+      tab. Create a new run and provide the results or overview file at "Import Digital Data Overview" and the files
+      with the raw well data at "Import Digital Data Wells". Although import without an overview file is possible,
+      naming samples and targets will be very laborious and not recommended.
+      <br />
+      <br />
+      <b>Supplement Data</b><br />
+      Last, data for all the samples, targets and thermal cycling conditions have to be added using the edit button on
+      the respective elements.
     </p>
 
-    <h4>RDML-Edit</h4>
+    <h4 id="Overview">Tool Overview</h4>
     <p>
-      sdfssdadfsafdsda
+      <a href="#RDML-Edit">RDML-Edit</a> is the main tool to view and edit RDML data up to the run level. Selected runs
+      can be views can be visualized with <a href="#RDML-RunView">RDML-RunView</a>. With classic qPCR the amplification-
+      or meltcurves are displayed, with digital PCR the positive and negative counts are shown.
+      <a href="#RDML-TableShaper">RDML-TableShaper</a> helps to reformat exported files from machines lacking RDML
+      support. <a href="#RDML-Validate">RDML-Validate</a> validates a RDML file against the corresponding schema.
     </p>
 
-    <h4>Introduction</h4>
+    <h4 id="RDML-Edit">RDML-Edit</h4>
     <p>
-      sdfssdadfsafdsda
+      RDML-Edit is a tool to view and edit RDML files. By default RDML-Edit only allows viewing of files. RDML supports
+      many optional parameters to describe a qPCR reaction. RDML-Edit will hide all parameters which were not entered by
+      the user. To modify files enable the edit mode using the button on the main tab. RDML does support different
+      version with different functionality. RDML-Edit can migrate between different versions on the more... tab if the
+      edit mode is activated. Digital PCR is only supported from version 1.3 on. Please read the
+      <a href="#Data-Standard">Data Standard</a> section for an understanding of the basic RDML concepts.
     </p>
 
-    <h4>Introduction</h4>
+    <h4 id="RDML-RunView">RDML-RunView</h4>
     <p>
-      sdfssdadfsafdsda
+      RDML-RunView is a tool to view single runs of a RDML files. Once the RDML file was loaded, the desired experiment
+      and run have to be selected. RDML-RunView will display the plate setup and, with classic qPCR, the amplification-
+      or meltcurves. A well / reaction can be selected which will highlight the corresponding curve. If a curve is
+      selected, the corresponding reaction will be highlighted. Meltcurves can be easily inspected if the color coding
+      is set to target. Setting the color coding to type allows eases the inspection of amplification curves.
     </p>
+
+    <h4 id="RDML-Validate">RDML-Validate</h4>
+    <p>
+      RDML-Validate validates a RDML file against the corresponding schema. If the validation fails, RDML-Validate
+      displays a list of errors. Errors point to programming mistakes in the used software to create the RDML file and
+      might be difficult to fix by the user. RDML-Edit offers in edit mode on the main tab two buttons "Recreate Lost
+      Ids" and "Repair RDML File" which might help. If this happens, you should contact the developers of the respective
+      software.
+    </p>
+
+    <h4 id="RDML-TableShaper">The use of TableShaper</h4>
+    <p>
+      RDML-TableShaper is a tool to shape tables with amplification data for the import with RDML-tools. This is
+      error-prone and second best to original RDML export by the machine. As some machines do not offer RDML export,
+      TableShaper might help. Most qPCR machines export Excel files. Please convert them by opening in Excel (Microsoft)
+      or Calc (Libre Office), selecting the table with the amplification data and save as tab separated text file. The
+      tab separated text file can be modified using TableShaper.
+      <br />
+      <br />
+      TableShaper follows three consecutive steps:
+      <br />
+      <br />
+      1. The table separators have to be identified on the first tab. If it does not work out automatically, the
+      separator has to be selected manually. The table columns need to be recognized in the table below.
+      <br />
+      <br />
+      2. The content need to be recognized in the second tab. If your table format is not found in the predefined
+      settings, you may iteratively select the parameters and load / save them for later use. Adapt the "Number of
+      columns to keep" and "Number of rows to keep" to match the experiments cycle and well numbers and avoid cutoff.
+      "Settings to reshape the table" is the most dramatic shaping option. You can opt to flip the table or to build
+      a table from value list. The result is drawn below and can be used to select the columns for data extraction.
+      <br />
+      <br />
+      3. Fill the missing content in the third tab. To be able to import the table into RDML, the first six columns have
+      to be filled. Using the fields on the third tab eases this step as squares B2-D7 can be used. Take care in this
+      step as errors in the target id and sample id can not be fixed in RDML later. Save the result as .tsv file.
+      <br />
+      <br />
+      4. To create an RDML file fill the information on the "Create RDML file" card and hit the button. RDML-Edit will
+      open with the created RDML file and allow to save or view the RDML file.<br/>
+      Alternatively the data can be imported int existing RDML files. Open the RDML file in RDML-Edit (or create new)
+      and enable editing with the "enable edit mode" button. Now change to the experiments tab and open an experiment
+      or create a new experiment. In the experiment, create a new run. Take care to set the ID and PCR-Format fields
+      correctly. Now select the exported .tsv file in "Import Amplification Data". Once saved you can inspect the result
+      using RunView or save it as RDML file on the first tab.
+    </p>
+
   </main>
 
   <footer>
