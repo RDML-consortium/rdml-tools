@@ -20,7 +20,7 @@ app = Flask(__name__)
 CORS(app)
 app.config['RDML'] = os.path.join(RDMLWS, "..")
 app.config['UPLOAD_FOLDER'] = os.path.join(app.config['RDML'], "data")
-app.config['MAX_CONTENT_LENGTH'] = 32 * 1024 * 1024   # maximum of 32MB
+app.config['MAX_CONTENT_LENGTH'] = 64 * 1024 * 1024   # maximum of 64MB
 app.config['MAX_NUMBER_UPLOAD_FILES'] = 120
 
 
