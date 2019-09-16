@@ -419,7 +419,6 @@ function updateClientData() {
                     countPart += 1;
                 }
             }
-            alert("in run" + countData +">"+ countPart )
             if (countData > countPart) {
                 window.selPCRStyle = "classic"
                 ret += '    <option value="classic" selected>classic</option>\n'
