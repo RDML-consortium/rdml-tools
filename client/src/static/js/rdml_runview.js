@@ -43,7 +43,7 @@ window.selDigitalOnLoad = "none";
 
 window.dyeType = "pos"
 window.dyeSel = 0
-window.yScale = "lin"
+window.yScale = "log"
 window.curveSource = "adp"
 window.colorStyle = "tarsam"
 
@@ -369,7 +369,7 @@ function updateClientData() {
     var exp = window.rdmlData.rdml.experiments;
 
     ret = '<table style="width:100%;">'
-    ret += '  <tr>\n    <td style="width:7%;">Experiment:</td>\n<td style="width:30%;">'
+    ret += '  <tr>\n    <td style="width:8%;">Experiment:</td>\n<td style="width:29%;">'
     ret += '  <select class="form-control" id="dropSelExperiment" onchange="updateExperimenter()">'
     ret += '    <option value="">No experiment selected</option>\n'
     window.experimentPos = -1
@@ -445,7 +445,62 @@ function updateClientData() {
 
     if (window.selPCRStyle == "classic") {
         ret += '<table style="width:100%;">'
-        ret += '  <tr>\n    <td style="width:20%;">'
+        ret += '  <tr>\n    <td style="width:8%;">Data Source:</td>\n<td style="width:29%;">'
+        ret += '  <select class="form-control" id="dropSelCurveSource" onchange="updateCurveSource()">'
+        ret += '        <option value="adp"'
+        if (window.curveSource == "adp") {
+            ret += ' selected'
+        }
+        ret += '>Amplification</option>\n'
+        ret += '        <option value="mdp"'
+        if (window.curveSource == "mdp") {
+            ret += ' selected'
+        }
+        ret += '>Meltcurve</option>\n'
+        ret += '  </select>\n'
+        ret += '</td>\n'
+        ret += '  <td style="width:4%;"></td>\n'
+        ret += '  <td style="width:9%;">Color Coding:</td>\n<td style="width:28%;">'
+        ret += '  <select class="form-control" id="dropSelColorStyle" onchange="updateColorStyle()">'
+        ret += '        <option value="tarsam"'
+        if (window.colorStyle == "tarsam") {
+            ret += ' selected'
+        }
+        ret += '>Target & Sample</option>\n'
+        ret += '        <option value="type"'
+        if (window.colorStyle == "type") {
+            ret += ' selected'
+        }
+        ret += '>Sample Type</option>\n'
+        ret += '        <option value="tar"'
+        if (window.colorStyle == "tar") {
+            ret += ' selected'
+        }
+        ret += '>Target</option>\n'
+        ret += '        <option value="sam"'
+        if (window.colorStyle == "sam") {
+            ret += ' selected'
+        }
+        ret += '>Sample</option>\n'
+        ret += '  </select>\n'
+        ret += '</td>\n<td style="width:4%;"></td>\n'
+        ret += '  <td style="width:5%;">Y-Axis:</td>\n<td style="width:13%;">'
+        ret += '  <select class="form-control" id="dropSelYScale" onchange="updateYScale()">'
+        ret += '        <option value="lin"'
+        if (window.yScale == "lin") {
+            ret += ' selected'
+        }
+        ret += '>Linear Scale</option>\n'
+        ret += '        <option value="log"'
+        if (window.yScale == "log") {
+            ret += ' selected'
+        }
+        ret += '>Logarithmic Scale</option>\n'
+        ret += '  </select>\n'
+        ret += '</td>\n</tr>\n'
+        ret += '</table>\n'
+        ret += '<table style="width:100%;">'
+        ret += '  <tr>\n    <td style="width:12%;">Select Sample by:</td>\n<td style="width:25%;">'
         ret += '  <select class="form-control" id="dropSelDyeType" onchange="updateDyeType()">'
         ret += '        <option value="pos"'
         if (window.dyeType == "pos") {
@@ -459,8 +514,9 @@ function updateClientData() {
         ret += '>Dye by ID</option>\n'
         ret += '  </select>\n'
         ret += '</td>\n'
-        ret += '  <td style="width:5%;">: </td>\n'
-        ret += '  <td style="width:22%;">'
+        ret += '  <td style="width:4%;"></td>\n'
+        ret += '  <td style="width:9%;">is </td>\n'
+        ret += '  <td style="width:28%;">'
         ret += '  <select class="form-control" id="dropSelDyeSel" onchange="updateDyeSel()">'
         if (window.dyeType == "pos") {
             for (var i = 0; i < window.reactData.max_data_len; i++) {
@@ -481,65 +537,9 @@ function updateClientData() {
             }
         }
         ret += '</td>\n'
-        ret += '<td style="width:6%;"></td>'
-
+        ret += '<td style="width:4%;"></td>'
+        ret += '<td style="width:5%;"></td>'
         ret += '  <td style="width:13%;">'
-        ret += '  <select class="form-control" id="dropSelYScale" onchange="updateYScale()">'
-        ret += '        <option value="lin"'
-        if (window.yScale == "lin") {
-            ret += ' selected'
-        }
-        ret += '>Linear Scale</option>\n'
-        ret += '        <option value="log"'
-        if (window.yScale == "log") {
-            ret += ' selected'
-        }
-        ret += '>Logarithmic Scale</option>\n'
-        ret += '  </select>\n'
-        ret += '</td>\n'
-        ret += '  <td style="width:5%;"></td>\n'
-
-
-        ret += '  <td style="width:10%;">'
-        ret += '  <select class="form-control" id="dropSelCurveSource" onchange="updateCurveSource()">'
-        ret += '        <option value="adp"'
-        if (window.curveSource == "adp") {
-            ret += ' selected'
-        }
-        ret += '>Amplification</option>\n'
-        ret += '        <option value="mdp"'
-        if (window.curveSource == "mdp") {
-            ret += ' selected'
-        }
-        ret += '>Meltcurve</option>\n'
-        ret += '  </select>\n'
-        ret += '</td>\n'
-        ret += '  <td style="width:5%;"></td>\n'
-
-
-        ret += '  <td style="width:14%;">'
-        ret += '  <select class="form-control" id="dropSelColorStyle" onchange="updateColorStyle()">'
-        ret += '        <option value="tarsam"'
-        if (window.colorStyle == "tarsam") {
-            ret += ' selected'
-        }
-        ret += '>Target & Sample</option>\n'
-        ret += '        <option value="type"'
-        if (window.colorStyle == "type") {
-            ret += ' selected'
-        }
-        ret += '>Type</option>\n'
-        ret += '        <option value="tar"'
-        if (window.colorStyle == "tar") {
-            ret += ' selected'
-        }
-        ret += '>Target</option>\n'
-        ret += '        <option value="sam"'
-        if (window.colorStyle == "sam") {
-            ret += ' selected'
-        }
-        ret += '>Sample</option>\n'
-        ret += '  </select>\n'
         ret += '</td>\n</tr>\n'
         ret += '</table>\n'
     }

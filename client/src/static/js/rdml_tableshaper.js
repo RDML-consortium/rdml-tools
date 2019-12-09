@@ -529,7 +529,7 @@ function updateModification() {
         var realRowNr = 0;
         for (var r = minRowNr ; r < maxRowNr ; r += jumpStep) {
             realRowNr++;
-            ftab[realRowNr] = ["", "", "", "", "", ""];
+            ftab[realRowNr] = ["", "", "unkn", "", "toi", "unkn_dye"];
             var minColNr = 0;
             if (window.modifySettings["fluorDelColStart"] > 0) {
                  minColNr = window.modifySettings["fluorDelColStart"];
