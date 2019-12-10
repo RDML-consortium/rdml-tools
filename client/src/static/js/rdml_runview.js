@@ -41,8 +41,9 @@ window.selPCRStyle = "classic";
 window.selRunOnLoad = "";
 window.selDigitalOnLoad = "none";
 
-window.sampSelFirst = "pos"
-window.dyeSel = 0
+window.sampSelFirst = "7s8e45-Show-All"  // To avoid conflicts with existing values
+window.sampSelSecond = "7s8e45-Show-All"  // To avoid conflicts with existing values
+window.sampSelThird = "7s8e45-Show-All"  // To avoid conflicts with existing values
 window.yScale = "log"
 window.curveSource = "adp"
 window.colorStyle = "tarsam"
@@ -511,19 +512,24 @@ function updateClientData() {
         ret += '</table>\n'
         ret += '<table style="width:100%;">'
         ret += '  <tr>\n    <td style="width:12%;">Select Sample by</td>\n<td style="width:25%;">'
-        ret += '  <select class="form-control" id="dropSampSelFirst" onchange="updateSampSelFirst()">'
+        ret += '  <select class="form-control" id="dropSampSelFirst" onchange="updateSampSel(0)">'
+        ret += '        <option value="7s8e45-Show-All"'
+        if (window.sampSelFirst == "7s8e45-Show-All") {
+            ret += ' selected'
+        }
+        ret += '>Show All</option>\n'
         ret += '        <option value="sample"'
         if (window.sampSelFirst == "sample") {
             ret += ' selected'
         }
         ret += '>Sample</option>\n'
-        ret += '        <option value="pos"'
-        if (window.sampSelFirst == "pos") {
+        ret += '        <option value="dye_pos"'
+        if (window.sampSelFirst == "dye_pos") {
             ret += ' selected'
         }
         ret += '>Dye by Position</option>\n'
-        ret += '        <option value="id"'
-        if (window.sampSelFirst == "id") {
+        ret += '        <option value="dye_id"'
+        if (window.sampSelFirst == "dye_id") {
             ret += ' selected'
         }
         ret += '>Dye by ID</option>\n'
@@ -532,29 +538,14 @@ function updateClientData() {
         ret += '  <td style="width:4%;"></td>\n'
         ret += '  <td style="width:9%;">and</td>\n'
         ret += '  <td style="width:28%;">'
-        ret += '  <select class="form-control" id="dropSampSelSecond" onchange="updateSampSelSecond()">'
-        if (window.sampSelFirst == "pos") {
-            for (var i = 0; i < window.reactData.max_data_len; i++) {
-                ret += '        <option value="' + i + '"'
-                if (parseInt(window.dyeSel) == i) {
-                    ret += ' selected'
-                }
-                ret += '>' + (i + 1) + '</option>\n'
-            }
-        } else {
-            var dyesEle = window.rdmlData.rdml.dyes;
-            for (var i = 0; i < dyesEle.length; i++) {
-                ret += '        <option value="' + dyesEle[i].id + '"'
-                if (parseInt(window.dyeSel) == dyesEle[i].id) {
-                    ret += ' selected'
-                }
-                ret += '>' + dyesEle[i].id + '</option>\n'
-            }
-        }
+        ret += '  <select class="form-control" id="dropSampSelSecond" onchange="updateSampSel(0)">'
+        ret += '  </select>\n'
         ret += '</td>\n'
         ret += '<td style="width:4%;"></td>'
         ret += '<td style="width:5%;"></td>'
         ret += '  <td style="width:13%;">'
+        ret += '  <select class="form-control" id="dropSampSelThird" onchange="updateSampSel(0)">'
+        ret += '  </select>\n'
         ret += '</td>\n</tr>\n'
         ret += '</table>\n'
     }
@@ -786,6 +777,7 @@ function updateClientData() {
     } else {
         resultData.innerHTML = ret
     }
+    updateSampSel(1)
 }
 
 window.updateExperimenter = updateExperimenter;
@@ -943,29 +935,147 @@ function updatePCRStyle() {
     updateClientData()
 }
 
-window.updateSampSelFirst = updateSampSelFirst;
-function updateSampSelFirst() {
-    var newData = getSaveHtmlData("dropSampSelFirst")
-    if (window.sampSelFirst == newData) {
+window.updateSampSel = updateSampSel;
+function updateSampSel(updateOnly) {
+    var dropSecFirst = document.getElementById("dropSampSelFirst")
+    var dropSecSecond = document.getElementById("dropSampSelSecond")
+    var dropSecThird = document.getElementById("dropSampSelThird")
+    if (!(dropSecFirst && dropSecSecond && dropSecThird)) {
+        // One of the selections does not exist
         return
     }
-    window.sampSelFirst = newData
-    if (window.sampSelFirst == "pos") {
-        window.dyeSel = 0
-    } else {
-        window.dyeSel =  window.rdmlData.rdml.dyes[0].id;
-    }
-    updateClientData()
-}
+    var newFirstData = getSaveHtmlData("dropSampSelFirst")
+    var newSecondData = getSaveHtmlData("dropSampSelSecond")
+    var newThirdData = getSaveHtmlData("dropSampSelThird")
+    var reSelectSamples = false
 
-window.updateSampSelSecond = updateSampSelSecond;
-function updateSampSelSecond() {
-    var newData = getSaveHtmlData("dropSampSelSecond")
-    if (window.dyeSel == newData) {
-        return
+    if ((updateOnly == 0) && (window.sampSelFirst != newFirstData)) {
+        window.sampSelFirst = newFirstData
+        window.sampSelSecond = "7s8e45-Show-All"
+        newSecondData = "7s8e45-Show-All"
+        window.sampSelThird = "7s8e45-Show-All"
+        newThirdData = "7s8e45-Show-All"
+        reSelectSamples = true
     }
-    window.dyeSel = newData
-    updateClientData()
+    if ((updateOnly == 0) && (window.sampSelSecond != newSecondData)) {
+        window.sampSelSecond = newSecondData
+        window.sampSelThird = "7s8e45-Show-All"  // To avoid conflicts with existing values
+        newThirdData = "7s8e45-Show-All"
+        reSelectSamples = true
+    }
+    if ((updateOnly == 0) && (window.sampSelThird != newThirdData)) {
+        window.sampSelThird = newThirdData
+        reSelectSamples = true
+    }
+
+    // The second select
+    var dropSec = document.getElementById("dropSampSelSecond")
+    for (var opt = dropSec.options.length - 1; opt > -1; opt--) {
+        dropSec.remove(dropSec.opt);
+    }
+    var option = document.createElement("option");
+    option.text = "Show All"
+    option.value = "7s8e45-Show-All"  // To avoid conflicts with existing values
+    dropSec.add(option)
+    if (window.sampSelSecond == "7s8e45-Show-All") {
+        dropSec.options[0].selected = true
+    } else {
+        dropSec.options[0].selected = false
+    }
+
+    if (window.sampSelFirst == "sample") {
+        var allSamples = Object.keys(window.samToNr)
+        var selectNr = 0
+        allSamples.sort()
+        for (var sam = 0; sam < allSamples.length; sam++) {
+            var option = document.createElement("option");
+            option.text = allSamples[sam]
+            option.value = allSamples[sam]
+            dropSec.add(option)
+            if (allSamples[sam] == window.sampSelSecond) {
+                dropSec.options[sam + 1].selected = true
+            } else {
+                dropSec.options[sam + 1].selected = false
+            }
+        }
+    }
+
+    // The third select
+    var dropThird = document.getElementById("dropSampSelThird")
+    for (var opt = dropThird.options.length - 1; opt > -1; opt--) {
+        dropThird.remove(dropThird.opt);
+    }
+    var option = document.createElement("option");
+    option.text = "Show All"
+    option.value = "7s8e45-Show-All"  // To avoid conflicts with existing values
+    dropThird.add(option)
+    if (window.sampSelThird == "7s8e45-Show-All") {
+        dropThird.options[0].selected = true
+    } else {
+        dropThird.options[0].selected = false
+    }
+
+    if (window.sampSelFirst == "sample") {
+        var looklolo = []
+        var countUpSamp = 0
+        if (window.sampSelFirst == "sample")  {
+            if (window.reactData.hasOwnProperty("reacts")) {
+                var reacts = window.reactData.reacts
+                for (var i = 0; i < reacts.length; i++) {
+                    if (reacts[i].sample == newSecondData) {
+                        looklolo[countUpSamp] = 
+                    }
+                }
+            }
+        }
+
+        var allSamples = Object.keys(window.samToNr)
+        var selectNr = 0
+        allSamples.sort()
+        for (var sam = 0; sam < allSamples.length; sam++) {
+            var option = document.createElement("option");
+            option.text = allSamples[sam]
+            option.value = allSamples[sam]
+            dropThird.add(option)
+            if (allSamples[sam] == window.sampSelThird) {
+                dropThird.options[sam + 1].selected = true
+            } else {
+                dropThird.options[sam + 1].selected = false
+            }
+        }
+    }
+
+    if (reSelectSamples == true) {
+        if (window.sampSelSecond == "7s8e45-Show-All") {
+            if (window.reactData.hasOwnProperty("reacts")) {
+                var reacts = window.reactData.reacts
+                for (var i = 0; i < reacts.length; i++) {
+                    for (var k = 0; k < reacts[i].datas.length; k++) {
+                        reacts[i].datas[k]["runview_show"] = true
+                    }
+                }
+            }
+        } else {
+            if (window.sampSelFirst == "sample")  {
+                if (window.reactData.hasOwnProperty("reacts")) {
+                    var reacts = window.reactData.reacts
+                    for (var i = 0; i < reacts.length; i++) {
+                        var selectItNow = false
+                        if (reacts[i].sample == newSecondData) {
+                            selectItNow = true
+                        }
+                        for (var k = 0; k < reacts[i].datas.length; k++) {
+                            reacts[i].datas[k]["runview_show"] = selectItNow
+                        }
+                    }
+                }
+            }
+
+        }
+
+
+        updateClientData()
+    }
 }
 
 window.updateYScale = updateYScale;
