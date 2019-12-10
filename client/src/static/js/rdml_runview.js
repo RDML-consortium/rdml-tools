@@ -41,7 +41,7 @@ window.selPCRStyle = "classic";
 window.selRunOnLoad = "";
 window.selDigitalOnLoad = "none";
 
-window.dyeType = "pos"
+window.sampSelFirst = "pos"
 window.dyeSel = 0
 window.yScale = "log"
 window.curveSource = "adp"
@@ -302,7 +302,7 @@ function updateServerData(stat, reqData) {
 
 window.fillLookupDics = fillLookupDics
 function fillLookupDics() {
-    var exp = window.rdmlData.rdml.targets;
+    var exp = window.rdmlData.rdml.targets
     window.tarToDye = {}
     window.tarToNr = {}
     for (var i = 0; i < exp.length; i++) {
@@ -310,12 +310,22 @@ function fillLookupDics() {
         window.tarToNr[exp[i].id] = i
     }
 
-    exp = window.rdmlData.rdml.samples;
+    exp = window.rdmlData.rdml.samples
     window.samToNr = {}
     window.samToType = {}
     for (var i = 0; i < exp.length; i++) {
         window.samToNr[exp[i].id] = i
         window.samToType[exp[i].id] = exp[i].type
+    }
+
+    // Add the selected bool
+    if (window.reactData.hasOwnProperty("reacts")) {
+        var reacts = window.reactData.reacts
+        for (var i = 0; i < reacts.length; i++) {
+            for (var k = 0; k < reacts[i].datas.length; k++) {
+                reacts[i].datas[k]["runview_show"] = true
+            }
+        }
     }
 }
 
@@ -500,25 +510,30 @@ function updateClientData() {
         ret += '</td>\n</tr>\n'
         ret += '</table>\n'
         ret += '<table style="width:100%;">'
-        ret += '  <tr>\n    <td style="width:12%;">Select Sample by:</td>\n<td style="width:25%;">'
-        ret += '  <select class="form-control" id="dropSelDyeType" onchange="updateDyeType()">'
+        ret += '  <tr>\n    <td style="width:12%;">Select Sample by</td>\n<td style="width:25%;">'
+        ret += '  <select class="form-control" id="dropSampSelFirst" onchange="updateSampSelFirst()">'
+        ret += '        <option value="sample"'
+        if (window.sampSelFirst == "sample") {
+            ret += ' selected'
+        }
+        ret += '>Sample</option>\n'
         ret += '        <option value="pos"'
-        if (window.dyeType == "pos") {
+        if (window.sampSelFirst == "pos") {
             ret += ' selected'
         }
         ret += '>Dye by Position</option>\n'
         ret += '        <option value="id"'
-        if (window.dyeType == "id") {
+        if (window.sampSelFirst == "id") {
             ret += ' selected'
         }
         ret += '>Dye by ID</option>\n'
         ret += '  </select>\n'
         ret += '</td>\n'
         ret += '  <td style="width:4%;"></td>\n'
-        ret += '  <td style="width:9%;">is </td>\n'
+        ret += '  <td style="width:9%;">and</td>\n'
         ret += '  <td style="width:28%;">'
-        ret += '  <select class="form-control" id="dropSelDyeSel" onchange="updateDyeSel()">'
-        if (window.dyeType == "pos") {
+        ret += '  <select class="form-control" id="dropSampSelSecond" onchange="updateSampSelSecond()">'
+        if (window.sampSelFirst == "pos") {
             for (var i = 0; i < window.reactData.max_data_len; i++) {
                 ret += '        <option value="' + i + '"'
                 if (parseInt(window.dyeSel) == i) {
@@ -554,8 +569,7 @@ function updateClientData() {
         var rowLabel = the_run.pcrFormat.rowLabel
         var columnLabel = the_run.pcrFormat.columnLabel
         if (window.selPCRStyle != "classic") {
-            ret += '<a onclick="getDigitalOverviewFile()" style="color: blue;text-decoration: underline;">'
-            ret += 'Overview as table data (.tsv)</a><br /><br />'
+            ret += '<a href="#" onclick="getDigitalOverviewFile()">Overview as table data (.tsv)</a><br /><br />'
         }
         ret += '<table id="rdmlPlateTab" style="width:100%;">'
         ret += '<tr><td></td>'
@@ -567,12 +581,15 @@ function updateClientData() {
             }
         }
         ret += '</tr>\n'
+        var exRowCount = 0
+        var exRowUsed = false
+        var rowCont = ""
         for (var r = 0; r < rows; r++) {
-            ret += '  <tr>'
+            rowCont += '  <tr>'
             if (rowLabel == "123") {
-                ret += '  <td>' + (r + 1) + '</td>'
+                rowCont += '  <td>' + (r + 1) + '</td>'
             } else if (rowLabel == "ABC") {
-                ret += '  <td>' + String.fromCharCode('A'.charCodeAt(0) + r) + '</td>'
+                rowCont += '  <td>' + String.fromCharCode('A'.charCodeAt(0) + r) + '</td>'
             }
             for (var c = 0; c < columns; c++) {
                 var id = r * columns + c + 1
@@ -580,99 +597,99 @@ function updateClientData() {
                 for (var reac = 0; reac < reacts.length; reac++) {
                     if (parseInt(reacts[reac].id) == id) {
                         if (window.selPCRStyle == "classic") {
-                            var dataPos = -1
-                            if ((window.dyeType == "pos") && (window.dyeSel < reacts[reac].datas.length)){
-                                dataPos = window.dyeSel
-                            }
-                            if (window.dyeType == "id") {
-                                for (var fi = 0; fi < reacts[reac].datas.length; fi++) {
-                                    if (window.tarToDye[reacts[reac].datas[fi].tar] == window.dyeSel) {
-                                        dataPos = fi
+                            var dataPos = exRowCount
+                            if (dataPos < reacts[reac].datas.length) {
+                                var exlReact = false;
+                                var colo = "#000000"
+                                if ((reacts[reac].hasOwnProperty("datas")) && (window.reactData.max_data_len > 0)) {
+                                    exlReact = reacts[reac].datas[dataPos].hasOwnProperty("excl")
+                                }
+                                if ((reacts[reac].datas[dataPos].hasOwnProperty("runview_show")) &&
+                                    (reacts[reac].datas[dataPos].runview_show == true)) {
+                                    if (window.colorStyle == "type") {
+                                        var samType = window.samToType[reacts[reac].sample]
+                                        if (samType =="unkn") {
+                                            colo = "#000000"
+                                        }
+                                        if (samType =="std") {
+                                            colo = "#a9a9a9"
+                                        }
+                                        if (samType =="ntc") {
+                                            colo = "#ff0000"
+                                        }
+                                        if (samType =="nac") {
+                                            colo = "#ff0000"
+                                        }
+                                        if (samType =="ntp") {
+                                            colo = "#ff0000"
+                                        }
+                                        if (samType =="nrt") {
+                                            colo = "#ff0000"
+                                        }
+                                        if (samType =="pos") {
+                                            colo = "#006400"
+                                        }
+                                        if (samType =="opt") {
+                                            colo = "#8b008b"
+                                        }
+                                        if (exlReact) {
+                                            colo = "#ffff00"
+                                        }
                                     }
-                                }
-                            }
-
-                            var exlReact = false;
-                            if ((reacts[reac].hasOwnProperty("datas")) && (window.reactData.max_data_len > 0)) {
-                                exlReact = reacts[reac].datas[dataPos].hasOwnProperty("excl")
-                            }
-                            var colo = "#000000"
-                            if (window.colorStyle == "type") {
-                                var samType = window.samToType[reacts[reac].sample]
-                                if (samType =="unkn") {
-                                    colo = "#000000"
-                                }
-                                if (samType =="std") {
-                                    colo = "#a9a9a9"
-                                }
-                                if (samType =="ntc") {
-                                    colo = "#ff0000"
-                                }
-                                if (samType =="nac") {
-                                    colo = "#ff0000"
-                                }
-                                if (samType =="ntp") {
-                                    colo = "#ff0000"
-                                }
-                                if (samType =="nrt") {
-                                    colo = "#ff0000"
-                                }
-                                if (samType =="pos") {
-                                    colo = "#006400"
-                                }
-                                if (samType =="opt") {
-                                    colo = "#8b008b"
-                                }
-                                if (exlReact) {
-                                    colo = "#ffff00"
-                                }
-                            }
-                            if (window.colorStyle == "tar") {
-                                var tarNr = 0
-                                if ((reacts[reac].hasOwnProperty("datas")) && (window.reactData.max_data_len > 0)) {
-                                    tarNr = window.tarToNr[reacts[reac].datas[dataPos].tar]
-                                }
-                                if (exlReact) {
-                                    colo = "#ff0000"
+                                    if (window.colorStyle == "tar") {
+                                        var tarNr = 0
+                                        if ((reacts[reac].hasOwnProperty("datas")) &&
+                                            (window.reactData.max_data_len > 0)) {
+                                            tarNr = window.tarToNr[reacts[reac].datas[dataPos].tar]
+                                        }
+                                        if (exlReact) {
+                                            colo = "#ff0000"
+                                        } else {
+                                            colo = colorByNr(tarNr)
+                                        }
+                                    }
+                                    if (window.colorStyle == "sam") {
+                                        var samNr = window.samToNr[reacts[reac].sample]
+                                        if (exlReact) {
+                                            colo = "#ff0000"
+                                        } else {
+                                            colo = colorByNr(samNr)
+                                        }
+                                    }
+                                    if (window.colorStyle == "tarsam") {
+                                        var samNr = window.samToNr[reacts[reac].sample]
+                                        var tarNr = 0
+                                        if ((reacts[reac].hasOwnProperty("datas")) &&
+                                            (window.reactData.max_data_len > 0)) {
+                                            tarNr = window.tarToNr[reacts[reac].datas[dataPos].tar]
+                                        }
+                                        var samCount = window.rdmlData.rdml.samples.length
+                                        var samTarNr = tarNr * samCount + samNr
+                                        if (exlReact) {
+                                            colo = "#ff0000"
+                                        } else {
+                                            colo = colorByNr(samTarNr)
+                                        }
+                                    }
                                 } else {
-                                    colo = colorByNr(tarNr)
+                                    colo = "#ffffff"
                                 }
-                            }
-                            if (window.colorStyle == "sam") {
-                                var samNr = window.samToNr[reacts[reac].sample]
-                                if (exlReact) {
-                                    colo = "#ff0000"
+                                // colo = colorByNr(id)
+                                var fon_col = "#000000"
+                                if (hexToGrey(colo) < 128) {
+                                    fon_col = "#ffffff"
+                                }
+                                cell = '  <td id="plateTab_' + id + '" style="font-size:0.7em;background-color:' + colo
+                                cell += ';color:' + fon_col + ';" onclick="showReactSel(' + id + ', ' + dataPos + ')">'
+                                cell += reacts[reac].sample + '<br />'
+                                if ((reacts[reac].hasOwnProperty("datas")) &&
+                                    (window.reactData.max_data_len > 0)) {
+                                    cell += reacts[reac].datas[dataPos].tar + '<br />'
+                                    cell += 'Cq: ' + reacts[reac].datas[dataPos].cq + '</td>'
                                 } else {
-                                    colo = colorByNr(samNr)
+                                    cell += '---</td>'
                                 }
-                            }
-                            if (window.colorStyle == "tarsam") {
-                                var samNr = window.samToNr[reacts[reac].sample]
-                                var tarNr = 0
-                                if ((reacts[reac].hasOwnProperty("datas")) && (window.reactData.max_data_len > 0)) {
-                                    tarNr = window.tarToNr[reacts[reac].datas[dataPos].tar]
-                                }
-                                var samCount = window.rdmlData.rdml.samples.length
-                                var samTarNr = tarNr * samCount + samNr
-                                if (exlReact) {
-                                    colo = "#ff0000"
-                                } else {
-                                    colo = colorByNr(samTarNr)
-                                }
-                            }
-                            // colo = colorByNr(id)
-                            var fon_col = "#000000"
-                            if (hexToGrey(colo) < 128) {
-                                fon_col = "#ffffff"
-                            }
-                            cell = '  <td id="plateTab_' + id + '" style="font-size:0.7em;background-color:' + colo
-                            cell += ';color:' + fon_col + ';" onclick="showReactSel(' + id + ')">'
-                            cell += reacts[reac].sample + '<br />'
-                            if ((reacts[reac].hasOwnProperty("datas")) && (window.reactData.max_data_len > 0)) {
-                                cell += reacts[reac].datas[dataPos].tar + '<br />'
-                                cell += 'Cq: ' + reacts[reac].datas[dataPos].cq + '</td>'
-                            } else {
-                                cell += '---</td>'
+                                exRowUsed = true
                             }
                         } else {
                             if ((reacts[reac].hasOwnProperty("partitions")) &&
@@ -684,41 +701,61 @@ function updateClientData() {
                                 if (hexToGrey(colo) < 128) {
                                     fon_col = "#ffffff"
                                 }
-                                cell = '  <td id="plateTab_' + id + '" style="font-size:0.8em;background-color:' + colo
-                                cell += ';color:' + fon_col + ';vertical-align:top;">'
-                                cell += '<b><u>' + reacts[reac].sample + '</u></b><br />'
-                                if (reacts[reac].partitions.hasOwnProperty("endPtTable")) {
-                                    cell += '<a onclick="getDigitalFile(\'' + id + '\',\'' + reacts[reac].partitions.endPtTable
-                                    cell += '\')" style="color: blue;text-decoration: underline;">Raw data (.tsv)</a><br />'
-                               } else {
-                                    cell += '<br />'
-                               }
-                                for (var dData = 0; dData < reacts[reac].partitions.datas.length; dData++) {
-                                    cell += '<br />'
-                                    cell += '<b>' + reacts[reac].partitions.datas[dData].tar + '</b><br />'
-                                    cell += "Pos: " + reacts[reac].partitions.datas[dData].pos + '<br />'
-                                    cell += "Neg: " + reacts[reac].partitions.datas[dData].neg + '<br />'
-                                    if (reacts[reac].partitions.datas[dData].hasOwnProperty("undef")) {
-                                        cell += "Undef: " + reacts[reac].partitions.datas[dData].undef + '<br />'
-
+                                if (exRowCount == 0) {
+                                    cell = '  <td id="plateTab_' + id + '" style="font-size:0.8em;background-color:'
+                                    cell += colo + ';color:' + fon_col + ';vertical-align:top;">'
+                                    cell += '<b><u>' + reacts[reac].sample + '</u></b><br />'
+                                    if (reacts[reac].partitions.hasOwnProperty("endPtTable")) {
+                                        cell += '<a href="#" onclick="getDigitalFile(\'' + id + '\',\''
+                                        cell += reacts[reac].partitions.endPtTable + '\')">Raw data (.tsv)</a><br />'
+                                    } else {
+                                        cell += 'No raw data<br />'
                                     }
-                                    if (reacts[reac].partitions.datas[dData].hasOwnProperty("excl")) {
-                                        cell += "Excl: " + reacts[reac].partitions.datas[dData].excl + '<br />'
+                                    cell += '</td>'
+                                    exRowUsed = true
+                                } else {
+                                    if (exRowCount - 1 < reacts[reac].partitions.datas.length) {
+                                        var dData = exRowCount - 1
+                                        cell = '  <td style="font-size:0.8em;background-color:' + colo
+                                        cell += ';color:' + fon_col + ';vertical-align:top;">'
+                                        cell += '<b><u>' + reacts[reac].sample + '</u></b><br />'
+                                        cell += '<b>' + reacts[reac].partitions.datas[dData].tar + '</b><br />'
+                                        cell += "Pos: " + reacts[reac].partitions.datas[dData].pos + '<br />'
+                                        cell += "Neg: " + reacts[reac].partitions.datas[dData].neg + '<br />'
+                                        if (reacts[reac].partitions.datas[dData].hasOwnProperty("undef")) {
+                                            cell += "Undef: " + reacts[reac].partitions.datas[dData].undef + '<br />'
 
-                                    }
-                                    if (reacts[reac].partitions.datas[dData].hasOwnProperty("conc")) {
-                                        cell += reacts[reac].partitions.datas[dData].conc + ' cop/&micro;l<br />'
+                                        }
+                                        if (reacts[reac].partitions.datas[dData].hasOwnProperty("excl")) {
+                                            cell += "Excl: " + reacts[reac].partitions.datas[dData].excl + '<br />'
 
+                                        }
+                                        if (reacts[reac].partitions.datas[dData].hasOwnProperty("conc")) {
+                                            cell += reacts[reac].partitions.datas[dData].conc + ' cop/&micro;l<br />'
+
+                                        }
+                                        cell += '</td>'
+                                        exRowUsed = true
+                                    } else {
+                                        cell = '  <td style="font-size:0.8em;background-color:' + colo + ';"></td>'
                                     }
                                 }
-                                cell += '</td>'
                             }
                         }
                     }
                 }
-                ret += cell
+                rowCont += cell
             }
-            ret += '</tr>\n'
+            rowCont += '</tr>\n'
+            if (exRowUsed == true) {
+                ret += rowCont
+                exRowUsed = false
+                r--
+                exRowCount++
+            } else {
+                exRowCount = 0
+            }
+            rowCont = ""
         }
         ret += '</table>'
 
@@ -906,14 +943,14 @@ function updatePCRStyle() {
     updateClientData()
 }
 
-window.updateDyeType = updateDyeType;
-function updateDyeType() {
-    var newData = getSaveHtmlData("dropSelDyeType")
-    if (window.dyeType == newData) {
+window.updateSampSelFirst = updateSampSelFirst;
+function updateSampSelFirst() {
+    var newData = getSaveHtmlData("dropSampSelFirst")
+    if (window.sampSelFirst == newData) {
         return
     }
-    window.dyeType = newData
-    if (window.dyeType == "pos") {
+    window.sampSelFirst = newData
+    if (window.sampSelFirst == "pos") {
         window.dyeSel = 0
     } else {
         window.dyeSel =  window.rdmlData.rdml.dyes[0].id;
@@ -921,9 +958,9 @@ function updateDyeType() {
     updateClientData()
 }
 
-window.updateDyeSel = updateDyeSel;
-function updateDyeSel() {
-    var newData = getSaveHtmlData("dropSelDyeSel")
+window.updateSampSelSecond = updateSampSelSecond;
+function updateSampSelSecond() {
+    var newData = getSaveHtmlData("dropSampSelSecond")
     if (window.dyeSel == newData) {
         return
     }
@@ -1054,20 +1091,10 @@ function createAllCurves(tr,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend){
         for (var c = 0; c < columns; c++) {
             var id = r * columns + c + 1
             for (var reac = 0; reac < reacts.length; reac++) {
-                if (parseInt(reacts[reac].id) == id) {
-                    var dataPos = -1
-                    if ((window.dyeType == "pos") && (window.dyeSel < reacts[reac].datas.length)){
-                        dataPos = window.dyeSel
-                    }
-                    if (window.dyeType == "id") {
-                        var dataPos = -1
-                        for (var fi = 0; fi < reacts[reac].datas.length; fi++) {
-                            if (window.tarToDye[reacts[reac].datas[fi].tar] == window.dyeSel) {
-                                dataPos = fi
-                            }
-                        }
-                    }
-                    if (dataPos > -1){
+                for (var dataPos = 0; dataPos < reacts[reac].datas.length; dataPos++) {
+                    if ((reacts[reac].datas[dataPos].hasOwnProperty("runview_show")) &&
+                        (reacts[reac].datas[dataPos].runview_show == true) &&
+                        (parseInt(reacts[reac].id) == id)) {
                         var exlReact = reacts[reac].datas[dataPos].hasOwnProperty("excl")
                         var colo = "#000000"
                         if (window.colorStyle == "type") {
@@ -1128,9 +1155,13 @@ function createAllCurves(tr,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend){
                             }
                         }
                         if (window.curveSource == "adp") {
-                            retVal += createOneCurve(parseInt(reacts[reac].id),"1.2",reacts[reac].datas[dataPos].adps,colo,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend);
+                            retVal += createOneCurve(parseInt(reacts[reac].id),dataPos,"1.2",
+                                                     reacts[reac].datas[dataPos].adps,colo,startX,endX,startY,endY,
+                                                     wdXst,wdXend,wdYst,wdYend);
                         } else {
-                            retVal += createOneCurve(parseInt(reacts[reac].id),"1.2",reacts[reac].datas[dataPos].mdps,colo,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend);
+                            retVal += createOneCurve(parseInt(reacts[reac].id),dataPos,"1.2",
+                                                     reacts[reac].datas[dataPos].mdps,colo,startX,endX,startY,endY,
+                                                     wdXst,wdXend,wdYst,wdYend);
                         }
                     }
                 }
@@ -1140,7 +1171,7 @@ function createAllCurves(tr,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend){
     return retVal;
 }
 
-function createOneHighCurve(id) {
+function createOneHighCurve(id, dataPos) {
     var theSvg = document.getElementById('svgHighCurve')
     if (id == "") {
         theSvg.innerHTML = ""
@@ -1150,87 +1181,73 @@ function createOneHighCurve(id) {
     var reacts = window.reactData.reacts
     for (var reac = 0; reac < reacts.length; reac++) {
         if (parseInt(reacts[reac].id) == parseInt(id)) {
-            var dataPos = -1
-            if ((window.dyeType == "pos") && (window.dyeSel < reacts[reac].datas.length)){
-                dataPos = window.dyeSel
-            }
-            if (window.dyeType == "id") {
-                var dataPos = -1
-                for (var fi = 0; fi < reacts[reac].datas.length; fi++) {
-                    if (window.tarToDye[reacts[reac].datas[fi].tar] == window.dyeSel) {
-                        dataPos = fi
-                    }
+            var exlReact = reacts[reac].datas[dataPos].hasOwnProperty("excl")
+            var colo = "#000000"
+            if (window.colorStyle == "type") {
+                var samType = window.samToType[reacts[reac].sample]
+                if (samType =="unkn") {
+                    colo = "#000000"
+                }
+                if (samType =="std") {
+                    colo = "#a9a9a9"
+                }
+                if (samType =="ntc") {
+                    colo = "#ff0000"
+                }
+                if (samType =="nac") {
+                    colo = "#ff0000"
+                }
+                if (samType =="ntp") {
+                    colo = "#ff0000"
+                }
+                if (samType =="nrt") {
+                    colo = "#ff0000"
+                }
+                if (samType =="pos") {
+                    colo = "#006400"
+                }
+                if (samType =="opt") {
+                    colo = "#8b008b"
+                }
+                if (exlReact) {
+                    colo = "#ffff00"
                 }
             }
-            if (dataPos > -1){
-                var exlReact = reacts[reac].datas[dataPos].hasOwnProperty("excl")
-                var colo = "#000000"
-                if (window.colorStyle == "type") {
-                    var samType = window.samToType[reacts[reac].sample]
-                    if (samType =="unkn") {
-                        colo = "#000000"
-                    }
-                    if (samType =="std") {
-                        colo = "#a9a9a9"
-                    }
-                    if (samType =="ntc") {
-                        colo = "#ff0000"
-                    }
-                    if (samType =="nac") {
-                        colo = "#ff0000"
-                    }
-                    if (samType =="ntp") {
-                        colo = "#ff0000"
-                    }
-                    if (samType =="nrt") {
-                        colo = "#ff0000"
-                    }
-                    if (samType =="pos") {
-                        colo = "#006400"
-                    }
-                    if (samType =="opt") {
-                        colo = "#8b008b"
-                    }
-                    if (exlReact) {
-                        colo = "#ffff00"
-                    }
-                }
-                if (window.colorStyle == "tar") {
-                    var tarNr = window.tarToNr[reacts[reac].datas[dataPos].tar]
-                    if (exlReact) {
-                        colo = "#ff0000"
-                    } else {
-                        colo = colorByNr(tarNr)
-                    }
-                }
-                if (window.colorStyle == "sam") {
-                    var samNr = window.samToNr[reacts[reac].sample]
-                    if (exlReact) {
-                        colo = "#ff0000"
-                    } else {
-                        colo = colorByNr(samNr)
-                    }
-                }
-                if (window.colorStyle == "tarsam") {
-                    var samNr = window.samToNr[reacts[reac].sample]
-                    var tarNr = window.tarToNr[reacts[reac].datas[dataPos].tar]
-                    var samCount = window.rdmlData.rdml.samples.length
-                    var samTarNr = tarNr * samCount + samNr
-                    if (exlReact) {
-                        colo = "#ff0000"
-                    } else {
-                        colo = colorByNr(samTarNr)
-                    }
-                }
-                if (window.curveSource == "adp") {
-                    retVal += createOneCurve(parseInt(reacts[reac].id),"3.0",reacts[reac].datas[dataPos].adps,colo,
-                                             window.winXst, window.winXend, window.winYst, window.winYend,
-                                             window.frameXst, window.frameXend, window.frameYst, window.frameYend);
+            if (window.colorStyle == "tar") {
+                var tarNr = window.tarToNr[reacts[reac].datas[dataPos].tar]
+                if (exlReact) {
+                    colo = "#ff0000"
                 } else {
-                    retVal += createOneCurve(parseInt(reacts[reac].id),"3.0",reacts[reac].datas[dataPos].mdps,colo,
-                                             window.winXst, window.winXend, window.winYst, window.winYend,
-                                             window.frameXst, window.frameXend, window.frameYst, window.frameYend);
+                    colo = colorByNr(tarNr)
                 }
+            }
+            if (window.colorStyle == "sam") {
+                var samNr = window.samToNr[reacts[reac].sample]
+                if (exlReact) {
+                    colo = "#ff0000"
+                } else {
+                    colo = colorByNr(samNr)
+                }
+            }
+            if (window.colorStyle == "tarsam") {
+                var samNr = window.samToNr[reacts[reac].sample]
+                var tarNr = window.tarToNr[reacts[reac].datas[dataPos].tar]
+                var samCount = window.rdmlData.rdml.samples.length
+                var samTarNr = tarNr * samCount + samNr
+                if (exlReact) {
+                    colo = "#ff0000"
+                } else {
+                    colo = colorByNr(samTarNr)
+                }
+            }
+            if (window.curveSource == "adp") {
+                retVal += createOneCurve(parseInt(reacts[reac].id),dataPos,"3.0",reacts[reac].datas[dataPos].adps,colo,
+                                         window.winXst, window.winXend, window.winYst, window.winYend,
+                                         window.frameXst, window.frameXend, window.frameYst, window.frameYend);
+            } else {
+                retVal += createOneCurve(parseInt(reacts[reac].id),dataPos,"3.0",reacts[reac].datas[dataPos].mdps,colo,
+                                         window.winXst, window.winXend, window.winYst, window.winYend,
+                                         window.frameXst, window.frameXend, window.frameYst, window.frameYend);
             }
         }
     }
@@ -1238,16 +1255,16 @@ function createOneHighCurve(id) {
 }
 
 window.showReactSel = showReactSel;
-function showReactSel(react) {
+function showReactSel(react, dataPos) {
     if (window.lastSelReact == react) {
         if (window.lastSelReact != "") {
             document.getElementById('plateTab_' + window.lastSelReact).style.border = "none";
-            createOneHighCurve("")
+            createOneHighCurve("", "")
             window.lastSelReact = ""
         }
     } else {
         document.getElementById('plateTab_' + react).style.border = "thick solid #006400";
-        createOneHighCurve(react)
+        createOneHighCurve(react, dataPos)
         if (window.lastSelReact != "") {
             document.getElementById('plateTab_' + window.lastSelReact).style.border = "none";
         }
@@ -1352,7 +1369,7 @@ function rdmlNumberInverter(number) {
     return ret;
 }
 
-function createOneCurve(id,stroke_str,curveDots,col,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend){
+function createOneCurve(id,dataPos,stroke_str,curveDots,col,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend){
     var retVal = "<polyline fill='none' stroke-linejoin='round' stroke='" + col;
     retVal += "' stroke-width='" + stroke_str + "' points='";
     var fixStart = startY
@@ -1372,7 +1389,7 @@ function createOneCurve(id,stroke_str,curveDots,col,startX,endX,startY,endY,wdXs
         }
         retVal += xPos + "," + yPos + " ";
     }
-    retVal += "' onclick='showReactSel(" + id + ")'/>";
+    retVal += "' onclick='showReactSel(" + id + ", " + dataPos + ")'/>";
     return retVal;
 }
 
