@@ -44,6 +44,7 @@ window.selDigitalOnLoad = "none";
 window.sampSelFirst = "7s8e45-Show-All"  // To avoid conflicts with existing values
 window.sampSelSecond = "7s8e45-Show-All"  // To avoid conflicts with existing values
 window.sampSelThird = "7s8e45-Show-All"  // To avoid conflicts with existing values
+window.sampSelThirdList = []
 window.yScale = "log"
 window.curveSource = "adp"
 window.colorStyle = "tarsam"
@@ -998,6 +999,16 @@ function updateSampSel(updateOnly) {
                 dropSec.options[sam + 1].selected = false
             }
         }
+        if ((reSelectSamples == true) && (window.reactData.hasOwnProperty("reacts"))) {
+            var reacts = window.reactData.reacts
+            window.sampSelThirdList = []
+            for (var i = 0; i < reacts.length; i++) {
+                if (reacts[i].sample == newSecondData) {
+                    window.sampSelThirdList.push(parseInt(reacts[i].id))
+                }
+            }
+            window.sampSelThirdList.sort()
+        }
     }
 
     // The third select
@@ -1015,64 +1026,85 @@ function updateSampSel(updateOnly) {
         dropThird.options[0].selected = false
     }
 
-    if (window.sampSelFirst == "sample") {
-        var looklolo = []
-        var countUpSamp = 0
-        if (window.sampSelFirst == "sample")  {
-            if (window.reactData.hasOwnProperty("reacts")) {
-                var reacts = window.reactData.reacts
-                for (var i = 0; i < reacts.length; i++) {
-                    if (reacts[i].sample == newSecondData) {
-                        looklolo[countUpSamp] = 
-                    }
-                }
-            }
-        }
-
-        var allSamples = Object.keys(window.samToNr)
-        var selectNr = 0
-        allSamples.sort()
-        for (var sam = 0; sam < allSamples.length; sam++) {
+    if ((window.experimentPos > -1) && (window.runPos > -1) && (window.reactData.hasOwnProperty("reacts"))) {
+        var pcrFormat = window.rdmlData.rdml.experiments[window.experimentPos].runs[window.runPos].pcrFormat
+        var columns = parseInt(pcrFormat.columns)
+        var rowLabel = pcrFormat.rowLabel
+        var columnLabel = pcrFormat.columnLabel
+        for (var thirdSam = 0; thirdSam < sampSelThirdList.length; thirdSam++) {
             var option = document.createElement("option");
-            option.text = allSamples[sam]
-            option.value = allSamples[sam]
+            var thirdCol = (parseInt(sampSelThirdList[thirdSam]) - 1) % columns + 1
+            var thirdRow = Math.floor((parseInt(sampSelThirdList[thirdSam]) - 1)/ columns)
+            var wellText = ""
+            if (rowLabel == "123") {
+                wellText += thirdRow
+            } else if (rowLabel == "ABC") {
+                wellText += String.fromCharCode('A'.charCodeAt(0) + thirdRow)
+            }
+            if ((columnLabel == "123") && (rowLabel == "123")) {
+                wellText += " "
+            }
+            if ((columnLabel == "ABC") && (rowLabel == "ABC")) {
+                wellText += " "
+            }
+            if (columnLabel == "123") {
+                wellText += thirdCol
+            } else if (columnLabel == "ABC") {
+                wellText += String.fromCharCode('A'.charCodeAt(0) + thirdCol)
+            }
+            option.text = wellText
+            option.value = sampSelThirdList[thirdSam]
             dropThird.add(option)
-            if (allSamples[sam] == window.sampSelThird) {
-                dropThird.options[sam + 1].selected = true
+            if (sampSelThirdList[thirdSam] == window.sampSelThird) {
+                dropThird.options[thirdSam + 1].selected = true
             } else {
-                dropThird.options[sam + 1].selected = false
+                dropThird.options[thirdSam + 1].selected = false
             }
         }
     }
 
+
     if (reSelectSamples == true) {
-        if (window.sampSelSecond == "7s8e45-Show-All") {
-            if (window.reactData.hasOwnProperty("reacts")) {
-                var reacts = window.reactData.reacts
-                for (var i = 0; i < reacts.length; i++) {
-                    for (var k = 0; k < reacts[i].datas.length; k++) {
-                        reacts[i].datas[k]["runview_show"] = true
+        if (window.sampSelThird == "7s8e45-Show-All") {
+            if (window.sampSelSecond == "7s8e45-Show-All") {
+                if (window.reactData.hasOwnProperty("reacts")) {
+                    var reacts = window.reactData.reacts
+                    for (var i = 0; i < reacts.length; i++) {
+                        for (var k = 0; k < reacts[i].datas.length; k++) {
+                            reacts[i].datas[k]["runview_show"] = true
+                        }
                     }
                 }
-            }
-        } else {
-            if (window.sampSelFirst == "sample")  {
+                window.sampSelThirdList = []
+            } else {
                 if (window.reactData.hasOwnProperty("reacts")) {
                     var reacts = window.reactData.reacts
                     for (var i = 0; i < reacts.length; i++) {
                         var selectItNow = false
-                        if (reacts[i].sample == newSecondData) {
+                        if ((window.sampSelFirst == "sample") && (reacts[i].sample == newSecondData)) {
                             selectItNow = true
                         }
+                        
                         for (var k = 0; k < reacts[i].datas.length; k++) {
                             reacts[i].datas[k]["runview_show"] = selectItNow
                         }
                     }
                 }
             }
-
+        } else {
+            if (window.reactData.hasOwnProperty("reacts")) {
+                var reacts = window.reactData.reacts
+                for (var i = 0; i < reacts.length; i++) {
+                    var selectItNow = false
+                    if (reacts[i].id == sampSelThird) {
+                        selectItNow = true
+                    }
+                    for (var k = 0; k < reacts[i].datas.length; k++) {
+                        reacts[i].datas[k]["runview_show"] = selectItNow
+                    }
+                }
+            }
         }
-
 
         updateClientData()
     }
