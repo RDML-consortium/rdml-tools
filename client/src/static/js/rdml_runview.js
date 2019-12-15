@@ -54,6 +54,12 @@ window.tarToNr = {}
 window.samToNr = {}
 window.samToType = {}
 
+window.usedSamples = {}
+window.usedTargets = {}
+window.usedDyeIds = {}
+window.usedDyeMaxPos = 0
+window.usedExcluded = {}
+
 window.lastSelReact = ""
 
 // Global Values
@@ -307,14 +313,19 @@ function fillLookupDics() {
     var exp = window.rdmlData.rdml.targets
     window.tarToDye = {}
     window.tarToNr = {}
+    window.samToNr = {}
+    window.samToType = {}
+    window.usedSamples = {}
+    window.usedTargets = {}
+    window.usedDyeIds = {}
+    window.usedDyeMaxPos = 0
+
     for (var i = 0; i < exp.length; i++) {
         window.tarToDye[exp[i].id] = exp[i].dyeId
         window.tarToNr[exp[i].id] = i
     }
 
     exp = window.rdmlData.rdml.samples
-    window.samToNr = {}
-    window.samToType = {}
     for (var i = 0; i < exp.length; i++) {
         window.samToNr[exp[i].id] = i
         window.samToType[exp[i].id] = exp[i].type
@@ -324,9 +335,37 @@ function fillLookupDics() {
     if (window.reactData.hasOwnProperty("reacts")) {
         var reacts = window.reactData.reacts
         for (var i = 0; i < reacts.length; i++) {
+            window.usedSamples[reacts[i].sample] = 1
             for (var k = 0; k < reacts[i].datas.length; k++) {
+                window.usedTargets[reacts[i].datas[k].tar] = 1
+                window.usedDyeIds[window.tarToDye[reacts[i].datas[k].tar]] = 1
+                if (window.usedDyeMaxPos < k) {
+                    window.usedDyeMaxPos = k
+                }
+                if (reacts[i].datas[k].hasOwnProperty("excl")) {
+                   if (reacts[i].datas[k].excl == "")  {
+                        window.usedExcluded["7s8e45-Empty-Val"] = 1
+                    } else {
+                        var splitExcl = reacts[i].datas[k].excl.split(";")
+                        for (var ex = 0; ex < splitExcl.length; ex++) {
+                            window.usedExcluded[splitExcl[ex]] = 1
+                        }
+                    }
+                }
                 reacts[i].datas[k]["runview_show"] = true
             }
+        }
+        window.tarToNr = {}
+        var allTargets = Object.keys(window.usedTargets)
+        allTargets.sort()
+        for (var sam = 0; sam < allTargets.length; sam++) {
+            window.tarToNr[allTargets[sam]] = sam
+        }
+        window.samToNr = {}
+        var allSamples = Object.keys(window.usedSamples)
+        allSamples.sort()
+        for (var sam = 0; sam < allSamples.length; sam++) {
+            window.samToNr[allSamples[sam]] = sam
         }
     }
 }
@@ -524,16 +563,26 @@ function updateClientData() {
             ret += ' selected'
         }
         ret += '>Sample</option>\n'
-        ret += '        <option value="dye_pos"'
-        if (window.sampSelFirst == "dye_pos") {
+        ret += '        <option value="target"'
+        if (window.sampSelFirst == "target") {
             ret += ' selected'
         }
-        ret += '>Dye by Position</option>\n'
+        ret += '>Target</option>\n'
         ret += '        <option value="dye_id"'
         if (window.sampSelFirst == "dye_id") {
             ret += ' selected'
         }
         ret += '>Dye by ID</option>\n'
+        ret += '        <option value="dye_pos"'
+        if (window.sampSelFirst == "dye_pos") {
+            ret += ' selected'
+        }
+        ret += '>Dye by Position</option>\n'
+        ret += '        <option value="excluded"'
+        if (window.sampSelFirst == "excluded") {
+            ret += ' selected'
+        }
+        ret += '>Excluded</option>\n'
         ret += '  </select>\n'
         ret += '</td>\n'
         ret += '  <td style="width:4%;"></td>\n'
@@ -1007,7 +1056,138 @@ function updateSampSel(updateOnly) {
                     window.sampSelThirdList.push(parseInt(reacts[i].id))
                 }
             }
-            window.sampSelThirdList.sort()
+            window.sampSelThirdList.sort(function(a, b){return a - b})
+        }
+    }
+
+    if (window.sampSelFirst == "target") {
+        var allTargets = Object.keys(window.tarToNr)
+        var selectNr = 0
+        allTargets.sort()
+        for (var sam = 0; sam < allTargets.length; sam++) {
+            var option = document.createElement("option");
+            option.text = allTargets[sam]
+            option.value = allTargets[sam]
+            dropSec.add(option)
+            if (allTargets[sam] == window.sampSelSecond) {
+                dropSec.options[sam + 1].selected = true
+            } else {
+                dropSec.options[sam + 1].selected = false
+            }
+        }
+        if ((reSelectSamples == true) && (window.reactData.hasOwnProperty("reacts"))) {
+            var reacts = window.reactData.reacts
+            window.sampSelThirdList = []
+            for (var i = 0; i < reacts.length; i++) {
+                var keepSam = false
+                for (var k = 0; k < reacts[i].datas.length; k++) {
+                    if (reacts[i].datas[k].tar == newSecondData) {
+                        keepSam = true
+                    }
+                }
+                if (keepSam == true) {
+                    window.sampSelThirdList.push(parseInt(reacts[i].id))
+                }
+            }
+            window.sampSelThirdList.sort(function(a, b){return a - b})
+        }
+    }
+
+    if (window.sampSelFirst == "dye_id") {
+        var allDyeIds = Object.keys(window.usedDyeIds)
+        var selectNr = 0
+        allDyeIds.sort()
+        for (var sam = 0; sam < allDyeIds.length; sam++) {
+            var option = document.createElement("option");
+            option.text = allDyeIds[sam]
+            option.value = allDyeIds[sam]
+            dropSec.add(option)
+            if (allDyeIds[sam] == window.sampSelSecond) {
+                dropSec.options[sam + 1].selected = true
+            } else {
+                dropSec.options[sam + 1].selected = false
+            }
+        }
+        if ((reSelectSamples == true) && (window.reactData.hasOwnProperty("reacts"))) {
+            var reacts = window.reactData.reacts
+            window.sampSelThirdList = []
+            for (var i = 0; i < reacts.length; i++) {
+                var keepSam = false
+                for (var k = 0; k < reacts[i].datas.length; k++) {
+                    if (window.tarToDye[reacts[i].datas[k].tar] == newSecondData) {
+                        keepSam = true
+                    }
+                }
+                if (keepSam == true) {
+                    window.sampSelThirdList.push(parseInt(reacts[i].id))
+                }
+            }
+            window.sampSelThirdList.sort(function(a, b){return a - b})
+        }
+    }
+
+    if (window.sampSelFirst == "dye_pos") {
+        for (var sam = 0; sam < window.usedDyeMaxPos + 1; sam++) {
+            var option = document.createElement("option");
+            option.text = sam + 1
+            option.value = sam
+            dropSec.add(option)
+            if (sam == window.sampSelSecond) {
+                dropSec.options[sam + 1].selected = true
+            } else {
+                dropSec.options[sam + 1].selected = false
+            }
+        }
+        if ((reSelectSamples == true) && (window.reactData.hasOwnProperty("reacts"))) {
+            var reacts = window.reactData.reacts
+            window.sampSelThirdList = []
+            for (var i = 0; i < reacts.length; i++) {
+                if (reacts[i].datas.length >= window.usedDyeMaxPos) {
+                    window.sampSelThirdList.push(parseInt(reacts[i].id))
+                }
+            }
+            window.sampSelThirdList.sort(function(a, b){return a - b})
+        }
+    }
+
+    if (window.sampSelFirst == "excluded") {
+        var allExcluded = Object.keys(window.usedExcluded)
+        var selectNr = 0
+        allExcluded.sort()
+        for (var sam = 0; sam < allExcluded.length; sam++) {
+            var option = document.createElement("option");
+            if (allExcluded[sam] == "7s8e45-Empty-Val") {
+                option.text = "No exclusion reason"
+            } else {
+                option.text = allExcluded[sam]
+            }
+            option.value = allExcluded[sam]
+            dropSec.add(option)
+            if (allExcluded[sam] == window.sampSelSecond) {
+                dropSec.options[sam + 1].selected = true
+            } else {
+                dropSec.options[sam + 1].selected = false
+            }
+        }
+        if ((reSelectSamples == true) && (window.reactData.hasOwnProperty("reacts"))) {
+            var reacts = window.reactData.reacts
+            window.sampSelThirdList = []
+            for (var i = 0; i < reacts.length; i++) {
+                var keepSam = false
+                for (var k = 0; k < reacts[i].datas.length; k++) {
+                    if (reacts[i].datas[k].hasOwnProperty("excl")) {
+                        if ((window.sampSelSecond == "7s8e45-Show-All") ||
+                            ((reacts[i].datas[k].excl != "") && (reacts[i].datas[k].excl == newSecondData)) ||
+                            ((reacts[i].datas[k].excl == "") && ("7s8e45-Empty-Val" == newSecondData))) {
+                            keepSam = true
+                        }
+                    }
+                }
+                if (keepSam == true) {
+                    window.sampSelThirdList.push(parseInt(reacts[i].id))
+                }
+            }
+            window.sampSelThirdList.sort(function(a, b){return a - b})
         }
     }
 
@@ -1066,7 +1246,7 @@ function updateSampSel(updateOnly) {
 
     if (reSelectSamples == true) {
         if (window.sampSelThird == "7s8e45-Show-All") {
-            if (window.sampSelSecond == "7s8e45-Show-All") {
+            if ((window.sampSelFirst != "excluded") && (window.sampSelSecond == "7s8e45-Show-All")) {
                 if (window.reactData.hasOwnProperty("reacts")) {
                     var reacts = window.reactData.reacts
                     for (var i = 0; i < reacts.length; i++) {
@@ -1080,14 +1260,59 @@ function updateSampSel(updateOnly) {
                 if (window.reactData.hasOwnProperty("reacts")) {
                     var reacts = window.reactData.reacts
                     for (var i = 0; i < reacts.length; i++) {
-                        var selectItNow = false
-                        if ((window.sampSelFirst == "sample") && (reacts[i].sample == newSecondData)) {
-                            selectItNow = true
+                        if (window.sampSelFirst == "sample") {
+                            var selectItNow = false
+                            if (reacts[i].sample == newSecondData) {
+                                selectItNow = true
+                            }
+                            for (var k = 0; k < reacts[i].datas.length; k++) {
+                                reacts[i].datas[k]["runview_show"] = selectItNow
+                            }
                         }
-                        
-                        for (var k = 0; k < reacts[i].datas.length; k++) {
-                            reacts[i].datas[k]["runview_show"] = selectItNow
+
+                        if (window.sampSelFirst == "target") {
+                            for (var k = 0; k < reacts[i].datas.length; k++) {
+                                if (reacts[i].datas[k].tar == newSecondData) {
+                                    reacts[i].datas[k]["runview_show"] = true
+                                } else {
+                                    reacts[i].datas[k]["runview_show"] = false
+                                }
+                            }
                         }
+
+                        if (window.sampSelFirst == "dye_id") {
+                            for (var k = 0; k < reacts[i].datas.length; k++) {
+                                if (window.tarToDye[reacts[i].datas[k].tar] == newSecondData) {
+                                    reacts[i].datas[k]["runview_show"] = true
+                                } else {
+                                    reacts[i].datas[k]["runview_show"] = false
+                                }
+                            }
+                        }
+
+                        if (window.sampSelFirst == "dye_pos") {
+                            for (var k = 0; k < reacts[i].datas.length; k++) {
+                                if (k == newSecondData) {
+                                    reacts[i].datas[k]["runview_show"] = true
+                                } else {
+                                    reacts[i].datas[k]["runview_show"] = false
+                                }
+                            }
+                        }
+
+                        if (window.sampSelFirst == "excluded") {
+                            for (var k = 0; k < reacts[i].datas.length; k++) {
+                                reacts[i].datas[k]["runview_show"] = false
+                                if (reacts[i].datas[k].hasOwnProperty("excl")) {
+                                    if ((window.sampSelSecond == "7s8e45-Show-All") ||
+                                        ((reacts[i].datas[k].excl != "") && (reacts[i].datas[k].excl == newSecondData)) ||
+                                        ((reacts[i].datas[k].excl == "") && ("7s8e45-Empty-Val" == newSecondData))) {
+                                        reacts[i].datas[k]["runview_show"] = true
+                                    }
+                                }
+                            }
+                        }
+
                     }
                 }
             }
