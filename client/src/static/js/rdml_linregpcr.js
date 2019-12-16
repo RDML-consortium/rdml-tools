@@ -387,10 +387,10 @@ function updateClientData() {
     // The UUID box
     var ret = '<br /><div class="card">\n<div class="card-body">\n'
     ret += '<h5 class="card-title">Links to other RDML tools</h5>\n<p>Link to this result page:<br />'
-    ret += '<a href="' + `${API_LINK}` + "runview.html?UUID=" + window.uuid + ';TAB=runs-tab'
+    ret += '<a href="' + `${API_LINK}` + "linregpcr.html?UUID=" + window.uuid + ';TAB=runs-tab'
     ret += ';EXP=' + encodeURIComponent(window.selExperiment) + ';RUN=' + encodeURIComponent(window.selRun) + '" '
     ret += 'target="_blank">'
-    ret += `${API_LINK}` + "runview.html?UUID=" + window.uuid + ';TAB=runs-tab'
+    ret += `${API_LINK}` + "linregpcr.html?UUID=" + window.uuid + ';TAB=runs-tab'
     ret += ';EXP=' + encodeURIComponent(window.selExperiment)
     ret += ';RUN=' + encodeURIComponent(window.selRun) + '</a> (valid for 3 days)\n<br />\n'
     ret += '</p>\n'
@@ -398,11 +398,11 @@ function updateClientData() {
     ret += '<a href="' + `${API_URL}` + "/download/" + window.uuid + '" target="_blank" id="download-link">'
     ret += `${API_URL}` + "/download/" + window.uuid + '</a> (valid for 3 days)\n<br />\n'
     ret += '</p>\n'
-    ret += '<p>Analyze RDML file in LinRegPCR:<br />'
-    ret += '<a href="' + `${API_LINK}` + "linregpcr.html?UUID=" + window.uuid + ';TAB=runs-tab'
+    ret += '<p>View single run in RunView:<br />'
+    ret += '<a href="' + `${API_LINK}` + "runview.html?UUID=" + window.uuid + ';TAB=runs-tab'
     ret += ';EXP=' + encodeURIComponent(window.selExperiment) + ';RUN=' + encodeURIComponent(window.selRun) + '" '
     ret += 'target="_blank">'
-    ret += `${API_LINK}`  + "linregpcr.html?UUID=" + window.uuid + ';TAB=runs-tab'
+    ret += `${API_LINK}`  + "runview.html?UUID=" + window.uuid + ';TAB=runs-tab'
     ret += ';EXP=' + encodeURIComponent(window.selExperiment)
     ret += ';RUN=' + encodeURIComponent(window.selRun) + '</a> (valid for 3 days)\n<br />\n'
     ret += '</p>\n'

@@ -637,6 +637,9 @@ function updateClientData() {
                 ret += '<a href="' + `${API_LINK}` + "runview.html?UUID=" + window.uuid + ';TAB=runs-tab'
                 ret += ';EXP=' + encodeURIComponent(exp[i].id) + ';RUN=' + encodeURIComponent(runs[s].id) + '" '
                 ret += 'target="_blank">View Run in RunView</a><br />\n'
+                ret += '<a href="' + `${API_LINK}` + "linregpcr.html?UUID=" + window.uuid + ';TAB=runs-tab'
+                ret += ';EXP=' + encodeURIComponent(exp[i].id) + ';RUN=' + encodeURIComponent(runs[s].id) + '" '
+                ret += 'target="_blank">Analyze Run in LinRegPCR</a><br />\n'
                 ret += '</p>\n'
 
                 var k = 0
