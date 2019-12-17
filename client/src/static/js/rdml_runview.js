@@ -515,12 +515,12 @@ function updateClientData() {
         if (window.curveSource == "adp") {
             ret += ' selected'
         }
-        ret += '>Amplification</option>\n'
+        ret += '>Amplification - Raw Data</option>\n'
         ret += '        <option value="mdp"'
         if (window.curveSource == "mdp") {
             ret += ' selected'
         }
-        ret += '>Meltcurve</option>\n'
+        ret += '>Meltcurve - Raw Data</option>\n'
         ret += '  </select>\n'
         ret += '</td>\n'
         ret += '  <td style="width:4%;"></td>\n'

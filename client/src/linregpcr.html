@@ -36,7 +36,7 @@
     </div>
     <div id="result-info" class="alert alert-info d-none" role="alert">
       <i class="fas fa-spinner spinner"></i>
-      Analysis is running, please be patient.
+      Analysis is running, please be patient. LinRegPCR may run for up to 120 seconds.
     </div>
     <ul class="nav nav-fill mb-4" id="mainTab">
       <li class="nav-item">
@@ -84,10 +84,47 @@
       </div>
 
       <div class="tab-pane" id="linregpcr-tab">
-     <!--   <button type="button" class="btn btn-outline-primary" id="btn-jsDebug">Debug JS</button>
-        <textarea rows="4" cols="50" id="text-jsDebug"></textarea> -->
-        <div id="selectors-dfadasda"></div><br />
-        <div class="col" id="result-sdfasdf"></div>
+        <table style="width:100%;">
+          <tr>
+            <td style="width:12%;">Baseline Correction:</td>
+            <td style="width:8%;">
+              <select class="form-control" id="dropSelBaseline">
+                <option value="y" selected>yes</option>
+                <option value="n">no</option>
+              </select>
+            </td>
+            <td style="width:4%;"></td>
+            <td style="width:21%;">PCR efficiency range for excluding samples from mean efficiency calculation:</td>
+            <td style="width:7%;"><input type="text" class="form-control" value="0.05" id="text-exl-men-eff"></td>
+            <td style="width:2%;">%</td>
+            <td style="width:4%;"></td>
+            <td style="width:12%;">Update RDML Data:</td>
+            <td style="width:8%;">
+              <select class="form-control" id="updateRDMLData">
+                <option value="y">yes</option>
+                <option value="n" selected>no</option>
+              </select>
+            </td>
+            <td style="width:4%;"></td>
+            <td style="width:18%;">
+              <button type="submit" class="btn btn-outline-primary" id="btn-linregpcr">
+                <i class="fas fa-rocket" style="margin-right: 5px;"></i>
+                Run LinRegPCR
+              </button>
+            </td>
+          </tr>
+        </table>
+        <br />
+        <button type="submit" class="btn btn-outline-primary" id="btn-copy-linregpcr">
+            <i class="far fa-save" style="margin-right: 5px;"></i>
+            Copy result to clipboard
+        </button>
+        <button type="submit" class="btn btn-outline-primary" id="btn-save-linregpcr">
+            <i class="far fa-save" style="margin-right: 5px;"></i>
+            Save table as CSV file
+        </button>
+        <br />
+        <div id="result-linregpcr"></div>
       </div>
 
       <div class="tab-pane" id="help-tab">

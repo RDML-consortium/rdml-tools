@@ -11,6 +11,15 @@ submitButton.addEventListener('click', showUpload)
 const exampleButton = document.getElementById('btn-example')
 exampleButton.addEventListener('click', showExample)
 
+const linRegPCRButton = document.getElementById('btn-linregpcr')
+linRegPCRButton.addEventListener('click', runLinRegPCR)
+
+const linRegPCRSaveButton = document.getElementById('btn-save-linregpcr')
+linRegPCRSaveButton.addEventListener('click', saveTabLinRegPCR)
+
+const linRegPCRCopyButton = document.getElementById('btn-copy-linregpcr')
+linRegPCRCopyButton.addEventListener('click', copyTabLinRegPCR)
+
 // For debugging
 // const jsDebugButton = document.getElementById('btn-jsDebug')
 // jsDebugButton.addEventListener('click', jsDebugFunction)
@@ -27,6 +36,7 @@ const resultError = document.getElementById('result-error')
 
 const selectorsData = document.getElementById('selectors-data')
 const resultData = document.getElementById('result-data')
+const resultLinRegPCR = document.getElementById('result-linregpcr')
 
 window.minLogCutoff = 0.01;
 
@@ -48,6 +58,8 @@ window.sampSelThirdList = []
 window.yScale = "log"
 window.curveSource = "adp"
 window.colorStyle = "tarsam"
+
+window.linRegSaveTable = ""
 
 window.tarToDye = {}
 window.tarToNr = {}
@@ -234,6 +246,40 @@ function showUpload() {
     $('[href="#runs-tab"]').tab('show')
 }
 
+function runLinRegPCR() {
+    if (window.selRun == "") {
+        alert("Select an experiment and run first!")
+        return
+    }
+    var rBaseline = true
+    var rPCREffRange = 0.05
+    var rUpdateRDML = true
+
+    var bbBase = document.getElementById('dropSelBaseline')
+    if ((bbBase) && (bbBase.value == "n")) {
+        rBaseline = false
+    }
+    var bbPCREff = document.getElementById('text-exl-men-eff')
+    if (bbPCREff) {
+        rPCREffRange = parseFloat(bbPCREff.value)
+    }
+    var bbUpdateRDML = document.getElementById('updateRDMLData')
+    if ((bbUpdateRDML) && (bbUpdateRDML.value == "n")) {
+        rUpdateRDML = false
+    }
+
+    var ret = {}
+    ret["mode"] = "run-linregpcr"
+    ret["sel-experiment"] = window.selExperiment
+    ret["sel-run"] = window.selRun
+    ret["baseline-correction"] = rBaseline
+    ret["pcr-eff-range"] = rPCREffRange
+    ret["update-RDML-data"] = rUpdateRDML
+    updateServerData(uuid, JSON.stringify(ret))
+
+    $('[href="#linregpcr-tab"]').tab('show')
+}
+
 // TODO client-side validation
 function updateServerData(stat, reqData) {
     const formData = new FormData()
@@ -266,6 +312,11 @@ function updateServerData(stat, reqData) {
                 }
                 if (res.data.data.hasOwnProperty("reactsdata")) {
                     window.reactData = res.data.data.reactsdata
+                    if (window.reactData.hasOwnProperty("LinRegPCR_Result_Table")) {
+                        updateLinRegPCRTable()
+                    } else {
+                        window.linRegSaveTable = ""
+                    }
                     // For debugging
                     // document.getElementById('text-jsDebug').value = JSON.stringify(window.reactData, null, 2)
                 } else {
@@ -515,12 +566,17 @@ function updateClientData() {
         if (window.curveSource == "adp") {
             ret += ' selected'
         }
-        ret += '>Amplification</option>\n'
+        ret += '>Amplification - Raw Data</option>\n'
+        ret += '        <option value="bas"'
+        if (window.curveSource == "bas") {
+            ret += ' selected'
+        }
+        ret += '>Amplification - Baseline Corrected</option>\n'
         ret += '        <option value="mdp"'
         if (window.curveSource == "mdp") {
             ret += ' selected'
         }
-        ret += '>Meltcurve</option>\n'
+        ret += '>Meltcurve - Raw Data</option>\n'
         ret += '  </select>\n'
         ret += '</td>\n'
         ret += '  <td style="width:4%;"></td>\n'
@@ -842,6 +898,99 @@ function updateClientData() {
     }
     updateSampSel(1)
 }
+
+window.updateLinRegPCRTable = updateLinRegPCRTable
+function updateLinRegPCRTable() {
+    if (!(window.reactData.hasOwnProperty("LinRegPCR_Result_Table"))) {
+        return
+    }
+    var content = "";
+    var ret = '<table id="LinRegPCR_Result_Table">\n'
+    var table = JSON.parse(window.reactData.LinRegPCR_Result_Table)
+    for (var row = 0; row < table.length; row++) {
+        ret += '<tr>\n'
+        for (var col = 0; col < table[row].length; col++) {
+            content += table[row][col] + "\t"
+            ret += '<td>' + table[row][col] + '</td>\n'
+        }
+        content = content.replace(/\t$/g, "\n");
+        ret += '</tr>\n'
+    }
+    ret += '</table>\n'
+    window.linRegSaveTable = content
+    resultLinRegPCR.innerHTML = ret
+}
+
+window.detectBrowser = detectBrowser;
+function detectBrowser() {
+    var browser = window.navigator.userAgent.toLowerCase();
+    if (browser.indexOf("edge") != -1) {
+        return "edge";
+    }
+    if (browser.indexOf("firefox") != -1) {
+        return "firefox";
+    }
+    if (browser.indexOf("chrome") != -1) {
+        return "chrome";
+    }
+    if (browser.indexOf("safari") != -1) {
+        return "safari";
+    }
+    alert("Unknown Browser: Functionality may be impaired!\n\n" + browser);
+    return browser;
+}
+
+window.saveTabLinRegPCR = saveTabLinRegPCR;
+function saveTabLinRegPCR() {
+    if (window.linRegSaveTable == "") {
+        return
+    }
+    var a = document.createElement("a");
+    document.body.appendChild(a);
+    a.style.display = "none";
+    var blob = new Blob([window.linRegSaveTable], {type: "text/tab-separated-values"});
+    var browser = detectBrowser();
+    if (browser != "edge") {
+	    var url = window.URL.createObjectURL(blob);
+	    a.href = url;
+	    a.download = "LinRegPCR.tsv";
+	    a.click();
+	    window.URL.revokeObjectURL(url);
+    } else {
+        window.navigator.msSaveBlob(blob, "shaped_qPCR_data.tsv");
+    }
+    return;
+};
+
+window.copyTabLinRegPCR = copyTabLinRegPCR;
+function copyTabLinRegPCR() {
+    if (window.linRegSaveTable == "") {
+        return
+    }
+    var el = document.getElementById("LinRegPCR_Result_Table");
+	var body = document.body
+	var range
+	var sel
+	if (document.createRange && window.getSelection) {
+		range = document.createRange();
+		sel = window.getSelection();
+		sel.removeAllRanges();
+		try {
+			range.selectNodeContents(el);
+			sel.addRange(range);
+		} catch (e) {
+			range.selectNode(el);
+			sel.addRange(range);
+		}
+	} else if (body.createTextRange) {
+		range = body.createTextRange();
+		range.moveToElementText(el);
+		range.select();
+	}
+	document.execCommand("copy");
+	sel.removeAllRanges();
+    return;
+};
 
 window.updateExperimenter = updateExperimenter;
 function updateExperimenter() {
