@@ -26,6 +26,7 @@ linRegPCRCopyButton.addEventListener('click', copyTabLinRegPCR)
 
 function jsDebugFunction() {
     alert("Ready to debug")
+    saveTabFile("debug.txt", JSON.stringify(window.reactData, null, 2))
     updateClientData()
 }
 
@@ -883,6 +884,11 @@ function updateClientData() {
                 window.winXend = 5 * Math.ceil(window.reactData.adp_cyc_max / 5);
                 window.winYst = window.reactData.adp_fluor_min;
                 window.winYend = window.reactData.adp_fluor_max;
+            } else if (window.curveSource == "bas") {
+                window.winXst = 0;
+                window.winXend = 5 * Math.ceil(window.reactData.bas_cyc_max / 5);
+                window.winYst = window.reactData.bas_fluor_min;
+                window.winYend = window.reactData.bas_fluor_max;
             } else {
                 window.winXst = 5 * Math.floor(window.reactData.mdp_tmp_min / 5);
                 window.winXend = 5 * Math.ceil(window.reactData.mdp_tmp_max / 5);
@@ -905,7 +911,7 @@ function updateLinRegPCRTable() {
         return
     }
     var content = "";
-    var ret = '<table id="LinRegPCR_Result_Table">\n'
+    var ret = '<table class="table table-bordered table-striped" id="LinRegPCR_Result_Table">\n'
     var table = JSON.parse(window.reactData.LinRegPCR_Result_Table)
     for (var row = 0; row < table.length; row++) {
         ret += '<tr>\n'
@@ -921,44 +927,9 @@ function updateLinRegPCRTable() {
     resultLinRegPCR.innerHTML = ret
 }
 
-window.detectBrowser = detectBrowser;
-function detectBrowser() {
-    var browser = window.navigator.userAgent.toLowerCase();
-    if (browser.indexOf("edge") != -1) {
-        return "edge";
-    }
-    if (browser.indexOf("firefox") != -1) {
-        return "firefox";
-    }
-    if (browser.indexOf("chrome") != -1) {
-        return "chrome";
-    }
-    if (browser.indexOf("safari") != -1) {
-        return "safari";
-    }
-    alert("Unknown Browser: Functionality may be impaired!\n\n" + browser);
-    return browser;
-}
-
 window.saveTabLinRegPCR = saveTabLinRegPCR;
 function saveTabLinRegPCR() {
-    if (window.linRegSaveTable == "") {
-        return
-    }
-    var a = document.createElement("a");
-    document.body.appendChild(a);
-    a.style.display = "none";
-    var blob = new Blob([window.linRegSaveTable], {type: "text/tab-separated-values"});
-    var browser = detectBrowser();
-    if (browser != "edge") {
-	    var url = window.URL.createObjectURL(blob);
-	    a.href = url;
-	    a.download = "LinRegPCR.tsv";
-	    a.click();
-	    window.URL.revokeObjectURL(url);
-    } else {
-        window.navigator.msSaveBlob(blob, "shaped_qPCR_data.tsv");
-    }
+    saveTabFile("LinRegPCR.tsv", window.linRegSaveTable)
     return;
 };
 
@@ -1546,14 +1517,14 @@ function showSVG() {
 
 function createSVG(tr,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend) {
     var retVal = createAllCurves(tr,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend);
-    retVal += createCoodinates (tr,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend);
+    retVal += createCoordinates (tr,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend);
     retVal += "<g id='svgHighCurve'></g>"
     retVal += "</svg>";
     var head = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='-60 -40 600 400' width='900px'>";
     return head + retVal;
 }
 
-function createCoodinates (tr,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend){
+function createCoordinates (tr,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend){
     var lineXst = wdXst;
     var lineXend = wdXend + 5;
     var lineYst = wdYst - 5;
@@ -1588,7 +1559,7 @@ function createCoodinates (tr,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend)
             retVal += "' x2='" + (lineXst - 7) + "' y2='" + yPos + "' stroke-width='2' stroke='black' />";
             retVal += "<text x='" + (lineXst - 11) + "' y='" + (yPos + 3);
             retVal += "' font-family='Arial' font-size='10' fill='black' text-anchor='end'>";
-           retVal += (i * yStep).toFixed(yRound) + "</text>";
+            retVal += (i * yStep).toFixed(yRound) + "</text>";
         }
     } else {
         var fixStart = startY
@@ -1596,6 +1567,11 @@ function createCoodinates (tr,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend)
             fixStart = window.minLogCutoff;
         }
         var yPow = Math.pow(10, Math.floor(Math.log10((Math.log10(endY)-Math.log10(fixStart))/10)));
+        var yRound = Math.ceil(Math.log10(fixStart)/10 * -1);
+     //   alert(yRound + " - " + fixStart)
+        if (yRound < 0) {
+            yRound = 0;
+        }
         var yStep = Math.floor((Math.log10(endY)-Math.log10(fixStart))/10/yPow) * yPow;
         var minVal = Math.ceil(10 * Math.log10(fixStart)) / 10
         for (var i = 0; i * yStep < (Math.log10(endY)-Math.log10(fixStart)) ; i++) {
@@ -1604,7 +1580,7 @@ function createCoodinates (tr,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend)
             retVal += "' x2='" + (lineXst - 7) + "' y2='" + yPos + "' stroke-width='2' stroke='black' />";
             retVal += "<text x='" + (lineXst - 11) + "' y='" + (yPos + 3);
             retVal += "' font-family='Arial' font-size='10' fill='black' text-anchor='end'>";
-            retVal += (i * yStep + minVal).toFixed(1) + "</text>";
+            retVal += Math.pow(10, (i * yStep + minVal)).toFixed(yRound) + "</text>";
         }
     }
     return retVal;
@@ -1686,6 +1662,10 @@ function createAllCurves(tr,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend){
                         if (window.curveSource == "adp") {
                             retVal += createOneCurve(parseInt(reacts[reac].id),dataPos,"1.2",
                                                      reacts[reac].datas[dataPos].adps,colo,startX,endX,startY,endY,
+                                                     wdXst,wdXend,wdYst,wdYend);
+                        } else if (window.curveSource == "bas") {
+                            retVal += createOneCurve(parseInt(reacts[reac].id),dataPos,"1.2",
+                                                     reacts[reac].datas[dataPos].bass,colo,startX,endX,startY,endY,
                                                      wdXst,wdXend,wdYst,wdYend);
                         } else {
                             retVal += createOneCurve(parseInt(reacts[reac].id),dataPos,"1.2",
@@ -1771,6 +1751,10 @@ function createOneHighCurve(id, dataPos) {
             }
             if (window.curveSource == "adp") {
                 retVal += createOneCurve(parseInt(reacts[reac].id),dataPos,"3.0",reacts[reac].datas[dataPos].adps,colo,
+                                         window.winXst, window.winXend, window.winYst, window.winYend,
+                                         window.frameXst, window.frameXend, window.frameYst, window.frameYend);
+            } else if (window.curveSource == "bas") {
+                retVal += createOneCurve(parseInt(reacts[reac].id),dataPos,"3.0",reacts[reac].datas[dataPos].bass,colo,
                                          window.winXst, window.winXend, window.winYst, window.winYend,
                                          window.frameXst, window.frameXend, window.frameYst, window.frameYend);
             } else {

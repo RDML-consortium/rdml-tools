@@ -1439,7 +1439,7 @@ function createCoodinates (tr,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend)
             retVal += "' x2='" + (lineXst - 7) + "' y2='" + yPos + "' stroke-width='2' stroke='black' />";
             retVal += "<text x='" + (lineXst - 11) + "' y='" + (yPos + 3);
             retVal += "' font-family='Arial' font-size='10' fill='black' text-anchor='end'>";
-           retVal += (i * yStep).toFixed(yRound) + "</text>";
+            retVal += (i * yStep).toFixed(yRound) + "</text>";
         }
     } else {
         var fixStart = startY
@@ -1455,7 +1455,7 @@ function createCoodinates (tr,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend)
             retVal += "' x2='" + (lineXst - 7) + "' y2='" + yPos + "' stroke-width='2' stroke='black' />";
             retVal += "<text x='" + (lineXst - 11) + "' y='" + (yPos + 3);
             retVal += "' font-family='Arial' font-size='10' fill='black' text-anchor='end'>";
-            retVal += (i * yStep + minVal).toFixed(1) + "</text>";
+            retVal += Math.round(Math.pow(10, (i * yStep + minVal))) + "</text>";
         }
     }
     return retVal;
