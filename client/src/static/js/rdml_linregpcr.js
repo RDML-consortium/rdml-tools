@@ -39,8 +39,6 @@ const selectorsData = document.getElementById('selectors-data')
 const resultData = document.getElementById('result-data')
 const resultLinRegPCR = document.getElementById('result-linregpcr')
 
-window.minLogCutoff = 0.01;
-
 window.uuid = "";
 window.rdmlData = "";
 window.reactData = "";
@@ -314,6 +312,7 @@ function updateServerData(stat, reqData) {
                 if (res.data.data.hasOwnProperty("reactsdata")) {
                     window.reactData = res.data.data.reactsdata
                     if (window.reactData.hasOwnProperty("LinRegPCR_Result_Table")) {
+                        window.curveSource = "bas"
                         updateLinRegPCRTable()
                     } else {
                         window.linRegSaveTable = ""
@@ -436,6 +435,10 @@ function updateClientData() {
         }
         return
     }
+    if ((window.curveSource == "bas") && (!(window.reactData.hasOwnProperty("LinRegPCR_Result_Table")))) {
+        window.curveSource = "adp"
+    }
+
     // The UUID box
     var ret = '<br /><div class="card">\n<div class="card-body">\n'
     ret += '<h5 class="card-title">Links to other RDML tools</h5>\n<p>Link to this result page:<br />'
@@ -1546,41 +1549,62 @@ function createCoordinates (tr,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend
     }
 
     // The Y-Axis
+    var yTopStep = Math.pow(10, Math.floor(Math.log10(Math.abs(endY) / 10)));
+    endY = Math.ceil(endY / yTopStep) * yTopStep
+    var yLowStep = Math.pow(10, Math.floor(Math.log10(Math.abs(startY) / 10)));
+    startY = Math.floor(startY / yLowStep) * yLowStep
     if (window.yScale == "lin") {
-        var yPow = Math.pow(10, Math.floor(Math.log10(endY/10)));
-        var yRound = Math.floor(Math.log10(endY/10)) * -1;
-        if (yRound < 0) {
-            yRound = 0;
+        if (startY > 0) {
+            startY = 0;
         }
-        var yStep = Math.floor(endY/10/yPow) * yPow;
+        var yStep = Math.floor((endY - startY) / 10 / yTopStep) * yTopStep;
         for (var i = 0; i * yStep < endY; i++) {
-            var yPos = wdYend - i * yStep / endY * (wdYend - wdYst);
+            var yPos = wdYend - i * yStep / (endY - startY) * (wdYend - wdYst);
             retVal += "<line x1='" + lineXst + "' y1='" + yPos;
             retVal += "' x2='" + (lineXst - 7) + "' y2='" + yPos + "' stroke-width='2' stroke='black' />";
             retVal += "<text x='" + (lineXst - 11) + "' y='" + (yPos + 3);
             retVal += "' font-family='Arial' font-size='10' fill='black' text-anchor='end'>";
-            retVal += (i * yStep).toFixed(yRound) + "</text>";
+            var textValOut = i * yStep - startY
+            var yRound = 0
+            if (textValOut != 0) {
+                yRound = Math.max(0, Math.floor(2 - Math.log10(Math.abs(textValOut))))
+            }
+            retVal += textValOut.toFixed(yRound) + "</text>";
         }
+        // for (var i = 0; i * yTopStep < endY; i++) {
+        //     var yPos = wdYend - i * yTopStep / (endY - startY) * (wdYend - wdYst);
+        //     retVal += "<line x1='" + lineXst + "' y1='" + yPos;
+        //     retVal += "' x2='" + (lineXst - 5) + "' y2='" + yPos + "' stroke-width='1' stroke='black' />";
+        // }
     } else {
-        var fixStart = startY
-        if (window.minLogCutoff > fixStart) {
-            fixStart = window.minLogCutoff;
+        yLowStep = Math.pow(10, Math.floor(Math.log10(Math.abs(startY))));
+        var yExtraStep = Math.pow(10, Math.floor(Math.log10(Math.abs(endY/1000))));
+        var extraEnd = Math.floor((endY/1000) / yExtraStep) * yExtraStep
+        var startY = Math.floor(startY / yLowStep) * yLowStep
+        if (extraEnd > startY) {
+            startY = extraEnd
+            yLowStep = yExtraStep
         }
-        var yPow = Math.pow(10, Math.floor(Math.log10((Math.log10(endY)-Math.log10(fixStart))/10)));
-        var yRound = Math.ceil(Math.log10(fixStart)/10 * -1);
-     //   alert(yRound + " - " + fixStart)
-        if (yRound < 0) {
-            yRound = 0;
-        }
-        var yStep = Math.floor((Math.log10(endY)-Math.log10(fixStart))/10/yPow) * yPow;
-        var minVal = Math.ceil(10 * Math.log10(fixStart)) / 10
-        for (var i = 0; i * yStep < (Math.log10(endY)-Math.log10(fixStart)) ; i++) {
-            var yPos = wdYend - (i * yStep + (minVal - Math.log10(fixStart))) / (Math.log10(endY) - Math.log10(fixStart)) * (wdYend - wdYst);
+     //   var yPow = Math.pow(10, Math.floor(Math.log10((Math.log10(endY)-Math.log10(startY))/10)));
+      //  var yStep = Math.floor((Math.log10(endY)-Math.log10(startY))/10/yPow) * yPow;
+      //  var minVal = Math.ceil(10 * Math.log10(startY)) / 10
+        var sumVal = startY
+        for (var i = 0; (sumVal + i * yLowStep) < endY ; i++) {
+            if ((sumVal + i * yLowStep) / yLowStep >= 10) {
+                yLowStep = yLowStep * 10
+                i = 0
+                sumVal = yLowStep
+            }
+            var yPos = wdYend - (Math.log10(sumVal + i * yLowStep) - Math.log10(startY)) / (Math.log10(endY) - Math.log10(startY)) * (wdYend - wdYst);
             retVal += "<line x1='" + lineXst + "' y1='" + yPos;
             retVal += "' x2='" + (lineXst - 7) + "' y2='" + yPos + "' stroke-width='2' stroke='black' />";
-            retVal += "<text x='" + (lineXst - 11) + "' y='" + (yPos + 3);
-            retVal += "' font-family='Arial' font-size='10' fill='black' text-anchor='end'>";
-            retVal += Math.pow(10, (i * yStep + minVal)).toFixed(yRound) + "</text>";
+            if (!(((sumVal + i * yLowStep) / yLowStep == 7) || ((sumVal + i * yLowStep) / yLowStep == 9) )) {
+                retVal += "<text x='" + (lineXst - 11) + "' y='" + (yPos + 3);
+                retVal += "' font-family='Arial' font-size='10' fill='black' text-anchor='end'>";
+                var textValOut = sumVal + i * yLowStep
+                var yRound = Math.max(0, Math.floor(2 - Math.log10(Math.abs(textValOut))))
+                retVal += textValOut.toFixed(yRound) + "</text>";
+            }
         }
     }
     return retVal;
@@ -1885,16 +1909,15 @@ function rdmlNumberInverter(number) {
 function createOneCurve(id,dataPos,stroke_str,curveDots,col,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend){
     var retVal = "<polyline fill='none' stroke-linejoin='round' stroke='" + col;
     retVal += "' stroke-width='" + stroke_str + "' points='";
-    var fixStart = startY
-    if (window.minLogCutoff > fixStart) {
-        fixStart = window.minLogCutoff;
-    }
+    var yLowStep = Math.pow(10, Math.floor(Math.log10(Math.abs(startY))));
+    var yExtraStep = Math.pow(10, Math.floor(Math.log10(Math.abs(endY/1000))));
+    var fixStart = Math.max(Math.floor((endY/1000) / yExtraStep) * yExtraStep, Math.floor(startY / yLowStep) * yLowStep);
     for (var i = 0; i < curveDots.length; i++) {
         var xPos = wdXst + (parseFloat(curveDots[i][0]) - startX) / (endX - startX) * (wdXend - wdXst);
         if (window.yScale == "lin") {
             var yPos = wdYend - parseFloat(curveDots[i][1]) / endY * (wdYend - wdYst);
         } else {
-            if (window.minLogCutoff > parseFloat(curveDots[i][1])) {
+            if (fixStart > parseFloat(curveDots[i][1])) {
                 var yPos = wdYend;
             } else {
                 var yPos = wdYend - (Math.log10(parseFloat(curveDots[i][1])) - Math.log10(fixStart)) / (Math.log10(endY) - Math.log10(fixStart)) * (wdYend - wdYst);
