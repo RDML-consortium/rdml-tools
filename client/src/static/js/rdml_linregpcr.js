@@ -71,6 +71,9 @@ window.usedDyeIds = {}
 window.usedDyeMaxPos = 0
 window.usedExcluded = {}
 
+window.reactToLinRegTable = {}
+window.linRegPCRTable = []
+
 window.lastSelReact = ""
 
 // Global Values
@@ -313,9 +316,18 @@ function updateServerData(stat, reqData) {
                     window.reactData = res.data.data.reactsdata
                     if (window.reactData.hasOwnProperty("LinRegPCR_Result_Table")) {
                         window.curveSource = "bas"
+                        window.linRegPCRTable = JSON.parse(window.reactData.LinRegPCR_Result_Table)
+                        for (var row = 0; row < window.linRegPCRTable.length; row++) {
+                            var reactPos = window.linRegPCRTable[row][0]  //  LinRegPCR table ID
+                            if (!(window.reactToLinRegTable.hasOwnProperty(reactPos))) {
+                                window.reactToLinRegTable[reactPos] = row
+                            }
+                        }
                         updateLinRegPCRTable()
                     } else {
                         window.linRegSaveTable = ""
+                        window.linRegPCRTable = []
+                        window.reactToLinRegTable = {}
                     }
                     // For debugging
                     // document.getElementById('text-jsDebug').value = JSON.stringify(window.reactData, null, 2)
@@ -910,17 +922,16 @@ function updateClientData() {
 
 window.updateLinRegPCRTable = updateLinRegPCRTable
 function updateLinRegPCRTable() {
-    if (!(window.reactData.hasOwnProperty("LinRegPCR_Result_Table"))) {
+    if (window.linRegPCRTable.length < 1) {
         return
     }
     var content = "";
     var ret = '<table class="table table-bordered table-striped" id="LinRegPCR_Result_Table">\n'
-    var table = JSON.parse(window.reactData.LinRegPCR_Result_Table)
-    for (var row = 0; row < table.length; row++) {
+    for (var row = 0; row < window.linRegPCRTable.length; row++) {
         ret += '<tr>\n'
-        for (var col = 0; col < table[row].length; col++) {
-            content += table[row][col] + "\t"
-            ret += '<td>' + table[row][col] + '</td>\n'
+        for (var col = 0; col < window.linRegPCRTable[row].length; col++) {
+            content += window.linRegPCRTable[row][col] + "\t"
+            ret += '<td>' + window.linRegPCRTable[row][col] + '</td>\n'
         }
         content = content.replace(/\t$/g, "\n");
         ret += '</tr>\n'
@@ -1532,10 +1543,7 @@ function createCoordinates (tr,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend
     var lineXend = wdXend + 5;
     var lineYst = wdYst - 5;
     var lineYend = wdYend;
-    var retVal = "<line x1='" + lineXst + "' y1='" + lineYend;
-    retVal += "' x2='" + lineXend + "' y2='" + lineYend + "' stroke-width='2' stroke='black' stroke-linecap='square'/>";
-    retVal += "<line x1='" + lineXst + "' y1='" + lineYst;
-    retVal += "' x2='" + lineXst + "' y2='" + lineYend + "' stroke-width='2' stroke='black' stroke-linecap='square'/>";
+    var retVal = ""
 
     // The X-Axis
     var xStep = 5;
@@ -1580,7 +1588,7 @@ function createCoordinates (tr,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend
         yLowStep = Math.pow(10, Math.floor(Math.log10(Math.abs(startY))));
         var yExtraStep = Math.pow(10, Math.floor(Math.log10(Math.abs(endY/1000))));
         var extraEnd = Math.floor((endY/1000) / yExtraStep) * yExtraStep
-        var startY = Math.floor(startY / yLowStep) * yLowStep
+        startY = Math.floor(startY / yLowStep) * yLowStep
         if (extraEnd > startY) {
             startY = extraEnd
             yLowStep = yExtraStep
@@ -1607,6 +1615,96 @@ function createCoordinates (tr,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend
             }
         }
     }
+
+    // Baseline and Limits
+    if ((window.linRegPCRTable.length > 0) &&
+        (window.sampSelFirst == "target") &&
+        ((window.sampSelSecond != "7s8e45-Show-All") ||
+         (window.sampSelThird != "7s8e45-Show-All"))) {
+        var selReact = ""
+        var selData = ""
+        var runOn = true
+
+        if (window.reactData.hasOwnProperty("reacts")) {
+            var reacts = window.reactData.reacts
+            for (var i = 0; i < reacts.length; i++) {
+                for (var k = 0; k < reacts[i].datas.length; k++) {
+                    if (reacts[i].datas[k]["runview_show"] == true) {
+                        selReact = reacts[i].id
+                        selData = reacts[i].datas[k].tar
+                        k = reacts[i].datas.length
+                        runOn = false
+                    }
+                }
+                if (runOn == false) {
+                    i = reacts.length
+                }
+            }
+
+            runOn = true
+            var i = window.reactToLinRegTable[selReact]
+            var k = -1
+            while ((runOn) && (selReact == window.linRegPCRTable[i][0])) {  //  LinRegPCR table ID
+                if (selData == window.linRegPCRTable[i][2]) {  //  LinRegPCR table target
+                    k = i
+                    runOn = false
+                }
+                i++
+            }
+
+            if (k > -1) {
+                var line = parseFloat(window.linRegPCRTable[k][5])  //  LinRegPCR table lower limit
+                var yPos = 0.0
+                if (window.yScale == "lin") {
+                    yPos = wdYend - line / (endY - startY) * (wdYend - wdYst);
+                } else {
+                    yPos = wdYend - (Math.log10(line) - Math.log10(startY)) / (Math.log10(endY) - Math.log10(startY)) * (wdYend - wdYst);
+                }
+                retVal += "<line x1='" + lineXst + "' y1='" + yPos;
+                retVal += "' x2='" + lineXend + "' y2='" + yPos;
+                retVal += "' stroke-width='1.5' stroke='blue' stroke-linecap='square'/>";
+
+                line = parseFloat(window.linRegPCRTable[k][6])  //  LinRegPCR table upper limit
+                yPos = 0.0
+                if (window.yScale == "lin") {
+                    yPos = wdYend - line / (endY - startY) * (wdYend - wdYst);
+                } else {
+                    yPos = wdYend - (Math.log10(line) - Math.log10(startY)) / (Math.log10(endY) - Math.log10(startY)) * (wdYend - wdYst);
+                }
+                retVal += "<line x1='" + lineXst + "' y1='" + yPos;
+                retVal += "' x2='" + lineXend + "' y2='" + yPos;
+                retVal += "' stroke-width='1.5' stroke='blue' stroke-linecap='square'/>";
+
+                line = parseFloat(window.linRegPCRTable[k][15])  //  LinRegPCR table threshold 13 15
+                yPos = 0.0
+                if (window.yScale == "lin") {
+                    yPos = wdYend - line / (endY - startY) * (wdYend - wdYst);
+                } else {
+                    yPos = wdYend - (Math.log10(line) - Math.log10(startY)) / (Math.log10(endY) - Math.log10(startY)) * (wdYend - wdYst);
+                }
+                retVal += "<line x1='" + lineXst + "' y1='" + yPos;
+                retVal += "' x2='" + lineXend + "' y2='" + yPos;
+                retVal += "' stroke-width='1.5' stroke='lime' stroke-linecap='square'/>";
+
+                if (window.sampSelThird != "7s8e45-Show-All") {
+                    line = parseFloat(window.linRegPCRTable[k][16])  //  LinRegPCR table Cq 14 14
+                    if (line > 0.0) {
+                        var xPos = wdXst + line / (endX - startX) * (wdXend - wdXst);
+                        retVal += "<line x1='" + xPos + "' y1='" + yPos;
+                        retVal += "' x2='" + xPos + "' y2='" + lineYend;
+                        retVal += "' stroke-width='1.5' stroke='lime' stroke-linecap='square'/>";
+                    }
+                }
+            }
+
+        }
+    }
+
+    retVal += "<line x1='" + lineXst + "' y1='" + lineYend;
+    retVal += "' x2='" + lineXend + "' y2='" + lineYend + "' stroke-width='2' stroke='black' stroke-linecap='square'/>";
+    retVal += "<line x1='" + lineXst + "' y1='" + lineYst;
+    retVal += "' x2='" + lineXst + "' y2='" + lineYend + "' stroke-width='2' stroke='black' stroke-linecap='square'/>";
+
     return retVal;
 }
 
