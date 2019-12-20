@@ -219,6 +219,9 @@ function showExample() {
     window.selExperiment = "Experiment_1";
     window.selRunOnLoad = "Run_1";
     window.selDigitalOnLoad = "none";
+    window.sampSelFirst = "7s8e45-Show-All"  // To avoid conflicts with existing values
+    window.sampSelSecond = "7s8e45-Show-All"  // To avoid conflicts with existing values
+    window.sampSelThird = "7s8e45-Show-All"  // To avoid conflicts with existing values
 
     updateServerData("example", '{"mode": "upload", "validate": true}')
     $('[href="#runs-tab"]').tab('show')
@@ -229,6 +232,9 @@ function showUpload() {
     window.selExperiment = "";
     window.selRunOnLoad = "";
     window.selDigitalOnLoad = "none";
+    window.sampSelFirst = "7s8e45-Show-All"  // To avoid conflicts with existing values
+    window.sampSelSecond = "7s8e45-Show-All"  // To avoid conflicts with existing values
+    window.sampSelThird = "7s8e45-Show-All"  // To avoid conflicts with existing values
 
     updateServerData("data", '{"mode": "upload", "validate": true}')
     $('[href="#runs-tab"]').tab('show')

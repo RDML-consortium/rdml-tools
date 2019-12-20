@@ -87,10 +87,15 @@ window.frameYst = 0;
 window.frameYend = 300;
 
 function resetAllGlobalVal() {
-    window.editMode = false;
-    window.editType = "";
-    window.editIsNew = false;
-    window.editNumber = -1;
+    window.sampSelFirst = "7s8e45-Show-All"  // To avoid conflicts with existing values
+    window.sampSelSecond = "7s8e45-Show-All"  // To avoid conflicts with existing values
+    window.sampSelThird = "7s8e45-Show-All"  // To avoid conflicts with existing values
+    window.linRegSaveTable = ""
+    window.linRegPCRTable = []
+    window.reactToLinRegTable = {}
+    resultLinRegPCR.innerHTML = ""
+
+    updateClientData()
 }
 
 document.addEventListener("DOMContentLoaded", function() {
@@ -233,6 +238,7 @@ function showExample() {
     window.selExperiment = "Experiment_1";
     window.selRunOnLoad = "Run_1";
     window.selDigitalOnLoad = "none";
+    resetAllGlobalVal()
 
     updateServerData("example", '{"mode": "upload", "validate": true}')
     $('[href="#runs-tab"]').tab('show')
@@ -243,6 +249,7 @@ function showUpload() {
     window.selExperiment = "";
     window.selRunOnLoad = "";
     window.selDigitalOnLoad = "none";
+    resetAllGlobalVal()
 
     updateServerData("data", '{"mode": "upload", "validate": true}')
     $('[href="#runs-tab"]').tab('show')
@@ -253,6 +260,7 @@ function runLinRegPCR() {
         alert("Select an experiment and run first!")
         return
     }
+    resultLinRegPCR.innerHTML = ""
     var rBaseline = true
     var rPCREffRange = 0.05
     var rUpdateRDML = true
@@ -296,6 +304,7 @@ function updateServerData(stat, reqData) {
 
     hideElement(resultError)
     showElement(resultInfo)
+    resultLinRegPCR.innerHTML = ""
 
     axios
         .post(`${API_URL}/data`, formData)
@@ -320,7 +329,7 @@ function updateServerData(stat, reqData) {
                         for (var row = 0; row < window.linRegPCRTable.length; row++) {
                             var reactPos = window.linRegPCRTable[row][0]  //  LinRegPCR table ID
                             if (!(window.reactToLinRegTable.hasOwnProperty(reactPos))) {
-                                window.reactToLinRegTable[reactPos] = row
+                                window.reactToLinRegTable[parseInt(reactPos)] = row
                             }
                         }
                         updateLinRegPCRTable()
@@ -1642,7 +1651,7 @@ function createCoordinates (tr,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend
             }
 
             runOn = true
-            var i = window.reactToLinRegTable[selReact]
+            var i = window.reactToLinRegTable[parseInt(selReact)]
             var k = -1
             while ((runOn) && (selReact == window.linRegPCRTable[i][0])) {  //  LinRegPCR table ID
                 if (selData == window.linRegPCRTable[i][2]) {  //  LinRegPCR table target
@@ -1789,6 +1798,9 @@ function createAllCurves(tr,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend){
                             retVal += createOneCurve(parseInt(reacts[reac].id),dataPos,"1.2",
                                                      reacts[reac].datas[dataPos].bass,colo,startX,endX,startY,endY,
                                                      wdXst,wdXend,wdYst,wdYend);
+                            retVal += createOneDots(reac, parseInt(reacts[reac].id),dataPos,"1.2",
+                                                    reacts[reac].datas[dataPos].bass,colo,startX,endX,startY,endY,
+                                                    wdXst,wdXend,wdYst,wdYend);
                         } else {
                             retVal += createOneCurve(parseInt(reacts[reac].id),dataPos,"1.2",
                                                      reacts[reac].datas[dataPos].mdps,colo,startX,endX,startY,endY,
@@ -1879,6 +1891,9 @@ function createOneHighCurve(id, dataPos) {
                 retVal += createOneCurve(parseInt(reacts[reac].id),dataPos,"3.0",reacts[reac].datas[dataPos].bass,colo,
                                          window.winXst, window.winXend, window.winYst, window.winYend,
                                          window.frameXst, window.frameXend, window.frameYst, window.frameYend);
+                retVal += createOneDots(reac, parseInt(reacts[reac].id),dataPos,"3.0",reacts[reac].datas[dataPos].bass,colo,
+                                        window.winXst, window.winXend, window.winYst, window.winYend,
+                                        window.frameXst, window.frameXend, window.frameYst, window.frameYend);
             } else {
                 retVal += createOneCurve(parseInt(reacts[reac].id),dataPos,"3.0",reacts[reac].datas[dataPos].mdps,colo,
                                          window.winXst, window.winXend, window.winYst, window.winYend,
@@ -2024,6 +2039,64 @@ function createOneCurve(id,dataPos,stroke_str,curveDots,col,startX,endX,startY,e
         retVal += xPos + "," + yPos + " ";
     }
     retVal += "' onclick='showReactSel(" + id + ", " + dataPos + ")'/>";
+    return retVal;
+}
+
+function createOneDots(reac,id,dataPos,stroke_str,curveDots,col,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend){
+    var retVal = ""
+    if ((window.linRegPCRTable.length > 0) &&
+        (window.sampSelFirst == "target") &&
+        ((window.sampSelSecond != "7s8e45-Show-All") ||
+         (window.sampSelThird != "7s8e45-Show-All"))) {
+
+        if (window.reactData.hasOwnProperty("reacts")) {
+            var reacts = window.reactData.reacts
+            var i = window.reactToLinRegTable[parseInt(id)]
+            var k = -1
+            var runOn = true
+            while ((runOn) && (parseInt(reacts[reac].id) == parseInt(window.linRegPCRTable[i][0]))) {  //  LinRegPCR table ID
+                if (reacts[reac].datas[dataPos].tar == window.linRegPCRTable[i][2]) {  //  LinRegPCR table target
+                    k = i
+                    runOn = false
+                }
+                i++
+            }
+
+            if (k > -1) {
+                var yLowStep = Math.pow(10, Math.floor(Math.log10(Math.abs(startY))));
+                var yExtraStep = Math.pow(10, Math.floor(Math.log10(Math.abs(endY/1000))));
+                var fixStart = Math.max(Math.floor((endY/1000) / yExtraStep) * yExtraStep, Math.floor(startY / yLowStep) * yLowStep);
+                for (var i = 0; i < curveDots.length; i++) {
+                    var svgFill = "none"
+                    var svgRadius = "1.2"
+                    var xVal = parseInt(curveDots[i][0])
+                    var yVal = parseFloat(curveDots[i][1])
+                    if ((parseInt(window.linRegPCRTable[k][7]) > 0) &&
+                        (xVal <= parseInt(window.linRegPCRTable[k][8])) &&
+                        (xVal > parseInt(window.linRegPCRTable[k][8]) - parseInt(window.linRegPCRTable[k][7]))) {  //  LinRegPCR table log lin range
+                        svgRadius = "2.4"
+                        if ((parseInt(window.linRegPCRTable[k][9]) > 0) &&
+                            (yVal > parseFloat(window.linRegPCRTable[k][5])) &&
+                            (yVal < parseFloat(window.linRegPCRTable[k][6]))) {  //  LinRegPCR table log lin range
+                            svgFill = col
+                       } //  LinRegPCR table lower limit
+                    }
+                    var xPos = wdXst + (xVal - startX) / (endX - startX) * (wdXend - wdXst);
+                    if (window.yScale == "lin") {
+                        var yPos = wdYend - yVal / endY * (wdYend - wdYst);
+                    } else {
+                        if (fixStart > yVal) {
+                            var yPos = wdYend;
+                        } else {
+                            var yPos = wdYend - (Math.log10(parseFloat(curveDots[i][1])) - Math.log10(fixStart)) / (Math.log10(endY) - Math.log10(fixStart)) * (wdYend - wdYst);
+                        }
+                    }
+                    retVal += "<circle cx='" + xPos + "' cy='" + yPos + "' r='" + svgRadius + "' stroke='" + col
+                    retVal += "' stroke-width='0.9' fill='" + svgFill + "' />" + col;
+                }
+            }
+        }
+    }
     return retVal;
 }
 
