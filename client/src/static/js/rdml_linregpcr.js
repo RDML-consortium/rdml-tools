@@ -50,6 +50,8 @@ window.selPCRStyle = "classic";
 window.selRunOnLoad = "";
 window.selDigitalOnLoad = "none";
 
+window.maxLogRange = 10000;
+
 window.sampSelFirst = "7s8e45-Show-All"  // To avoid conflicts with existing values
 window.sampSelSecond = "7s8e45-Show-All"  // To avoid conflicts with existing values
 window.sampSelThird = "7s8e45-Show-All"  // To avoid conflicts with existing values
@@ -1595,8 +1597,8 @@ function createCoordinates (tr,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend
         // }
     } else {
         yLowStep = Math.pow(10, Math.floor(Math.log10(Math.abs(startY))));
-        var yExtraStep = Math.pow(10, Math.floor(Math.log10(Math.abs(endY/1000))));
-        var extraEnd = Math.floor((endY/1000) / yExtraStep) * yExtraStep
+        var yExtraStep = Math.pow(10, Math.floor(Math.log10(Math.abs(endY/window.maxLogRange))));
+        var extraEnd = Math.floor((endY/window.maxLogRange) / yExtraStep) * yExtraStep
         startY = Math.floor(startY / yLowStep) * yLowStep
         if (extraEnd > startY) {
             startY = extraEnd
@@ -1615,11 +1617,13 @@ function createCoordinates (tr,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend
             var yPos = wdYend - (Math.log10(sumVal + i * yLowStep) - Math.log10(startY)) / (Math.log10(endY) - Math.log10(startY)) * (wdYend - wdYst);
             retVal += "<line x1='" + lineXst + "' y1='" + yPos;
             retVal += "' x2='" + (lineXst - 7) + "' y2='" + yPos + "' stroke-width='2' stroke='black' />";
-            if (!(((sumVal + i * yLowStep) / yLowStep == 7) || ((sumVal + i * yLowStep) / yLowStep == 9) )) {
+            var textValOut = sumVal + i * yLowStep
+            var yRound = Math.max(0, Math.floor(2 - Math.log10(Math.abs(textValOut))))
+            if (!(((Math.round(textValOut.toFixed(yRound) / yLowStep) == 5) && (window.maxLogRange > 3000)) ||
+                  (Math.round(textValOut.toFixed(yRound) / yLowStep) == 7) ||
+                  (Math.round(textValOut.toFixed(yRound) / yLowStep) == 9) )) {
                 retVal += "<text x='" + (lineXst - 11) + "' y='" + (yPos + 3);
                 retVal += "' font-family='Arial' font-size='10' fill='black' text-anchor='end'>";
-                var textValOut = sumVal + i * yLowStep
-                var yRound = Math.max(0, Math.floor(2 - Math.log10(Math.abs(textValOut))))
                 retVal += textValOut.toFixed(yRound) + "</text>";
             }
         }
@@ -1684,7 +1688,7 @@ function createCoordinates (tr,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend
                 retVal += "' x2='" + lineXend + "' y2='" + yPos;
                 retVal += "' stroke-width='1.5' stroke='blue' stroke-linecap='square'/>";
 
-                line = parseFloat(window.linRegPCRTable[k][15])  //  LinRegPCR table threshold 13 15
+                line = parseFloat(window.linRegPCRTable[k][7])  //  LinRegPCR table threshold 7
                 yPos = 0.0
                 if (window.yScale == "lin") {
                     yPos = wdYend - line / (endY - startY) * (wdYend - wdYst);
@@ -1696,7 +1700,7 @@ function createCoordinates (tr,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend
                 retVal += "' stroke-width='1.5' stroke='lime' stroke-linecap='square'/>";
 
                 if (window.sampSelThird != "7s8e45-Show-All") {
-                    line = parseFloat(window.linRegPCRTable[k][16])  //  LinRegPCR table Cq 14 14
+                    line = parseFloat(window.linRegPCRTable[k][21])  //  LinRegPCR table Cq 21 adapt!! FixMe: Adapt
                     if (line > 0.0) {
                         var xPos = wdXst + line / (endX - startX) * (wdXend - wdXst);
                         retVal += "<line x1='" + xPos + "' y1='" + yPos;
@@ -2023,8 +2027,8 @@ function createOneCurve(id,dataPos,stroke_str,curveDots,col,startX,endX,startY,e
     var retVal = "<polyline fill='none' stroke-linejoin='round' stroke='" + col;
     retVal += "' stroke-width='" + stroke_str + "' points='";
     var yLowStep = Math.pow(10, Math.floor(Math.log10(Math.abs(startY))));
-    var yExtraStep = Math.pow(10, Math.floor(Math.log10(Math.abs(endY/1000))));
-    var fixStart = Math.max(Math.floor((endY/1000) / yExtraStep) * yExtraStep, Math.floor(startY / yLowStep) * yLowStep);
+    var yExtraStep = Math.pow(10, Math.floor(Math.log10(Math.abs(endY/window.maxLogRange))));
+    var fixStart = Math.max(Math.floor((endY/window.maxLogRange) / yExtraStep) * yExtraStep, Math.floor(startY / yLowStep) * yLowStep);
     for (var i = 0; i < curveDots.length; i++) {
         var xPos = wdXst + (parseFloat(curveDots[i][0]) - startX) / (endX - startX) * (wdXend - wdXst);
         if (window.yScale == "lin") {
@@ -2064,22 +2068,22 @@ function createOneDots(reac,id,dataPos,stroke_str,curveDots,col,startX,endX,star
 
             if (k > -1) {
                 var yLowStep = Math.pow(10, Math.floor(Math.log10(Math.abs(startY))));
-                var yExtraStep = Math.pow(10, Math.floor(Math.log10(Math.abs(endY/1000))));
-                var fixStart = Math.max(Math.floor((endY/1000) / yExtraStep) * yExtraStep, Math.floor(startY / yLowStep) * yLowStep);
+                var yExtraStep = Math.pow(10, Math.floor(Math.log10(Math.abs(endY/window.maxLogRange))));
+                var fixStart = Math.max(Math.floor((endY/window.maxLogRange) / yExtraStep) * yExtraStep, Math.floor(startY / yLowStep) * yLowStep);
                 for (var i = 0; i < curveDots.length; i++) {
                     var svgFill = "none"
                     var svgRadius = "1.2"
                     var xVal = parseInt(curveDots[i][0])
                     var yVal = parseFloat(curveDots[i][1])
-                    if ((parseInt(window.linRegPCRTable[k][7]) > 0) &&
-                        (xVal <= parseInt(window.linRegPCRTable[k][8])) &&
-                        (xVal > parseInt(window.linRegPCRTable[k][8]) - parseInt(window.linRegPCRTable[k][7]))) {  //  LinRegPCR table log lin range
+                    if ((parseInt(window.linRegPCRTable[k][9]) > 0) &&  //  LinRegPCR table n in log phase
+                        (xVal <= parseInt(window.linRegPCRTable[k][10])) &&
+                        (xVal > parseInt(window.linRegPCRTable[k][10]) - parseInt(window.linRegPCRTable[k][9]))) {  //  LinRegPCR table log lin range
                         svgRadius = "2.4"
-                        if ((parseInt(window.linRegPCRTable[k][9]) > 0) &&
+                        if ((parseInt(window.linRegPCRTable[k][11]) > 0) &&  //  LinRegPCR table n included
                             (yVal > parseFloat(window.linRegPCRTable[k][5])) &&
                             (yVal < parseFloat(window.linRegPCRTable[k][6]))) {  //  LinRegPCR table log lin range
                             svgFill = col
-                       } //  LinRegPCR table lower limit
+                       }
                     }
                     var xPos = wdXst + (xVal - startX) / (endX - startX) * (wdXend - wdXst);
                     if (window.yScale == "lin") {
