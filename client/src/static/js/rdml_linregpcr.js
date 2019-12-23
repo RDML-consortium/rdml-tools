@@ -20,6 +20,15 @@ linRegPCRSaveButton.addEventListener('click', saveTabLinRegPCR)
 const linRegPCRCopyButton = document.getElementById('btn-copy-linregpcr')
 linRegPCRCopyButton.addEventListener('click', copyTabLinRegPCR)
 
+const choiceExcludeNoPlat = document.getElementById('choiceExcludeNoPlateau')
+choiceExcludeNoPlat.addEventListener('change', updateLinRegPCRTable)
+
+const choiceExcludeEff = document.getElementById('choiceExcludeEfficiency')
+choiceExcludeEff.addEventListener('change', updateLinRegPCRTable)
+
+const choiceTable = document.getElementById('selTableStyle')
+choiceTable.addEventListener('change', updateLinRegPCRTable)
+
 // For debugging
 // const jsDebugButton = document.getElementById('btn-jsDebug')
 // jsDebugButton.addEventListener('click', jsDebugFunction)
@@ -510,7 +519,7 @@ function updateClientData() {
     var ret = ''
     var exp = window.rdmlData.rdml.experiments;
 
-    ret = '<table style="width:100%;">'
+    ret = '<table style="width:100%;background-color: #e6e6e6;">'
     ret += '  <tr>\n    <td style="width:8%;">Experiment:</td>\n<td style="width:29%;">'
     ret += '  <select class="form-control" id="dropSelExperiment" onchange="updateExperimenter()">'
     ret += '    <option value="">No experiment selected</option>\n'
@@ -581,6 +590,7 @@ function updateClientData() {
             ret += '    <option value="digital" selected>digital</option>\n'
         }
     }
+    ret += '  </select>\n'
     ret += '</td>\n</tr>\n'
     ret += '</table>\n'
 
@@ -933,19 +943,157 @@ function updateClientData() {
 
 window.updateLinRegPCRTable = updateLinRegPCRTable
 function updateLinRegPCRTable() {
-    if (window.linRegPCRTable.length < 1) {
+    if ((window.reactData.hasOwnProperty("LinRegPCR_Result_Table")) &&
+        (window.linRegPCRTable.length < 1)) {
         return
     }
     var content = "";
     var ret = '<table class="table table-bordered table-striped" id="LinRegPCR_Result_Table">\n'
-    for (var row = 0; row < window.linRegPCRTable.length; row++) {
-        ret += '<tr>\n'
-        for (var col = 0; col < window.linRegPCRTable[row].length; col++) {
-            content += window.linRegPCRTable[row][col] + "\t"
-            ret += '<td>' + window.linRegPCRTable[row][col] + '</td>\n'
+    if (choiceTable.value == "debug") {
+        for (var row = 0; row < window.linRegPCRTable.length; row++) {
+            ret += '<tr>\n'
+            for (var col = 0; col < window.linRegPCRTable[row].length; col++) {
+                content += window.linRegPCRTable[row][col] + "\t"
+                ret += '<td>' + window.linRegPCRTable[row][col] + '</td>\n'
+            }
+            content = content.replace(/\t$/g, "\n");
+            ret += '</tr>\n'
         }
-        content = content.replace(/\t$/g, "\n");
-        ret += '</tr>\n'
+    } else if (choiceTable.value == "classic-compact") {
+
+// const choiceEcludeNoPlat = document.getElementById('choiceEcludeNoPlateau')
+// const choiceExcludeEff = document.getElementById('choiceExcludeEfficiency')
+        var meanCol = 19
+        var effErrCol = 36
+        if ((choiceExcludeNoPlat.value == "y") && (choiceExcludeEff.value == "n")) {
+            meanCol = 22
+            effErrCol = 35
+        }
+        if ((choiceExcludeNoPlat.value == "n") && (choiceExcludeEff.value == "y")) {
+            meanCol = 25
+        }
+        if ((choiceExcludeNoPlat.value == "y") && (choiceExcludeEff.value == "y")) {
+            meanCol = 28
+            effErrCol = 35
+        }
+
+        for (var row = 0; row < window.linRegPCRTable.length; row++) {
+            ret += '<tr>\n'
+            ret += '<td>' + window.linRegPCRTable[row][0] + '</td>\n'
+            content += window.linRegPCRTable[row][0] + "\t"
+            ret += '<td>' + window.linRegPCRTable[row][1] + '</td>\n'
+            content += window.linRegPCRTable[row][1] + "\t"
+            if (row == 0) {
+                ret += '<td>' + window.linRegPCRTable[row][14] + '</td>\n'
+            } else {
+                ret += '<td>' + Math.round(window.linRegPCRTable[row][14]*1000)/1000 + '</td>\n'
+            }
+            content += window.linRegPCRTable[row][14] + "\t"
+            ret += '<td>' + window.linRegPCRTable[row][2] + '</td>\n'
+            content += window.linRegPCRTable[row][2] + "\t"
+            if (row == 0) {
+                ret += '<td>' + window.linRegPCRTable[row][7] + '</td>\n'
+            } else {
+                ret += '<td>' + Math.round(window.linRegPCRTable[row][7]*1000)/1000 + '</td>\n'
+            }
+            content += window.linRegPCRTable[row][7] + "\t"
+            if (row == 0) {
+                ret += '<td>' + window.linRegPCRTable[row][meanCol] + '</td>\n'
+            } else {
+                ret += '<td>' + Math.round(window.linRegPCRTable[row][meanCol]*1000)/1000 + '</td>\n'
+            }
+            content += window.linRegPCRTable[row][meanCol] + "\t"
+            if (row == 0) {
+                ret += '<td>' + window.linRegPCRTable[row][meanCol + 2] + '</td>\n'
+            } else {
+                ret += '<td>' + Math.round(window.linRegPCRTable[row][meanCol + 2]*1000)/1000 + '</td>\n'
+            }
+            content += window.linRegPCRTable[row][meanCol + 2] + "\t"
+            if (row == 0) {
+                ret += '<td>' + window.linRegPCRTable[row][meanCol + 1] + '</td>\n'
+            } else {
+                ret += '<td>' + Number.parseFloat(window.linRegPCRTable[row][meanCol + 1]).toExponential(2) + '</td>\n'
+            }
+            content += window.linRegPCRTable[row][meanCol + 1] + "\t"
+            if (row == 0) {
+                ret += '<td>' + window.linRegPCRTable[row][31] + '</td>\n'
+                content += window.linRegPCRTable[row][31] + "\t"
+            } else {
+                if (window.linRegPCRTable[row][31] == true) {
+                    ret += '<td style="background-color: red;">true</td>\n'
+                    content += "true\t"
+                } else {
+                    ret += '<td>false</td>\n'
+                    content += "false\t"
+                }
+            }
+            if (row == 0) {
+                ret += '<td>' + window.linRegPCRTable[row][32] + '</td>\n'
+                content += window.linRegPCRTable[row][32] + "\t"
+            } else {
+                if (window.linRegPCRTable[row][32] == true) {
+                    ret += '<td style="background-color: red;">true</td>\n'
+                    content += "true\t"
+                } else {
+                    ret += '<td>false</td>\n'
+                    content += "false\t"
+                }
+            }
+            if (row == 0) {
+                ret += '<td>' + window.linRegPCRTable[row][33] + '</td>\n'
+                content += window.linRegPCRTable[row][33] + "\t"
+            } else {
+                if (window.linRegPCRTable[row][33] == true) {
+                    ret += '<td style="background-color: red;">true</td>\n'
+                    content += "true\t"
+                } else {
+                    ret += '<td>false</td>\n'
+                    content += "false\t"
+                }
+            }
+            if (row == 0) {
+                ret += '<td>' + window.linRegPCRTable[row][34] + '</td>\n'
+                content += window.linRegPCRTable[row][34] + "\t"
+            } else {
+                if (window.linRegPCRTable[row][34] == true) {
+                    ret += '<td style="background-color: red;">true</td>\n'
+                    content += "true\t"
+                } else {
+                    ret += '<td>false</td>\n'
+                    content += "false\t"
+                }
+            }
+            if (row == 0) {
+                ret += '<td>' + window.linRegPCRTable[row][effErrCol] + '</td>\n'
+                content += window.linRegPCRTable[row][effErrCol] + "\t"
+            } else {
+                if (window.linRegPCRTable[row][effErrCol] == true) {
+                    ret += '<td style="background-color: red;">true</td>\n'
+                    content += "true\t"
+                } else {
+                    ret += '<td>false</td>\n'
+                    content += "false\t"
+                }
+            }
+            if (row == 0) {
+                ret += '<td>' + window.linRegPCRTable[row][37] + '</td>\n'
+                content += window.linRegPCRTable[row][37] + "\t"
+            } else {
+                if (window.linRegPCRTable[row][37] == true) {
+                    ret += '<td>true</td>\n'
+                    content += "true\t"
+                } else {
+                    ret += '<td style="background-color: red;">false</td>\n'
+                    content += "false\t"
+                }
+            }
+
+            content += window.linRegPCRTable[row][31] + "\t"
+
+
+            content = content.replace(/\t$/g, "\n");
+            ret += '</tr>\n'
+        }
     }
     ret += '</table>\n'
     window.linRegSaveTable = content

@@ -84,10 +84,10 @@
       </div>
 
       <div class="tab-pane" id="linregpcr-tab">
-        <table style="width:100%;">
+        <table style="width:100%;background-color: #e6e6e6;">
           <tr>
-            <td style="width:12%;">Baseline Correction:</td>
-            <td style="width:8%;">
+            <td style="width:14%;">Baseline Correction:</td>
+            <td style="width:6%;">
               <select class="form-control" id="dropSelBaseline">
                 <option value="y" selected>yes</option>
                 <option value="n">no</option>
@@ -98,8 +98,8 @@
             <td style="width:7%;"><input type="text" class="form-control" value="0.05" id="text-exl-men-eff"></td>
             <td style="width:2%;">%</td>
             <td style="width:4%;"></td>
-            <td style="width:12%;">Update RDML Data:</td>
-            <td style="width:8%;">
+            <td style="width:14%;">Update RDML Data:</td>
+            <td style="width:6%;">
               <select class="form-control" id="updateRDMLData">
                 <option value="y">yes</option>
                 <option value="n" selected>no</option>
@@ -114,16 +114,51 @@
             </td>
           </tr>
         </table>
+        <table style="width:100%;">
+          <tr>
+            <td style="width:24%;">Exclude from mean efficiency calculation:</td>
+            <td style="width:21%;">Samples without plateau phase:</td>
+            <td style="width:6%;">
+              <select class="form-control" id="choiceExcludeNoPlateau">
+                <option value="y" selected>yes</option>
+                <option value="n">no</option>
+              </select>
+            </td>
+            <td style="width:7%;"></td>
+            <td style="width:32%;">Samples with individual efficiency outside group median:</td>
+            <td style="width:9%;">
+              <select class="form-control" id="choiceExcludeEfficiency">
+                <option value="y" selected>yes</option>
+                <option value="n">no</option>
+              </select>
+            </td>
+            <td style="width:1%;"></td>
+          </tr>
+        </table>
+        <table style="width:100%;">
+          <tr>
+            <td style="width:12%;">Table Format:</td>
+            <td style="width:28%;">
+              <select class="form-control" id="selTableStyle">
+                <option value="classic-compact" selected>LinRegPCR - Compact</option>
+                <option value="debug">Debug</option>
+              </select>
+            </td>
+            <td style="width:20%;"></td>
+            <td style="width:40%;">
+              <button type="submit" class="btn btn-outline-primary" id="btn-copy-linregpcr">
+                <i class="far fa-save" style="margin-right: 5px;"></i>
+                Copy result to clipboard
+              </button>
+              <button type="submit" class="btn btn-outline-primary" id="btn-save-linregpcr">
+                <i class="far fa-save" style="margin-right: 5px;"></i>
+                Save table as CSV file
+              </button>
+            </td>
+          </tr>
+        </table>
         <br />
-        <button type="submit" class="btn btn-outline-primary" id="btn-copy-linregpcr">
-            <i class="far fa-save" style="margin-right: 5px;"></i>
-            Copy result to clipboard
-        </button>
-        <button type="submit" class="btn btn-outline-primary" id="btn-save-linregpcr">
-            <i class="far fa-save" style="margin-right: 5px;"></i>
-            Save table as CSV file
-        </button>
-        <br />
+       <br />
         <div id="result-linregpcr"></div>
       </div>
 
