@@ -951,7 +951,12 @@ function updateLinRegPCRTable() {
     var ret = '<table class="table table-bordered table-striped" id="LinRegPCR_Result_Table">\n'
     if (choiceTable.value == "debug") {
         for (var row = 0; row < window.linRegPCRTable.length; row++) {
-            ret += '<tr>\n'
+            if (row == 0) {
+                ret += '<tr>\n'
+            } else {
+                ret += "<tr ondblclick='window.clickSampSel(\"" + window.linRegPCRTable[row][2]
+                ret += "\", \"" + window.linRegPCRTable[row][1] + "\")'> \n"
+            }
             for (var col = 0; col < window.linRegPCRTable[row].length; col++) {
                 content += window.linRegPCRTable[row][col] + "\t"
                 ret += '<td>' + window.linRegPCRTable[row][col] + '</td>\n'
@@ -977,10 +982,46 @@ function updateLinRegPCRTable() {
             effErrCol = 35
         }
 
+        var pcrFormat = window.rdmlData.rdml.experiments[window.experimentPos].runs[window.runPos].pcrFormat
+        var columns = parseInt(pcrFormat.columns)
+        var rowLabel = pcrFormat.rowLabel
+        var columnLabel = pcrFormat.columnLabel
+
         for (var row = 0; row < window.linRegPCRTable.length; row++) {
-            ret += '<tr>\n'
+            if (row == 0) {
+                ret += '<tr>\n'
+            } else {
+                ret += "<tr ondblclick='window.clickSampSel(\"" + window.linRegPCRTable[row][2]
+                ret += "\", \"" + window.linRegPCRTable[row][1] + "\")'> \n"
+            }
             ret += '<td>' + window.linRegPCRTable[row][0] + '</td>\n'
             content += window.linRegPCRTable[row][0] + "\t"
+            if (row == 0) {
+                ret += '<td>well</td>\n'
+                content += "well\t"
+            } else {
+                var thirdCol = (parseInt(window.linRegPCRTable[row][0]) - 1) % columns + 1
+                var thirdRow = Math.floor((parseInt(window.linRegPCRTable[row][0]) - 1)/ columns)
+                var wellText = ""
+                if (rowLabel == "123") {
+                    wellText += thirdRow
+                } else if (rowLabel == "ABC") {
+                    wellText += String.fromCharCode('A'.charCodeAt(0) + thirdRow)
+                }
+                if ((columnLabel == "123") && (rowLabel == "123")) {
+                    wellText += " "
+                }
+                if ((columnLabel == "ABC") && (rowLabel == "ABC")) {
+                    wellText += " "
+                }
+                if (columnLabel == "123") {
+                    wellText += thirdCol
+                } else if (columnLabel == "ABC") {
+                    wellText += String.fromCharCode('A'.charCodeAt(0) + thirdCol)
+                }
+                ret += '<td>' + wellText + '</td>\n'
+                content += wellText + "\t"
+            }
             ret += '<td>' + window.linRegPCRTable[row][1] + '</td>\n'
             content += window.linRegPCRTable[row][1] + "\t"
             if (row == 0) {
@@ -1020,11 +1061,11 @@ function updateLinRegPCRTable() {
                 content += window.linRegPCRTable[row][31] + "\t"
             } else {
                 if (window.linRegPCRTable[row][31] == true) {
-                    ret += '<td style="background-color: red;">true</td>\n'
-                    content += "true\t"
+                    ret += '<td>Yes</td>\n'
+                    content += "Yes\t"
                 } else {
-                    ret += '<td>false</td>\n'
-                    content += "false\t"
+                    ret += '<td style="background-color: #ffc266;">No</td>\n'
+                    content += "No\t"
                 }
             }
             if (row == 0) {
@@ -1032,11 +1073,11 @@ function updateLinRegPCRTable() {
                 content += window.linRegPCRTable[row][32] + "\t"
             } else {
                 if (window.linRegPCRTable[row][32] == true) {
-                    ret += '<td style="background-color: red;">true</td>\n'
-                    content += "true\t"
+                    ret += '<td style="background-color: #ffc266;">Yes</td>\n'
+                    content += "Yes\t"
                 } else {
-                    ret += '<td>false</td>\n'
-                    content += "false\t"
+                    ret += '<td>No</td>\n'
+                    content += "No\t"
                 }
             }
             if (row == 0) {
@@ -1044,11 +1085,11 @@ function updateLinRegPCRTable() {
                 content += window.linRegPCRTable[row][33] + "\t"
             } else {
                 if (window.linRegPCRTable[row][33] == true) {
-                    ret += '<td style="background-color: red;">true</td>\n'
-                    content += "true\t"
+                    ret += '<td>Yes</td>\n'
+                    content += "Yes\t"
                 } else {
-                    ret += '<td>false</td>\n'
-                    content += "false\t"
+                    ret += '<td style="background-color: #ffc266;">No</td>\n'
+                    content += "No\t"
                 }
             }
             if (row == 0) {
@@ -1056,11 +1097,11 @@ function updateLinRegPCRTable() {
                 content += window.linRegPCRTable[row][34] + "\t"
             } else {
                 if (window.linRegPCRTable[row][34] == true) {
-                    ret += '<td style="background-color: red;">true</td>\n'
-                    content += "true\t"
+                    ret += '<td style="background-color: #ffc266;">Yes</td>\n'
+                    content += "Yes\t"
                 } else {
-                    ret += '<td>false</td>\n'
-                    content += "false\t"
+                    ret += '<td>No</td>\n'
+                    content += "No\t"
                 }
             }
             if (row == 0) {
@@ -1068,11 +1109,11 @@ function updateLinRegPCRTable() {
                 content += window.linRegPCRTable[row][effErrCol] + "\t"
             } else {
                 if (window.linRegPCRTable[row][effErrCol] == true) {
-                    ret += '<td style="background-color: red;">true</td>\n'
-                    content += "true\t"
+                    ret += '<td style="background-color: #ffc266;">Yes</td>\n'
+                    content += "Yes\t"
                 } else {
-                    ret += '<td>false</td>\n'
-                    content += "false\t"
+                    ret += '<td>No</td>\n'
+                    content += "No\t"
                 }
             }
             if (row == 0) {
@@ -1080,11 +1121,11 @@ function updateLinRegPCRTable() {
                 content += window.linRegPCRTable[row][37] + "\t"
             } else {
                 if (window.linRegPCRTable[row][37] == true) {
-                    ret += '<td>true</td>\n'
-                    content += "true\t"
+                    ret += '<td>Yes</td>\n'
+                    content += "Yes\t"
                 } else {
-                    ret += '<td style="background-color: red;">false</td>\n'
-                    content += "false\t"
+                    ret += '<td style="background-color: #ffc266;">No</td>\n'
+                    content += "No\t"
                 }
             }
 
@@ -1291,6 +1332,17 @@ function updatePCRStyle() {
     updateClientData()
 }
 
+window.clickSampSel = clickSampSel;
+function clickSampSel(tar, sam) {
+    window.sampSelFirst = "target"
+    window.sampSelSecond = tar
+    window.sampSelThird = sam
+    updateSampSel(2)
+    window.sampSelThird = "7s8e45-Show-All"
+    updateSampSel(0)
+    $('[href="#runs-tab"]').tab('show')
+}
+
 window.updateSampSel = updateSampSel;
 function updateSampSel(updateOnly) {
     var dropSecFirst = document.getElementById("dropSampSelFirst")
@@ -1321,6 +1373,13 @@ function updateSampSel(updateOnly) {
     }
     if ((updateOnly == 0) && (window.sampSelThird != newThirdData)) {
         window.sampSelThird = newThirdData
+        reSelectSamples = true
+    }
+
+    if (updateOnly == 2) {
+        newFirstData = window.sampSelFirst
+        newSecondData = window.sampSelSecond
+        newThirdData = window.sampSelThird
         reSelectSamples = true
     }
 
@@ -1978,6 +2037,7 @@ function createOneHighCurve(id, dataPos) {
         if (parseInt(reacts[reac].id) == parseInt(id)) {
             var exlReact = reacts[reac].datas[dataPos].hasOwnProperty("excl")
             var colo = "#000000"
+            if(0) { // Selected black according to Maurice suggestion
             if (window.colorStyle == "type") {
                 var samType = window.samToType[reacts[reac].sample]
                 if (samType =="unkn") {
@@ -2035,6 +2095,7 @@ function createOneHighCurve(id, dataPos) {
                     colo = colorByNr(samTarNr)
                 }
             }
+            } // Selected black according to Maurice suggestion
             if (window.curveSource == "adp") {
                 retVal += createOneCurve(parseInt(reacts[reac].id),dataPos,"3.0",reacts[reac].datas[dataPos].adps,colo,
                                          window.winXst, window.winXend, window.winYst, window.winYend,

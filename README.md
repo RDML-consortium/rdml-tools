@@ -22,9 +22,9 @@ The server runs in a terminal
 
 Install the dependencies:
 
-`sudo apt install python python-pip`
+`sudo apt install python python-pip lxml`
 
-`pip install flask flask_cors`
+`pip install flask flask_cors numpy`
 
 Start the server:
 
