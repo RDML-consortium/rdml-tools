@@ -113,6 +113,11 @@ document.addEventListener("DOMContentLoaded", function() {
     checkForUUID();
 });
 
+window.updateMinLogRange = updateMinLogRange
+function updateMinLogRange() {
+    window.maxLogRange = parseInt(document.getElementById('text-max-log-range').value)
+    updateClientData()
+}
 
 function saveUndef(tst) {
     if (tst) {
@@ -689,6 +694,13 @@ function updateClientData() {
             ret += ' selected'
         }
         ret += '>Excluded</option>\n'
+        if (window.linRegPCRTable.length > 0 ) {
+            ret += '        <option value="linRegPCR"'
+            if (window.sampSelFirst == "linRegPCR") {
+                ret += ' selected'
+            }
+            ret += '>Warnings by LinRegPCR</option>\n'
+        }
         ret += '  </select>\n'
         ret += '</td>\n'
         ret += '  <td style="width:4%;"></td>\n'
@@ -702,6 +714,24 @@ function updateClientData() {
         ret += '  <td style="width:13%;">'
         ret += '  <select class="form-control" id="dropSampSelThird" onchange="updateSampSel(0)">'
         ret += '  </select>\n'
+        ret += '</td>\n</tr>\n'
+        ret += '</table>\n'
+        ret += '<table style="width:100%;">'
+        ret += '  <tr>\n    <td style="width:25%;">Maximal fluorescence range in Log view</td>\n<td style="width:12%;">'
+        ret += '  <input type="text" class="form-control" id="text-max-log-range"'
+        ret += ' value="' + window.maxLogRange + '" onchange="updateMinLogRange()">\n'
+        ret += '</td>\n'
+        ret += '  <td style="width:4%;"></td>\n'
+        ret += '  <td style="width:9%;"></td>\n'
+        ret += '  <td style="width:28%;">'
+        ret += '</td>\n'
+        ret += '<td style="width:4%;"></td>'
+        ret += '<td style="width:5%;"></td>'
+        ret += '  <td style="width:13%;">'
+        ret += '    <button type="submit" class="btn btn-outline-primary" onclick="saveSVGFile()">'
+        ret += '      <i class="far fa-save" style="margin-right: 5px;"></i>'
+        ret += '        Save curves as SVG file'
+        ret += '    </button>'
         ret += '</td>\n</tr>\n'
         ret += '</table>\n'
     }
@@ -1325,6 +1355,28 @@ function saveTabFile(fileName, content) {
     return;
 };
 
+window.saveSVGFile = saveSVGFile;
+function saveSVGFile() {
+    var fileName = "curves.svg"
+    var content = createSVG(window.reactData, window.winXst, window.winXend, window.winYst, window.winYend,
+                            window.frameXst, window.frameXend, window.frameYst, window.frameYend);
+    var a = document.createElement("a");
+    document.body.appendChild(a);
+    a.style.display = "none";
+    var blob = new Blob([content], {type: "image/svg+xml"});
+    var browser = detectBrowser();
+    if (browser != "edge") {
+	    var url = window.URL.createObjectURL(blob);
+	    a.href = url;
+	    a.download = fileName;
+	    a.click();
+	    window.URL.revokeObjectURL(url);
+    } else {
+        window.navigator.msSaveBlob(blob, fileName);
+    }
+    return;
+}
+
 window.updatePCRStyle = updatePCRStyle;
 function updatePCRStyle() {
     var newData = getSaveHtmlData("dropSelPCRStyle")
@@ -1555,6 +1607,60 @@ function updateSampSel(updateOnly) {
             window.sampSelThirdList.sort(function(a, b){return a - b})
         }
     }
+    if (window.sampSelFirst == "linRegPCR") {
+        var linregLookup = {"no amplification": "no_amplification",
+                          "baseline error": "no_baseline",
+                          "no plateau": "no_plateau",
+                          "noisy sample": "noisy_sample",
+                          "PCR efficiency outside rage + no plateau": "PCReff_plat",
+                          "PCR efficiency outside rage": "PCReff",
+                          "not used for W-o-L setting": "not_in_WoL"}
+        var linregList = ["no amplification",
+                          "baseline error",
+                          "no plateau",
+                          "noisy sample",
+                          "PCR efficiency outside rage + no plateau",
+                          "PCR efficiency outside rage",
+                          "not used for W-o-L setting"]
+        var selectNr = 0
+        for (var sam = 0; sam < linregList.length; sam++) {
+            var option = document.createElement("option");
+            option.text = linregList[sam]
+            option.value = linregLookup[linregList[sam]]
+            dropSec.add(option)
+            if (linregLookup[linregList[sam]] == window.sampSelSecond) {
+                dropSec.options[sam + 1].selected = true
+            } else {
+                dropSec.options[sam + 1].selected = false
+            }
+        }
+        if ((reSelectSamples == true) && (window.reactData.hasOwnProperty("reacts")) &&
+            (window.linRegPCRTable.length > 0 )) {
+            var reacts = window.reactData.reacts
+            window.sampSelThirdList = []
+            for (var lt = 1; lt < window.linRegPCRTable.length; lt++) {
+                if (((newSecondData == "no_amplification") && (window.linRegPCRTable[lt][31] == false)) ||
+                    ((newSecondData == "no_baseline") && (window.linRegPCRTable[lt][32] == true)) ||
+                    ((newSecondData == "no_plateau") && (window.linRegPCRTable[lt][33] == false)) ||
+                    ((newSecondData == "noisy_sample") && (window.linRegPCRTable[lt][34] == true)) ||
+                    ((newSecondData == "PCReff_plat") && (window.linRegPCRTable[lt][35] == true)) ||
+                    ((newSecondData == "PCReff") && (window.linRegPCRTable[lt][36] == true)) ||
+                    ((newSecondData == "not_in_WoL") && (window.linRegPCRTable[lt][37] == false))) {
+                    for (var i = 0; i < reacts.length; i++) {
+                        if (reacts[i].id == window.linRegPCRTable[lt][0]) {
+                            for (var k = 0; k < reacts[i].datas.length; k++) {
+                                if (reacts[i].datas[k].tar == window.linRegPCRTable[lt][2]) {
+                                    window.sampSelThirdList.push(parseInt(reacts[i].id))
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            window.sampSelThirdList.sort(function(a, b){return a - b})
+        }
+    }
+
 
     // The third select
     var dropThird = document.getElementById("dropSampSelThird")
@@ -1673,6 +1779,26 @@ function updateSampSel(updateOnly) {
                                         ((reacts[i].datas[k].excl != "") && (reacts[i].datas[k].excl == newSecondData)) ||
                                         ((reacts[i].datas[k].excl == "") && ("7s8e45-Empty-Val" == newSecondData))) {
                                         reacts[i].datas[k]["runview_show"] = true
+                                    }
+                                }
+                            }
+                        }
+
+                        if ((window.sampSelFirst == "linRegPCR") && (window.linRegPCRTable.length > 0 )) {
+                            for (var k = 0; k < reacts[i].datas.length; k++) {
+                                reacts[i].datas[k]["runview_show"] = false
+                                for (var lt = 1; lt < window.linRegPCRTable.length; lt++) {
+                                    if (reacts[i].id == window.linRegPCRTable[lt][0] &&
+                                        reacts[i].datas[k].tar == window.linRegPCRTable[lt][2] &&
+                                        (((newSecondData == "no_amplification") && (window.linRegPCRTable[lt][31] == false)) ||
+                                         ((newSecondData == "no_baseline") && (window.linRegPCRTable[lt][32] == true)) ||
+                                         ((newSecondData == "no_plateau") && (window.linRegPCRTable[lt][33] == false)) ||
+                                         ((newSecondData == "noisy_sample") && (window.linRegPCRTable[lt][34] == true)) ||
+                                         ((newSecondData == "PCReff_plat") && (window.linRegPCRTable[lt][35] == true)) ||
+                                         ((newSecondData == "PCReff") && (window.linRegPCRTable[lt][36] == true)) ||
+                                         ((newSecondData == "not_in_WoL") && (window.linRegPCRTable[lt][37] == false)))) {
+                                        reacts[i].datas[k]["runview_show"] = true
+                                        break
                                     }
                                 }
                             }
