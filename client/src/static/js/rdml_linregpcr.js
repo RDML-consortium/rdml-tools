@@ -341,6 +341,7 @@ function updateServerData(stat, reqData) {
                     window.reactData = res.data.data.reactsdata
                     if (window.reactData.hasOwnProperty("LinRegPCR_Result_Table")) {
                         window.curveSource = "bas"
+                        saveTabFile("bla.txt", window.reactData.LinRegPCR_Result_Table)
                         window.linRegPCRTable = JSON.parse(window.reactData.LinRegPCR_Result_Table)
                         for (var row = 0; row < window.linRegPCRTable.length; row++) {
                             var reactPos = window.linRegPCRTable[row][0]  //  LinRegPCR table ID
@@ -984,8 +985,8 @@ function updateLinRegPCRTable() {
             if (row == 0) {
                 ret += '<tr>\n'
             } else {
-                ret += "<tr ondblclick='window.clickSampSel(\"" + window.linRegPCRTable[row][2]
-                ret += "\", \"" + window.linRegPCRTable[row][1] + "\")'> \n"
+                ret += "<tr ondblclick='window.clickSampSel(\"" + window.linRegPCRTable[row][3]
+                ret += "\", \"" + window.linRegPCRTable[row][2] + "\")'> \n"
             }
             for (var col = 0; col < window.linRegPCRTable[row].length; col++) {
                 content += window.linRegPCRTable[row][col] + "\t"
@@ -998,18 +999,18 @@ function updateLinRegPCRTable() {
 
 // const choiceEcludeNoPlat = document.getElementById('choiceEcludeNoPlateau')
 // const choiceExcludeEff = document.getElementById('choiceExcludeEfficiency')
-        var meanCol = 19
-        var effErrCol = 36
+        var meanCol = 20
+        var effErrCol = 37
         if ((choiceExcludeNoPlat.value == "y") && (choiceExcludeEff.value == "n")) {
-            meanCol = 22
-            effErrCol = 35
+            meanCol = 23
+            effErrCol = 36
         }
         if ((choiceExcludeNoPlat.value == "n") && (choiceExcludeEff.value == "y")) {
-            meanCol = 25
+            meanCol = 26
         }
         if ((choiceExcludeNoPlat.value == "y") && (choiceExcludeEff.value == "y")) {
-            meanCol = 28
-            effErrCol = 35
+            meanCol = 29
+            effErrCol = 36
         }
 
         var pcrFormat = window.rdmlData.rdml.experiments[window.experimentPos].runs[window.runPos].pcrFormat
@@ -1021,53 +1022,29 @@ function updateLinRegPCRTable() {
             if (row == 0) {
                 ret += '<tr>\n'
             } else {
-                ret += "<tr ondblclick='window.clickSampSel(\"" + window.linRegPCRTable[row][2]
-                ret += "\", \"" + window.linRegPCRTable[row][1] + "\")'> \n"
+                ret += "<tr ondblclick='window.clickSampSel(\"" + window.linRegPCRTable[row][3]
+                ret += "\", \"" + window.linRegPCRTable[row][2] + "\")'> \n"
             }
             ret += '<td>' + window.linRegPCRTable[row][0] + '</td>\n'
             content += window.linRegPCRTable[row][0] + "\t"
-            if (row == 0) {
-                ret += '<td>well</td>\n'
-                content += "well\t"
-            } else {
-                var thirdCol = (parseInt(window.linRegPCRTable[row][0]) - 1) % columns + 1
-                var thirdRow = Math.floor((parseInt(window.linRegPCRTable[row][0]) - 1)/ columns)
-                var wellText = ""
-                if (rowLabel == "123") {
-                    wellText += thirdRow
-                } else if (rowLabel == "ABC") {
-                    wellText += String.fromCharCode('A'.charCodeAt(0) + thirdRow)
-                }
-                if ((columnLabel == "123") && (rowLabel == "123")) {
-                    wellText += " "
-                }
-                if ((columnLabel == "ABC") && (rowLabel == "ABC")) {
-                    wellText += " "
-                }
-                if (columnLabel == "123") {
-                    wellText += thirdCol
-                } else if (columnLabel == "ABC") {
-                    wellText += String.fromCharCode('A'.charCodeAt(0) + thirdCol)
-                }
-                ret += '<td>' + wellText + '</td>\n'
-                content += wellText + "\t"
-            }
             ret += '<td>' + window.linRegPCRTable[row][1] + '</td>\n'
             content += window.linRegPCRTable[row][1] + "\t"
-            if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][14] + '</td>\n'
-            } else {
-                ret += '<td>' + Math.round(window.linRegPCRTable[row][14]*1000)/1000 + '</td>\n'
-            }
-            content += window.linRegPCRTable[row][14] + "\t"
             ret += '<td>' + window.linRegPCRTable[row][2] + '</td>\n'
             content += window.linRegPCRTable[row][2] + "\t"
             if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][7] + '</td>\n'
+                ret += '<td>' + window.linRegPCRTable[row][15] + '</td>\n'
             } else {
-                ret += '<td>' + Math.round(window.linRegPCRTable[row][7]*1000)/1000 + '</td>\n'
+                ret += '<td>' + Math.round(window.linRegPCRTable[row][15]*1000)/1000 + '</td>\n'
             }
-            content += window.linRegPCRTable[row][7] + "\t"
+            content += window.linRegPCRTable[row][15] + "\t"
+            ret += '<td>' + window.linRegPCRTable[row][3] + '</td>\n'
+            content += window.linRegPCRTable[row][3] + "\t"
+            if (row == 0) {
+                ret += '<td>' + window.linRegPCRTable[row][8] + '</td>\n'
+            } else {
+                ret += '<td>' + Math.round(window.linRegPCRTable[row][8]*1000)/1000 + '</td>\n'
+            }
+            content += window.linRegPCRTable[row][8] + "\t"
             if (row == 0) {
                 ret += '<td>' + window.linRegPCRTable[row][meanCol] + '</td>\n'
             } else {
@@ -1087,26 +1064,14 @@ function updateLinRegPCRTable() {
             }
             content += window.linRegPCRTable[row][meanCol + 1] + "\t"
             if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][31] + '</td>\n'
-                content += window.linRegPCRTable[row][31] + "\t"
-            } else {
-                if (window.linRegPCRTable[row][31] == true) {
-                    ret += '<td>Yes</td>\n'
-                    content += "Yes\t"
-                } else {
-                    ret += '<td style="background-color: #ffc266;">No</td>\n'
-                    content += "No\t"
-                }
-            }
-            if (row == 0) {
                 ret += '<td>' + window.linRegPCRTable[row][32] + '</td>\n'
                 content += window.linRegPCRTable[row][32] + "\t"
             } else {
                 if (window.linRegPCRTable[row][32] == true) {
-                    ret += '<td style="background-color: #ffc266;">Yes</td>\n'
+                    ret += '<td>Yes</td>\n'
                     content += "Yes\t"
                 } else {
-                    ret += '<td>No</td>\n'
+                    ret += '<td style="background-color: #ffc266;">No</td>\n'
                     content += "No\t"
                 }
             }
@@ -1115,10 +1080,10 @@ function updateLinRegPCRTable() {
                 content += window.linRegPCRTable[row][33] + "\t"
             } else {
                 if (window.linRegPCRTable[row][33] == true) {
-                    ret += '<td>Yes</td>\n'
+                    ret += '<td style="background-color: #ffc266;">Yes</td>\n'
                     content += "Yes\t"
                 } else {
-                    ret += '<td style="background-color: #ffc266;">No</td>\n'
+                    ret += '<td>No</td>\n'
                     content += "No\t"
                 }
             }
@@ -1127,6 +1092,18 @@ function updateLinRegPCRTable() {
                 content += window.linRegPCRTable[row][34] + "\t"
             } else {
                 if (window.linRegPCRTable[row][34] == true) {
+                    ret += '<td>Yes</td>\n'
+                    content += "Yes\t"
+                } else {
+                    ret += '<td style="background-color: #ffc266;">No</td>\n'
+                    content += "No\t"
+                }
+            }
+            if (row == 0) {
+                ret += '<td>' + window.linRegPCRTable[row][35] + '</td>\n'
+                content += window.linRegPCRTable[row][35] + "\t"
+            } else {
+                if (window.linRegPCRTable[row][35] == true) {
                     ret += '<td style="background-color: #ffc266;">Yes</td>\n'
                     content += "Yes\t"
                 } else {
@@ -1147,10 +1124,10 @@ function updateLinRegPCRTable() {
                 }
             }
             if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][37] + '</td>\n'
-                content += window.linRegPCRTable[row][37] + "\t"
+                ret += '<td>' + window.linRegPCRTable[row][38] + '</td>\n'
+                content += window.linRegPCRTable[row][38] + "\t"
             } else {
-                if (window.linRegPCRTable[row][37] == true) {
+                if (window.linRegPCRTable[row][38] == true) {
                     ret += '<td>Yes</td>\n'
                     content += "Yes\t"
                 } else {
@@ -1158,9 +1135,6 @@ function updateLinRegPCRTable() {
                     content += "No\t"
                 }
             }
-
-            content += window.linRegPCRTable[row][31] + "\t"
-
 
             content = content.replace(/\t$/g, "\n");
             ret += '</tr>\n'
@@ -1639,17 +1613,17 @@ function updateSampSel(updateOnly) {
             var reacts = window.reactData.reacts
             window.sampSelThirdList = []
             for (var lt = 1; lt < window.linRegPCRTable.length; lt++) {
-                if (((newSecondData == "no_amplification") && (window.linRegPCRTable[lt][31] == false)) ||
-                    ((newSecondData == "no_baseline") && (window.linRegPCRTable[lt][32] == true)) ||
-                    ((newSecondData == "no_plateau") && (window.linRegPCRTable[lt][33] == false)) ||
-                    ((newSecondData == "noisy_sample") && (window.linRegPCRTable[lt][34] == true)) ||
-                    ((newSecondData == "PCReff_plat") && (window.linRegPCRTable[lt][35] == true)) ||
-                    ((newSecondData == "PCReff") && (window.linRegPCRTable[lt][36] == true)) ||
-                    ((newSecondData == "not_in_WoL") && (window.linRegPCRTable[lt][37] == false))) {
+                if (((newSecondData == "no_amplification") && (window.linRegPCRTable[lt][32] == false)) ||
+                    ((newSecondData == "no_baseline") && (window.linRegPCRTable[lt][33] == true)) ||
+                    ((newSecondData == "no_plateau") && (window.linRegPCRTable[lt][34] == false)) ||
+                    ((newSecondData == "noisy_sample") && (window.linRegPCRTable[lt][35] == true)) ||
+                    ((newSecondData == "PCReff_plat") && (window.linRegPCRTable[lt][36] == true)) ||
+                    ((newSecondData == "PCReff") && (window.linRegPCRTable[lt][37] == true)) ||
+                    ((newSecondData == "not_in_WoL") && (window.linRegPCRTable[lt][38] == false))) {
                     for (var i = 0; i < reacts.length; i++) {
                         if (reacts[i].id == window.linRegPCRTable[lt][0]) {
                             for (var k = 0; k < reacts[i].datas.length; k++) {
-                                if (reacts[i].datas[k].tar == window.linRegPCRTable[lt][2]) {
+                                if (reacts[i].datas[k].tar == window.linRegPCRTable[lt][3]) {
                                     window.sampSelThirdList.push(parseInt(reacts[i].id))
                                 }
                             }
@@ -1789,14 +1763,14 @@ function updateSampSel(updateOnly) {
                                 reacts[i].datas[k]["runview_show"] = false
                                 for (var lt = 1; lt < window.linRegPCRTable.length; lt++) {
                                     if (reacts[i].id == window.linRegPCRTable[lt][0] &&
-                                        reacts[i].datas[k].tar == window.linRegPCRTable[lt][2] &&
-                                        (((newSecondData == "no_amplification") && (window.linRegPCRTable[lt][31] == false)) ||
-                                         ((newSecondData == "no_baseline") && (window.linRegPCRTable[lt][32] == true)) ||
-                                         ((newSecondData == "no_plateau") && (window.linRegPCRTable[lt][33] == false)) ||
-                                         ((newSecondData == "noisy_sample") && (window.linRegPCRTable[lt][34] == true)) ||
-                                         ((newSecondData == "PCReff_plat") && (window.linRegPCRTable[lt][35] == true)) ||
-                                         ((newSecondData == "PCReff") && (window.linRegPCRTable[lt][36] == true)) ||
-                                         ((newSecondData == "not_in_WoL") && (window.linRegPCRTable[lt][37] == false)))) {
+                                        reacts[i].datas[k].tar == window.linRegPCRTable[lt][3] &&
+                                        (((newSecondData == "no_amplification") && (window.linRegPCRTable[lt][32] == false)) ||
+                                         ((newSecondData == "no_baseline") && (window.linRegPCRTable[lt][33] == true)) ||
+                                         ((newSecondData == "no_plateau") && (window.linRegPCRTable[lt][34] == false)) ||
+                                         ((newSecondData == "noisy_sample") && (window.linRegPCRTable[lt][35] == true)) ||
+                                         ((newSecondData == "PCReff_plat") && (window.linRegPCRTable[lt][36] == true)) ||
+                                         ((newSecondData == "PCReff") && (window.linRegPCRTable[lt][37] == true)) ||
+                                         ((newSecondData == "not_in_WoL") && (window.linRegPCRTable[lt][38] == false)))) {
                                         reacts[i].datas[k]["runview_show"] = true
                                         break
                                     }
@@ -1991,7 +1965,7 @@ function createCoordinates (tr,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend
             var i = window.reactToLinRegTable[parseInt(selReact)]
             var k = -1
             while ((runOn) && (selReact == window.linRegPCRTable[i][0])) {  //  LinRegPCR table ID
-                if (selData == window.linRegPCRTable[i][2]) {  //  LinRegPCR table target
+                if (selData == window.linRegPCRTable[i][3]) {  //  LinRegPCR table target
                     k = i
                     runOn = false
                 }
@@ -1999,7 +1973,7 @@ function createCoordinates (tr,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend
             }
 
             if (k > -1) {
-                var line = parseFloat(window.linRegPCRTable[k][5])  //  LinRegPCR table lower limit
+                var line = parseFloat(window.linRegPCRTable[k][6])  //  LinRegPCR table lower limit
                 var yPos = 0.0
                 if (window.yScale == "lin") {
                     yPos = wdYend - line / (endY - startY) * (wdYend - wdYst);
@@ -2010,7 +1984,7 @@ function createCoordinates (tr,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend
                 retVal += "' x2='" + lineXend + "' y2='" + yPos;
                 retVal += "' stroke-width='1.5' stroke='blue' stroke-linecap='square'/>";
 
-                line = parseFloat(window.linRegPCRTable[k][6])  //  LinRegPCR table upper limit
+                line = parseFloat(window.linRegPCRTable[k][7])  //  LinRegPCR table upper limit
                 yPos = 0.0
                 if (window.yScale == "lin") {
                     yPos = wdYend - line / (endY - startY) * (wdYend - wdYst);
@@ -2021,7 +1995,7 @@ function createCoordinates (tr,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend
                 retVal += "' x2='" + lineXend + "' y2='" + yPos;
                 retVal += "' stroke-width='1.5' stroke='blue' stroke-linecap='square'/>";
 
-                line = parseFloat(window.linRegPCRTable[k][7])  //  LinRegPCR table threshold 7
+                line = parseFloat(window.linRegPCRTable[k][8])  //  LinRegPCR table threshold
                 yPos = 0.0
                 if (window.yScale == "lin") {
                     yPos = wdYend - line / (endY - startY) * (wdYend - wdYst);
@@ -2033,7 +2007,17 @@ function createCoordinates (tr,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend
                 retVal += "' stroke-width='1.5' stroke='lime' stroke-linecap='square'/>";
 
                 if (window.sampSelThird != "7s8e45-Show-All") {
-                    line = parseFloat(window.linRegPCRTable[k][21])  //  LinRegPCR table Cq 21 adapt!! FixMe: Adapt
+                    var cqCol = 20
+                    if ((choiceExcludeNoPlat.value == "y") && (choiceExcludeEff.value == "n")) {
+                        cqCol = 23
+                    }
+                    if ((choiceExcludeNoPlat.value == "n") && (choiceExcludeEff.value == "y")) {
+                        cqCol = 26
+                    }
+                    if ((choiceExcludeNoPlat.value == "y") && (choiceExcludeEff.value == "y")) {
+                        cqCol = 29
+                    }
+                    line = parseFloat(window.linRegPCRTable[k][22])  //  LinRegPCR table Cq  adapt!! FixMe: Adapt
                     if (line > 0.0) {
                         var xPos = wdXst + line / (endX - startX) * (wdXend - wdXst);
                         retVal += "<line x1='" + xPos + "' y1='" + yPos;
@@ -2394,7 +2378,7 @@ function createOneDots(reac,id,dataPos,stroke_str,curveDots,col,startX,endX,star
             var k = -1
             var runOn = true
             while ((runOn) && (parseInt(reacts[reac].id) == parseInt(window.linRegPCRTable[i][0]))) {  //  LinRegPCR table ID
-                if (reacts[reac].datas[dataPos].tar == window.linRegPCRTable[i][2]) {  //  LinRegPCR table target
+                if (reacts[reac].datas[dataPos].tar == window.linRegPCRTable[i][3]) {  //  LinRegPCR table target
                     k = i
                     runOn = false
                 }
@@ -2410,13 +2394,13 @@ function createOneDots(reac,id,dataPos,stroke_str,curveDots,col,startX,endX,star
                     var svgRadius = "1.2"
                     var xVal = parseInt(curveDots[i][0])
                     var yVal = parseFloat(curveDots[i][1])
-                    if ((parseInt(window.linRegPCRTable[k][9]) > 0) &&  //  LinRegPCR table n in log phase
-                        (xVal <= parseInt(window.linRegPCRTable[k][10])) &&
-                        (xVal > parseInt(window.linRegPCRTable[k][10]) - parseInt(window.linRegPCRTable[k][9]))) {  //  LinRegPCR table log lin range
+                    if ((parseInt(window.linRegPCRTable[k][10]) > 0) &&  //  LinRegPCR table n in log phase
+                        (xVal <= parseInt(window.linRegPCRTable[k][11])) &&
+                        (xVal > parseInt(window.linRegPCRTable[k][11]) - parseInt(window.linRegPCRTable[k][10]))) {  //  LinRegPCR table log lin range
                         svgRadius = "2.4"
-                        if ((parseInt(window.linRegPCRTable[k][11]) > 0) &&  //  LinRegPCR table n included
-                            (yVal > parseFloat(window.linRegPCRTable[k][5])) &&
-                            (yVal < parseFloat(window.linRegPCRTable[k][6]))) {  //  LinRegPCR table log lin range
+                        if ((parseInt(window.linRegPCRTable[k][12]) > 0) &&  //  LinRegPCR table n included
+                            (yVal > parseFloat(window.linRegPCRTable[k][6])) &&
+                            (yVal < parseFloat(window.linRegPCRTable[k][7]))) {  //  LinRegPCR table log lin range
                             svgFill = col
                        }
                     }
