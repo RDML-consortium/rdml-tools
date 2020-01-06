@@ -985,7 +985,7 @@ function updateLinRegPCRTable() {
                 ret += '<tr>\n'
             } else {
                 ret += "<tr ondblclick='window.clickSampSel(\"" + window.linRegPCRTable[row][3]
-                ret += "\", \"" + window.linRegPCRTable[row][2] + "\")'> \n"
+                ret += "\", \"" + window.linRegPCRTable[row][0] + "\")'> \n"
             }
             for (var col = 0; col < window.linRegPCRTable[row].length; col++) {
                 content += window.linRegPCRTable[row][col] + "\t"
@@ -1022,7 +1022,7 @@ function updateLinRegPCRTable() {
                 ret += '<tr>\n'
             } else {
                 ret += "<tr ondblclick='window.clickSampSel(\"" + window.linRegPCRTable[row][3]
-                ret += "\", \"" + window.linRegPCRTable[row][2] + "\")'> \n"
+                ret += "\", \"" + window.linRegPCRTable[row][0] + "\")'> \n"
             }
             ret += '<td>' + window.linRegPCRTable[row][0] + '</td>\n'
             content += window.linRegPCRTable[row][0] + "\t"
@@ -1358,10 +1358,10 @@ function updatePCRStyle() {
 }
 
 window.clickSampSel = clickSampSel;
-function clickSampSel(tar, sam) {
+function clickSampSel(tar, id) {
     window.sampSelFirst = "target"
     window.sampSelSecond = tar
-    window.sampSelThird = sam
+    window.sampSelThird = id
     updateSampSel(2)
     window.sampSelThird = "7s8e45-Show-All"
     updateSampSel(0)
