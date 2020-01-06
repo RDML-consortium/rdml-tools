@@ -341,7 +341,6 @@ function updateServerData(stat, reqData) {
                     window.reactData = res.data.data.reactsdata
                     if (window.reactData.hasOwnProperty("LinRegPCR_Result_Table")) {
                         window.curveSource = "bas"
-                        saveTabFile("bla.txt", window.reactData.LinRegPCR_Result_Table)
                         window.linRegPCRTable = JSON.parse(window.reactData.LinRegPCR_Result_Table)
                         for (var row = 0; row < window.linRegPCRTable.length; row++) {
                             var reactPos = window.linRegPCRTable[row][0]  //  LinRegPCR table ID
