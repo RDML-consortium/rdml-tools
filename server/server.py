@@ -1074,6 +1074,8 @@ def handle_data():
                         elem["commercialAssay_orderNumber"] = reqdata["data"]["commercialAssay_orderNumber"]
                         if "amplificationEfficiencySE" in reqdata["data"]:
                             elem["amplificationEfficiencySE"] = reqdata["data"]["amplificationEfficiencySE"]
+                        if "meltingTemperature" in reqdata["data"]:
+                            elem["meltingTemperature"] = reqdata["data"]["meltingTemperature"]
                     except rdml.RdmlError as err:
                         data["error"] = str(err)
                     else:

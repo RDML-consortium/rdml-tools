@@ -1269,7 +1269,13 @@ function updateClientData() {
                 ret += 'id="inTarAmplificationEfficiencySE" value="'+ saveUndef(exp[i].amplificationEfficiencySE) + '"></td>\n'
                 ret += '  </tr>'
             }
-            ret += '  <tr>\n    <td style="width:25%;">Detection Limit:</td>\n'
+             if (window.rdmlData.rdml.version == "1.3") {
+                ret += '  <tr>\n    <td style="width:25%;">MeltingTemperature:</td>\n'
+                ret += '    <td style="width:75%"><input type="text" class="form-control" '
+                ret += 'id="inTarMeltingTemperature" value="'+ saveUndef(exp[i].meltingTemperature) + '"></td>\n'
+                ret += '  </tr>'
+            }
+           ret += '  <tr>\n    <td style="width:25%;">Detection Limit:</td>\n'
             ret += '    <td style="width:75%"><input type="text" class="form-control" '
             ret += 'id="inTarDetectionLimit" value="'+ saveUndef(exp[i].detectionLimit) + '"></td>\n'
             ret += '  </tr>'
@@ -1326,6 +1332,11 @@ function updateClientData() {
             if (exp[i].hasOwnProperty("amplificationEfficiencySE")) {
                 ret += '  <tr>\n    <td style="width:25%;">Amplification Efficiency Std Err:</td>\n'
                 ret += '    <td style="width:75%">\n'+ exp[i].amplificationEfficiencySE + '</td>\n'
+                ret += '  </tr>'
+            }
+            if (exp[i].hasOwnProperty("meltingTemperature")) {
+                ret += '  <tr>\n    <td style="width:25%;">Melting Temperature:</td>\n'
+                ret += '    <td style="width:75%">\n'+ exp[i].meltingTemperature + '&deg;C</td>\n'
                 ret += '  </tr>'
             }
             if (exp[i].hasOwnProperty("detectionLimit")) {
@@ -2417,7 +2428,7 @@ function saveEditElement(typ, pos, oldId){
             quant["result"] = getSaveHtmlData("inExpTemplateDNAQuality_Result")
             el["templateDNAQuality"] = quant
         }
-        if (window.rdmlData.rdml.version == "1.2") {
+        if (window.rdmlData.rdml.version != "1.1") {
             quant = {}
             quant["conc"] = getSaveHtmlData("inExpTemplateQuantity_conc")
             quant["nucleotide"] = getSaveHtmlData("inExpTemplateQuantity_nucleotide")
@@ -2456,6 +2467,10 @@ function saveEditElement(typ, pos, oldId){
         var ver_sense = document.getElementById("inTarAmplificationEfficiencySE")
         if (ver_sense) {
             el["amplificationEfficiencySE"] = ver_sense.value
+        }
+        var ver_sense2 = document.getElementById("inTarMeltingTemperature")
+        if (ver_sense2) {
+            el["meltingTemperature"] = ver_sense2.value
         }
         ret["data"] = el
     }
