@@ -901,6 +901,8 @@ def handle_data():
                             return jsonify(errors=[{"title": "Invalid server request - dye id not found!"}]), 400
                         elem.change_id(reqdata["data"]["id"], merge_with_id=reqdata["data"]["idUnique"])
                         elem["description"] = reqdata["data"]["description"]
+                        if "dyeChemistry" in reqdata["data"]:
+                            elem["dyeChemistry"] = reqdata["data"]["dyeChemistry"]
                     except rdml.RdmlError as err:
                         data["error"] = str(err)
                     else:

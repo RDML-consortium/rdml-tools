@@ -2038,6 +2038,73 @@ function updateClientData() {
             ret += '    <td style="width:85%"><input type="text" class="form-control" '
             ret += 'id="inPos" value="' + (i + 1) + '"></td>\n'
             ret += '  </tr>'
+            if (window.rdmlData.rdml.version == "1.3") {
+                ret += '  <tr>\n    <td style="width:25%;">Fluorescence Reporter:</td>\n'
+                ret += '    <td style="width:75%"><select class="form-control" id="inDyeDyeChemistry">\n'
+                ret += '        <option value=""'
+                var primRep = saveUndef(exp[i].dyeChemistry)
+                if (primRep == "") {
+                    ret += ' selected'
+                }
+                ret += '>not set</option>\n'
+                ret += '        <option value="DNA binding dye"'
+                if (primRep == "DNA binding dye") {
+                    ret += ' selected'
+                }
+                ret += '>DNA binding dye</option>\n'
+                ret += '        <option value="Molecular Beacon"'
+                if (primRep == "Molecular Beacon") {
+                    ret += ' selected'
+                }
+                ret += '>Molecular Beacon</option>\n'
+                ret += '        <option value="hybridization probe"'
+                if (primRep == "hybridization probe") {
+                    ret += ' selected'
+                }
+                ret += '>hybridization probe</option>\n'
+                ret += '        <option value="Light-Up probe"'
+                if (primRep == "Light-Up probe") {
+                    ret += ' selected'
+                }
+                ret += '>Light-Up probe</option>\n'
+                ret += '        <option value="hydrolysis probe"'
+                if (primRep == "hydrolysis probe") {
+                    ret += ' selected'
+                }
+                ret += '>hydrolysis probe</option>\n'
+                ret += '        <option value="NuPCR system"'
+                if (primRep == "NuPCR system") {
+                    ret += ' selected'
+                }
+                ret += '>NuPCR system</option>\n'
+                ret += '        <option value="LUX primer"'
+                if (primRep == "LUX primer") {
+                    ret += ' selected'
+                }
+                ret += '>LUX primer</option>\n'
+                ret += '        <option value="Scorpion probe"'
+                if (primRep == "Scorpion probe") {
+                    ret += ' selected'
+                }
+                ret += '>Scorpion probe</option>\n'
+                ret += '        <option value="Sunrise probe"'
+                if (primRep == "Sunrise probe") {
+                    ret += ' selected'
+                }
+                ret += '>Sunrise probe</option>\n'
+                ret += '        <option value="QZyme probe"'
+                if (primRep == "QZyme probe") {
+                    ret += ' selected'
+                }
+                ret += '>QZyme probe</option>\n'
+                ret += '        <option value="other"'
+                if (primRep == "other") {
+                    ret += ' selected'
+                }
+                ret += '>other</option>\n'
+                ret += '      </select></td>\n'
+                ret += '  </tr>'
+            }
             ret += '</table></p><textarea class="form-control" id="inDyeDescription" rows="20">'
             ret += htmllize(saveUndef(exp[i].description)) + '</textarea><br /><br />\n'
             ret += '<button type="button" class="btn btn-success" '
@@ -2048,6 +2115,12 @@ function updateClientData() {
         } else {
             ret += '<br /><div class="card">\n<div class="card-body">\n'
             ret += '<h5 class="card-title">' + (i + 1) + '. Dye ID: ' + exp[i].id + '</h5>\n<p>'
+            if (exp[i].hasOwnProperty("dyeChemistry")) {
+                ret += '<table style="width:100%;">'
+                ret += '  <tr>\n    <td style="width:25%;">Fluorescence Reporter:</td>\n'
+                ret += '    <td style="width:75%">\n'+ exp[i].dyeChemistry + '</td>\n'
+                ret += '  </tr>\n</table>'
+            }
             ret += '<p>' + saveUndef(exp[i].description) + '</p>\n'
             ret += '<button type="button" class="btn btn-success rdml-btn-edit" '
             ret += 'onclick="editPresentElement(\'dye\', ' + i + ');">Edit</button>&nbsp;&nbsp;&nbsp;&nbsp;'
@@ -2393,6 +2466,10 @@ function saveEditElement(typ, pos, oldId){
         el["id"] = getSaveHtmlData("inDyeId")
         el["idUnique"] = getSaveHtmlData("inDyeIdUnique")
         el["description"] = getSaveHtmlData("inDyeDescription")
+        var ver_sense_dye = document.getElementById("inDyeDyeChemistry")
+        if (ver_sense_dye) {
+            el["dyeChemistry"] = ver_sense_dye.value
+        }
         ret["data"] = el
     }
     if (typ == "sample") {
