@@ -163,7 +163,7 @@ function htmllize(tst) {
     return tst
 }
 
-function niceSampleType(txt) {
+function niceTargetType(txt) {
     if (txt == "ref") {
         return "ref - reference target"
     }
@@ -173,7 +173,7 @@ function niceSampleType(txt) {
     return txt
 }
 
-function niceTargetType(txt) {
+function niceSampleType(txt) {
     if (txt == "unkn") {
         return "unkn - unknown sample"
     }
@@ -794,47 +794,71 @@ function updateClientData() {
             ret += '  <tr>\n    <td style="width:25%;background-color:#cc7a00;">Type:</td>\n'
             ret += '    <td style="width:75%"><select class="form-control" id="inSampType">\n'
             ret += '        <option value="unkn"'
-            if (exp[i].type == "unkn") {
+            if (exp[i].types[0].type == "unkn") {
                 ret += ' selected'
             }
             ret += '>unkn - unknown sample</option>\n'
             ret += '        <option value="ntc"'
-            if (exp[i].type == "ntc") {
+            if (exp[i].types[0].type == "ntc") {
                 ret += ' selected'
             }
             ret += '>ntc  - non template control</option>\n'
             ret += '        <option value="nac"'
-            if (exp[i].type == "nac") {
+            if (exp[i].types[0].type == "nac") {
                 ret += ' selected'
             }
             ret += '>nac  - no amplification control</option>\n'
             ret += '        <option value="std"'
-            if (exp[i].type == "std") {
+            if (exp[i].types[0].type == "std") {
                 ret += ' selected'
             }
             ret += '>std  - standard sample</option>\n'
             ret += '        <option value="ntp"'
-            if (exp[i].type == "ntp") {
+            if (exp[i].types[0].type == "ntp") {
                 ret += ' selected'
             }
             ret += '>ntp  - no target present</option>\n'
             ret += '        <option value="nrt"'
-            if (exp[i].type == "nrt") {
+            if (exp[i].types[0].type == "nrt") {
                 ret += ' selected'
             }
             ret += '>nrt  - minusRT</option>\n'
             ret += '        <option value="pos"'
-            if (exp[i].type == "pos") {
+            if (exp[i].types[0].type == "pos") {
                 ret += ' selected'
             }
             ret += '>pos  - positive control</option>\n'
             ret += '        <option value="opt"'
-            if (exp[i].type == "opt") {
+            if (exp[i].types[0].type == "opt") {
                 ret += ' selected'
             }
             ret += '>opt  - optical calibrator sample</option>\n'
             ret += '      </select></td>\n'
             ret += '  </tr>'
+            if (window.rdmlData.rdml.version == "1.3") {
+                ret += '  <tr>\n    <td style="width:25%;">Target for Type:</td>\n'
+                ret += '    <td style="width:75%">'
+                var selTypeTarget = ""
+                if ((exp[i].types[0].hasOwnProperty("targetId")) && (exp[i].types[0].targetId != "")) {
+                    selTypeTarget = exp[i].types[0].targetId
+                }
+                ret += '<select class="form-control" id="inSampTypeTarget">\n'
+                var allTargets = window.rdmlData.rdml.targets;
+                ret += '        <option value=""'
+                if (selTypeTarget == "") {
+                    ret += ' selected'
+                }
+                ret += '>not set</option>\n'
+                for (var cc = 0; cc < allTargets.length; cc++) {
+                    ret += '        <option value="' + allTargets[cc].id + '"'
+                    if (selTypeTarget == allTargets[cc].id) {
+                        ret += ' selected'
+                    }
+                    ret += '>' + allTargets[cc].id + '</option>\n'
+                }
+                ret += '</select>\n</td>\n'
+                ret += '  </tr>'
+            }
             ret += '  <tr>\n    <td style="width:25%;">Description:</td>\n'
             ret += '    <td style="width:75%"><input type="text" class="form-control" '
             ret += 'id="inExpDescription" value="'+ saveUndef(exp[i].description) + '"></td>\n'
@@ -955,9 +979,9 @@ function updateClientData() {
                 ret += '    <td style="width:75%"><table style="width:100%;">'
                 ret += '      <tr><td style="width:50%;">'
                 ret += '        <input type="text" class="form-control" id="inExpTemplateQuantity_conc" value="'
-                ret += saveUndefKey(exp[i].templateQuantity, "value") + '">'
+                ret += saveUndefKey(exp[i].templateQuantity, "conc") + '">'
                 ret += '        </td>\n<td style="width:50%">'
-                var selUnit = saveUndefKey(exp[i].templateQuantity, "value")
+                var selUnit = saveUndefKey(exp[i].templateQuantity, "nucleotide")
                 ret += '<select class="form-control" id="inExpTemplateQuantity_nucleotide">\n'
                 ret += '        <option value=""'
                 if (selUnit == "") {
@@ -998,56 +1022,87 @@ function updateClientData() {
             ret += '<br /><div class="card">\n<div class="card-body">\n'
             ret += '<h5 class="card-title">' + (i + 1) + '. Sample ID: ' + exp[i].id + '</h5>\n<p>'
             ret += '<table style="width:100%;">'
-            ret += '  <tr>\n    <td style="width:25%;">Type:</td>\n'
-            ret += '    <td style="width:75%">\n'+ niceSampleType(exp[i].type) + '</td>\n'
-            ret += '  </tr>'
+            var typesLen = exp[i].types.length
+            for (var j = 0; j < typesLen; j++) {
+                ret += '  <tr>\n    <td style="width:25%;">Type:</td>\n'
+                if ((exp[i].types[j].hasOwnProperty("targetId")) && (exp[i].types[j].targetId != "")) {
+                    ret += '    <td style="width:45%">\nFor Target "' + exp[i].types[j].targetId + '" the type is "'
+                    ret += niceSampleType(exp[i].types[j].type) + '"</td>\n'
+                } else {
+                    ret += '    <td style="width:45%">\n'+ niceSampleType(exp[i].types[j].type) + '</td>\n'
+                }
+                if (window.rdmlData.rdml.version == "1.3") {
+                    ret += '<td style="width:30%">\n<button type="button" class="btn btn-success rdml-btn-edit btn-sm" '
+                    ret += 'onclick="editSamType(' + i + ', ' + j + ');">Edit</button>&nbsp;&nbsp;'
+                    if (j == 0) {
+                        ret += '<button type="button" class="btn btn-success rdml-btn-edit btn-sm disabled">Move Up</button>&nbsp;&nbsp;'
+                    } else {
+                        ret += '<button type="button" class="btn btn-success rdml-btn-edit btn-sm" '
+                        ret += 'onclick="moveSecElement(\'sample\', ' + i + ', \'\', 0, \'type\', ' + j
+                        ret += ', ' + (j - 1) + ');">Move Up</button>&nbsp;&nbsp;'
+                    }
+                    if (j == typesLen - 1) {
+                        ret += '<button type="button" class="btn btn-success rdml-btn-edit btn-sm disabled">Move Down</button>&nbsp;&nbsp;&nbsp;'
+                    } else {
+                        ret += '<button type="button" class="btn btn-success rdml-btn-edit btn-sm" '
+                        ret += 'onclick="moveSecElement(\'sample\', ' + i + ', \'\', 0, \'type\', ' + j
+                        ret += ', ' + (j + 2) + ');">Move Down</button>&nbsp;&nbsp;&nbsp;'
+                    }
+                    ret += '<button type="button" class="btn btn-success rdml-btn-edit btn-sm" '
+                    ret += 'onclick="deleteSecElement(\'sample\', ' + i + ', \'\', 0, \'type\', ' + j
+                    ret += ');">Delete</button>'
+                } else {
+                    ret += '<td style="width:30%">'
+                }
+                ret += '</td>\n  </tr>'
+            }
             if (exp[i].hasOwnProperty("calibratorSample")) {
               ret += '  <tr>\n    <td style="width:25%;">Calibrator Sample:</td>\n'
               if (exp[i].calibratorSample == "true") {
-                  ret += '    <td style="width:75%">Yes, used as Calibrator</td>\n'
+                  ret += '    <td colspan="0" style="width:75%">Yes, used as Calibrator</td>\n'
               } else {
-                  ret += '    <td style="width:75%">No</td>\n'
+                  ret += '    <td colspan="0" style="width:75%">No</td>\n'
               }
               ret += '  </tr>'
             }
             if (exp[i].hasOwnProperty("interRunCalibrator")) {
               ret += '  <tr>\n    <td style="width:25%;">Inter Run Calibrator:</td>\n'
               if (exp[i].interRunCalibrator == "true") {
-                  ret += '    <td style="width:75%">Yes, used as Inter Run Calibrator</td>\n'
+                  ret += '    <td colspan="0" style="width:75%">Yes, used as Inter Run Calibrator</td>\n'
               } else {
-                  ret += '    <td style="width:75%">No</td>\n'
+                  ret += '    <td colspan="0" style="width:75%">No</td>\n'
               }
               ret += '  </tr>'
             }
             if (exp[i].hasOwnProperty("quantity")) {
               ret += '  <tr>\n    <td style="width:25%;">Quantity:</td>\n'
-              ret += '    <td style="width:75%">\n'+ exp[i].quantity.value
+              ret += '    <td colspan="0" style="width:75%">\n'+ exp[i].quantity.value
               ret += ' ' + niceUnitType(exp[i].quantity.unit) + '</td>\n'
               ret += '  </tr>'
             }
             if (exp[i].hasOwnProperty("cdnaSynthesisMethod")) {
                 if (exp[i].cdnaSynthesisMethod.hasOwnProperty("enzyme")) {
                   ret += '  <tr>\n    <td style="width:25%;">cDNA - Enzyme:</td>\n'
-                  ret += '    <td style="width:75%">\n'+ exp[i].cdnaSynthesisMethod.enzyme + '</td>\n'
+                  ret += '    <td colspan="0" style="width:75%">\n'+ exp[i].cdnaSynthesisMethod.enzyme + '</td>\n'
                   ret += '  </tr>'
                 }
                 if (exp[i].cdnaSynthesisMethod.hasOwnProperty("primingMethod")) {
                   ret += '  <tr>\n    <td style="width:25%;">cDNA - Priming Method:</td>\n'
-                  ret += '    <td style="width:75%">\n'+ exp[i].cdnaSynthesisMethod.primingMethod + '</td>\n'
+                  ret += '    <td colspan="0" style="width:75%">\n'+ exp[i].cdnaSynthesisMethod.primingMethod + '</td>\n'
                   ret += '  </tr>'
                 }
                 if (exp[i].cdnaSynthesisMethod.hasOwnProperty("dnaseTreatment")) {
                   ret += '  <tr>\n    <td style="width:25%;">cDNA - DNase Treatment:</td>\n'
                   if (exp[i].cdnaSynthesisMethod.dnaseTreatment == "true") {
-                      ret += '    <td style="width:75%">Yes, treated with DNase</td>\n'
+                      ret += '    <td colspan="0" style="width:75%">Yes, treated with DNase</td>\n'
                   } else {
-                      ret += '    <td style="width:75%">No</td>\n'
+                      ret += '    <td colspan="0" style="width:75%">No</td>\n'
                   }
                   ret += '  </tr>'
                 }
                 if (exp[i].cdnaSynthesisMethod.hasOwnProperty("thermalCyclingConditions")) {
                   ret += '  <tr>\n    <td style="width:25%;">cDNA - Thermal Cycling Conditions:</td>\n'
-                  ret += '    <td style="width:75%">\n'+ exp[i].cdnaSynthesisMethod.thermalCyclingConditions + '</td>\n'
+                  ret += '    <td colspan="0" style="width:75%">\n'+ exp[i].cdnaSynthesisMethod.thermalCyclingConditions + '</td>\n'
                   ret += '  </tr>'
                   // Todo: add link
                 }
@@ -1056,37 +1111,39 @@ function updateClientData() {
 
             if (exp[i].hasOwnProperty("templateRNAQuantity")) {
               ret += '  <tr>\n    <td style="width:25%;">Template RNA Quantity:</td>\n'
-              ret += '    <td style="width:75%">\n'+ exp[i].templateRNAQuantity.value
+              ret += '    <td colspan="0" style="width:75%">\n'+ exp[i].templateRNAQuantity.value
               ret += ' ' + niceUnitType(exp[i].templateRNAQuantity.unit) + '</td>\n'
               ret += '  </tr>'
             }
             if (exp[i].hasOwnProperty("templateRNAQuality")) {
               ret += '  <tr>\n    <td style="width:25%;">Template RNA Quality:</td>\n'
-              ret += '    <td style="width:75%">\n'+ exp[i].templateRNAQuality.method
+              ret += '    <td colspan="0" style="width:75%">\n'+ exp[i].templateRNAQuality.method
               ret += ' is ' + niceUnitType(exp[i].templateRNAQuality.result) + '</td>\n'
               ret += '  </tr>'
             }
             if (exp[i].hasOwnProperty("templateDNAQuantity")) {
               ret += '  <tr>\n    <td style="width:25%;">Template DNA Quantity:</td>\n'
-              ret += '    <td style="width:75%">\n'+ exp[i].templateDNAQuantity.value
+              ret += '    <td colspan="0" style="width:75%">\n'+ exp[i].templateDNAQuantity.value
               ret += ' ' + niceUnitType(exp[i].templateDNAQuantity.unit) + '</td>\n'
               ret += '  </tr>'
             }
             if (exp[i].hasOwnProperty("templateDNAQuality")) {
               ret += '  <tr>\n    <td style="width:25%;">Template DNA Quality:</td>\n'
-              ret += '    <td style="width:75%">\n'+ exp[i].templateDNAQuality.method
+              ret += '    <td colspan="0" style="width:75%">\n'+ exp[i].templateDNAQuality.method
               ret += ' is ' + niceUnitType(exp[i].templateDNAQuality.result) + '</td>\n'
               ret += '  </tr>'
             }
             if (exp[i].hasOwnProperty("templateQuantity")) {
               ret += '  <tr>\n    <td style="width:25%;">Template Nucleotide Type:</td>\n'
-              ret += '    <td style="width:75%">\n'+ exp[i].templateQuantity.nucleotide + '</td>\n'
+              ret += '    <td colspan="0" style="width:75%">\n'+ exp[i].templateQuantity.nucleotide + '</td>\n'
               ret += '  </tr>'
               ret += '  <tr>\n    <td style="width:25%;">Template Quantity:</td>\n'
-              ret += '    <td style="width:75%">\n'+ exp[i].templateQuantity.conc + ' ng/&micro;l</td>\n'
+              ret += '    <td colspan="0" style="width:75%">\n'+ exp[i].templateQuantity.conc + ' ng/&micro;l</td>\n'
               ret += '  </tr>'
             }
             ret += '</table></p>\n'
+
+            ret += '<div id="pType-sample-' + i + '"></div>'
 
             var au = 0
             var xref = '<div class="card">\n<div class="card-body">\n'
@@ -1190,6 +1247,10 @@ function updateClientData() {
 
             ret += '<button type="button" class="btn btn-success rdml-btn-edit" '
             ret += 'onclick="editPresentElement(\'sample\', ' + i + ');">Edit</button>&nbsp;&nbsp;&nbsp;&nbsp;'
+            if (window.rdmlData.rdml.version == "1.3") {
+                ret += '<button type="button" class="btn btn-success rdml-btn-edit" '
+                ret += 'onclick="editSamType(' + i + ', -1);">Add Type</button>&nbsp;&nbsp;&nbsp;&nbsp;'
+            }
             if (window.rdmlData.rdml.version != "1.1") {
                 ret += '<button type="button" class="btn btn-success rdml-btn-edit" '
                 ret += 'onclick="editAnnotation(\'sample\', ' + i + ', -1);">New Annotation</button>&nbsp;&nbsp;&nbsp;&nbsp;'
@@ -2234,6 +2295,7 @@ function createNewElement(typ){
     if (typ == "sample") {
         var nex = {}
         nex["id"] = "New Sample"
+        nex["types"] = [{"type" : "unkn"}]
         window.rdmlData.rdml.samples.unshift(nex)
         window.editType = "sample";
         window.editNumber = 0;
@@ -2477,6 +2539,9 @@ function saveEditElement(typ, pos, oldId){
         el["id"] = getSaveHtmlData("inSampId")
         el["idUnique"] = getSaveHtmlData("inSampIdUnique")
         el["type"] = getSaveHtmlData("inSampType")
+        if (window.rdmlData.rdml.version == "1.3") {
+            el["typeTargetId"] = getSaveHtmlData("inSampTypeTarget")
+        }
         el["calibratorSample"] = readTriState("inExpCalibratorSample")
         el["interRunCalibrator"] = readTriState("inExpInterRunCalibrator")
         var quant = {}
@@ -2565,6 +2630,31 @@ function saveEditElement(typ, pos, oldId){
         el["description"] = getSaveHtmlData("inExDescription")
         ret["data"] = el
     }
+    updateServerData(uuid, JSON.stringify(ret))
+}
+
+// Save edit sample type changes, create new ones
+window.saveSamType = saveSamType;
+function saveSamType(prim_pos, samType_pos, edit){
+    if (!(window.rdmlData.hasOwnProperty("rdml"))) {
+        return
+    }
+    if (window.editMode == true) {
+        return
+    }
+    var ret = {}
+    if (edit == false) {
+        ret["mode"] = "create-sampleType"
+    } else {
+        ret["mode"] = "edit-sampleType"
+    }
+    ret["primary-position"] = prim_pos
+    ret["sampleType-position"] = samType_pos
+    ret["new-position"] = getSaveHtmlData("inPos") - 1
+    var el = {}
+    el["sampType"] = getSaveHtmlData("inSampTypeSel")
+    el["sampTypeTarget"] = getSaveHtmlData("inSampTypeTargetSel")
+    ret["data"] = el
     updateServerData(uuid, JSON.stringify(ret))
 }
 
@@ -2689,6 +2779,110 @@ function showDocSecElement(prim_key, prim_pos, sec_key, sec_pos, id_source, div_
     var ele = document.getElementById(div_target)
     ele.innerHTML = ret
 }
+
+// Edit or create an sample type
+window.editSamType = editSamType;
+function editSamType(prim_pos, samType_pos) {
+    if (!(window.rdmlData.hasOwnProperty("rdml"))) {
+        return
+    }
+    if (window.editMode == true) {
+        return
+    }
+    var exp = window.rdmlData.rdml.samples
+    var eType = ""
+    var eTarget = ""
+    var edit = true
+    if (samType_pos == -1) {
+        samType_pos = 0
+        edit = false
+    }
+    if ((edit == true) && (exp != null) && (prim_pos < exp.length) && (samType_pos < exp[prim_pos].types.length)) {
+        if ((exp[prim_pos].types[samType_pos]) && (exp[prim_pos].types[samType_pos].hasOwnProperty("type"))){
+            eType = exp[prim_pos].types[samType_pos].type
+        }
+        if ((exp[prim_pos].types[samType_pos]) && (exp[prim_pos].types[samType_pos].hasOwnProperty("targetId"))){
+            eTarget = exp[prim_pos].types[samType_pos].targetId
+        }
+    }
+    var ret = '<div class="card">\n<div class="card-body">\n'
+    ret += '<h5 class="card-title">New Sample Type:</h5>\n'
+    ret += '<p><table style="width:100%;">'
+    ret += '  <tr>\n    <td style="width:25%;background-color:#cc7a00;">Type:</td>\n'
+    ret += '    <td style="width:75%"><select class="form-control" id="inSampTypeSel">\n'
+    ret += '        <option value="unkn"'
+    if ((eType == "unkn") || (eType == "")){
+        ret += ' selected'
+    }
+    ret += '>unkn - unknown sample</option>\n'
+    ret += '        <option value="ntc"'
+    if (eType == "ntc") {
+        ret += ' selected'
+    }
+    ret += '>ntc  - non template control</option>\n'
+    ret += '        <option value="nac"'
+    if (eType == "nac") {
+        ret += ' selected'
+    }
+    ret += '>nac  - no amplification control</option>\n'
+    ret += '        <option value="std"'
+    if (eType == "std") {
+        ret += ' selected'
+    }
+    ret += '>std  - standard sample</option>\n'
+    ret += '        <option value="ntp"'
+    if (eType == "ntp") {
+        ret += ' selected'
+    }
+    ret += '>ntp  - no target present</option>\n'
+    ret += '        <option value="nrt"'
+    if (eType == "nrt") {
+        ret += ' selected'
+    }
+    ret += '>nrt  - minusRT</option>\n'
+    ret += '        <option value="pos"'
+    if (eType == "pos") {
+        ret += ' selected'
+    }
+    ret += '>pos  - positive control</option>\n'
+    ret += '        <option value="opt"'
+    if (eType == "opt") {
+        ret += ' selected'
+    }
+    ret += '>opt  - optical calibrator sample</option>\n'
+    ret += '      </select></td>\n'
+    ret += '  </tr>'
+
+    ret += '  <tr>\n    <td style="width:25%;">Target for Type:</td>\n'
+    ret += '    <td style="width:75%">'
+    ret += '<select class="form-control" id="inSampTypeTargetSel">\n'
+    var allTargets = window.rdmlData.rdml.targets;
+    ret += '        <option value=""'
+    if (eTarget == "") {
+        ret += ' selected'
+    }
+    ret += '>not set</option>\n'
+    for (var cc = 0; cc < allTargets.length; cc++) {
+        ret += '        <option value="' + allTargets[cc].id + '"'
+        if (eTarget == allTargets[cc].id) {
+            ret += ' selected'
+        }
+        ret += '>' + allTargets[cc].id + '</option>\n'
+    }
+    ret += '</select>\n</td>\n'
+    ret += '  </tr>'
+    ret += '</table></p>\n'
+    ret += '<button type="button" class="btn btn-success btn-sm" '
+    ret += 'onclick="saveSamType(' + prim_pos + ', ' + samType_pos + ', ' + edit + ');">Save Changes</button>'
+    ret += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button type="button" class="btn btn-success btn-sm" '
+    ret += 'onclick="disChangesSecElement(\'pType-sample-' + prim_pos + '\');">Discard Changes</button>'
+    ret += '</div>\n</div><br />\n'
+    var ele = document.getElementById('pType-sample-' + prim_pos)
+    ele.innerHTML = ret
+}
+
+
+
 
 // Edit or create an xRef
 window.editXref = editXref;

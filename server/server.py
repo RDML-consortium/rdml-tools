@@ -257,19 +257,25 @@ def handle_data():
                 return jsonify(errors=[{"title": "Invalid server request - new-version missing!"}]), 400
             migOldVersion = rd.version()
             try:
+                modTxt = ""
                 if reqdata["new-version"] == "1.1":
-                    rd.migrate_version_1_2_to_1_1()
+                    modTxt = rd.migrate_version_1_2_to_1_1()
                     modified = True
                 if reqdata["new-version"] == "1.2":
                     if migOldVersion in ["1.0", "1.1"]:
-                        rd.migrate_version_1_1_to_1_2()
+                        modTxt = rd.migrate_version_1_1_to_1_2()
                         modified = True
                     if migOldVersion in ["1.3"]:
-                        rd.migrate_version_1_3_to_1_2()
+                        modTxt = rd.migrate_version_1_3_to_1_2()
                         modified = True
                 if reqdata["new-version"] == "1.3":
-                    rd.migrate_version_1_2_to_1_3()
+                    modTxt = rd.migrate_version_1_2_to_1_3()
                     modified = True
+                if modTxt != "":
+                    ret = ""
+                    for colText in modTxt:
+                        ret += colText + "\n"
+                        data["error"] = ret
             except rdml.RdmlError as err:
                 data["error"] = str(err)
 
@@ -319,6 +325,8 @@ def handle_data():
                     elem = rd.get_sample(byposition=reqdata["primary-position"])
                     if elem is None:
                         return jsonify(errors=[{"title": "Invalid server request - sample primary-position not found!"}]), 400
+                    if reqdata["id-source"] == "type":
+                        elem.delete_type(byposition=int(reqdata["old-position"]))
                     if reqdata["id-source"] == "xRef":
                         elem.delete_xref(byposition=int(reqdata["old-position"]))
                     if reqdata["id-source"] == "annotation":
@@ -374,6 +382,37 @@ def handle_data():
                 modified = elem.update_documentation_ids(reqdata["data"])
             if reqdata["id-source"] == "experimenter":
                 modified = elem.update_experimenter_ids(reqdata["data"])
+
+        if "mode" in reqdata and reqdata["mode"] in ["create-sampleType", "edit-sampleType"]:
+            if "sampleType-position" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - sampleType-position missing!"}]), 400
+            if "new-position" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - new-position missing!"}]), 400
+            if "data" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - data missing!"}]), 400
+            elem = rd.get_sample(byposition=reqdata["primary-position"])
+            if elem is None:
+                return jsonify(errors=[{"title": "Invalid server request - sample at position not found!"}]), 400
+
+            if reqdata["mode"] == "create-sampleType":
+                try:
+                    elem.new_type(type=reqdata["data"]["sampType"],
+                                  targetId=reqdata["data"]["sampTypeTarget"],
+                                  newposition=reqdata["new-position"])
+                except rdml.RdmlError as err:
+                    data["error"] = str(err)
+                else:
+                    modified = True
+            if reqdata["mode"] == "edit-sampleType":
+                try:
+                    elem.edit_type(type=reqdata["data"]["sampType"],
+                                   oldposition=reqdata["sampleType-position"],
+                                   newposition=reqdata["new-position"],
+                                   targetId=reqdata["data"]["sampTypeTarget"])
+                except rdml.RdmlError as err:
+                    data["error"] = str(err)
+                else:
+                    modified = True
 
         if "mode" in reqdata and reqdata["mode"] in ["create-xref", "edit-xref"]:
             if "primary-key" not in reqdata or "primary-position" not in reqdata:
@@ -953,16 +992,25 @@ def handle_data():
                     try:
                         elem = None
                         if reqdata["mode"] == "create":
-                            rd.new_sample(id=reqdata["data"]["id"],
-                                          type=reqdata["data"]["type"],
-                                          newposition=int(reqdata["new-position"]))
+                            if "typeTargetId" in reqdata["data"]:
+                                rd.new_sample(id=reqdata["data"]["id"],
+                                              type=reqdata["data"]["type"],
+                                              targetId=reqdata["data"]["typeTargetId"],
+                                              newposition=int(reqdata["new-position"]))
+                            else:
+                                rd.new_sample(id=reqdata["data"]["id"],
+                                              type=reqdata["data"]["type"],
+                                              newposition=int(reqdata["new-position"]))
                             elem = rd.get_sample(byid=reqdata["data"]["id"])
                         if reqdata["mode"] == "edit":
                             elem = rd.get_sample(byid=reqdata["old-id"])
                             if elem is None:
                                 return jsonify(errors=[{"title": "Invalid server request - sample id not found!"}]), 400
                             elem.change_id(reqdata["data"]["id"], merge_with_id=reqdata["data"]["idUnique"])
-                            elem["type"] = reqdata["data"]["type"]
+                            if "typeTargetId" in reqdata["data"]:
+                                elem.edit_type(reqdata["data"]["type"], 0, 0, reqdata["data"]["typeTargetId"])
+                            else:
+                                elem.edit_type(reqdata["data"]["type"], 0, 0)
                         elem["description"] = reqdata["data"]["description"]
                         elem["interRunCalibrator"] = reqdata["data"]["interRunCalibrator"]
                         elem["quantity"] = reqdata["data"]["quantity"]
@@ -1185,6 +1233,9 @@ def handle_data():
                             return jsonify(errors=[{"title": "Invalid server request - run at secondary-position not found!"}]), 400
                 if elem is None:
                     return jsonify(errors=[{"title": "Invalid server request - primary-key is unknown!"}]), 400
+                if reqdata["id-source"] == "type":
+                    elem.move_type(oldposition=int(reqdata["old-position"]),
+                                   newposition=int(reqdata["new-position"]))
                 if reqdata["id-source"] == "documentation":
                     elem.move_documentation(oldposition=int(reqdata["old-position"]),
                                             newposition=int(reqdata["new-position"]))
