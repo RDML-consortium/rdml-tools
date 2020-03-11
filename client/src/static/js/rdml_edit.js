@@ -2108,61 +2108,41 @@ function updateClientData() {
                     ret += ' selected'
                 }
                 ret += '>not set</option>\n'
-                ret += '        <option value="DNA binding dye"'
-                if (primRep == "DNA binding dye") {
+                ret += '        <option value="non-saturating DNA binding dye"'
+                if (primRep == "non-saturating DNA binding dye") {
                     ret += ' selected'
                 }
-                ret += '>DNA binding dye</option>\n'
-                ret += '        <option value="Molecular Beacon"'
-                if (primRep == "Molecular Beacon") {
+                ret += '>non-saturating DNA binding dye (SYBR Green I)</option>\n'
+                ret += '        <option value="saturating DNA binding dye"'
+                if (primRep == "saturating DNA binding dye") {
                     ret += ' selected'
                 }
-                ret += '>Molecular Beacon</option>\n'
+                ret += '>saturating DNA binding dye (Eva Green, LC Green Plus, BEBO, Syto9)</option>\n'
                 ret += '        <option value="hybridization probe"'
                 if (primRep == "hybridization probe") {
                     ret += ' selected'
                 }
-                ret += '>hybridization probe</option>\n'
-                ret += '        <option value="Light-Up probe"'
-                if (primRep == "Light-Up probe") {
-                    ret += ' selected'
-                }
-                ret += '>Light-Up probe</option>\n'
+                ret += '>hybridization probe (Molecular Beacon, Light-Up probes, BHQnova Probe)</option>\n'
                 ret += '        <option value="hydrolysis probe"'
                 if (primRep == "hydrolysis probe") {
                     ret += ' selected'
                 }
-                ret += '>hydrolysis probe</option>\n'
-                ret += '        <option value="NuPCR system"'
-                if (primRep == "NuPCR system") {
+                ret += '>hydrolysis probe (TaqMan, NuPCR)</option>\n'
+                ret += '        <option value="labelled forward primer"'
+                if (primRep == "labelled forward primer") {
                     ret += ' selected'
                 }
-                ret += '>NuPCR system</option>\n'
-                ret += '        <option value="LUX primer"'
-                if (primRep == "LUX primer") {
+                ret += '>labelled forward primer (LUX primer)</option>\n'
+                ret += '        <option value="labelled reverse primer"'
+                if (primRep == "labelled reverse primer") {
                     ret += ' selected'
                 }
-                ret += '>LUX primer</option>\n'
-                ret += '        <option value="Scorpion probe"'
-                if (primRep == "Scorpion probe") {
+                ret += '>labelled reverse primer (Scorpion probe, Sunrise probe, Amplifluor Universal detection system)</option>\n'
+                ret += '        <option value="DNA-zyme probe"'
+                if (primRep == "DNA-zyme probe") {
                     ret += ' selected'
                 }
-                ret += '>Scorpion probe</option>\n'
-                ret += '        <option value="Sunrise probe"'
-                if (primRep == "Sunrise probe") {
-                    ret += ' selected'
-                }
-                ret += '>Sunrise probe</option>\n'
-                ret += '        <option value="QZyme probe"'
-                if (primRep == "QZyme probe") {
-                    ret += ' selected'
-                }
-                ret += '>QZyme probe</option>\n'
-                ret += '        <option value="other"'
-                if (primRep == "other") {
-                    ret += ' selected'
-                }
-                ret += '>other</option>\n'
+                ret += '>DNA-zyme probe (QZyme probe)</option>\n'
                 ret += '      </select></td>\n'
                 ret += '  </tr>'
             }
