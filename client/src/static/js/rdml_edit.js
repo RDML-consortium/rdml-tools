@@ -3,6 +3,8 @@
 const API_URL = process.env.API_URL
 const API_LINK = process.env.API_LINK
 
+const rdmlLibVersion = document.getElementById('rdml_lib_version')
+
 const resultLink = document.getElementById('uuid-link-box')
 
 const submitButton = document.getElementById('btn-submit')
@@ -345,6 +347,7 @@ function updateServerData(stat, reqData) {
                 debugData.value = JSON.stringify(res.data.data, null, 2)
                 window.rdmlData = res.data.data.filedata
                 window.uuid = res.data.data.uuid
+                rdmlLibVersion.innerHTML = "rdmlpython version: " + res.data.data.rdml_lib_version
                 if (res.data.data.hasOwnProperty("isvalid")) {
                     if (res.data.data.isvalid) {
                         window.isvalid = "valid"

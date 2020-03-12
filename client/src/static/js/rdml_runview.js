@@ -11,6 +11,8 @@ submitButton.addEventListener('click', showUpload)
 const exampleButton = document.getElementById('btn-example')
 exampleButton.addEventListener('click', showExample)
 
+const rdmlLibVersion = document.getElementById('rdml_lib_version')
+
 // For debugging
 // const jsDebugButton = document.getElementById('btn-jsDebug')
 // jsDebugButton.addEventListener('click', jsDebugFunction)
@@ -262,6 +264,7 @@ function updateServerData(stat, reqData) {
                 resetAllGlobalVal()
                 window.rdmlData = res.data.data.filedata
                 window.uuid = res.data.data.uuid
+                rdmlLibVersion.innerHTML = "rdmlpython version: " + res.data.data.rdml_lib_version
                 if (stat == "data") {
                     var exp = window.rdmlData.rdml.experiments;
                     if (exp.length > 0) {

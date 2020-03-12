@@ -210,7 +210,7 @@ def handle_data():
             return jsonify(errors=[{"title": "Invalid server request - reqData missing!"}]), 400
         reqdata = json.loads(request.form['reqData'])
 
-        data = {"uuid": uuidstr}
+        data = {"uuid": uuidstr, "rdml_lib_version": rdml.get_rdml_lib_version()}
         rd = rdml.Rdml(fexpname)
         if rd.version() == "1.0":
             rd.migrate_version_1_0_to_1_1()
