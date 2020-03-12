@@ -990,6 +990,22 @@ function updateClientData() {
     updateSampSel(1)
 }
 
+window.floatWithPrec = floatWithPrec
+function floatWithPrec(val, prec) {
+    if (val == "") {
+        return ""
+    }
+    return Math.round(val * prec) / prec
+}
+
+window.floatWithExPrec = floatWithExPrec
+function floatWithExPrec(val, prec) {
+    if (val == "") {
+        return ""
+    }
+    return Number.parseFloat(val).toExponential(prec)
+}
+
 window.updateLinRegPCRTable = updateLinRegPCRTable
 function updateLinRegPCRTable() {
     if ((window.reactData.hasOwnProperty("LinRegPCR_Result_Table")) &&
@@ -1052,7 +1068,7 @@ function updateLinRegPCRTable() {
             if (row == 0) {
                 ret += '<td>' + window.linRegPCRTable[row][18] + '</td>\n'  // "indiv PCR eff"
             } else {
-                ret += '<td>' + Math.round(window.linRegPCRTable[row][18]*1000)/1000 + '</td>\n'  // "indiv PCR eff"
+                ret += '<td>' + floatWithPrec(window.linRegPCRTable[row][18], 1000) + '</td>\n'  // "indiv PCR eff"
             }
             content += window.linRegPCRTable[row][18] + "\t"  // "indiv PCR eff"
             ret += '<td>' + window.linRegPCRTable[row][5] + '</td>\n'  // "target"
@@ -1060,31 +1076,31 @@ function updateLinRegPCRTable() {
             if (row == 0) {
                 ret += '<td>' + window.linRegPCRTable[row][11] + '</td>\n'  // "common threshold"
             } else {
-                ret += '<td>' + Math.round(window.linRegPCRTable[row][11]*1000)/1000 + '</td>\n'  // "common threshold"
+                ret += '<td>' + floatWithPrec(window.linRegPCRTable[row][11], 1000) + '</td>\n'  // "common threshold"
             }
             content += window.linRegPCRTable[row][11] + "\t"  // "common threshold"
             if (row == 0) {
                 ret += '<td>' + window.linRegPCRTable[row][meanCol] + '</td>\n'
             } else {
-                ret += '<td>' + Math.round(window.linRegPCRTable[row][meanCol]*1000)/1000 + '</td>\n'
+                ret += '<td>' + floatWithPrec(window.linRegPCRTable[row][meanCol], 1000) + '</td>\n'
             }
             content += window.linRegPCRTable[row][meanCol] + "\t"
             if (row == 0) {
                 ret += '<td>' + window.linRegPCRTable[row][meanCol + 1] + '</td>\n'
             } else {
-                ret += '<td>' + Math.round(window.linRegPCRTable[row][meanCol + 1]*1000)/1000 + '</td>\n'
+                ret += '<td>' + floatWithPrec(window.linRegPCRTable[row][meanCol + 1], 1000) + '</td>\n'
             }
             content += window.linRegPCRTable[row][meanCol + 1] + "\t"
             if (row == 0) {
                 ret += '<td>' + window.linRegPCRTable[row][meanCol + 3] + '</td>\n'
             } else {
-                ret += '<td>' + Math.round(window.linRegPCRTable[row][meanCol + 3]*1000)/1000 + '</td>\n'
+                ret += '<td>' + floatWithPrec(window.linRegPCRTable[row][meanCol + 3], 1000) + '</td>\n'
             }
             content += window.linRegPCRTable[row][meanCol + 3] + "\t"
             if (row == 0) {
                 ret += '<td>' + window.linRegPCRTable[row][meanCol + 2] + '</td>\n'
             } else {
-                ret += '<td>' + Number.parseFloat(window.linRegPCRTable[row][meanCol + 2]).toExponential(2) + '</td>\n'
+                ret += '<td>' + floatWithExPrec(window.linRegPCRTable[row][meanCol + 2], 2) + '</td>\n'
             }
             content += window.linRegPCRTable[row][meanCol + 2] + "\t"
             if (row == 0) {
