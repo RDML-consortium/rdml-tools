@@ -29,6 +29,9 @@ choiceExcludeEff.addEventListener('change', updateLinRegPCRTable)
 const choiceTable = document.getElementById('selTableStyle')
 choiceTable.addEventListener('change', updateLinRegPCRTable)
 
+const choiceDecimalSep = document.getElementById('selSeparator')
+choiceDecimalSep.addEventListener('change', updateLinRegPCRTable)
+
 const rdmlLibVersion = document.getElementById('rdml_lib_version')
 
 // For debugging
@@ -63,6 +66,8 @@ window.reloadCurves = false;
 window.selDigitalOnLoad = "none";
 
 window.maxLogRange = 10000;
+
+window.decimalSepPoint = true;
 
 window.sampSelFirst = "7s8e45-Show-All"  // To avoid conflicts with existing values
 window.sampSelSecond = "7s8e45-Show-All"  // To avoid conflicts with existing values
@@ -356,7 +361,7 @@ function updateServerData(stat, reqData) {
                         window.curveSource = "bas"
                         window.linRegPCRTable = JSON.parse(window.reactData.LinRegPCR_Result_Table)
                         for (var row = 0; row < window.linRegPCRTable.length; row++) {
-                            var reactPos = window.linRegPCRTable[row][0]  //  LinRegPCR table ID
+                            var reactPos = window.linRegPCRTable[row][0]  // "id"
                             if (!(window.reactToLinRegTable.hasOwnProperty(reactPos))) {
                                 window.reactToLinRegTable[parseInt(reactPos)] = row
                             }
@@ -995,18 +1000,41 @@ function updateClientData() {
 
 window.floatWithPrec = floatWithPrec
 function floatWithPrec(val, prec) {
+    var ret = "";
     if (val == "") {
-        return ""
+        return "";
     }
-    return Math.round(val * prec) / prec
+    ret += String(Math.round(val * prec) / prec);
+    if (window.decimalSepPoint == false) {
+        ret = ret.replace(/\./g, ',');
+    }
+    return ret;
 }
 
 window.floatWithExPrec = floatWithExPrec
 function floatWithExPrec(val, prec) {
+    var ret = "";
     if (val == "") {
-        return ""
+        return "";
     }
-    return Number.parseFloat(val).toExponential(prec)
+    ret += String(Number.parseFloat(val).toExponential(prec));
+    if (window.decimalSepPoint == false) {
+        ret = ret.replace(/\./g, ',');
+    }
+    return ret;
+}
+
+window.NumPoint = NumPoint
+function NumPoint(val) {
+    var ret = "";
+    if (val == "") {
+        return "";
+    }
+    ret += String(val);
+    if (window.decimalSepPoint == false) {
+        ret = ret.replace(/\./g, ',');
+    }
+    return ret;
 }
 
 window.updateLinRegPCRTable = updateLinRegPCRTable
@@ -1015,6 +1043,12 @@ function updateLinRegPCRTable() {
         (window.linRegPCRTable.length < 1)) {
         return
     }
+    if (choiceDecimalSep.value == "point") {
+        window.decimalSepPoint = true;
+    } else {
+        window.decimalSepPoint = false;
+    }
+
     var content = "";
     var ret = '<table class="table table-bordered table-striped" id="LinRegPCR_Result_Table">\n'
     if (choiceTable.value == "debug") {
@@ -1026,8 +1060,13 @@ function updateLinRegPCRTable() {
                 ret += "\", \"" + window.linRegPCRTable[row][0] + "\")'> \n"  // "id"
             }
             for (var col = 0; col < window.linRegPCRTable[row].length; col++) {
-                content += window.linRegPCRTable[row][col] + "\t"
-                ret += '<td>' + window.linRegPCRTable[row][col] + '</td>\n'
+                if (col < 8) {
+                    content += window.linRegPCRTable[row][col] + "\t"
+                    ret += '<td>' + window.linRegPCRTable[row][col] + '</td>\n'
+                } else {
+                    content += NumPoint(window.linRegPCRTable[row][col]) + "\t"
+                    ret += '<td>' + NumPoint(window.linRegPCRTable[row][col]) + '</td>\n'
+                }
             }
             content = content.replace(/\t$/g, "\n");
             ret += '</tr>\n'
@@ -1073,7 +1112,7 @@ function updateLinRegPCRTable() {
             } else {
                 ret += '<td>' + floatWithPrec(window.linRegPCRTable[row][18], 1000) + '</td>\n'  // "indiv PCR eff"
             }
-            content += window.linRegPCRTable[row][18] + "\t"  // "indiv PCR eff"
+            content += NumPoint(window.linRegPCRTable[row][18]) + "\t"  // "indiv PCR eff"
             ret += '<td>' + window.linRegPCRTable[row][5] + '</td>\n'  // "target"
             content += window.linRegPCRTable[row][5] + "\t"  // "target"
             if (row == 0) {
@@ -1081,31 +1120,31 @@ function updateLinRegPCRTable() {
             } else {
                 ret += '<td>' + floatWithPrec(window.linRegPCRTable[row][11], 1000) + '</td>\n'  // "common threshold"
             }
-            content += window.linRegPCRTable[row][11] + "\t"  // "common threshold"
+            content += NumPoint(window.linRegPCRTable[row][11]) + "\t"  // "common threshold"
             if (row == 0) {
                 ret += '<td>' + window.linRegPCRTable[row][meanCol] + '</td>\n'
             } else {
                 ret += '<td>' + floatWithPrec(window.linRegPCRTable[row][meanCol], 1000) + '</td>\n'
             }
-            content += window.linRegPCRTable[row][meanCol] + "\t"
+            content += NumPoint(window.linRegPCRTable[row][meanCol]) + "\t"
             if (row == 0) {
                 ret += '<td>' + window.linRegPCRTable[row][meanCol + 1] + '</td>\n'
             } else {
                 ret += '<td>' + floatWithPrec(window.linRegPCRTable[row][meanCol + 1], 1000) + '</td>\n'
             }
-            content += window.linRegPCRTable[row][meanCol + 1] + "\t"
+            content += NumPoint(window.linRegPCRTable[row][meanCol + 1]) + "\t"
             if (row == 0) {
                 ret += '<td>' + window.linRegPCRTable[row][meanCol + 3] + '</td>\n'
             } else {
                 ret += '<td>' + floatWithPrec(window.linRegPCRTable[row][meanCol + 3], 1000) + '</td>\n'
             }
-            content += window.linRegPCRTable[row][meanCol + 3] + "\t"
+            content += NumPoint(window.linRegPCRTable[row][meanCol + 3]) + "\t"
             if (row == 0) {
                 ret += '<td>' + window.linRegPCRTable[row][meanCol + 2] + '</td>\n'
             } else {
                 ret += '<td>' + floatWithExPrec(window.linRegPCRTable[row][meanCol + 2], 2) + '</td>\n'
             }
-            content += window.linRegPCRTable[row][meanCol + 2] + "\t"
+            content += NumPoint(window.linRegPCRTable[row][meanCol + 2]) + "\t"
             if (row == 0) {
                 ret += '<td>' + window.linRegPCRTable[row][39] + '</td>\n'  // "amplification"
                 content += window.linRegPCRTable[row][39] + "\t"  // "amplification"
@@ -1631,6 +1670,10 @@ function updateSampSel(updateOnly) {
                           "noisy sample": "noisy_sample",
                           "PCR efficiency outside rage + no plateau": "PCReff_plat",
                           "PCR efficiency outside rage": "PCReff",
+                          "short log lin phase": "shortLogLin",
+                          "Cq is shifting": "cqShifting",
+                          "too low Cq eff": "tooLowCqEff",
+                          "too low Cq N0": "tooLowCqN0",
                           "not used for W-o-L setting": "not_in_WoL"}
         var linregList = ["no amplification",
                           "baseline error",
@@ -1638,6 +1681,10 @@ function updateSampSel(updateOnly) {
                           "noisy sample",
                           "PCR efficiency outside rage + no plateau",
                           "PCR efficiency outside rage",
+                          "short log lin phase",
+                          "Cq is shifting",
+                          "too low Cq eff",
+                          "too low Cq N0",
                           "not used for W-o-L setting"]
         var selectNr = 0
         for (var sam = 0; sam < linregList.length; sam++) {
@@ -1656,17 +1703,21 @@ function updateSampSel(updateOnly) {
             var reacts = window.reactData.reacts
             window.sampSelThirdList = []
             for (var lt = 1; lt < window.linRegPCRTable.length; lt++) {
-                if (((newSecondData == "no_amplification") && (window.linRegPCRTable[lt][32] == false)) ||
-                    ((newSecondData == "no_baseline") && (window.linRegPCRTable[lt][33] == true)) ||
-                    ((newSecondData == "no_plateau") && (window.linRegPCRTable[lt][34] == false)) ||
-                    ((newSecondData == "noisy_sample") && (window.linRegPCRTable[lt][35] == true)) ||
-                    ((newSecondData == "PCReff_plat") && (window.linRegPCRTable[lt][36] == true)) ||
-                    ((newSecondData == "PCReff") && (window.linRegPCRTable[lt][37] == true)) ||
-                    ((newSecondData == "not_in_WoL") && (window.linRegPCRTable[lt][38] == false))) {
+                if (((newSecondData == "no_amplification") && (window.linRegPCRTable[lt][39] == false)) ||  // "amplification"
+                    ((newSecondData == "no_baseline") && (window.linRegPCRTable[lt][40] == true)) ||  // "baseline error"
+                    ((newSecondData == "no_plateau") && (window.linRegPCRTable[lt][41] == false)) ||  // "plateau"
+                    ((newSecondData == "noisy_sample") && (window.linRegPCRTable[lt][42] == true)) ||  // "noisy sample"
+                    ((newSecondData == "PCReff_plat") && (window.linRegPCRTable[lt][43] == true)) ||  // "PCR efficiency outside rage + no plateau"
+                    ((newSecondData == "PCReff") && (window.linRegPCRTable[lt][44] == true)) ||  // "PCR efficiency outside rage"
+                    ((newSecondData == "shortLogLin") && (window.linRegPCRTable[lt][45] == true)) ||  // "short log lin phase"
+                    ((newSecondData == "cqShifting") && (window.linRegPCRTable[lt][46] == true)) ||  // "Cq is shifting"
+                    ((newSecondData == "tooLowCqEff") && (window.linRegPCRTable[lt][47] == true)) ||  // "too low Cq eff"
+                    ((newSecondData == "tooLowCqN0") && (window.linRegPCRTable[lt][48] == true)) ||  // "too low Cq N0"
+                    ((newSecondData == "not_in_WoL") && (window.linRegPCRTable[lt][49] == false))) {  // "used for W-o-L setting"
                     for (var i = 0; i < reacts.length; i++) {
-                        if (reacts[i].id == window.linRegPCRTable[lt][0]) {
+                        if (reacts[i].id == window.linRegPCRTable[lt][0]) {  // "id"
                             for (var k = 0; k < reacts[i].datas.length; k++) {
-                                if (reacts[i].datas[k].tar == window.linRegPCRTable[lt][3]) {
+                                if (reacts[i].datas[k].tar == window.linRegPCRTable[lt][5]) {  // "target"
                                     window.sampSelThirdList.push(parseInt(reacts[i].id))
                                 }
                             }
@@ -1805,15 +1856,19 @@ function updateSampSel(updateOnly) {
                             for (var k = 0; k < reacts[i].datas.length; k++) {
                                 reacts[i].datas[k]["runview_show"] = false
                                 for (var lt = 1; lt < window.linRegPCRTable.length; lt++) {
-                                    if (reacts[i].id == window.linRegPCRTable[lt][0] &&
-                                        reacts[i].datas[k].tar == window.linRegPCRTable[lt][3] &&
-                                        (((newSecondData == "no_amplification") && (window.linRegPCRTable[lt][32] == false)) ||
-                                         ((newSecondData == "no_baseline") && (window.linRegPCRTable[lt][33] == true)) ||
-                                         ((newSecondData == "no_plateau") && (window.linRegPCRTable[lt][34] == false)) ||
-                                         ((newSecondData == "noisy_sample") && (window.linRegPCRTable[lt][35] == true)) ||
-                                         ((newSecondData == "PCReff_plat") && (window.linRegPCRTable[lt][36] == true)) ||
-                                         ((newSecondData == "PCReff") && (window.linRegPCRTable[lt][37] == true)) ||
-                                         ((newSecondData == "not_in_WoL") && (window.linRegPCRTable[lt][38] == false)))) {
+                                    if (reacts[i].id == window.linRegPCRTable[lt][0] &&  // "id"
+                                        reacts[i].datas[k].tar == window.linRegPCRTable[lt][5] &&  // "target"
+                                        (((newSecondData == "no_amplification") && (window.linRegPCRTable[lt][39] == false)) ||  // "amplification"
+                                         ((newSecondData == "no_baseline") && (window.linRegPCRTable[lt][40] == true)) ||  // "baseline error"
+                                         ((newSecondData == "no_plateau") && (window.linRegPCRTable[lt][41] == false)) ||  // "plateau"
+                                         ((newSecondData == "noisy_sample") && (window.linRegPCRTable[lt][42] == true)) ||  // "noisy sample"
+                                         ((newSecondData == "PCReff_plat") && (window.linRegPCRTable[lt][43] == true)) ||  // "PCR efficiency outside rage + no plateau"
+                                         ((newSecondData == "PCReff") && (window.linRegPCRTable[lt][44] == true)) ||  // "PCR efficiency outside rage"
+                                         ((newSecondData == "shortLogLin") && (window.linRegPCRTable[lt][45] == true)) ||  // "short log lin phase"
+                                         ((newSecondData == "cqShifting") && (window.linRegPCRTable[lt][46] == true)) ||  // "Cq is shifting"
+                                         ((newSecondData == "tooLowCqEff") && (window.linRegPCRTable[lt][47] == true)) ||  // "too low Cq eff"
+                                         ((newSecondData == "tooLowCqN0") && (window.linRegPCRTable[lt][48] == true)) ||  // "too low Cq N0"
+                                         ((newSecondData == "not_in_WoL") && (window.linRegPCRTable[lt][49] == false)))) {  // "used for W-o-L setting"
                                         reacts[i].datas[k]["runview_show"] = true
                                         break
                                     }
@@ -2007,8 +2062,8 @@ function createCoordinates (tr,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend
             runOn = true
             var i = window.reactToLinRegTable[parseInt(selReact)]
             var k = -1
-            while ((runOn) && (selReact == window.linRegPCRTable[i][0])) {  //  LinRegPCR table ID
-                if (selData == window.linRegPCRTable[i][3]) {  //  LinRegPCR table target
+            while ((runOn) && (selReact == window.linRegPCRTable[i][0])) {  // "id"
+                if (selData == window.linRegPCRTable[i][5]) {  // "target"
                     k = i
                     runOn = false
                 }
@@ -2016,7 +2071,7 @@ function createCoordinates (tr,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend
             }
 
             if (k > -1) {
-                var line = parseFloat(window.linRegPCRTable[k][6])  //  LinRegPCR table lower limit
+                var line = parseFloat(window.linRegPCRTable[k][9])  // "lower limit"
                 var yPos = 0.0
                 if (window.yScale == "lin") {
                     yPos = wdYend - line / (endY - startY) * (wdYend - wdYst);
@@ -2027,7 +2082,7 @@ function createCoordinates (tr,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend
                 retVal += "' x2='" + lineXend + "' y2='" + yPos;
                 retVal += "' stroke-width='1.5' stroke='blue' stroke-linecap='square'/>";
 
-                line = parseFloat(window.linRegPCRTable[k][7])  //  LinRegPCR table upper limit
+                line = parseFloat(window.linRegPCRTable[k][10])  // "upper limit"
                 yPos = 0.0
                 if (window.yScale == "lin") {
                     yPos = wdYend - line / (endY - startY) * (wdYend - wdYst);
@@ -2038,7 +2093,7 @@ function createCoordinates (tr,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend
                 retVal += "' x2='" + lineXend + "' y2='" + yPos;
                 retVal += "' stroke-width='1.5' stroke='blue' stroke-linecap='square'/>";
 
-                line = parseFloat(window.linRegPCRTable[k][8])  //  LinRegPCR table threshold
+                line = parseFloat(window.linRegPCRTable[k][11])  // "common threshold"
                 yPos = 0.0
                 if (window.yScale == "lin") {
                     yPos = wdYend - line / (endY - startY) * (wdYend - wdYst);
@@ -2050,17 +2105,17 @@ function createCoordinates (tr,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend
                 retVal += "' stroke-width='1.5' stroke='lime' stroke-linecap='square'/>";
 
                 if (window.sampSelThird != "7s8e45-Show-All") {
-                    var cqCol = 20
+                    var cqCol = 26  // "Cq (mean eff) + no plateau + efficiency outliers"
                     if ((choiceExcludeNoPlat.value == "y") && (choiceExcludeEff.value == "n")) {
-                        cqCol = 23
+                        cqCol = 30  // "Cq (mean eff) + efficiency outliers"
                     }
                     if ((choiceExcludeNoPlat.value == "n") && (choiceExcludeEff.value == "y")) {
-                        cqCol = 26
+                        cqCol = 34  // "Cq (mean eff) + no plateau"
                     }
                     if ((choiceExcludeNoPlat.value == "y") && (choiceExcludeEff.value == "y")) {
-                        cqCol = 29
+                        cqCol = 38  // "Cq (mean eff)"
                     }
-                    line = parseFloat(window.linRegPCRTable[k][22])  //  LinRegPCR table Cq  adapt!! FixMe: Adapt
+                    line = parseFloat(window.linRegPCRTable[k][cqCol])
                     if (line > 0.0) {
                         var xPos = wdXst + line / (endX - startX) * (wdXend - wdXst);
                         retVal += "<line x1='" + xPos + "' y1='" + yPos;
@@ -2420,8 +2475,8 @@ function createOneDots(reac,id,dataPos,stroke_str,curveDots,col,startX,endX,star
             var i = window.reactToLinRegTable[parseInt(id)]
             var k = -1
             var runOn = true
-            while ((runOn) && (parseInt(reacts[reac].id) == parseInt(window.linRegPCRTable[i][0]))) {  //  LinRegPCR table ID
-                if (reacts[reac].datas[dataPos].tar == window.linRegPCRTable[i][3]) {  //  LinRegPCR table target
+            while ((runOn) && (parseInt(reacts[reac].id) == parseInt(window.linRegPCRTable[i][0]))) {  // "id"
+                if (reacts[reac].datas[dataPos].tar == window.linRegPCRTable[i][5]) {  // "target"
                     k = i
                     runOn = false
                 }
@@ -2437,13 +2492,13 @@ function createOneDots(reac,id,dataPos,stroke_str,curveDots,col,startX,endX,star
                     var svgRadius = "1.2"
                     var xVal = parseInt(curveDots[i][0])
                     var yVal = parseFloat(curveDots[i][1])
-                    if ((parseInt(window.linRegPCRTable[k][10]) > 0) &&  //  LinRegPCR table n in log phase
-                        (xVal <= parseInt(window.linRegPCRTable[k][11])) &&
-                        (xVal > parseInt(window.linRegPCRTable[k][11]) - parseInt(window.linRegPCRTable[k][10]))) {  //  LinRegPCR table log lin range
+                    if ((parseInt(window.linRegPCRTable[k][13]) > 0) &&  // "n in log phase"
+                        (xVal <= parseInt(window.linRegPCRTable[k][14])) &&  // "last log cycle"
+                        (xVal > parseInt(window.linRegPCRTable[k][14]) - parseInt(window.linRegPCRTable[k][13]))) {  // "last log cycle", "n in log phase"
                         svgRadius = "2.4"
-                        if ((parseInt(window.linRegPCRTable[k][12]) > 0) &&  //  LinRegPCR table n included
-                            (yVal > parseFloat(window.linRegPCRTable[k][6])) &&
-                            (yVal < parseFloat(window.linRegPCRTable[k][7]))) {  //  LinRegPCR table log lin range
+                        if ((parseInt(window.linRegPCRTable[k][15]) > 0) &&  // "n included"
+                            (yVal > parseFloat(window.linRegPCRTable[k][9])) &&  // "lower limit"
+                            (yVal < parseFloat(window.linRegPCRTable[k][10]))) {  // "upper limit"
                             svgFill = col
                        }
                     }
