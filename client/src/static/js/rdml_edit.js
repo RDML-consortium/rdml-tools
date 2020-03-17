@@ -519,7 +519,10 @@ function updateClientData() {
     ret += '<a href="' + `${API_LINK}` + "edit.html?UUID=" + window.uuid + '">'
     ret += `${API_LINK}` + "edit.html?UUID=" + window.uuid + '</a> (valid for 3 days)\n</p>\n'
     ret += '<p>Download RDML file:<br />'
-    ret += '<a href="' + `${API_URL}` + "/download/" + window.uuid + '" target="_blank" id="download-link">'
+    var stuffer = new Date();
+    var stufferStr = stuffer.getTime()
+    ret += '<a href="' + `${API_URL}` + "/download/" + window.uuid + '?UNIQUE=' + stufferStr
+    ret += '" target="_blank" id="download-link">'
     ret += `${API_URL}` + "/download/" + window.uuid + '</a> (valid for 3 days)\n<br />\n'
     ret += '</p>\n'
     ret += '<p>View a single run of this file:<br />'

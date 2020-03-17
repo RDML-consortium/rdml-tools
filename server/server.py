@@ -27,6 +27,7 @@ app.config['MAX_NUMBER_UPLOAD_FILES'] = 120
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in set(['rdml', 'rdm', 'xml'])
 
+
 def allowed_tab_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in set(['txt', 'tsv', 'csv', 'tab'])
 
