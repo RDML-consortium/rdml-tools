@@ -32,8 +32,50 @@
   </header>
 
   <main class="container">
-    <h4 id="Introduction">Introduction</h4>
-    <p>
+    <h4 id="Index">Table of Contents</h4>
+    <ul class="toc_list">
+      <li><a href="#Introduction">1. Introduction</a>
+        <ul>
+          <li><a href="#General-Introduction">1.1. General Introduction</a></li>
+          <li><a href="#Tool-Overview">1.2. Tool Overview</a></li>
+        </ul>
+      </li>
+      <li><a href="#Citation">2. How to Cite</a></li>
+      <li><a href="#License">3. License</a></li>
+      <li><a href="#Data-Standard">4. RDML Data Standard</a></li>
+      <li><a href="#Import">5. Import Data into RDML</a>
+        <ul>
+          <li><a href="#Import-Machine">5.1. Machine Export</a></li>
+          <li><a href="#Import-classicPCR">5.2. Classic PCR</a></li>
+          <li><a href="#Import-digitalPCR">5.3. Digital PCR</a></li>
+          <li><a href="#Import-supData">5.4. Supplement Remaining Data</a></li>
+        </ul>
+      </li>
+      <li><a href="#RDML-Edit">6. RDML-Edit</a>
+      <li><a href="#RDML-TableShaper">7. RDML-TableShaper</a></li>
+      <li><a href="#RDML-LinRegPCR">8. RDML-LinRegPCR</a>
+        <ul>
+          <li><a href="#LRP-Introduction">8.1. Introduction</a></li>
+          <li><a href="#LRP-Warning">8.2. A Word of Warning</a></li>
+          <li><a href="#LRP-References">8.3. LinRegPCR References</a></li>
+          <li><a href="#LRP-Terms">8.4. Definitions of Terms Used in This Manual</a></li>
+          <li><a href="#LRP-Data-Analysis">8.5. Theory behind the LinRegPCR program</a></li>
+          <li><a href="#LRP-Baseline">8.6. Baseline Estimation and flagging of deviating samples</a></li>
+          <li><a href="#LRP-Mean-Efficiency">8.7. Mean Efficiency Calculation</a></li>
+          <li><a href="#LRP-WoL-Threshold">8.8. Window-of-Linearity and Threshold</a></li>
+
+
+
+        </ul>
+      </li>
+      <li><a href="#RDML-RunView">9. RDML-RunView</a></li>
+      <li><a href="#RDML-Validate">10. RDML-Validate</a></li>
+    </ul>
+
+
+    <h4 id="Introduction">1. Introduction</h4>
+    <h5 id="General-Introduction">1.1. General Introduction</h5>
+    <p style="text-align: justify">
       The <a href="https://rdml.org" target="_blank">Real-time PCR Data Markup Language (RDML)</a> is a structured and
       universal data standard for exchanging quantitative PCR (qPCR) data and digital PCR (dPCR) data. The data standard
       should contain sufficient information to understand the experimental setup, re-analyse the data and interpret the
@@ -51,10 +93,43 @@
       "python -m pip install rdmlpython". All software is GPL licensed except the RDML-Python library being MIT
       licensed.
     </p>
+    <h5 id="Tool-Overview">1.2. Tool Overview</h5>
+    <p style="text-align: justify">
+      <a href="#RDML-Edit">RDML-Edit</a> is the main tool to view and edit RDML data up to the run level. Selected runs
+      can be views can be visualized with <a href="#RDML-RunView">RDML-RunView</a> or analyzed with
+      <a href="#RDML-LinRegPCR">RDML-LinRegPCR</a>. With classic qPCR the amplification-
+      or meltcurves are displayed, with digital PCR the positive and negative counts are shown.
+      <a href="#RDML-TableShaper">RDML-TableShaper</a> helps to reformat exported files from machines lacking RDML
+      support. <a href="#RDML-Validate">RDML-Validate</a> validates a RDML file against the corresponding schema.
+    </p>
 
-    <h4 id="Data-Standard">RDML Data Standard</h4>
-    <p>
-      The RDML data standard is a compressed text file in Extensible Markup Language (XML). By design, it collects the
+
+    <h4 id="Citation">2. How to Cite</h4>
+    <p style="text-align: justify">
+      We are preparing a publication. Please come back and check for updates.
+    </p>
+
+
+    <h4 id="License">3. License</h4>
+    <p style="text-align: justify">
+      Please read the <a class="plain" target="_blank" href="https://www.gear-genomics.com/terms">Terms of Use</a>
+      before using the <a href="https://github.com/RDML-consortium/rdml-tools" target="_blank">RDML-Tools</a> and
+      please obey to the requirements. The individual licenses are found in the respective
+      <a href="https://github.com/RDML-consortium/rdml-tools" target="_blank">GitHub repositories</a>. The
+      <a href="https://github.com/RDML-consortium/rdml-tools" target="_blank">RDML-Tools</a> mainly provide a web page
+      access to the functions of the
+      <a href="https://github.com/RDML-consortium/rdmlpython" target="_blank">RDML-Python library</a>, designed to
+      handle RDML files and their dependencies. Users may choose to install the library as a
+      <a href="https://github.com/RDML-consortium/rdmlpython-package" target="_blank">python package</a> calling
+      "python -m pip install rdmlpython". All software is GPL licensed except the RDML-Python library being MIT
+      licensed.
+    </p>
+
+
+    <h4 id="Data-Standard">4. RDML Data Standard</h4>
+    <p style="text-align: justify">
+      The <a target="_blank" href="http://www.rdml.org">RDML data standard</a> is a compressed
+      text file in Extensible Markup Language (XML). By design, it collects the
       information of different experimenters, dyes, samples, targets and thermal cycling conditions separately to
       experiment/run information, were this information is only referenced by the unique ID. In a final RDML file for
       example one target might be referenced many times. The RDML-Tools and RDML-Python library were created to handle
@@ -73,8 +148,10 @@
       standardized exchange of qPCR data</a>" in 2015.
     </p>
 
-    <h4 id="Import">Import Data into RDML</h4>
-    <p>
+
+    <h4 id="Import">5. Import Data into RDML</h4>
+    <h5 id="Import-Machine">5.1. Machine Export</h5>
+    <p style="text-align: justify">
       Importing data is always the second best choice to having a native RDML export in your qPCR machine. If a purchase
       is planned, consider one of the
       <a href="https://rdml.org/instruments.html" target="_blank">machines with RDML support</a>.<br />
@@ -83,72 +160,60 @@
       1.3 or above which can be set on the more... tab.
       <br />
       <br />
-      <b>Classic PCR</b><br />
+    </p>
+    <h5 id="Import-classicPCR">5.2. Classic PCR</h5>
+    <p style="text-align: justify">
       Most machines offer an export of the raw data. Unfortunately, there is no consent on the format of this export.
       Follow the instructions for <a href="#RDML-TableShaper">RDML-TableShaper</a> to convert the export into the standard table
       RDML import format. Select or create a new experiment on the experiments tab. Create a new run and provide the
       file from TableShaper at "Import Amplification Data".
       <br />
-      <br />
-      <b>Digital PCR</b><br />
+    </p>
+    <h5 id="Import-digitalPCR">5.3. Digital PCR</h5>
+    <p style="text-align: justify">
       Currently only Bio-Rad and Stilla export files are supported. Select or create a new experiment on the experiments
       tab. Create a new run and provide the results or overview file at "Import Digital Data Overview" and the files
       with the raw well data at "Import Digital Data Wells". Although import without an overview file is possible,
       naming samples and targets will be very laborious and not recommended.
-      <br />
-      <br />
-      <b>Supplement Data</b><br />
-      Last, data for all the samples, targets and thermal cycling conditions have to be added using the edit button on
-      the respective elements.
+    </p>
+    <h5 id="Import-supData">5.4. Supplement Remaining Data</h5>
+    <p style="text-align: justify">
+      Last, data for all the samples, targets and thermal cycling conditions have to be added or supplemented after
+      raw data import using the edit button on the respective elements.
     </p>
 
-    <h4 id="Overview">Tool Overview</h4>
-    <p>
-      <a href="#RDML-Edit">RDML-Edit</a> is the main tool to view and edit RDML data up to the run level. Selected runs
-      can be views can be visualized with <a href="#RDML-RunView">RDML-RunView</a>. With classic qPCR the amplification-
-      or meltcurves are displayed, with digital PCR the positive and negative counts are shown.
-      <a href="#RDML-TableShaper">RDML-TableShaper</a> helps to reformat exported files from machines lacking RDML
-      support. <a href="#RDML-Validate">RDML-Validate</a> validates a RDML file against the corresponding schema.
+
+    <h4 id="RDML-Edit">6. RDML-Edit</h4>
+    <p style="text-align: justify">
+      RDML-Edit is a powerful tool to view and edit RDML files. RDML files supports many optional parameters and each
+      parameter has many sub-parameters, of which many are not used in the current file. Be reminded, that a for
+      example a target is described once in the targets and identified by its unique id. In the data elements of each
+      reaction the target is then only referenced by its id.<br />
+      Be aware that RDML-Edit by default only allows viewing of files. RDML supports many optional parameters to
+      describe a qPCR or digital PCR reaction. RDML-Edit will hide all parameters which were not entered by
+      the user. <b>To modify files enable the edit mode using the button on the main tab. </b> Enabeling the edit mode
+      will switch RDML-Edit in a different mode and enable many buttons and options to modify each element or create
+      new ones. RDML does support different versions with different functionality. RDML-Edit can migrate between
+      different versions on the more... tab if the edit mode is activated. Digital PCR is only supported from
+      version 1.3 on. Please read the
+      <a href="#Data-Standard">Data Standard</a> section for an understanding of the basic RDML concepts.<br />
+      The modified RDML-files can be saved and downloaded on the main tab.
     </p>
 
-    <h4 id="RDML-Edit">RDML-Edit</h4>
-    <p>
-      RDML-Edit is a tool to view and edit RDML files. By default RDML-Edit only allows viewing of files. RDML supports
-      many optional parameters to describe a qPCR reaction. RDML-Edit will hide all parameters which were not entered by
-      the user. To modify files enable the edit mode using the button on the main tab. RDML does support different
-      version with different functionality. RDML-Edit can migrate between different versions on the more... tab if the
-      edit mode is activated. Digital PCR is only supported from version 1.3 on. Please read the
-      <a href="#Data-Standard">Data Standard</a> section for an understanding of the basic RDML concepts.
-    </p>
 
-    <h4 id="RDML-RunView">RDML-RunView</h4>
-    <p>
-      RDML-RunView is a tool to view single runs of a RDML files. Once the RDML file was loaded, the desired experiment
-      and run have to be selected. RDML-RunView will display the plate setup and, with classic qPCR, the amplification-
-      or meltcurves. A well / reaction can be selected which will highlight the corresponding curve. If a curve is
-      selected, the corresponding reaction will be highlighted. Meltcurves can be easily inspected if the color coding
-      is set to target. Setting the color coding to type allows eases the inspection of amplification curves.
-    </p>
-
-    <h4 id="RDML-Validate">RDML-Validate</h4>
-    <p>
-      RDML-Validate validates a RDML file against the corresponding schema. If the validation fails, RDML-Validate
-      displays a list of errors. Errors point to programming mistakes in the used software to create the RDML file and
-      might be difficult to fix by the user. RDML-Edit offers in edit mode on the main tab two buttons "Recreate Lost
-      Ids" and "Repair RDML File" which might help. If this happens, you should contact the developers of the respective
-      software.
-    </p>
-
-    <h4 id="RDML-TableShaper">The use of TableShaper</h4>
-    <p>
+    <h4 id="RDML-TableShaper">7. RDML-TableShaper</h4>
+    <p style="text-align: justify">
       RDML-TableShaper is a tool to shape tables with amplification data for the import with RDML-tools. This is
       error-prone and second best to original RDML export by the machine. As some machines do not offer RDML export,
-      TableShaper might help. Most qPCR machines export Excel files. Please convert them by opening in Excel (Microsoft)
+      TableShaper might help. All qPCR machines enable the export of the fluorescence data per cycle, although some
+      only export into a text file format. Note that the exported data have to be corrected for the technical
+      background and, if used, the internal reference fluorescence (e.g. ROX) but should NOT be corrected for the
+      fluorescence baseline. If the machine exports Excel files, please convert them by opening in Excel (Microsoft)
       or Calc (Libre Office), selecting the table with the amplification data and save as tab separated text file. The
       tab separated text file can be modified using TableShaper.
       <br />
       <br />
-      TableShaper follows three consecutive steps:
+      TableShaper follows three consecutive steps (work the tabs from left to right):
       <br />
       <br />
       1. The table separators have to be identified on the first tab. If it does not work out automatically, the
@@ -160,6 +225,7 @@
       columns to keep" and "Number of rows to keep" to match the experiments cycle and well numbers and avoid cutoff.
       "Settings to reshape the table" is the most dramatic shaping option. You can opt to flip the table or to build
       a table from value list. The result is drawn below and can be used to select the columns for data extraction.
+      You may opt to send us the file to include it in the list with default parameters.
       <br />
       <br />
       3. Fill the missing content in the third tab. To be able to import the table into RDML, the first six columns have
@@ -175,6 +241,287 @@
       correctly. Now select the exported .tsv file in "Import Amplification Data". Once saved you can inspect the result
       using RunView or save it as RDML file on the first tab.
     </p>
+
+
+    <h4 id="RDML-LinRegPCR">8. RDML-LinRegPCR</h4>
+    <h5 id="LRP-Introduction">8.1. Introduction</h5>
+    <p style="text-align: justify">
+      LinRegPCR is a program for the analysis of real time RT-PCR Data, also called quantitative PCR (qPCR) data.
+      The program uses non-baseline corrected data, performs a baseline correction on each sample separately,
+      determines a window-of-linearity and then uses linear regression analysis to determine the PCR efficiency per
+      sample from the slope of the regression line. The mean PCR efficiency per amplicon and the Cq value per sample
+      are used to calculate a starting concentration per sample, expressed in arbitrary fluorescence units. Data
+      input and output are in RDML format and additional reports create tab seperated spreadsheet *.tsv files, which
+      can be imported into programs like Excel (Microsoft) or Calc (OpenOffice).<br />
+      The linear regression procedure used in this program can be found in every statistics textbook.
+    </p>
+    <h5 id="LRP-Warning">8.2. A Word of Warning</h5>
+    <p style="text-align: justify">
+      LinRegPCR is based on the procedures described in the paper by
+      <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2665230/" target="_blank">Ruijter et al., Nucleic
+        Acids Research, 2009</a>.
+      The procedures in this program can be used for fluorescence data resulting from monitoring the PCR reaction.
+      You should preferably use raw fluorescence data and thus you should check which data are exported by your
+      PCR system. Negative values should not occur. The fact that LinRegPCR can read the data should not be seen as
+      proof that you have the correct data. By using this software you acknowledge that you have read the above
+      paper, understand it, and agree with its conclusions. Therefore, you assume all responsibility and liability
+      for the selection of this program to achieve your intended goals, and for the conclusions you draw from the
+      results. The authors cannot be held responsible for any consequences of the use of this program. Please read
+      the <a class="plain" target="_blank" href="https://www.gear-genomics.com/terms">Terms of Use</a>
+      before using LinRegPCR and please obey to the requirements.
+    </p>
+    <h5 id="LRP-References">8.3. LinRegPCR References</h5>
+    <p style="text-align: justify">
+      When you refer to LinRegPCR in your paper, we prefer that you use the reference
+      <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2665230/" target="_blank">Ruijter et al., Nucleic
+        Acids Research 37: e45, 2009</a>. Acids Research 37: e45. When you are using hydrolysis probes, you can
+      also use the reference Tuomi et al. (2010) Methods 50: 313–322. The handling of other chemistries is described
+      in Ruijter et al. (2014) Microchimica Acta).  A comparison of the different amplification curve analysis
+      approaches can be found in Ruijter et al. (2013) Methods 59: 32-46.
+      <br /><br />
+      <i>Please do not use the abbreviation LinReg when you refer to LinRegPCR.</i>
+      <br /><br />
+      Ruijter JM, Lorenz P, Tuomi JM, Hecker M, van den Hoff MJB (2014)<br /><b>Fluorescent increase kinetics of
+      different fluorescent reporters used for qPCR depends on monitoring chemistry, targeted sequence, type of
+      DNA input and PCR efficiency.</b><br />
+      <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4167442/" target="_blank">Microchimica Acta.</a>
+      <br /><i>This paper is an extension of Tuomi et al. (2010) and describes the processing of qPCR data resulting
+      from 6 different categories of monitoring chemistries.</i>
+      <br /><br />
+      Ruijter JM, Pfaffl MW, Zhao S, Spiess AN, Boggy G, Blom J, Rutledge RG, Sisti D, Lievens A, De Preter K,
+      Derveaux S, Hellemans J, Vandesompele J. (2013)<br /><b>Evaluation of qPCR curve analysis methods for reliable
+      biomarker discovery: bias, resolution, precision, and implications.</b><br />
+      <a href="https://www.ncbi.nlm.nih.gov/pubmed/22975077" target="_blank">Methods 59: 32-46.</a>
+      <br /><i>This paper describes the comparison of the performance, in terms of precision, linearity, and
+      sensitivity of all available curve qPCR analysis methods using the same biomarker data sets.</i>
+      <br /><br />
+      Tuomi JM, Voorbraak F, Jones DL, Ruijter JM. (2010)<br /><b>Bias in the Cq value observed with hydrolysis probe
+      based quantitative PCR can be corrected with the estimated PCR efficiency value.</b><br />
+      <a href="https://www.ncbi.nlm.nih.gov/pubmed/20138998" target="_blank">Methods 50, 313–322.</a>
+      <br /><i>This paper describes the use of LinRegPCR in the analysis of cumulative fluorescence datasets obtained
+      with hydrolysis probes like Taqman probes.</i>
+      <br /><br />
+      Ruijter JM, Ramakers C, Hoogaars W, Bakker O, van den Hoff MJB, Karlen Y, Moorman AFM. (2009)<br /><b>Amplification
+      efficiency: linking baseline and bias in the analysis of quantitative PCR data.</b><br />
+      <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2665230/" target="_blank">Nucleic Acids Research 37: e45.</a>
+      <br /><i>This paper describes the basics of the LinRegPCR program and gives details on the fluorescence baseline
+        correction and setting of the window-of-linearity.</i>
+      <br /><br />
+      Ramakers C, Ruijter JM, Lekanne Deprez RH, Moorman AFM. (2003)<br /><b>Assumption-free analysis of quantitative
+      real-time PCR data.</b><br />
+      <a href="https://www.ncbi.nlm.nih.gov/pubmed/12618301" target="_blank">Neurosci Letters 339: 62-66.</a>
+      <br /><i>This paper describes the estimation of PCR efficiencies for individual samples from a subset of data
+      points in the log-linear phase of the amplification curves. Such handling of individual samples is no longer
+      recommended (JMR 2013).</i>
+    </p>
+    <h5 id="LRP-Terms">8.4. Definitions of Terms Used in This Manual</h5>
+    <p style="text-align: justify">
+      <b>Amplicon group:</b> A set of samples in which the same target (pair of primers) is used to amplify the
+      DNA-of-interest (=amplicon).
+      <br /><br />
+      <b>Baseline:</b> Measured fluorescence when no amplification-specific fluorescence can yet be determined.
+      This fluorescence includes fluorescence from cDNA, primers and unbound SYBR Green or inefficiently quenched
+      fluorescently labeled probe.
+      <br /><br />
+      <b>Cq or quantification cycle:</b> Fractional number of cycles needed to reach the fluorescence threshold.
+      Samples with higher starting concentrations will reach this threshold earlier and will have a low Cq value;
+      Cq is used to calculate N0. Cq is also known as Cp or Ct but the use of those terms is discouraged by the
+      MIQE guidelines (Bustin et al., Clinical Chemistry 2009)
+      <br /><br />
+      <b>Cumulative fluorescence:</b> Observed fluorescence data obtained when the PCR amplification is monitored
+      with a monitoring system for which fluorescence accumulates. These reporters become fluorescent during
+      annealing or elongation and the fluorescent accumulates during subsequent cycles.
+      <br /><br />
+      <b>E or PCR Efficiency:</b> Amplification efficiency expressed as a value between 1 and 2 and is thus defined
+      as “the fold increase per cycle”. This efficiency is calculated from the slope of the amplification curve in
+      the exponential phase. Ideally the PCR efficiency is 2, meaning that in each cycle the amount of amplicon
+      doubles. This is also referred to as a 100% efficient PCR. An efficiency value of 1 means no amplification.
+      <br /><br />
+      <b>Exponential or log-linear phase:</b> The portion of the PCR curve in which the level of generated
+      fluorescence exceeds baseline fluorescence, but reagents have not yet begun to be limiting. In this phase
+      the amplification efficiency is constant and similar across all samples in an amplicon group regardless of
+      their starting concentration.
+      <br /><br />
+      <b>Fluorescence threshold, quantification threshold or Nq:</b> Fixed amount of fluorescence, set to determine
+      the Cq value. By default set at one cycle below the upper limit of the window-of-linearity.
+      <br /><br />
+      <b>N0:</b> Target quantity or starting concentration per sample, expressed in arbitrary fluorescence units. The
+        N0 value of a target and one or more reference genes can be used to calculate the efficiency corrected
+        gene expression ratio.
+      <br /><br />
+      <b>Non-cumulative fluorescence:</b> Observed fluorescence data obtained when the PCR amplification is monitored
+      with a DNA binding dye or hybridization probe. The reporter is only fluorescent when bound to dsDNA;
+      fluorescence intensity is proportional to the amount of DNA present at each cycle.
+      <br /><br />
+      <b>Nq:</b> see Fluorescence threshold
+      <br /><br />
+      <b>Plateau phase:</b> Endpoint of the PCR reaction - the phase in which reaction components become limiting.
+      In the plateau phase the amplification curves of the real-time PCR are no longer exponential and the PCR
+      efficiency drops to 1.
+      <br /><br />
+      <b>Raw data:</b> Fluorescence data that is not baseline-corrected by the PCR system. Raw data should not
+      contain negative values.
+      <br /><br />
+      <b>Sample:</b> Reaction unit (well in a PCR plate)
+      <br /><br />
+      <b>Tissue:</b> Biological material in which DNA or RNA levels have to be determined. A tissue can be measured
+      in different wells to measure different genes.
+      <br /><br />
+      <b>Window-of-Linearity or W-o-L:</b> Subset of data points in the exponential phase that is used to determine
+      the PCR amplification efficiency (E) per sample. The Window-of-Linearity is set automatically by the program
+      but can be modified by the user. Default the W-o-L width is set to include 4 amplification cycles.
+    </p>
+    <h5 id="LRP-Data-Analysis">8.5. Theory behind the LinRegPCR program</h5>
+    <p style="text-align: justify">
+      <b>Basic principle</b><br />
+      The basic equation for PCR kinetics is:<br />
+      <img src="static/img/LinRegPCR_Formula_1.jpg" alt="Formula" width="250px"><br />
+      Where the amount of amplicon after C cycles (N<sub>c</sub>) is the starting concentration of the amplicon
+      (N<sub>0</sub>) times the PCR efficiency (E) to the power C. The PCR efficiency in this equation is defined as
+      fold increase per cycle. It is therefore expressed as a value between 1 and 2 where an efficiency of 2
+      represents a perfect doubling of the amplicon in each cycle This is also referred to as a 100% efficient PCR.
+      <br /><br /><br /><img src="static/img/LinRegPCR_Fig1.png" alt="Formula" width="750px"><br /><br /><br />
+      LinRegPCR is based on the fact that, when plotted on a log-fluorescence axis, the slope of the linear
+      regression line through the data points in the exponential phase of the amplification curve can be used to
+      estimate the PCR efficiency (E) (Ramakers et al 2003).<br />
+	  After setting the quantification threshold Nq and determining the fractional cycle number that was needed
+      to reach this threshold (Fig. 1), the starting concentration or target quantity can be calculated with the
+      inverse of Eq. 1:<br />
+      <img src="static/img/LinRegPCR_Formula_2.jpg" alt="Formula" width="250"><br />
+      The Efficiency value used in Eq. 2 is the mean of the observed efficiencies per amplicon (Ruijter et al 2009).
+      <br /><br />
+      <b>Different monitoring chemistries</b><br />
+      Because their fluorescence is linearly related to the amount of the amplicon, Eq. 1 describes the increase in
+      fluorescence for PCR runs monitored with a DNA binding dye. However, some monitoring chemistries, the
+      fluorescent reporter is released from quenching during elongation and remains fluorescent in subsequent cycles;
+      fluorescence thus accumulates. For other chemistries, the first release of fluorescence occurs only after a
+      number of initial lag-cycles. Some chemistries combine lag with accumulation. The different kinetics lead to a
+      shift in the Cq values of these curves and correction for the observed, earlier or later, Cq values is
+      implemented (Tuomi et al 2010; Ruijter et al., 2014). The required correction depends on the input DNA
+      (ss cDNA or ds DNA) and the chemistry; the targeted sequence in case of fluorescent probes (mRNA or cDNA
+      strand) does not displace the amplification curve observably.<br />
+      Plotted on a logarithmic fluorescence axis every chemistry shows the amplification curve for each reaction as
+      a straight line, with a slope equal to log(E). This is true for all probe-based chemistries used for
+      monitoring DNA increase in a real-time PCR run.
+    </p>
+    <h5 id="LRP-Baseline">8.6. Baseline Estimation and flagging of deviating samples</h5>
+    <p style="text-align: justify">
+      LinRegPCR determines the baseline fluorescence per sample by reconstructing the log-linear phase. It determines
+      the cycle at the maximum of the Second Derivative (SDM) of the observed fluorescence values in each sample.
+      The SDM cycle is the start of the plateau phase. Then LinRegPCR does an iterative search for a baseline value
+      that gives the longest straight line of data points down from the plateau phase. For details on the baseline
+      estimation procedure: see Ruijter et al., Nucleic Acids Research, 2009.
+	  As explained in the above paper, an accurate baseline estimation is a requirement for the correct determination
+      of E and to a lesser extend Cq. The implemented baseline estimation requires a sufficiently long log-linear
+      phase and thus optimized qPCR conditions have to be used. However, when the baseline-to-plateau distance is
+      too small the baseline determination can fail. LinRegPCR determines and flags the following deviating samples
+      during the process of baseline estimation.<br /><br />
+      <b>Error Flagging</b><br />
+      <b>no-amplification:</b> samples with less than 7-times overall increase between the first cycles and the
+      last cycles. These samples will be ignored by the program and are always excluded from the calculation of the
+      mean PCR efficiency and no starting concentration will be calculated.<br />
+      <b>baseline error:</b> samples for which no baseline value can be determined because no fluorescence value
+      between the SDM and the minimum observed value results in a straight exponential phase. These samples will be
+      ignored by the program and are always excluded from the calculation of the mean PCR efficiency and no
+      starting concentration will be calculated.<br />
+      <b>noisy sample:</b> sample in which the fluorescence in cycle C is higher than it is in cycle C+1 in a W-o-L
+      just below the SDM cycle. This high in the exponential phase, the fluorescence values should be continuously
+      increasing. In such a case, the baseline estimation will result in a warning that the dataset is
+      <b>too noisy</b>  to be analyzed automatically.<br />
+      <b>no-plateau:</b> samples that do not reach the plateau phase. This assignment cannot be overruled. The user
+      can decide to include or exclude the <b>no-plateau</b>  samples from the calculation of the mean PCR efficiency.
+      For these samples a starting concentration will be calculated when they are not also an
+      <b>efficiency outlier</b>.<br /><br />
+      <b>Reasons for Failing Baseline Estimation</b><br />
+      When you encounter a lot of baseline errors and noisy samples it may be that the Log-linear phase in your
+      dataset is too short. This is most probably because the baseline is too high which is limiting the
+      baseline-to-plateau distance. The program then has not enough data points in the log-linear phase to estimate
+      the fluorescence baseline. It may also be that measurement noise leads to discontinuous data in the
+      log-linear phase. Both problems make that the data points downwards from the plateau phase do not form a
+      continuously decreasing set of points. Because LinRegPCR uses only the points that are continuously
+      decreasing from the plateau phase too few points are available for the baseline estimation. In that case the
+      baseline estimate will be wrong, in most cases too high.
+      <br /><br /><br /><img src="static/img/LinRegPCR_Fig2.png" alt="Formula" width="750px"><br /><br /><br />
+      <b>Handling noisy datasets</b><br />
+      A noisy sample is defined as a sample in which the data in the window-of-linearity are not continuously
+      increasing. This mostly occurs when the observation noise is too large. When <b>noisy samples</b> occur,
+      LinRegPCR cannot accurately determine the fluorescence baseline. So, you probably also have a number of
+      samples that have a <b>baseline error</b> assigned to them. The program checks for noisy samples immediately
+      after the estimation of the fluorescence baseline. When noisy samples occur, the program marks noisy samples
+      for exclusion from calculation of the mean efficiency. Then it determines a common window-of-linearity for
+      the remaining samples.<br />
+      Noisy data might occur when the distance between baseline and plateau phase is not large enough which leaves
+      the program with not enough room to determine the baseline accurately. To solve these issues you have to go
+      back to the lab. You have several ways to improve the data quality in the future. Firstly look at the
+      exposure-time setting in your PCR apparatus and set this to a fixed exposure time. The automatic exposure
+      time setting of your qPCR apparatus exaggerates noise at low fluorescence intensities. Secondly you can
+      try to increase the baseline - plateau distance by lowering the primer concentration in the PCR reaction.
+      When you are using a fluorescent probes and quenched reporters you have to make sure that the quenching
+      efficiency of the undigested probe is as high as possible (see Tuomi et al 2010 for suggestions).
+    </p>
+    <h5 id="LRP-Mean-Efficiency">8.7. Mean Efficiency Calculation</h5>
+    <p style="text-align: justify">
+      The group of samples in which the same target (pair of primers) is used are called an amplicon group. The PCR
+      efficiency per amplicon is assumed to be constant; nevertheless individual samples have slightly variable
+      observed PCR efficiencies. Therefore, it is recommended to use the average efficiency of the samples for each
+      amplicon group to calculate the target quantity.  (Ruijter et al., Nucleic Acids Research, 2009)<br />
+      Determining the correct mean efficiency is very important and deviating samples should therefore be excluded.
+      The user can decide on to include or exclude deviating samples from the calculation of the mean efficiency.<br />
+      <b>No amplification:</b> Samples without amplification are always excluded.<br />
+      <b>No Plateau:</b> Samples that do not reach the plateau phase can be excluded. Excluding these samples may
+      give you a better mean efficiency but, because this mean is then based on fewer samples, it may not be the
+      best mean.<br />
+      <b>Cq too low:</b> Samples of which the Cq value is too low to determine the correct PCR efficiency (only
+      with cumulative fluorescence) are be excluded.<br />
+      <b>Efficiency outliers:</b> Samples with a deviating individual PCR efficiency can be excluded from the
+      calculation of the mean efficiency. You can give the range around the median efficiency that you want to
+      allow. The default range of 5% means that around a median efficiency of 1.83, a range from 1.78 to 1.88 is
+      allowed. This exclusion will only affect the mean efficiency when the distribution of observed individual
+      efficiencies is much skewed.<br />
+      <br />
+      Excluded samples are only excluded from the calculation of the mean efficiency per amplicon group. The sample
+      will receive a starting concentration (N0) in the output based on the mean PCR efficiency of the remaining
+      samples.
+    </p>
+    <h5 id="LRP-WoL-Threshold">8.8. Window-of-Linearity and Threshold</h5>
+    <p style="text-align: justify">
+      To determine the mean PCR efficiency for an amplicon group, LinRegPCR uses a selection of data points in the
+      log-linear phase to determine the PCR efficiency (E) per sample. This selection of cycles is called the
+      <b>Window-of-Linearity (W-o-L) </b>. After the baseline correction a common W-o-L is set by default to 4
+      cycles. LinRegPCR sets a W-o-L per amplicon group. LinRegPCR sets the window-of-linearity by looking for
+      the W-o-L with the smallest coefficient of variation (CV) of the individual PCR efficiencies in the group
+      of samples included. To this end, LinRegPCR moves a W-o-L, starting at the plateau phase, downward till a
+      sample is not longer included or till the CV shows a second minimum. The latter criterion was added after
+      the publication of the method (Ruijter et al 2009) to avoid the situation where the decreasing average
+      efficiency close to the baseline causes the CV to decrease. This assures that the W-o-L is set in such a
+      way the variation between individual efficiency values of the included samples is lowest.<br /><br />
+      The common threshold is automatically set at the geometric mean of 1 cycle below the upper limit of the
+      W-o-L of all amplicon groups.<br /><br />
+      If an individual sample or a target is selected within the RunView Tab in the LinRegPCR app, the W-o-L is
+      indicated by blue horizontal lines that represent the upper and lower limit of the W-o-L. The data points
+      used for the estimation of the PCR efficiency are solid dots. The fluorescence threshold, represented by
+      the horizontal green line, is by default set at 1 cycle below the upper limit of the W-o-L; the vertical
+      green line indicates the Cq value (only with individual samples).
+    </p>
+
+    <h4 id="RDML-RunView">9. RDML-RunView</h4>
+    <p style="text-align: justify">
+      RDML-RunView is a tool to view single runs of a RDML files. Once the RDML file was loaded, the desired experiment
+      and run have to be selected. RDML-RunView will display the plate setup and, with classic qPCR, the amplification-
+      or meltcurves. A well / reaction can be selected which will highlight the corresponding curve. If a curve is
+      selected, the corresponding reaction will be highlighted. Meltcurves can be easily inspected if the color coding
+      is set to target. Setting the color coding to type allows eases the inspection of amplification curves.
+    </p>
+
+    <h4 id="RDML-Validate">10. RDML-Validate</h4>
+    <p style="text-align: justify">
+      RDML-Validate validates a RDML file against the corresponding schema. If the validation fails, RDML-Validate
+      displays a list of errors. Errors point to programming mistakes in the used software to create the RDML file and
+      might be difficult to fix by the user. RDML-Edit offers in edit mode on the main tab two buttons "Recreate Lost
+      Ids" and "Repair RDML File" which might help. If this happens, you should contact the developers of the respective
+      software.
+    </p>
+
 
   </main>
 
