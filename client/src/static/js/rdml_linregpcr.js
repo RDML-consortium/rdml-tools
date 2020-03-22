@@ -23,11 +23,20 @@ linRegPCRSaveButton.addEventListener('click', saveTabLinRegPCR)
 const linRegPCRCopyButton = document.getElementById('btn-copy-linregpcr')
 linRegPCRCopyButton.addEventListener('click', copyTabLinRegPCR)
 
+const choiceSelBaseline = document.getElementById('dropSelBaseline')
+choiceSelBaseline.addEventListener('change', resetLinRegPCRdata)
+
+const choiceExclMeanEff = document.getElementById('text-exl-men-eff')
+choiceExclMeanEff.addEventListener('change', resetLinRegPCRdata)
+
+const choiceSaveRDML = document.getElementById('updateRDMLData')
+choiceSaveRDML.addEventListener('change', updateRDMLCheck)
+
 const choiceExcludeNoPlat = document.getElementById('choiceExcludeNoPlateau')
-choiceExcludeNoPlat.addEventListener('change', updateLinRegPCRTable)
+choiceExcludeNoPlat.addEventListener('change', updateRDMLCheck)
 
 const choiceExcludeEff = document.getElementById('choiceExcludeEfficiency')
-choiceExcludeEff.addEventListener('change', updateLinRegPCRTable)
+choiceExcludeEff.addEventListener('change', updateRDMLCheck)
 
 const choiceTable = document.getElementById('selTableStyle')
 choiceTable.addEventListener('change', updateLinRegPCRTable)
@@ -117,6 +126,27 @@ function resetAllGlobalVal() {
     window.reactToLinRegTable = {}
     resultLinRegPCR.innerHTML = ""
     updateClientData()
+}
+
+window.resetLinRegPCRdata = resetLinRegPCRdata
+function resetLinRegPCRdata() {
+    window.linRegPCRTable = []
+    window.reactToLinRegTable = {}
+    resultLinRegPCR.innerHTML = ""
+    updateLinRegPCRTable()
+}
+
+window.updateRDMLCheck = updateRDMLCheck
+function updateRDMLCheck() {
+    var bbUpdateRDML = document.getElementById('updateRDMLData')
+    var optionalGreyTab = document.getElementById('tab-optional-grey')
+    if ((bbUpdateRDML) && (bbUpdateRDML.value == "y")) {
+        optionalGreyTab.style.backgroundColor = "#e6e6e6"
+        resetLinRegPCRdata()
+    } else {
+        optionalGreyTab.style.backgroundColor = "#ffffff"
+    }
+    updateLinRegPCRTable()
 }
 
 document.addEventListener("DOMContentLoaded", function() {
@@ -1587,6 +1617,7 @@ function updateExperimenter() {
     if (window.selExperiment == newData) {
         return
     }
+    resetLinRegPCRdata()
     window.selExperiment = newData
     window.selRun = ""
     updateClientData()
@@ -1605,6 +1636,7 @@ function updateRun() {
     if ((window.selExperiment == "") || (window.selRun == "")){
         return
     }
+    resetLinRegPCRdata()
     var ret = {}
     ret["mode"] = "get-run-data"
     ret["sel-experiment"] = window.selExperiment
