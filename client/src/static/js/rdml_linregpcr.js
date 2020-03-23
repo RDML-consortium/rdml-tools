@@ -68,6 +68,7 @@ const resultLinRegPCR = document.getElementById('result-linregpcr')
 window.uuid = "";
 window.rdmlData = "";
 window.reactData = "";
+window.baselineData = "";
 window.isvalid = "untested";
 
 window.selExperiment = "";
@@ -121,17 +122,17 @@ function resetAllGlobalVal() {
     window.sampSelFirst = "7s8e45-Show-All"  // To avoid conflicts with existing values
     window.sampSelSecond = "7s8e45-Show-All"  // To avoid conflicts with existing values
     window.sampSelThird = "7s8e45-Show-All"  // To avoid conflicts with existing values
-    window.linRegSaveTable = ""
-    window.linRegPCRTable = []
-    window.reactToLinRegTable = {}
-    resultLinRegPCR.innerHTML = ""
+    resetLinRegPCRdata()
     updateClientData()
 }
 
 window.resetLinRegPCRdata = resetLinRegPCRdata
 function resetLinRegPCRdata() {
+    window.linRegSaveTable = ""
     window.linRegPCRTable = []
     window.reactToLinRegTable = {}
+    window.curveSource = "adp"
+    window.baselineData = ""
     resultLinRegPCR.innerHTML = ""
     updateLinRegPCRTable()
 }
@@ -396,6 +397,7 @@ function updateServerData(stat, reqData) {
                 if (res.data.data.hasOwnProperty("reactsdata")) {
                     window.reactData = res.data.data.reactsdata
                     if (window.reactData.hasOwnProperty("LinRegPCR_Result_Table")) {
+                        window.baselineData = res.data.data.reactsdata
                         window.curveSource = "bas"
                         window.linRegPCRTable = JSON.parse(window.reactData.LinRegPCR_Result_Table)
                         for (var row = 0; row < window.linRegPCRTable.length; row++) {
@@ -412,8 +414,6 @@ function updateServerData(stat, reqData) {
                     }
                     // For debugging
                     // document.getElementById('text-jsDebug').value = JSON.stringify(window.reactData, null, 2)
-                } else {
-                    window.reactData = ""
                 }
                 if (res.data.data.hasOwnProperty("isvalid")) {
                     if (res.data.data.isvalid) {
@@ -537,7 +537,7 @@ function updateClientData() {
         updateServerData(uuid, JSON.stringify(ret))
         return
     }
-    if ((window.curveSource == "bas") && (!(window.reactData.hasOwnProperty("LinRegPCR_Result_Table")))) {
+    if ((window.curveSource == "bas") && (window.linRegPCRTable.length < 1)) {
         window.curveSource = "adp"
     }
 
@@ -667,7 +667,6 @@ function updateClientData() {
     ret += '</td>\n</tr>\n'
     ret += '</table>\n'
 
-
     if (window.selPCRStyle == "classic") {
         ret += '<table style="width:100%;">'
         ret += '  <tr>\n    <td style="width:8%;">Data Source:</td>\n<td style="width:29%;">'
@@ -677,11 +676,13 @@ function updateClientData() {
             ret += ' selected'
         }
         ret += '>Amplification - Raw Data</option>\n'
-        ret += '        <option value="bas"'
-        if (window.curveSource == "bas") {
-            ret += ' selected'
+        if (window.linRegPCRTable.length > 0) {
+            ret += '        <option value="bas"'
+            if (window.curveSource == "bas") {
+                ret += ' selected'
+            }
+            ret += '>Amplification - Baseline Corrected</option>\n'
         }
-        ret += '>Amplification - Baseline Corrected</option>\n'
         ret += '        <option value="mdp"'
         if (window.curveSource == "mdp") {
             ret += ' selected'
@@ -1020,9 +1021,9 @@ function updateClientData() {
                 window.winYend = window.reactData.adp_fluor_max;
             } else if (window.curveSource == "bas") {
                 window.winXst = 0;
-                window.winXend = 5 * Math.ceil(window.reactData.bas_cyc_max / 5);
-                window.winYst = window.reactData.bas_fluor_min;
-                window.winYend = window.reactData.bas_fluor_max;
+                window.winXend = 5 * Math.ceil(window.baselineData.bas_cyc_max / 5);
+                window.winYst = window.baselineData.bas_fluor_min;
+                window.winYend = window.baselineData.bas_fluor_max;
             } else {
                 window.winXst = 5 * Math.floor(window.reactData.mdp_tmp_min / 5);
                 window.winXend = 5 * Math.ceil(window.reactData.mdp_tmp_max / 5);
@@ -1077,11 +1078,9 @@ function NumPoint(val) {
     }
     return ret;
 }
-
 window.updateLinRegPCRTable = updateLinRegPCRTable
 function updateLinRegPCRTable() {
-    if ((window.reactData.hasOwnProperty("LinRegPCR_Result_Table")) &&
-        (window.linRegPCRTable.length < 1)) {
+    if (window.linRegPCRTable.length < 1) {
         return
     }
     if (choiceDecimalSep.value == "point") {
@@ -2489,6 +2488,10 @@ function createCoordinates (tr,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend
 function createAllCurves(tr,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend){
     var retVal = ""
     var reacts = window.reactData.reacts
+    var baseReact = window.reactData.reacts
+    if (window.curveSource == "bas") {
+        baseReact = window.baselineData.reacts
+    }
     var the_run = window.rdmlData.rdml.experiments[window.experimentPos].runs[window.runPos]
     var rows = parseInt(the_run.pcrFormat.rows)
     var columns = parseInt(the_run.pcrFormat.columns)
@@ -2565,10 +2568,10 @@ function createAllCurves(tr,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend){
                                                      wdXst,wdXend,wdYst,wdYend);
                         } else if (window.curveSource == "bas") {
                             retVal += createOneCurve(parseInt(reacts[reac].id),dataPos,"1.2",
-                                                     reacts[reac].datas[dataPos].bass,colo,startX,endX,startY,endY,
+                                                     baseReact[reac].datas[dataPos].bass,colo,startX,endX,startY,endY,
                                                      wdXst,wdXend,wdYst,wdYend);
                             retVal += createOneDots(reac, parseInt(reacts[reac].id),dataPos,"1.2",
-                                                    reacts[reac].datas[dataPos].bass,colo,startX,endX,startY,endY,
+                                                    baseReact[reac].datas[dataPos].bass,colo,startX,endX,startY,endY,
                                                     wdXst,wdXend,wdYst,wdYend);
                         } else {
                             retVal += createOneCurve(parseInt(reacts[reac].id),dataPos,"1.2",
@@ -2591,6 +2594,10 @@ function createOneHighCurve(id, dataPos) {
     }
     var retVal = ""
     var reacts = window.reactData.reacts
+    var baseReact = window.reactData.reacts
+    if (window.curveSource == "bas") {
+        baseReact = window.baselineData.reacts
+    }
     for (var reac = 0; reac < reacts.length; reac++) {
         if (parseInt(reacts[reac].id) == parseInt(id)) {
             var exlReact = reacts[reac].datas[dataPos].hasOwnProperty("excl")
@@ -2659,10 +2666,10 @@ function createOneHighCurve(id, dataPos) {
                                          window.winXst, window.winXend, window.winYst, window.winYend,
                                          window.frameXst, window.frameXend, window.frameYst, window.frameYend);
             } else if (window.curveSource == "bas") {
-                retVal += createOneCurve(parseInt(reacts[reac].id),dataPos,"3.0",reacts[reac].datas[dataPos].bass,colo,
+                retVal += createOneCurve(parseInt(reacts[reac].id),dataPos,"3.0",baseReact[reac].datas[dataPos].bass,colo,
                                          window.winXst, window.winXend, window.winYst, window.winYend,
                                          window.frameXst, window.frameXend, window.frameYst, window.frameYend);
-                retVal += createOneDots(reac, parseInt(reacts[reac].id),dataPos,"3.0",reacts[reac].datas[dataPos].bass,colo,
+                retVal += createOneDots(reac, parseInt(reacts[reac].id),dataPos,"3.0",baseReact[reac].datas[dataPos].bass,colo,
                                         window.winXst, window.winXend, window.winYst, window.winYend,
                                         window.frameXst, window.frameXend, window.frameYst, window.frameYend);
             } else {
