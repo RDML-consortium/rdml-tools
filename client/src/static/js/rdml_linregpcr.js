@@ -76,10 +76,13 @@ window.selRun = "";
 window.selPCRStyle = "classic";
 window.selRunOnLoad = "";
 window.reloadCurves = false;
+window.fixCurves = false;
 window.selDigitalOnLoad = "none";
 
 window.maxLogRange = 10000;
 
+window.exNoPlateau = true;
+window.exDiffMean = true;
 window.decimalSepPoint = true;
 
 window.sampSelFirst = "7s8e45-Show-All"  // To avoid conflicts with existing values
@@ -326,8 +329,8 @@ function runLinRegPCR() {
     var rBaseline = true
     var rPCREffRange = 0.05
     var rUpdateRDML = true
-    var rExcludeNoPlateau = true
-    var rExcludeEfficiency = true
+    window.exNoPlateau = true
+    window.exDiffMean = true
 
     var bbBase = document.getElementById('dropSelBaseline')
     if ((bbBase) && (bbBase.value == "n")) {
@@ -343,11 +346,11 @@ function runLinRegPCR() {
     }
     var bbExcludeNoPlateau = document.getElementById('choiceExcludeNoPlateau')
     if ((bbExcludeNoPlateau) && (bbExcludeNoPlateau.value == "n")) {
-        rExcludeNoPlateau = false
+        window.exNoPlateau = false
     }
     var bbExcludeEfficiency = document.getElementById('choiceExcludeEfficiency')
     if ((bbExcludeEfficiency) && (bbExcludeEfficiency.value == "n")) {
-        rExcludeEfficiency = false
+        window.exDiffMean = false
     }
 
     var ret = {}
@@ -357,8 +360,8 @@ function runLinRegPCR() {
     ret["baseline-correction"] = rBaseline
     ret["pcr-eff-range"] = rPCREffRange
     ret["update-RDML-data"] = rUpdateRDML
-    ret["exclude-no-plateau"] = rExcludeNoPlateau
-    ret["exclude-efficiency"] = rExcludeEfficiency
+    ret["exclude-no-plateau"] = window.exNoPlateau
+    ret["exclude-efficiency"] = window.exDiffMean
     updateServerData(uuid, JSON.stringify(ret))
 
     $('[href="#linregpcr-tab"]').tab('show')
@@ -1011,6 +1014,9 @@ function updateClientData() {
             finRet += '            <div class="col" id="plate-data">' + ret + '</div>'
             finRet += '            <div class="col" id="curves-data"></div>'
             finRet += '          </div>'
+            finRet += '          <div class="row">'
+            finRet += '            <div class="col" id="edit-notes"></div>'
+            finRet += '          </div>'
             finRet += '        </div>'
             resultData.innerHTML = finRet;
 
@@ -1031,13 +1037,22 @@ function updateClientData() {
                 window.winYend = window.reactData.mdp_fluor_max;
             }
             showSVG();
+            showEditNotes();
         } else {
             resultData.innerHTML = ret
         }
     } else {
         resultData.innerHTML = ret
     }
-    updateSampSel(1)
+
+    if (window.fixCurves == true) {
+        window.fixCurves = false
+        updateSampSel(2)
+        window.sampSelThird = "7s8e45-Show-All"
+        updateSampSel(0)
+    } else {
+        updateSampSel(1)
+    }
 }
 
 window.floatWithPrec = floatWithPrec
@@ -1266,6 +1281,9 @@ function updateLinRegPCRTable() {
     } else if (choiceTable.value == "extended") {
         var meanCol = 24  // "mean PCR eff + no plateau + efficiency outliers"
         var effErrCol = 44  // "PCR efficiency outside rage + no plateau"
+        var saveExNoPlateau = "n"
+        var saveExDiffMean = "n"
+        var colorNotes = ' style="background-color: #cccccc"'
         if ((choiceExcludeNoPlat.value == "y") && (choiceExcludeEff.value == "n")) {
             meanCol = 28  // "mean PCR eff + efficiency outliers"
             effErrCol = 45  // "PCR efficiency outside rage"
@@ -1276,6 +1294,15 @@ function updateLinRegPCRTable() {
         if ((choiceExcludeNoPlat.value == "y") && (choiceExcludeEff.value == "y")) {
             meanCol = 36  // "mean PCR eff"
             effErrCol = 45  // "PCR efficiency outside rage"
+        }
+        if (window.exNoPlateau == true) {
+            saveExNoPlateau = "y"
+        }
+        if (window.exDiffMean == true) {
+            saveExDiffMean = "y"
+        }
+        if ((choiceExcludeNoPlat.value == saveExNoPlateau) && (choiceExcludeEff.value == saveExDiffMean)) {
+            colorNotes = ''
         }
 
         var pcrFormat = window.rdmlData.rdml.experiments[window.experimentPos].runs[window.runPos].pcrFormat
@@ -1307,20 +1334,14 @@ function updateLinRegPCRTable() {
 
             // Similar to rdml.py
             if (["ntc", "nac", "ntp", "nrt"].includes(window.linRegPCRTable[row][3])) {  // "sample type"
-                if ((cqValue > 10.0) && (cqValue < 36.0)) {
+                if (cqValue > 0.0) {
                     highlight_meanCq = colErr
                     highlight_meanN0 = colErr
                     if (window.linRegPCRTable[row][40] == true) {
                         highlight_ErrAmp = colErr
                     }
-                    if (window.linRegPCRTable[row][41] == false) {
-                        highlight_ErrBase = colErr
-                    }
                     if (window.linRegPCRTable[row][42] == true) {
                         highlight_ErrPlat = colErr
-                    }
-                    if (window.linRegPCRTable[row][43] == false) {
-                        highlight_ErrNoisy = colErr
                     }
                     if (window.linRegPCRTable[row][effErrCol] == false) {
                         highlight_ErrEffOutside = colErr
@@ -1331,14 +1352,8 @@ function updateLinRegPCRTable() {
                     if (window.linRegPCRTable[row][40] == true) {
                         highlight_ErrAmp = colWarn
                     }
-                    if (window.linRegPCRTable[row][41] == false) {
-                        highlight_ErrBase = colWarn
-                    }
                     if (window.linRegPCRTable[row][42] == true) {
                         highlight_ErrPlat = colWarn
-                    }
-                    if (window.linRegPCRTable[row][43] == false) {
-                        highlight_ErrNoisy = colWarn
                     }
                     if (window.linRegPCRTable[row][effErrCol] == false) {
                         highlight_ErrEffOutside = colWarn
@@ -1348,13 +1363,22 @@ function updateLinRegPCRTable() {
                 }
             }
             if (["std", "pos"].includes(window.linRegPCRTable[row][3])) {  // "sample type"
-                if (parseInt(window.linRegPCRTable[row][14]) < 8) {  // "n in log phase"
+                if (parseInt(window.linRegPCRTable[row][14]) < 5) {  // "n in log phase"
                     highlight_nInLog = colWarn
                 }
                 if (parseFloat(window.linRegPCRTable[row][19]) < 1.7) {  // "indiv PCR eff"
                     highlight_indivPCREff = colWarn
                 }
-                if (!((cqValue > 10.0) && (cqValue < 36.0))) {
+                if (cqValue > 34.0) {
+                    highlight_meanCq = colWarn
+                    highlight_meanN0 = colWarn
+                }
+                if ((cqValue > -0.001) && (cqValue < 10.0)) {
+                    highlight_meanCq = colWarn
+                    highlight_meanN0 = colWarn
+                }
+
+                if (!(cqValue > 0.0)) {
                     highlight_meanCq = colErr
                     highlight_meanN0 = colErr
                     if (window.linRegPCRTable[row][40] == false) {
@@ -1395,13 +1419,17 @@ function updateLinRegPCRTable() {
                 }
             }
             if (window.linRegPCRTable[row][3] == "unkn") {  // "sample type"
-                if (parseInt(window.linRegPCRTable[row][14]) < 8) {  // "n in log phase"
+                if (parseInt(window.linRegPCRTable[row][14]) < 5) {  // "n in log phase"
                     highlight_nInLog = colWarn
                 }
                 if (parseFloat(window.linRegPCRTable[row][19]) < 1.7) {  // "indiv PCR eff"
                     highlight_indivPCREff = colWarn
                 }
-                if (!((cqValue > 10.0) && (cqValue < 36.0))) {
+                if (cqValue > 34.0) {
+                    highlight_meanCq = colWarn
+                    highlight_meanN0 = colWarn
+                }
+                if ((cqValue > -0.001) && (cqValue < 10.0)) {
                     highlight_meanCq = colWarn
                     highlight_meanN0 = colWarn
                 }
@@ -1430,8 +1458,12 @@ function updateLinRegPCRTable() {
                 ret += "<tr ondblclick='window.clickSampSel(\"" + window.linRegPCRTable[row][5]  // "target"
                 ret += "\", \"" + window.linRegPCRTable[row][0] + "\")'> \n"  // "id"
             }
-            for (var col = 0; col < 9; col++) { // "id" - "note"
+            for (var col = 0; col < 7; col++) { // "id" - "target chemistry"
                 ret += '<td>' + window.linRegPCRTable[row][col] + '</td>\n'
+                content += window.linRegPCRTable[row][col] + "\t"
+            }
+            for (var col = 7; col < 9; col++) { // "excluded" - "note"
+                ret += '<td' + colorNotes + '>' + window.linRegPCRTable[row][col] + '</td>\n'
                 content += window.linRegPCRTable[row][col] + "\t"
             }
             if (row == 0) {
@@ -1782,6 +1814,87 @@ function saveSVGFile() {
     return;
 }
 
+window.showEditNotes = showEditNotes;
+function showEditNotes() {
+    if ((window.sampSelFirst == "target") &&
+        (window.sampSelSecond != "7s8e45-Show-All") &&
+        (window.sampSelThird != "7s8e45-Show-All")) {
+        var sReact = sampSelThird;
+        var sTar = window.sampSelSecond;
+        var exclStr = "";
+        var noteStr = "";
+        var reacts = window.reactData.reacts
+        for (var i = 0; i < reacts.length; i++) {
+            if (reacts[i].id == sReact) {
+                for (var k = 0; k < reacts[i].datas.length; k++) {
+                    if (reacts[i].datas[k].tar == sTar) {
+                        if (reacts[i].datas[k].hasOwnProperty("excl")) {
+                            exclStr = reacts[i].datas[k].excl;
+                        }
+                        if (reacts[i].datas[k].hasOwnProperty("note")) {
+                            noteStr = reacts[i].datas[k].note;
+                        }
+                    }
+                }
+            }
+        }
+        var retVal = '<div class="card">'
+        retVal += '  <div class="card-header">Annotoation</div>'
+        retVal += '  <div class="card-body">'
+        retVal += '    <div class="form-group">'
+        retVal += '      <label for="runView-ele-excl">Excluded:</label>'
+        retVal += '      <input type="text" class="form-control" id="runView-ele-excl" value="' + exclStr + '">'
+        retVal += '    </div>'
+        if (window.rdmlData.rdml.version == "1.3") {
+            retVal += '    <div class="form-group">'
+            retVal += '      <label for="runView-ele-notes">Notes:</label>'
+            retVal += '      <input type="text" class="form-control" id="runView-ele-notes" value="' + noteStr + '">'
+            retVal += '    </div>'
+        }
+        retVal += '<button type="submit" class="btn btn-outline-primary" '
+        retVal += 'onclick="updateExclNotes(\'' + sReact + '\',\'' + sTar + '\')">'
+        retVal += '      <i class="fas fa-rocket" style="margin-right: 5px;"></i>'
+        retVal += '        Update Exclusion an Notes in RDML file'
+        retVal += '    </button><br /><br />'
+        retVal += '    Here you can view the exclusion remarks and from RDML version 1.3 the'
+        retVal += '    notes of the RDML file. Any entry in exclusion will exclude this reaction/target combination '
+        retVal += '    from further analysis. <br />'
+        retVal += '    Be aware: LinRegPCR runs with <i>"Update RDML Data: Yes"</i> selected will overwrite all '
+        retVal += '    exclusion remarks and notes in the current run! Only edit this elements when the LinRegPCR '
+        retVal += '    analysis is complete. <br />'
+        retVal += '  </div>'
+        retVal += '</div>'
+        var sectionResults = document.getElementById('edit-notes')
+        sectionResults.innerHTML = retVal;
+    }
+}
+
+window.updateExclNotes = updateExclNotes;
+function updateExclNotes(sReact, sTar) {
+    var exclStr = getSaveHtmlData("runView-ele-excl");
+    var noteStr = getSaveHtmlData("runView-ele-notes");
+    if (window.linRegPCRTable.length > 0) {
+        for (var row = 0; row < window.linRegPCRTable.length; row++) {
+            if ((window.linRegPCRTable[row][0] == sReact) &&  // "id"
+                (window.linRegPCRTable[row][5] == sTar)){  // "target"
+                window.linRegPCRTable[row][7] = exclStr  // "excluded"
+                window.linRegPCRTable[row][8] = noteStr  // "note"
+                updateLinRegPCRTable();
+            }
+        }
+    }
+    var ret = {}
+    ret["mode"] = "update-excl-notes"
+    ret["sel-experiment"] = window.selExperiment
+    ret["sel-run"] = window.selRun
+    ret["sel-react"] = sReact
+    ret["sel-tar"] = sTar
+    ret["sel-excl"] = exclStr
+    ret["sel-note"] = noteStr
+    window.fixCurves = true
+    updateServerData(uuid, JSON.stringify(ret))
+}
+
 window.updatePCRStyle = updatePCRStyle;
 function updatePCRStyle() {
     var newData = getSaveHtmlData("dropSelPCRStyle")
@@ -1802,6 +1915,9 @@ function clickSampSel(tar, id) {
 
 window.updateSampSel = updateSampSel;
 function updateSampSel(updateOnly) {
+    // updateOnly = 0   New selected data, erase the rest
+    // updateOnly = 1   Default way
+    // updateOnly = 2   Set the choices as new and reselect
     var dropSecFirst = document.getElementById("dropSampSelFirst")
     var dropSecSecond = document.getElementById("dropSampSelSecond")
     var dropSecThird = document.getElementById("dropSampSelThird")

@@ -1336,6 +1336,33 @@ def handle_data():
             # else:
             #     modified = True
 
+        if "mode" in reqdata and reqdata["mode"] in ["update-excl-notes"]:
+            if "sel-experiment" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - sel-experiment id missing!"}]), 400
+            if "sel-run" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - sel-run id missing!"}]), 400
+            if "sel-react" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - sel-react id missing!"}]), 400
+            if "sel-tar" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - sel-tar id missing!"}]), 400
+            if "sel-excl" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - sel-excl missing!"}]), 400
+            if "sel-note" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - sel-note missing!"}]), 400
+            try:
+                experiment = rd.get_experiment(byid=reqdata["sel-experiment"])
+                if experiment is None:
+                    return jsonify(errors=[{"title": "Invalid server request - experiment id not found!"}]), 400
+                s_run = experiment.get_run(byid=reqdata["sel-run"])
+                if s_run is None:
+                    return jsonify(errors=[{"title": "Invalid server request - run id not found!"}]), 400
+                s_run.setExclNote(reqdata["sel-react"], reqdata["sel-tar"], reqdata["sel-excl"], reqdata["sel-note"])
+                data["reactsdata"] = s_run.getreactjson()
+            except rdml.RdmlError as err:
+                data["error"] = str(err)
+            else:
+                modified = True
+
         if "mode" in reqdata and reqdata["mode"] in ["run-linregpcr"]:
             if "sel-experiment" not in reqdata:
                 return jsonify(errors=[{"title": "Invalid server request - sel-experiment id missing!"}]), 400
