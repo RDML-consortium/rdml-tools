@@ -49,13 +49,15 @@ def download(uuidstr):
                 if os.path.isfile(os.path.join(sf, fname)):
                     fexpfilename = os.path.join(sf, "rdml_" + uuidstr + ".txt")
                     downFileName = "data.rdml"
-                    if os.path.isfile(downFileName):
+                    if os.path.isfile(fexpfilename):
                         with open(fexpfilename, 'r') as the_file:
                             downFileName = the_file.read()
                             downFileName = downFileName.replace(".xml", ".rdml")
                     return send_file(os.path.join(sf, fname), mimetype="application/x-rdml", as_attachment=True, attachment_filename=downFileName)
     if uuidstr == "sample.rdml":
         return send_file("sample.rdml", mimetype="application/x-rdml", as_attachment=True, attachment_filename="sample.rdml")
+    if uuidstr == "linregpcr.rdml":
+        return send_file("linregpcr.rdml", mimetype="application/x-rdml", as_attachment=True, attachment_filename="linregpcr.rdml")
     return "File does not exist!"
 
 
@@ -71,6 +73,8 @@ def validate_file():
                 fexpname = os.path.join(RDMLWS, "error.rdml")
             elif uuidstr == "sample.rdml":
                 fexpname = os.path.join(RDMLWS, "sample.rdml")
+            elif uuidstr == "linregpcr.rdml":
+                fexpname = os.path.join(RDMLWS, "linregpcr.rdml")
             else:
                 if not is_valid_uuid(uuidstr):
                     return jsonify(errors=[{"title": "Invalid UUID - UUID link outdated or invalid!"}]), 400
@@ -116,6 +120,9 @@ def handle_data():
         if 'showExample' in request.form.keys():
             fexpname = os.path.join(RDMLWS, "sample.rdml")
             uuidstr = "sample.rdml"
+        elif 'showLinRegPCRExample' in request.form.keys():
+            fexpname = os.path.join(RDMLWS, "linregpcr.rdml")
+            uuidstr = "linregpcr.rdml"
         elif 'createNew' in request.form.keys():
             uuidstr = str(uuid.uuid4())
             data = {"uuid": uuidstr}
@@ -176,6 +183,8 @@ def handle_data():
             uuidstr = request.form['uuid']
             if uuidstr == "sample.rdml":
                 fexpname = os.path.join(RDMLWS, "sample.rdml")
+            elif uuidstr == "linregpcr.rdml":
+                fexpname = os.path.join(RDMLWS, "linregpcr.rdml")
             else:
                 if not is_valid_uuid(uuidstr):
                     return jsonify(errors=[{"title": "Invalid UUID - UUID link outdated or invalid!"}]), 400
@@ -560,7 +569,7 @@ def handle_data():
                 if "tableUploadAmplification" in request.files:
                     tabAmpUpload = request.files['tableUploadAmplification']
                     modified = True
-                    if uuidstr == "sample.rdml":
+                    if uuidstr in ["sample.rdml", "linregpcr.rdml"]:
                         uuidstr = str(uuid.uuid4())
                         data["uuid"] = uuidstr
                         # Get subfolder
@@ -577,7 +586,7 @@ def handle_data():
                 if "tableUploadMelting" in request.files:
                     tabMeltUpload = request.files['tableUploadMelting']
                     modified = True
-                    if uuidstr == "sample.rdml":
+                    if uuidstr in ["sample.rdml", "linregpcr.rdml"]:
                         uuidstr = str(uuid.uuid4())
                         data["uuid"] = uuidstr
                         # Get subfolder
@@ -597,7 +606,7 @@ def handle_data():
                     modified = True
                     tabDigOverviewFilename = None
                     wellFileNames = []
-                    if uuidstr == "sample.rdml":
+                    if uuidstr in ["sample.rdml", "linregpcr.rdml"]:
                         uuidstr = str(uuid.uuid4())
                         data["uuid"] = uuidstr
                         # Get subfolder
@@ -1431,7 +1440,7 @@ def handle_data():
                 data["error"] = str(err)
 
         if modified is True:
-            if uuidstr == "sample.rdml":
+            if uuidstr in ["sample.rdml", "linregpcr.rdml"]:
                 uuidstr = str(uuid.uuid4())
                 data["uuid"] = uuidstr
                 # Get subfolder

@@ -371,7 +371,7 @@ function runLinRegPCR() {
 function updateServerData(stat, reqData) {
     const formData = new FormData()
     if (stat == "example") {
-        formData.append('showExample', 'showExample')
+        formData.append('showLinRegPCRExample', 'showLinRegPCRExample')
     } else if (stat == "data") {
         formData.append('queryFile', inputFile.files[0])
     } else {
@@ -1463,7 +1463,8 @@ function updateLinRegPCRTable() {
                 content += window.linRegPCRTable[row][col] + "\t"
             }
             for (var col = 7; col < 9; col++) { // "excluded" - "note"
-                ret += '<td' + colorNotes + '>' + window.linRegPCRTable[row][col] + '</td>\n'
+                var brForm = window.linRegPCRTable[row][col].replace(/;/g, ";<br />")
+                ret += '<td' + colorNotes + '>' + brForm + '</td>\n'
                 content += window.linRegPCRTable[row][col] + "\t"
             }
             if (row == 0) {
