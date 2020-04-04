@@ -23,9 +23,6 @@ linRegPCRSaveButton.addEventListener('click', saveTabLinRegPCR)
 const linRegPCRCopyButton = document.getElementById('btn-copy-linregpcr')
 linRegPCRCopyButton.addEventListener('click', copyTabLinRegPCR)
 
-const choiceSelBaseline = document.getElementById('dropSelBaseline')
-choiceSelBaseline.addEventListener('change', resetLinRegPCRdata)
-
 const choiceExclMeanEff = document.getElementById('text-exl-men-eff')
 choiceExclMeanEff.addEventListener('change', resetLinRegPCRdata)
 
@@ -326,16 +323,16 @@ function runLinRegPCR() {
         return
     }
     resultLinRegPCR.innerHTML = ""
-    var rBaseline = true
     var rPCREffRange = 0.05
     var rUpdateRDML = true
     window.exNoPlateau = true
     window.exDiffMean = true
 
-    var bbBase = document.getElementById('dropSelBaseline')
-    if ((bbBase) && (bbBase.value == "n")) {
-        rBaseline = false
-    }
+    window.sampSelFirst = "7s8e45-Show-All"  // To avoid conflicts with existing values
+    window.sampSelSecond = "7s8e45-Show-All"  // To avoid conflicts with existing values
+    window.sampSelThird = "7s8e45-Show-All"  // To avoid conflicts with existing values
+
+
     var bbPCREff = document.getElementById('text-exl-men-eff')
     if (bbPCREff) {
         rPCREffRange = parseFloat(bbPCREff.value)
@@ -357,7 +354,6 @@ function runLinRegPCR() {
     ret["mode"] = "run-linregpcr"
     ret["sel-experiment"] = window.selExperiment
     ret["sel-run"] = window.selRun
-    ret["baseline-correction"] = rBaseline
     ret["pcr-eff-range"] = rPCREffRange
     ret["update-RDML-data"] = rUpdateRDML
     ret["exclude-no-plateau"] = window.exNoPlateau
@@ -3006,267 +3002,10 @@ function errorMessage(err) {
     trTrc.innerHTML = html;
 }
 
-
-
-
-
-
-
-
-function deleteAllData() {
-    experimentersData.innerHTML = ""
-}
-
 function showElement(element) {
     element.classList.remove('d-none')
 }
 
 function hideElement(element) {
     element.classList.add('d-none')
-}
-
-function resetGlobalValues() {
-    winXst = 0;
-    winXend = 600;
-    winYend = 2300;
-    frameXst = 0;
-    frameXend = 1000;
-    frameYst = 0;
-    frameYend = 200;
-}
-
-function createButtons() {
-    var html = '<div id="traceView-Buttons" class="d-none">';
-    html += '  <button id="traceView-nav-bw-win" class="btn btn-outline-secondary">prev</button>';
-    html += '  <button id="traceView-nav-bw-bit" class="btn btn-outline-secondary">&lt;</button>';
-    html += '  <button id="traceView-nav-zy-in" class="btn btn-outline-secondary">Bigger Peaks</button>';
-    html += '  <button id="traceView-nav-zy-out" class="btn btn-outline-secondary">Smaller Peaks</button>';
-    html += '  <button id="traceView-nav-zx-in" class="btn btn-outline-secondary">Zoom in</button>';
-    html += '  <button id="traceView-nav-zx-out" class="btn btn-outline-secondary">Zoom Out</button>';
-    html += '  <button id="traceView-nav-fw-bit" class="btn btn-outline-secondary">&gt;</button>';
-    html += '  <button id="traceView-nav-fw-win" class="btn btn-outline-secondary">next</button>';
-    html += '  <a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>';
-    html += '  <button id="traceView-nav-hi-a" class="btn btn-outline-secondary"><strong>A</strong></button>';
-    html += '  <button id="traceView-nav-hi-c" class="btn btn-outline-secondary"><strong>C</strong></button>';
-    html += '  <button id="traceView-nav-hi-g" class="btn btn-outline-secondary"><strong>G</strong></button>';
-    html += '  <button id="traceView-nav-hi-t" class="btn btn-outline-secondary"><strong>T</strong></button>';
-    html += '  <button id="traceView-nav-hi-n" class="btn btn-outline-secondary">ACGT</button>';
-    html += '</div>';
-    html += '<div id="traceView-Traces"></div>';
-    html += '<div id="traceView-Sequence" class="d-none">';
-    html += '  <hr>\n  <p>Chromatogram Sequence:</p>';
-    html += '<textarea class="form-control" id="traceView-traceSeq" rows="7" cols="110"></textarea>';
-    html += '</div>';
-    html += '<div id="traceView-Reference" class="d-none">';
-    html += '  <hr>\n  <p>Reference Sequence:</p>';
-    html += '<textarea class="form-control" id="traceView-refSeq" rows="7" cols="110"></textarea>';
-    html += '</div>';
-    return html;
-}
-
-function buttons() {
-    resetGlobalValues();
-    var trv = document.getElementById('traceView');
-    trv.innerHTML = createButtons();
-
-    var navBwWinButton = document.getElementById('traceView-nav-bw-win')
-    navBwWinButton.addEventListener('click', navBwWin)
-    var navBwBitButton = document.getElementById('traceView-nav-bw-bit')
-    navBwBitButton.addEventListener('click', navBwBit)
-    var navZoomYinButton = document.getElementById('traceView-nav-zy-in')
-    navZoomYinButton.addEventListener('click', navZoomYin)
-    var navZoomYoutButton = document.getElementById('traceView-nav-zy-out')
-    navZoomYoutButton.addEventListener('click', navZoomYout)
-    var navZoomXinButton = document.getElementById('traceView-nav-zx-in')
-    navZoomXinButton.addEventListener('click', navZoomXin)
-    var navZoomXoutButton = document.getElementById('traceView-nav-zx-out')
-    navZoomXoutButton.addEventListener('click', navZoomXout)
-    var navFwBitButton = document.getElementById('traceView-nav-fw-bit')
-    navFwBitButton.addEventListener('click', navFwBit)
-    var navFwWinButton = document.getElementById('traceView-nav-fw-win')
-    navFwWinButton.addEventListener('click', navFwWin)
-    var navHiAButton = document.getElementById('traceView-nav-hi-a')
-    navHiAButton.addEventListener('click', navHiA)
-    var navHiCButton = document.getElementById('traceView-nav-hi-c')
-    navHiCButton.addEventListener('click', navHiC)
-    var navHiGButton = document.getElementById('traceView-nav-hi-g')
-    navHiGButton.addEventListener('click', navHiG)
-    var navHiTButton = document.getElementById('traceView-nav-hi-t')
-    navHiTButton.addEventListener('click', navHiT)
-    var navHiNButton = document.getElementById('traceView-nav-hi-n')
-    navHiNButton.addEventListener('click', navHiN)
-}
-
-function navFaintCol() {
-    baseCol = [["#a6d3a6",1.5],["#a6a6ff",1.5],["#a6a6a6",1.5],["#ffa6a6",1.5]];
-}
-
-function navHiN() {
-    baseCol = [["green",1.5],["blue",1.5],["black",1.5],["red",1.5]];
-    SVGRepaint();
-}
-
-function navHiA() {
-    navFaintCol();
-    baseCol[0] = ["green",2.5];
-    SVGRepaint();
-}
-
-function navHiC() {
-    navFaintCol();
-    baseCol[1] = ["blue",2.5];
-    SVGRepaint();
-}
-
-function navHiG() {
-    navFaintCol();
-    baseCol[2] = ["black",2.5];
-    SVGRepaint();
-}
-
-function navHiT() {
-    navFaintCol();
-    baseCol[3] = ["red",2.5];
-    SVGRepaint();
-}
-
-function navBwBit() {
-    var oldStep = winXend - winXst;
-    var step = Math.floor(oldStep/3);
-    winXst -= step;
-    winXend -= step;
-    if (winXst < 0) {
-        winXst = 0;
-        winXend = oldStep;
-    }
-    SVGRepaint();
-}
-
-function navBwWin() {
-    var step = winXend - winXst;
-    winXst -= step;
-    winXend -= step;
-    if (winXst < 0) {
-        winXst = 0;
-        winXend = step;
-    }
-    SVGRepaint();
-}
-
-function navZoomYin() {
-    winYend = winYend * 3 / 4;
-    SVGRepaint();
-}
-
-function navZoomYout() {
-    winYend = winYend * 4 / 3;
-    SVGRepaint();
-}
-
-function navZoomXin() {
-    var oldStep = winXend - winXst;
-    var center = winXst + oldStep / 2;
-    var step = Math.floor(oldStep * 3 / 4);
-    winXst = Math.floor(center - step / 2);
-    winXend = Math.floor(center + step / 2);
-    SVGRepaint();
-}
-
-function navZoomXout() {
-    var oldStep = winXend - winXst;
-    var center = winXst + oldStep / 2;
-    var step = Math.floor(oldStep * 4 / 3);
-    winXst = Math.floor(center - step / 2);
-    winXend = Math.floor(center + step / 2);
-    if (winXst < 0) {
-        winXst = 0;
-        winXend = step;
-    }
-    SVGRepaint();
-}
-
-function navFwBit() {
-    var step = Math.floor((winXend - winXst)/3);
-    winXst += step;
-    winXend += step;
-    SVGRepaint();
-}
-
-function navFwWin() {
-    var step = winXend - winXst;
-    winXst += step;
-    winXend += step;
-    SVGRepaint();
-}
-
-function displayTextSeq (tr) {
-    var seq = "";
-    for (var i = 0; i < tr.basecallPos.length; i++) {
-        var base = tr.basecalls[tr.basecallPos[i]] + " ";
-        var pos = base.indexOf(":");
-    //    if ((i % 60) === 0 && i != 0) {
-    //        seq += "\n";
-    //    }
-        seq += base.charAt(pos + 1);
-    }
-    var outField = document.getElementById('traceView-traceSeq')
-    outField.value = seq.replace(/-/g,"");
-    var trSeq = document.getElementById('traceView-Sequence');
-    showElement(trSeq);
-
-    if (tr.hasOwnProperty('refalign')){
-        var ref = tr.refalign;
-        var outField2 = document.getElementById('traceView-refSeq')
-        outField2.value = ref.replace(/-/g,"");
-        var refSeq = document.getElementById('traceView-Reference');
-        showElement(refSeq);
-    }
-}
-
-function displayData(res) {
-    resetGlobalValues();
-    allResults = res;
-    if (allResults.hasOwnProperty('peakA') == false){
-        errorMessage("Bad JSON data: peakA array missing!");
-        return;
-    }
-    if (allResults.hasOwnProperty('peakC') == false){
-        errorMessage("Bad JSON data: peakC array missing!");
-        return;
-    }
-    if (allResults.hasOwnProperty('peakG') == false){
-        errorMessage("Bad JSON data: peakG array missing!");
-        return;
-    }
-    if (allResults.hasOwnProperty('peakT') == false){
-        errorMessage("Bad JSON data: peakt array missing!");
-        return;
-    }
-    if (allResults.hasOwnProperty('basecallPos') == false){
-        errorMessage("Bad JSON data: basecallPos array missing!");
-        return;
-    }
-    if (allResults.hasOwnProperty('basecalls') == false){
-        errorMessage("Bad JSON data: basecalls array missing!");
-        return;
-    }
-    displayTextSeq(allResults);
-    SVGRepaint();
-    var trBtn = document.getElementById('traceView-Buttons');
-    showElement(trBtn);
-}
-
-function deleteContent() {
-    var trBtn = document.getElementById('traceView-Buttons');
-    hideElement(trBtn);
-    var trTrc = document.getElementById('traceView-Traces');
-    trTrc.innerHTML = "";
-    var trSeq = document.getElementById('traceView-Sequence');
-    hideElement(trSeq);
-    var outField = document.getElementById('traceView-traceSeq')
-    outField.value = "";
-    var refSeq = document.getElementById('traceView-Reference');
-    hideElement(refSeq);
-    var outField2 = document.getElementById('traceView-refSeq')
-    outField2.value = "";
 }

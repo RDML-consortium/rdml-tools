@@ -1377,8 +1377,6 @@ def handle_data():
                 return jsonify(errors=[{"title": "Invalid server request - sel-experiment id missing!"}]), 400
             if "sel-run" not in reqdata:
                 return jsonify(errors=[{"title": "Invalid server request - sel-run id missing!"}]), 400
-            if "baseline-correction" not in reqdata:
-                return jsonify(errors=[{"title": "Invalid server request - baseline-correction missing!"}]), 400
             if "pcr-eff-range" not in reqdata:
                 return jsonify(errors=[{"title": "Invalid server request - pcr-eff-range missing!"}]), 400
             if "update-RDML-data" not in reqdata:
@@ -1394,8 +1392,7 @@ def handle_data():
                 s_run = experiment.get_run(byid=reqdata["sel-run"])
                 if s_run is None:
                     return jsonify(errors=[{"title": "Invalid server request - run id not found!"}]), 400
-                data["reactsdata"] = s_run.webAppLinRegPCR(baselineCorr=reqdata["baseline-correction"],
-                                                           pcrEfficiencyExl=reqdata["pcr-eff-range"],
+                data["reactsdata"] = s_run.webAppLinRegPCR(pcrEfficiencyExl=reqdata["pcr-eff-range"],
                                                            updateRDML=reqdata["update-RDML-data"],
                                                            excludeNoPlateau=reqdata["exclude-no-plateau"],
                                                            excludeEfficiency=reqdata["exclude-efficiency"])
