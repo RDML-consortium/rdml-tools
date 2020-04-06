@@ -43,6 +43,10 @@ Install the dependencies:
 
 `sudo apt install npm`
 
+`sudo npm install n -g`
+
+`sudo n stable`
+
 `sudo npm install`
 
 Start the client:
