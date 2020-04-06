@@ -41,6 +41,9 @@ choiceTable.addEventListener('change', updateLinRegPCRTable)
 const choiceDecimalSep = document.getElementById('selSeparator')
 choiceDecimalSep.addEventListener('change', updateLinRegPCRTable)
 
+const choiceAnnotations = document.getElementById('choiceIncludeAnnotations')
+choiceAnnotations.addEventListener('change', updateLinRegPCRTable)
+
 const rdmlLibVersion = document.getElementById('rdml_lib_version')
 
 // For debugging
@@ -108,11 +111,23 @@ window.linRegPCRTable = []
 
 window.lastSelReact = ""
 
-// Global Values
+// Global values for svg curves
+// The value range
+window.valXmin = 0;
+window.valXmax = 75;
+window.valYmin = 0;
+window.valYmax = 5000;
+// The value window
+window.winXmin = 0;
+window.winXmax = 75;
+window.winYmin = 0;
+window.winYmax = 5000;
 window.winXst = 0;
 window.winXend = 75;
 window.winYst = 0;
+window.winYstep = 500;
 window.winYend = 5000;
+// The output window
 window.frameXst = 0;
 window.frameXend = 500;
 window.frameYst = 0;
@@ -122,6 +137,7 @@ function resetAllGlobalVal() {
     window.sampSelFirst = "7s8e45-Show-All"  // To avoid conflicts with existing values
     window.sampSelSecond = "7s8e45-Show-All"  // To avoid conflicts with existing values
     window.sampSelThird = "7s8e45-Show-All"  // To avoid conflicts with existing values
+    hideElement(resultError)
     resetLinRegPCRdata()
     updateClientData()
 }
@@ -327,6 +343,7 @@ function runLinRegPCR() {
     var rUpdateRDML = true
     window.exNoPlateau = true
     window.exDiffMean = true
+    hideElement(resultError)
 
     window.sampSelFirst = "7s8e45-Show-All"  // To avoid conflicts with existing values
     window.sampSelSecond = "7s8e45-Show-All"  // To avoid conflicts with existing values
@@ -375,7 +392,6 @@ function updateServerData(stat, reqData) {
     }
     formData.append('reqData', reqData)
 
-    hideElement(resultError)
     showElement(resultInfo)
 
     axios
@@ -429,8 +445,6 @@ function updateServerData(stat, reqData) {
                     var err = '<i class="fas fa-fire"></i>\n<span id="error-message">'
                     err += res.data.data.error + '</span>'
                     resultError.innerHTML = err
-                } else {
-                    hideElement(resultError)
                 }
                 fillLookupDics()
                 updateClientData()
@@ -1017,20 +1031,20 @@ function updateClientData() {
             resultData.innerHTML = finRet;
 
             if (window.curveSource == "adp") {
-                window.winXst = 0;
-                window.winXend = 5 * Math.ceil(window.reactData.adp_cyc_max / 5);
-                window.winYst = window.reactData.adp_fluor_min;
-                window.winYend = window.reactData.adp_fluor_max;
+                window.winXmin = 0;
+                window.winXmax = window.reactData.adp_cyc_max;
+                window.winYmin = window.reactData.adp_fluor_min;
+                window.winYmax = window.reactData.adp_fluor_max;
             } else if (window.curveSource == "bas") {
-                window.winXst = 0;
-                window.winXend = 5 * Math.ceil(window.baselineData.bas_cyc_max / 5);
-                window.winYst = window.baselineData.bas_fluor_min;
-                window.winYend = window.baselineData.bas_fluor_max;
+                window.winXmin = 0;
+                window.winXmax = window.baselineData.bas_cyc_max;
+                window.winYmin = window.baselineData.bas_fluor_min;
+                window.winYmax = window.baselineData.bas_fluor_max;
             } else {
-                window.winXst = 5 * Math.floor(window.reactData.mdp_tmp_min / 5);
-                window.winXend = 5 * Math.ceil(window.reactData.mdp_tmp_max / 5);
-                window.winYst = window.reactData.mdp_fluor_min;
-                window.winYend = window.reactData.mdp_fluor_max;
+                window.winXmin = window.reactData.mdp_tmp_min;
+                window.winXmax = window.reactData.mdp_tmp_max;
+                window.winYmin = window.reactData.mdp_fluor_min;
+                window.winYmax = window.reactData.mdp_fluor_max;
             }
             showSVG();
             showEditNotes();
@@ -1100,6 +1114,54 @@ function updateLinRegPCRTable() {
         window.decimalSepPoint = false;
     }
 
+    var annoTab = [];
+    var allUsedSamples = {};
+    if (choiceAnnotations.value  == "y") {
+        // Collect the samples
+        var allUsedSamples = {};
+        for (var row = 1; row < window.linRegPCRTable.length; row++) {
+            allUsedSamples[window.linRegPCRTable[row][2]] = 1  // "sample"
+        }
+        // Collect the properties
+        var allUsedProperties = {};
+        var allSamples = window.rdmlData.rdml.samples
+        for (var samp = 0; samp < allSamples.length; samp++) {
+            if (allSamples[samp].id in allUsedSamples) {
+                for (var prop = 0; prop < allSamples[samp].annotations.length; prop++) {
+                    allUsedProperties[allSamples[samp].annotations[prop].property] = 1
+                }
+            }
+        }
+        var allProperties = Object.keys(allUsedProperties)
+        allProperties.sort()
+        annoTab = [allProperties];
+        // Fill empty table
+        var tempInnerTab = [];
+        var lookupAnnotationKey = {};
+        for (var col = 0; col < allProperties.length; col++) {
+            tempInnerTab.push("");
+            lookupAnnotationKey[allProperties[col]] = col;
+        }
+        for (var row = 1; row < window.linRegPCRTable.length; row++) {
+            annoTab.push(JSON.parse(JSON.stringify(tempInnerTab)));
+        }
+        // Overwrite with the values
+        for (var samp = 0; samp < allSamples.length; samp++) {
+            if (allSamples[samp].id in allUsedSamples) {
+                var filledTab = JSON.parse(JSON.stringify(tempInnerTab));
+                for (var prop = 0; prop < allSamples[samp].annotations.length; prop++) {
+                    filledTab[lookupAnnotationKey[allSamples[samp].annotations[prop].property]] = allSamples[samp].annotations[prop].value
+                }
+                for (var row = 1; row < window.linRegPCRTable.length; row++) {
+                    if (window.linRegPCRTable[row][2] == allSamples[samp].id) {  // "sample"
+                        annoTab[row] = filledTab
+                    }
+                }
+            }
+        }
+
+    }
+
     var content = "";
     var ret = '<table class="table table-bordered table-striped" id="LinRegPCR_Result_Table">\n'
     if (choiceTable.value == "debug") {
@@ -1155,6 +1217,17 @@ function updateLinRegPCRTable() {
             content += window.linRegPCRTable[row][1] + "\t"  // "well"
             ret += '<td>' + window.linRegPCRTable[row][2] + '</td>\n'  // "sample"
             content += window.linRegPCRTable[row][2] + "\t"  // "sample"
+            if (choiceAnnotations.value  == "y") {
+                for (var col = 0; col < annoTab[row].length; col++) {
+                    if (row == 0) {
+                        ret += '<td>annotation ' + annoTab[row][col] + '</td>\n'
+                        content += 'annotation ' + annoTab[row][col] + "\t"
+                    } else {
+                        ret += '<td>' + annoTab[row][col] + '</td>\n'
+                        content += annoTab[row][col] + "\t"
+                    }
+                }
+            }
             if (row == 0) {
                 ret += '<td>' + window.linRegPCRTable[row][19] + '</td>\n'  // "indiv PCR eff"
             } else {
@@ -1457,6 +1530,17 @@ function updateLinRegPCRTable() {
             for (var col = 0; col < 7; col++) { // "id" - "target chemistry"
                 ret += '<td>' + window.linRegPCRTable[row][col] + '</td>\n'
                 content += window.linRegPCRTable[row][col] + "\t"
+            }
+            if (choiceAnnotations.value  == "y") {
+                for (var col = 0; col < annoTab[row].length; col++) {
+                    if (row == 0) {
+                        ret += '<td>annotation ' + annoTab[row][col] + '</td>\n'
+                        content += 'annotation ' + annoTab[row][col] + "\t"
+                    } else {
+                        ret += '<td>' + annoTab[row][col] + '</td>\n'
+                        content += annoTab[row][col] + "\t"
+                    }
+                }
             }
             for (var col = 7; col < 9; col++) { // "excluded" - "note"
                 var brForm = window.linRegPCRTable[row][col].replace(/;/g, ";<br />")
@@ -1792,8 +1876,7 @@ function saveTabFile(fileName, content) {
 window.saveSVGFile = saveSVGFile;
 function saveSVGFile() {
     var fileName = "curves.svg"
-    var content = createSVG(window.reactData, window.winXst, window.winXend, window.winYst, window.winYend,
-                            window.frameXst, window.frameXend, window.frameYst, window.frameYend);
+    var content = createSVG();
     var a = document.createElement("a");
     document.body.appendChild(a);
     a.style.display = "none";
@@ -2392,8 +2475,7 @@ function updateColorStyle() {
 
 window.showSVG = showSVG;
 function showSVG() {
-    var retVal = createSVG(window.reactData, window.winXst, window.winXend, window.winYst, window.winYend,
-                           window.frameXst, window.frameXend, window.frameYst, window.frameYend);
+    var retVal = createSVG();
     if (0) {
     var regEx1 = /</g;
     retVal = retVal.replace(regEx1, "%3C");
@@ -2407,89 +2489,142 @@ function showSVG() {
     sectionResults.innerHTML = retVal;
 }
 
-function createSVG(tr,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend) {
-    var retVal = createAllCurves(tr,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend);
-    retVal += createCoordinates (tr,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend);
+function createSVG() {
+    setStartStop();
+    var retVal = createEfficiencyCurves();
+    retVal += createAllCurves();
+    retVal += createCoordinates ();
     retVal += "<g id='svgHighCurve'></g>"
     retVal += "</svg>";
     var head = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='-60 -40 600 400' width='900px'>";
     return head + retVal;
 }
 
-function createCoordinates (tr,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend){
-    var lineXst = wdXst;
-    var lineXend = wdXend + 5;
-    var lineYst = wdYst - 5;
-    var lineYend = wdYend;
+function setStartStop() {
+    if (window.curveSource == "adp") {
+        window.winXst = window.winXmin;
+        window.winXend = 5 * Math.ceil(window.winXmax / 5);
+    } else if (window.curveSource == "bas") {
+        window.winXst = window.winXmin;
+        window.winXend = 5 * Math.ceil(window.winXmax / 5);
+    } else {
+        window.winXst = 5 * Math.floor(window.winXmin / 5);
+        window.winXend = 5 * Math.ceil(window.winXmax / 5);
+    }
+
+    if (window.yScale == "lin") {
+        if (window.winYmin > 0.0) {
+            window.winYstep = Math.floor(Math.abs(window.winYmax) / 10);
+            window.winYst = 0.0;
+            window.winYend = Math.ceil(window.winYmax / window.winYstep) * window.winYstep;
+        } else {
+            window.winYstep = Math.pow(10, Math.floor(Math.log10(Math.abs(window.winYmax - window.winYmin) / 10)));
+            window.winYst = Math.floor(window.winYmin / window.winYstep) * window.winYstep;
+            window.winYend = Math.ceil(window.winYmax / window.winYstep) * window.winYstep;
+        }
+    } else {
+        if (window.winYmax < 0.000000001) {
+            // There are no useful values
+            window.winYst = 0.1;
+            window.winYend = 10.0;
+        } else {
+            // First fix the max window
+            window.winYstep = Math.pow(10, Math.floor(Math.log10(Math.abs(window.winYmax) / 10)));
+            window.winYend = Math.ceil(window.winYmax / window.winYstep) * window.winYstep;
+            // Get the right start
+            window.winYstep = Math.pow(10, Math.floor(Math.log10(Math.abs(window.winYmin))));
+            window.winYst = Math.floor(window.winYmin / window.winYstep) * window.winYstep;
+            if (window.winYst < window.winYend/Math.abs(window.maxLogRange)) {
+                window.winYstep = Math.pow(10, Math.floor(Math.log10(Math.abs(window.winYend/window.maxLogRange))));
+                window.winYst = Math.floor((window.winYend/window.maxLogRange) / window.winYstep) * window.winYstep;
+            }
+        }
+    }
+}
+
+function toSvgXScale(val) {
+    return window.frameXst + (val - window.winXst) / (window.winXend - window.winXst) * (window.frameXend - window.frameXst);
+}
+
+function toSvgYScale(val) {
+    if (window.yScale == "lin") {
+        return toSvgYLinScale(val);
+    } else {
+        return toSvgYLogScale(val);
+    }
+}
+
+function toSvgSaveYScale(val) {
+    if (window.yScale == "lin") {
+        return toSvgYLinScale(val);
+    } else {
+        if (val < window.winYst) {
+            return toSvgYLogScale(window.winYst);
+        } else {
+            return toSvgYLogScale(val);
+        }
+    }
+}
+
+function toSvgYLinScale(val) {
+    return window.frameYend - (val - window.winYst) / (window.winYend - window.winYst) * (window.frameYend - window.frameYst);
+}
+
+function toSvgYLogScale(val) {
+    return window.frameYend - (Math.log10(val) - Math.log10(window.winYst)) / (Math.log10(window.winYend) - Math.log10(window.winYst)) * (window.frameYend - window.frameYst);
+
+}
+
+
+function createCoordinates () {
+    var lineXend = window.frameXend + 5;
+    var lineYst = window.frameYst - 5;
     var retVal = ""
 
     // The X-Axis
     var xStep = 5;
-    for (var i = 0; (i * xStep + startX) < (endX + xStep); i++) {
-        var xPos = wdXst + i * xStep / (endX - startX) * (wdXend - wdXst);
-        retVal += "<line x1='" + xPos + "' y1='" + lineYend;
-        retVal += "' x2='" + xPos + "' y2='" + (lineYend + 7) + "' stroke-width='2' stroke='black' />";
-        retVal += "<text x='" + xPos + "' y='" + (lineYend + 26);
+    for (var i = 0; (i * xStep + window.winXst) < (window.winXend + xStep); i++) {
+        var xPos = toSvgXScale(i * xStep);
+        retVal += "<line x1='" + xPos + "' y1='" + window.frameYend;
+        retVal += "' x2='" + xPos + "' y2='" + (window.frameYend + 7) + "' stroke-width='2' stroke='black' />";
+        retVal += "<text x='" + xPos + "' y='" + (window.frameYend + 26);
         retVal += "' font-family='Arial' font-size='20' fill='black' text-anchor='middle'>";
-        retVal += (i * xStep + startX) + "</text>";
+        retVal += (i * xStep + window.winXst) + "</text>";
     }
 
     // The Y-Axis
-    var yTopStep = Math.pow(10, Math.floor(Math.log10(Math.abs(endY) / 10)));
-    endY = Math.ceil(endY / yTopStep) * yTopStep
-    var yLowStep = Math.pow(10, Math.floor(Math.log10(Math.abs(startY) / 10)));
-    startY = Math.floor(startY / yLowStep) * yLowStep
     if (window.yScale == "lin") {
-        if (startY > 0) {
-            startY = 0;
-        }
-        var yStep = Math.floor((endY - startY) / 10 / yTopStep) * yTopStep;
-        for (var i = 0; i * yStep < endY; i++) {
-            var yPos = wdYend - i * yStep / (endY - startY) * (wdYend - wdYst);
-            retVal += "<line x1='" + lineXst + "' y1='" + yPos;
-            retVal += "' x2='" + (lineXst - 7) + "' y2='" + yPos + "' stroke-width='2' stroke='black' />";
-            retVal += "<text x='" + (lineXst - 11) + "' y='" + (yPos + 3);
+        for (var i = 0; i *  window.winYstep < window.winYend - window.winYst + window.winYstep; i++) {
+            var yPos = toSvgYLinScale(window.winYst + i *  window.winYstep);
+            retVal += "<line x1='" + window.frameXst + "' y1='" + yPos;
+            retVal += "' x2='" + (window.frameXst - 7) + "' y2='" + yPos + "' stroke-width='2' stroke='black' />";
+            retVal += "<text x='" + (window.frameXst - 11) + "' y='" + (yPos + 3);
             retVal += "' font-family='Arial' font-size='10' fill='black' text-anchor='end'>";
-            var textValOut = i * yStep - startY
+            var textValOut = i *  window.winYstep - window.winYst
             var yRound = 0
             if (textValOut != 0) {
                 yRound = Math.max(0, Math.floor(2 - Math.log10(Math.abs(textValOut))))
             }
             retVal += textValOut.toFixed(yRound) + "</text>";
         }
-        // for (var i = 0; i * yTopStep < endY; i++) {
-        //     var yPos = wdYend - i * yTopStep / (endY - startY) * (wdYend - wdYst);
-        //     retVal += "<line x1='" + lineXst + "' y1='" + yPos;
-        //     retVal += "' x2='" + (lineXst - 5) + "' y2='" + yPos + "' stroke-width='1' stroke='black' />";
-        // }
     } else {
-        yLowStep = Math.pow(10, Math.floor(Math.log10(Math.abs(startY))));
-        var yExtraStep = Math.pow(10, Math.floor(Math.log10(Math.abs(endY/window.maxLogRange))));
-        var extraEnd = Math.floor((endY/window.maxLogRange) / yExtraStep) * yExtraStep
-        startY = Math.floor(startY / yLowStep) * yLowStep
-        if (extraEnd > startY) {
-            startY = extraEnd
-            yLowStep = yExtraStep
-        }
-     //   var yPow = Math.pow(10, Math.floor(Math.log10((Math.log10(endY)-Math.log10(startY))/10)));
-      //  var yStep = Math.floor((Math.log10(endY)-Math.log10(startY))/10/yPow) * yPow;
-      //  var minVal = Math.ceil(10 * Math.log10(startY)) / 10
-        var sumVal = startY
-        for (var i = 0; (sumVal + i * yLowStep) < endY ; i++) {
-            if ((sumVal + i * yLowStep) / yLowStep >= 10) {
-                yLowStep = yLowStep * 10
+        var sumVal = window.winYst
+        var yLogStep= window.winYstep
+        for (var i = 0; (sumVal + i * yLogStep) < window.winYend ; i++) {
+            if ((sumVal + i * yLogStep) / yLogStep >= 10) {
+                yLogStep = yLogStep * 10
                 i = 0
-                sumVal = yLowStep
+                sumVal = yLogStep
             }
-            var yPos = wdYend - (Math.log10(sumVal + i * yLowStep) - Math.log10(startY)) / (Math.log10(endY) - Math.log10(startY)) * (wdYend - wdYst);
-            retVal += "<line x1='" + lineXst + "' y1='" + yPos;
-            retVal += "' x2='" + (lineXst - 7) + "' y2='" + yPos + "' stroke-width='2' stroke='black' />";
-            var textValOut = sumVal + i * yLowStep
+            var yPos = toSvgYLogScale(sumVal + i * yLogStep);
+            retVal += "<line x1='" + window.frameXst + "' y1='" + yPos;
+            retVal += "' x2='" + (window.frameXst - 7) + "' y2='" + yPos + "' stroke-width='2' stroke='black' />";
+            var textValOut = sumVal + i * yLogStep
             var yRound = Math.max(0, Math.floor(2 - Math.log10(Math.abs(textValOut))))
-            if (!(((Math.round(textValOut.toFixed(yRound) / yLowStep) == 5) && (window.maxLogRange > 3000)) ||
-                  (Math.round(textValOut.toFixed(yRound) / yLowStep) == 7) ||
-                  (Math.round(textValOut.toFixed(yRound) / yLowStep) == 9) )) {
-                retVal += "<text x='" + (lineXst - 11) + "' y='" + (yPos + 3);
+            if (!(((Math.round(textValOut.toFixed(yRound) / yLogStep) == 5) && (window.maxLogRange > 3000)) ||
+                  (Math.round(textValOut.toFixed(yRound) / yLogStep) == 7) ||
+                  (Math.round(textValOut.toFixed(yRound) / yLogStep) == 9) )) {
+                retVal += "<text x='" + (window.frameXst - 11) + "' y='" + (yPos + 3);
                 retVal += "' font-family='Arial' font-size='10' fill='black' text-anchor='end'>";
                 retVal += textValOut.toFixed(yRound) + "</text>";
             }
@@ -2533,36 +2668,18 @@ function createCoordinates (tr,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend
             }
 
             if (k > -1) {
-                var line = parseFloat(window.linRegPCRTable[k][10])  // "lower limit"
-                var yPos = 0.0
-                if (window.yScale == "lin") {
-                    yPos = wdYend - line / (endY - startY) * (wdYend - wdYst);
-                } else {
-                    yPos = wdYend - (Math.log10(line) - Math.log10(startY)) / (Math.log10(endY) - Math.log10(startY)) * (wdYend - wdYst);
-                }
-                retVal += "<line x1='" + lineXst + "' y1='" + yPos;
+                var yPos = toSvgYScale(parseFloat(window.linRegPCRTable[k][10]))  // "lower limit"
+                retVal += "<line x1='" + window.frameXst + "' y1='" + yPos;
                 retVal += "' x2='" + lineXend + "' y2='" + yPos;
                 retVal += "' stroke-width='1.5' stroke='blue' stroke-linecap='square'/>";
 
-                line = parseFloat(window.linRegPCRTable[k][11])  // "upper limit"
-                yPos = 0.0
-                if (window.yScale == "lin") {
-                    yPos = wdYend - line / (endY - startY) * (wdYend - wdYst);
-                } else {
-                    yPos = wdYend - (Math.log10(line) - Math.log10(startY)) / (Math.log10(endY) - Math.log10(startY)) * (wdYend - wdYst);
-                }
-                retVal += "<line x1='" + lineXst + "' y1='" + yPos;
+                yPos = toSvgYScale(parseFloat(window.linRegPCRTable[k][11]))  // "upper limit"
+                retVal += "<line x1='" + window.frameXst + "' y1='" + yPos;
                 retVal += "' x2='" + lineXend + "' y2='" + yPos;
                 retVal += "' stroke-width='1.5' stroke='blue' stroke-linecap='square'/>";
 
-                line = parseFloat(window.linRegPCRTable[k][12])  // "common threshold"
-                yPos = 0.0
-                if (window.yScale == "lin") {
-                    yPos = wdYend - line / (endY - startY) * (wdYend - wdYst);
-                } else {
-                    yPos = wdYend - (Math.log10(line) - Math.log10(startY)) / (Math.log10(endY) - Math.log10(startY)) * (wdYend - wdYst);
-                }
-                retVal += "<line x1='" + lineXst + "' y1='" + yPos;
+                yPos = toSvgYScale(parseFloat(window.linRegPCRTable[k][12]))  // "common threshold"
+                retVal += "<line x1='" + window.frameXst + "' y1='" + yPos;
                 retVal += "' x2='" + lineXend + "' y2='" + yPos;
                 retVal += "' stroke-width='1.5' stroke='lime' stroke-linecap='square'/>";
 
@@ -2577,11 +2694,11 @@ function createCoordinates (tr,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend
                     if ((choiceExcludeNoPlat.value == "y") && (choiceExcludeEff.value == "y")) {
                         cqCol = 39  // "Cq (mean eff)"
                     }
-                    line = parseFloat(window.linRegPCRTable[k][cqCol])
-                    if (line > 0.0) {
-                        var xPos = wdXst + line / (endX - startX) * (wdXend - wdXst);
+                    var cqVal = parseFloat(window.linRegPCRTable[k][cqCol])
+                    if (cqVal > 0.0) {
+                        var xPos = toSvgXScale(cqVal);
                         retVal += "<line x1='" + xPos + "' y1='" + yPos;
-                        retVal += "' x2='" + xPos + "' y2='" + lineYend;
+                        retVal += "' x2='" + xPos + "' y2='" + window.frameYend;
                         retVal += "' stroke-width='1.5' stroke='lime' stroke-linecap='square'/>";
                     }
                 }
@@ -2590,15 +2707,111 @@ function createCoordinates (tr,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend
         }
     }
 
-    retVal += "<line x1='" + lineXst + "' y1='" + lineYend;
-    retVal += "' x2='" + lineXend + "' y2='" + lineYend + "' stroke-width='2' stroke='black' stroke-linecap='square'/>";
-    retVal += "<line x1='" + lineXst + "' y1='" + lineYst;
-    retVal += "' x2='" + lineXst + "' y2='" + lineYend + "' stroke-width='2' stroke='black' stroke-linecap='square'/>";
+    retVal += "<line x1='" + window.frameXst + "' y1='" + window.frameYend;
+    retVal += "' x2='" + lineXend + "' y2='" + window.frameYend + "' stroke-width='2' stroke='black' stroke-linecap='square'/>";
+    retVal += "<line x1='" + window.frameXst + "' y1='" + lineYst;
+    retVal += "' x2='" + window.frameXst + "' y2='" + window.frameYend + "' stroke-width='2' stroke='black' stroke-linecap='square'/>";
 
     return retVal;
 }
 
-function createAllCurves(tr,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend){
+function createEfficiencyCurves () {
+    var retVal = ""
+    if ((window.linRegPCRTable.length > 0) &&
+        (window.yScale == "log") &&
+        (window.sampSelFirst == "target") &&
+        (window.sampSelSecond != "7s8e45-Show-All") &&
+        (window.sampSelThird != "7s8e45-Show-All") &&
+        (window.reactData.hasOwnProperty("reacts"))) {
+        var lineXend = window.frameXend + 5;
+        var lineYst = window.frameYst - 5;
+        var selReact = ""
+        var selData = ""
+        var runOn = true
+        var reacts = window.reactData.reacts
+        for (var i = 0; i < reacts.length; i++) {
+            for (var k = 0; k < reacts[i].datas.length; k++) {
+                if (reacts[i].datas[k]["runview_show"] == true) {
+                    selReact = reacts[i].id
+                    selData = reacts[i].datas[k].tar
+                    k = reacts[i].datas.length
+                    runOn = false
+                }
+            }
+            if (runOn == false) {
+                i = reacts.length
+            }
+        }
+
+        runOn = true
+        var i = window.reactToLinRegTable[parseInt(selReact)]
+        var k = -1
+        while ((runOn) && (selReact == window.linRegPCRTable[i][0])) {  // "id"
+            if (selData == window.linRegPCRTable[i][5]) {  // "target"
+                k = i
+                runOn = false
+            }
+            i++
+        }
+
+        if (k > -1) {
+            var chemistry = window.linRegPCRTable[k][6]  // "target chemistry"
+            var meanFitX = parseFloat(window.linRegPCRTable[k][17])  // "log lin cycle"
+            var meanFitY = parseFloat(window.linRegPCRTable[k][18])  // "log lin fluorescence"
+            var indivEff = parseFloat(window.linRegPCRTable[k][19])  // "indiv PCR eff"
+
+            var meanEffPos = 24  // "mean PCR eff + no plateau + efficiency outliers"
+            if ((choiceExcludeNoPlat.value == "y") && (choiceExcludeEff.value == "n")) {
+                meanEffPos = 28  // "mean PCR eff + efficiency outliers"
+            }
+            if ((choiceExcludeNoPlat.value == "n") && (choiceExcludeEff.value == "y")) {
+                meanEffPos = 32  // "mean PCR eff + no plateau"
+            }
+            if ((choiceExcludeNoPlat.value == "y") && (choiceExcludeEff.value == "y")) {
+                meanEffPos = 36  // "mean PCR eff"
+            }
+            var meanEff = parseFloat(window.linRegPCRTable[k][meanEffPos])
+
+            // Only continue if all values are not nan
+            if ((Number.isNaN(meanFitX)) ||
+                (Number.isNaN(meanFitY)) ||
+                (Number.isNaN(indivEff)) ||
+                (Number.isNaN(meanEff))) {
+                return retVal;
+            }
+
+            var yPos1 = toSvgYScale(window.winYst);
+            var yPos2 = toSvgYScale(window.winYend);
+            var xPos1 = toSvgXScale(meanFitX + (Math.log10(window.winYst) - Math.log10(meanFitY)) / Math.log10(indivEff));
+            var xPos2 = toSvgXScale(meanFitX + (Math.log10(window.winYend) - Math.log10(meanFitY)) / Math.log10(indivEff));
+            retVal += "<line x1='" + xPos1 + "' y1='" + yPos1;
+            retVal += "' x2='" + xPos2 + "' y2='" + yPos2;
+            retVal += "' stroke-width='0.5' stroke='grey' stroke-linecap='square'/>";
+
+            xPos1 = toSvgXScale(meanFitX + (Math.log10(window.winYst) - Math.log10(meanFitY)) / Math.log10(meanEff));
+            xPos2 = toSvgXScale(meanFitX + (Math.log10(window.winYend) - Math.log10(meanFitY)) / Math.log10(meanEff));
+            retVal += "<line x1='" + xPos1 + "' y1='" + yPos1;
+            retVal += "' x2='" + xPos2 + "' y2='" + yPos2;
+            retVal += "' stroke-width='0.5' stroke='black' stroke-linecap='square'/>";
+
+            // For debugging
+            if (0) {
+                // alert(meanFitX + " - " + meanFitY)
+                var yPos = toSvgYScale(meanFitY);
+                retVal += "<line x1='" + window.frameXst + "' y1='" + yPos;
+                retVal += "' x2='" + lineXend + "' y2='" + yPos;
+                retVal += "' stroke-width='0.5' stroke='red' stroke-linecap='square'/>";
+                var xPos = toSvgXScale(meanFitX);
+                retVal += "<line x1='" + xPos + "' y1='" + yPos;
+                retVal += "' x2='" + xPos + "' y2='" + window.frameYend;
+                retVal += "' stroke-width='0.5' stroke='red' stroke-linecap='square'/>";
+            }
+        }
+    }
+    return retVal;
+}
+
+function createAllCurves(){
     var retVal = ""
     var reacts = window.reactData.reacts
     var baseReact = window.reactData.reacts
@@ -2676,20 +2889,16 @@ function createAllCurves(tr,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend){
                             }
                         }
                         if (window.curveSource == "adp") {
-                            retVal += createOneCurve(parseInt(reacts[reac].id),dataPos,"1.2",
-                                                     reacts[reac].datas[dataPos].adps,colo,startX,endX,startY,endY,
-                                                     wdXst,wdXend,wdYst,wdYend);
+                            retVal += createOneCurve(parseInt(reacts[reac].id), dataPos, "1.2",
+                                                     reacts[reac].datas[dataPos].adps, colo);
                         } else if (window.curveSource == "bas") {
-                            retVal += createOneCurve(parseInt(reacts[reac].id),dataPos,"1.2",
-                                                     baseReact[reac].datas[dataPos].bass,colo,startX,endX,startY,endY,
-                                                     wdXst,wdXend,wdYst,wdYend);
-                            retVal += createOneDots(reac, parseInt(reacts[reac].id),dataPos,"1.2",
-                                                    baseReact[reac].datas[dataPos].bass,colo,startX,endX,startY,endY,
-                                                    wdXst,wdXend,wdYst,wdYend);
+                            retVal += createOneCurve(parseInt(reacts[reac].id), dataPos, "1.2",
+                                                     baseReact[reac].datas[dataPos].bass, colo);
+                            retVal += createOneDots(reac, parseInt(reacts[reac].id), dataPos, "1.2",
+                                                    baseReact[reac].datas[dataPos].bass, colo);
                         } else {
-                            retVal += createOneCurve(parseInt(reacts[reac].id),dataPos,"1.2",
-                                                     reacts[reac].datas[dataPos].mdps,colo,startX,endX,startY,endY,
-                                                     wdXst,wdXend,wdYst,wdYend);
+                            retVal += createOneCurve(parseInt(reacts[reac].id), dataPos, "1.2",
+                                                     reacts[reac].datas[dataPos].mdps, colo);
                         }
                     }
                 }
@@ -2775,20 +2984,16 @@ function createOneHighCurve(id, dataPos) {
             }
             } // Selected black according to Maurice suggestion
             if (window.curveSource == "adp") {
-                retVal += createOneCurve(parseInt(reacts[reac].id),dataPos,"3.0",reacts[reac].datas[dataPos].adps,colo,
-                                         window.winXst, window.winXend, window.winYst, window.winYend,
-                                         window.frameXst, window.frameXend, window.frameYst, window.frameYend);
+                retVal += createOneCurve(parseInt(reacts[reac].id), dataPos, "3.0",
+                                         reacts[reac].datas[dataPos].adps, colo);
             } else if (window.curveSource == "bas") {
-                retVal += createOneCurve(parseInt(reacts[reac].id),dataPos,"3.0",baseReact[reac].datas[dataPos].bass,colo,
-                                         window.winXst, window.winXend, window.winYst, window.winYend,
-                                         window.frameXst, window.frameXend, window.frameYst, window.frameYend);
-                retVal += createOneDots(reac, parseInt(reacts[reac].id),dataPos,"3.0",baseReact[reac].datas[dataPos].bass,colo,
-                                        window.winXst, window.winXend, window.winYst, window.winYend,
-                                        window.frameXst, window.frameXend, window.frameYst, window.frameYend);
+                retVal += createOneCurve(parseInt(reacts[reac].id), dataPos, "3.0",
+                                         baseReact[reac].datas[dataPos].bass, colo);
+                retVal += createOneDots(reac, parseInt(reacts[reac].id), dataPos, "3.0",
+                                        baseReact[reac].datas[dataPos].bass, colo);
             } else {
-                retVal += createOneCurve(parseInt(reacts[reac].id),dataPos,"3.0",reacts[reac].datas[dataPos].mdps,colo,
-                                         window.winXst, window.winXend, window.winYst, window.winYend,
-                                         window.frameXst, window.frameXend, window.frameYst, window.frameYend);
+                retVal += createOneCurve(parseInt(reacts[reac].id), dataPos, "3.0",
+                                         reacts[reac].datas[dataPos].mdps, colo);
             }
         }
     }
@@ -2910,30 +3115,19 @@ function rdmlNumberInverter(number) {
     return ret;
 }
 
-function createOneCurve(id,dataPos,stroke_str,curveDots,col,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend){
+function createOneCurve(id, dataPos, stroke_str, curveDots, col){
     var retVal = "<polyline fill='none' stroke-linejoin='round' stroke='" + col;
     retVal += "' stroke-width='" + stroke_str + "' points='";
-    var yLowStep = Math.pow(10, Math.floor(Math.log10(Math.abs(startY))));
-    var yExtraStep = Math.pow(10, Math.floor(Math.log10(Math.abs(endY/window.maxLogRange))));
-    var fixStart = Math.max(Math.floor((endY/window.maxLogRange) / yExtraStep) * yExtraStep, Math.floor(startY / yLowStep) * yLowStep);
     for (var i = 0; i < curveDots.length; i++) {
-        var xPos = wdXst + (parseFloat(curveDots[i][0]) - startX) / (endX - startX) * (wdXend - wdXst);
-        if (window.yScale == "lin") {
-            var yPos = wdYend - parseFloat(curveDots[i][1]) / endY * (wdYend - wdYst);
-        } else {
-            if (fixStart > parseFloat(curveDots[i][1])) {
-                var yPos = wdYend;
-            } else {
-                var yPos = wdYend - (Math.log10(parseFloat(curveDots[i][1])) - Math.log10(fixStart)) / (Math.log10(endY) - Math.log10(fixStart)) * (wdYend - wdYst);
-            }
-        }
+        var xPos = toSvgXScale(parseFloat(curveDots[i][0]));
+        var yPos = toSvgSaveYScale(parseFloat(curveDots[i][1]));
         retVal += xPos + "," + yPos + " ";
     }
     retVal += "' onclick='showReactSel(" + id + ", " + dataPos + ")'/>";
     return retVal;
 }
 
-function createOneDots(reac,id,dataPos,stroke_str,curveDots,col,startX,endX,startY,endY,wdXst,wdXend,wdYst,wdYend){
+function createOneDots(reac, id, dataPos, stroke_str, curveDots, col){
     var retVal = ""
     if ((window.linRegPCRTable.length > 0) &&
         (window.sampSelFirst == "target") &&
@@ -2954,9 +3148,6 @@ function createOneDots(reac,id,dataPos,stroke_str,curveDots,col,startX,endX,star
             }
 
             if (k > -1) {
-                var yLowStep = Math.pow(10, Math.floor(Math.log10(Math.abs(startY))));
-                var yExtraStep = Math.pow(10, Math.floor(Math.log10(Math.abs(endY/window.maxLogRange))));
-                var fixStart = Math.max(Math.floor((endY/window.maxLogRange) / yExtraStep) * yExtraStep, Math.floor(startY / yLowStep) * yLowStep);
                 for (var i = 0; i < curveDots.length; i++) {
                     var svgFill = "none"
                     var svgRadius = "1.2"
@@ -2972,16 +3163,8 @@ function createOneDots(reac,id,dataPos,stroke_str,curveDots,col,startX,endX,star
                             svgFill = col
                        }
                     }
-                    var xPos = wdXst + (xVal - startX) / (endX - startX) * (wdXend - wdXst);
-                    if (window.yScale == "lin") {
-                        var yPos = wdYend - yVal / endY * (wdYend - wdYst);
-                    } else {
-                        if (fixStart > yVal) {
-                            var yPos = wdYend;
-                        } else {
-                            var yPos = wdYend - (Math.log10(parseFloat(curveDots[i][1])) - Math.log10(fixStart)) / (Math.log10(endY) - Math.log10(fixStart)) * (wdYend - wdYst);
-                        }
-                    }
+                    var xPos = toSvgXScale(parseFloat(xVal));
+                    var yPos = toSvgSaveYScale(yVal);
                     retVal += "<circle cx='" + xPos + "' cy='" + yPos + "' r='" + svgRadius + "' stroke='" + col
                     retVal += "' stroke-width='0.9' fill='" + svgFill + "' />" + col;
                 }

@@ -2944,12 +2944,12 @@ function editAnnotation(prim_key, prim_pos, anno_pos) {
         anno_pos = 0
         edit = false
     }
-    if ((edit == true) && (exp != null) && (prim_pos < exp.length) && (anno_pos < exp[anno_pos].xRefs.length)) {
-        if ((exp[prim_pos].xRefs[anno_pos]) && (exp[prim_pos].xRefs[anno_pos].hasOwnProperty("property"))){
-            property = exp[prim_pos].xRefs[anno_pos].property
+    if ((edit == true) && (exp != null) && (prim_pos < exp.length) && (anno_pos < exp[prim_pos].annotations.length)) {
+        if ((exp[prim_pos].annotations[anno_pos]) && (exp[prim_pos].annotations[anno_pos].hasOwnProperty("property"))){
+            property = exp[prim_pos].annotations[anno_pos].property
         }
-        if ((exp[prim_pos].xRefs[anno_pos]) && (exp[prim_pos].xRefs[anno_pos].hasOwnProperty("value"))){
-            value = exp[prim_pos].xRefs[anno_pos].value
+        if ((exp[prim_pos].annotations[anno_pos]) && (exp[prim_pos].annotations[anno_pos].hasOwnProperty("value"))){
+            value = exp[prim_pos].annotations[anno_pos].value
         }
     }
     var ret = '<div class="card">\n<div class="card-body">\n'

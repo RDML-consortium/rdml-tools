@@ -1396,6 +1396,8 @@ def handle_data():
                                                            updateRDML=reqdata["update-RDML-data"],
                                                            excludeNoPlateau=reqdata["exclude-no-plateau"],
                                                            excludeEfficiency=reqdata["exclude-efficiency"])
+                if "error" in data["reactsdata"]:
+                    data["error"] = data["reactsdata"]["error"]
                 if reqdata["update-RDML-data"]:
                     modified = True
             except rdml.RdmlError as err:

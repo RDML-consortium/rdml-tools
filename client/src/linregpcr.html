@@ -150,11 +150,26 @@
               </select>
             </td>
             <td style="width:5%;"></td>
-            <td style="width:38%;text-align: right;">
+            <td style="width:14%;">Include Annotations:</td>
+            <td style="width:6%;">
+              <select class="form-control" id="choiceIncludeAnnotations">
+                <option value="y">yes</option>
+                <option value="n" selected>no</option>
+              </select>
+            </td>
+            <td style="width:18%;text-align: right;">
               <button type="submit" class="btn btn-outline-primary" id="btn-rdml-linregpcr">
                 <i class="far fa-save" style="margin-right: 5px;"></i>
                 Save RDML
-              </button>&nbsp;&nbsp;
+              </button>
+            </td>
+            <td style="width:1%;"></td>
+          </tr>
+        </table>
+        <table style="width:100%;">
+          <tr>
+            <td style="width:61%;"></td>
+            <td style="width:38%;text-align: right;">
               <button type="submit" class="btn btn-outline-primary" id="btn-copy-linregpcr">
                 <i class="fas fa-paste" style="margin-right: 5px;"></i>
                 Copy table to clipboard
