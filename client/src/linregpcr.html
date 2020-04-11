@@ -120,11 +120,12 @@
               </select>
             </td>
             <td style="width:7%;"></td>
-            <td style="width:32%;">Samples with individual efficiency outside group median:</td>
-            <td style="width:6%;">
+            <td style="width:18%;">Diverging individual PCR efficiency:</td>
+            <td style="width:20%;">
               <select class="form-control" id="choiceExcludeEfficiency">
-                <option value="y" selected>yes</option>
-                <option value="n">no</option>
+                <option value="outlier" selected>exclude outliers (recommended)</option>
+                <option value="mean">exclude outside mean range (classic)</option>
+                <option value="include">include all</option>
               </select>
             </td>
             <td style="width:1%;"></td>

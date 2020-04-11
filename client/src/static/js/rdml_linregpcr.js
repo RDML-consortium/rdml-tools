@@ -82,7 +82,7 @@ window.selDigitalOnLoad = "none";
 window.maxLogRange = 10000;
 
 window.exNoPlateau = true;
-window.exDiffMean = true;
+window.exDiffMean = "outlier";
 window.decimalSepPoint = true;
 
 window.sampSelFirst = "7s8e45-Show-All"  // To avoid conflicts with existing values
@@ -342,7 +342,7 @@ function runLinRegPCR() {
     var rPCREffRange = 0.05
     var rUpdateRDML = true
     window.exNoPlateau = true
-    window.exDiffMean = true
+    window.exDiffMean = "outlier"
     hideElement(resultError)
 
     window.sampSelFirst = "7s8e45-Show-All"  // To avoid conflicts with existing values
@@ -363,8 +363,8 @@ function runLinRegPCR() {
         window.exNoPlateau = false
     }
     var bbExcludeEfficiency = document.getElementById('choiceExcludeEfficiency')
-    if ((bbExcludeEfficiency) && (bbExcludeEfficiency.value == "n")) {
-        window.exDiffMean = false
+    if (bbExcludeEfficiency) {
+        window.exDiffMean = bbExcludeEfficiency.value
     }
 
     var ret = {}
@@ -1185,18 +1185,18 @@ function updateLinRegPCRTable() {
             ret += '</tr>\n'
         }
     } else if (choiceTable.value == "classic-compact") {
-        var meanCol = 24  // "mean PCR eff + no plateau + efficiency outliers"
-        var effErrCol = 44  // "PCR efficiency outside rage + no plateau"
-        if ((choiceExcludeNoPlat.value == "y") && (choiceExcludeEff.value == "n")) {
-            meanCol = 28  // "mean PCR eff + efficiency outliers"
-            effErrCol = 45  // "PCR efficiency outside rage"
+        var meanCol = 24;  // "mean PCR eff"
+        var effErrCol = 54;  // "PCR efficiency outlier"
+        if (choiceExcludeNoPlat.value == "y") {
+            meanCol += 4;
+            effErrCol += 1;
         }
-        if ((choiceExcludeNoPlat.value == "n") && (choiceExcludeEff.value == "y")) {
-            meanCol = 32  // "mean PCR eff + no plateau"
+        if (choiceExcludeEff.value == "mean") {
+            meanCol += 8;
+            effErrCol -= 2;
         }
-        if ((choiceExcludeNoPlat.value == "y") && (choiceExcludeEff.value == "y")) {
-            meanCol = 36  // "mean PCR eff"
-            effErrCol = 45  // "PCR efficiency outside rage"
+        if (choiceExcludeEff.value == "outlier") {
+            meanCol += 16;
         }
 
         var pcrFormat = window.rdmlData.rdml.experiments[window.experimentPos].runs[window.runPos].pcrFormat
@@ -1272,10 +1272,10 @@ function updateLinRegPCRTable() {
             }
             content += NumPoint(window.linRegPCRTable[row][meanCol + 2]) + "\t"
             if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][40] + '</td>\n'  // "amplification"
-                content += window.linRegPCRTable[row][40] + "\t"  // "amplification"
+                ret += '<td>' + window.linRegPCRTable[row][48] + '</td>\n'  // "amplification"
+                content += window.linRegPCRTable[row][48] + "\t"  // "amplification"
             } else {
-                if (window.linRegPCRTable[row][40] == true) {  // "amplification"
+                if (window.linRegPCRTable[row][48] == true) {  // "amplification"
                     ret += '<td>Yes</td>\n'
                     content += "Yes\t"
                 } else {
@@ -1284,10 +1284,10 @@ function updateLinRegPCRTable() {
                 }
             }
             if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][41] + '</td>\n'  // "baseline error"
-                content += window.linRegPCRTable[row][41] + "\t"  // "baseline error"
+                ret += '<td>' + window.linRegPCRTable[row][49] + '</td>\n'  // "baseline error"
+                content += window.linRegPCRTable[row][49] + "\t"  // "baseline error"
             } else {
-                if (window.linRegPCRTable[row][41] == true) {  // "baseline error"
+                if (window.linRegPCRTable[row][49] == true) {  // "baseline error"
                     ret += '<td style="background-color: #ffc266;">Yes</td>\n'
                     content += "Yes\t"
                 } else {
@@ -1296,10 +1296,10 @@ function updateLinRegPCRTable() {
                 }
             }
             if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][42] + '</td>\n'  // "plateau"
-                content += window.linRegPCRTable[row][42] + "\t"  // "plateau"
+                ret += '<td>' + window.linRegPCRTable[row][50] + '</td>\n'  // "plateau"
+                content += window.linRegPCRTable[row][50] + "\t"  // "plateau"
             } else {
-                if (window.linRegPCRTable[row][42] == true) {  // "plateau"
+                if (window.linRegPCRTable[row][50] == true) {  // "plateau"
                     ret += '<td>Yes</td>\n'
                     content += "Yes\t"
                 } else {
@@ -1308,10 +1308,10 @@ function updateLinRegPCRTable() {
                 }
             }
             if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][43] + '</td>\n'  // "noisy sample"
-                content += window.linRegPCRTable[row][43] + "\t"  // "noisy sample"
+                ret += '<td>' + window.linRegPCRTable[row][51] + '</td>\n'  // "noisy sample"
+                content += window.linRegPCRTable[row][51] + "\t"  // "noisy sample"
             } else {
-                if (window.linRegPCRTable[row][43] == true) {  // "noisy sample"
+                if (window.linRegPCRTable[row][51] == true) {  // "noisy sample"
                     ret += '<td style="background-color: #ffc266;">Yes</td>\n'
                     content += "Yes\t"
                 } else {
@@ -1332,10 +1332,10 @@ function updateLinRegPCRTable() {
                 }
             }
             if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][50] + '</td>\n'  // "used for W-o-L setting"
-                content += window.linRegPCRTable[row][50] + "\t"  // "used for W-o-L setting"
+                ret += '<td>' + window.linRegPCRTable[row][60] + '</td>\n'  // "used for W-o-L setting"
+                content += window.linRegPCRTable[row][60] + "\t"  // "used for W-o-L setting"
             } else {
-                if (window.linRegPCRTable[row][50] == true) {  // "used for W-o-L setting"
+                if (window.linRegPCRTable[row][60] == true) {  // "used for W-o-L setting"
                     ret += '<td>Yes</td>\n'
                     content += "Yes\t"
                 } else {
@@ -1348,29 +1348,27 @@ function updateLinRegPCRTable() {
             ret += '</tr>\n'
         }
     } else if (choiceTable.value == "extended") {
-        var meanCol = 24  // "mean PCR eff + no plateau + efficiency outliers"
-        var effErrCol = 44  // "PCR efficiency outside rage + no plateau"
         var saveExNoPlateau = "n"
-        var saveExDiffMean = "n"
         var colorNotes = ' style="background-color: #cccccc"'
-        if ((choiceExcludeNoPlat.value == "y") && (choiceExcludeEff.value == "n")) {
-            meanCol = 28  // "mean PCR eff + efficiency outliers"
-            effErrCol = 45  // "PCR efficiency outside rage"
+
+        var meanCol = 24;  // "mean PCR eff"
+        var effErrCol = 54;  // "PCR efficiency outlier"
+        if (choiceExcludeNoPlat.value == "y") {
+            meanCol += 4;
+            effErrCol += 1;
         }
-        if ((choiceExcludeNoPlat.value == "n") && (choiceExcludeEff.value == "y")) {
-            meanCol = 32  // "mean PCR eff + no plateau"
+        if (choiceExcludeEff.value == "mean") {
+            meanCol += 8;
+            effErrCol -= 2;
         }
-        if ((choiceExcludeNoPlat.value == "y") && (choiceExcludeEff.value == "y")) {
-            meanCol = 36  // "mean PCR eff"
-            effErrCol = 45  // "PCR efficiency outside rage"
+        if (choiceExcludeEff.value == "outlier") {
+            meanCol += 16;
         }
         if (window.exNoPlateau == true) {
             saveExNoPlateau = "y"
         }
-        if (window.exDiffMean == true) {
-            saveExDiffMean = "y"
-        }
-        if ((choiceExcludeNoPlat.value == saveExNoPlateau) && (choiceExcludeEff.value == saveExDiffMean)) {
+        // Grey out note and exclusion strings if they are not up to date
+        if ((choiceExcludeNoPlat.value == saveExNoPlateau) && (choiceExcludeEff.value == window.exDiffMean)) {
             colorNotes = ''
         }
 
@@ -1406,10 +1404,10 @@ function updateLinRegPCRTable() {
                 if (cqValue > 0.0) {
                     highlight_meanCq = colErr
                     highlight_meanN0 = colErr
-                    if (window.linRegPCRTable[row][40] == true) {
+                    if (window.linRegPCRTable[row][48] == true) {  // "amplification"
                         highlight_ErrAmp = colErr
                     }
-                    if (window.linRegPCRTable[row][42] == true) {
+                    if (window.linRegPCRTable[row][50] == true) {  // "plateau"
                         highlight_ErrPlat = colErr
                     }
                     if (window.linRegPCRTable[row][effErrCol] == false) {
@@ -1418,10 +1416,10 @@ function updateLinRegPCRTable() {
                         highlight_indivPCREff = colWarn
                     }
                 } else {
-                    if (window.linRegPCRTable[row][40] == true) {
+                    if (window.linRegPCRTable[row][48] == true) {  // "amplification"
                         highlight_ErrAmp = colWarn
                     }
-                    if (window.linRegPCRTable[row][42] == true) {
+                    if (window.linRegPCRTable[row][50] == true) {  // "plateau"
                         highlight_ErrPlat = colWarn
                     }
                     if (window.linRegPCRTable[row][effErrCol] == false) {
@@ -1450,16 +1448,16 @@ function updateLinRegPCRTable() {
                 if (!(cqValue > 0.0)) {
                     highlight_meanCq = colErr
                     highlight_meanN0 = colErr
-                    if (window.linRegPCRTable[row][40] == false) {
+                    if (window.linRegPCRTable[row][48] == false) {  // "amplification"
                         highlight_ErrAmp = colErr
                     }
-                    if (window.linRegPCRTable[row][41] == true) {
+                    if (window.linRegPCRTable[row][49] == true) {  // "baseline error"
                         highlight_ErrBase = colErr
                     }
-                    if (window.linRegPCRTable[row][42] == false) {
+                    if (window.linRegPCRTable[row][50] == false) {  // "plateau"
                         highlight_ErrPlat = colErr
                     }
-                    if (window.linRegPCRTable[row][43] == true) {
+                    if (window.linRegPCRTable[row][51] == true) {  // "noisy sample"
                         highlight_ErrNoisy = colErr
                     }
                     if (window.linRegPCRTable[row][effErrCol] == true) {
@@ -1468,16 +1466,16 @@ function updateLinRegPCRTable() {
                         highlight_indivPCREff = colWarn
                     }
                 } else {
-                    if (window.linRegPCRTable[row][40] == false) {
+                    if (window.linRegPCRTable[row][48] == false) {  // "amplification"
                         highlight_ErrAmp = colWarn
                     }
-                    if (window.linRegPCRTable[row][41] == true) {
+                    if (window.linRegPCRTable[row][49] == true) {  // "baseline error"
                         highlight_ErrBase = colWarn
                     }
-                    if (window.linRegPCRTable[row][42] == false) {
+                    if (window.linRegPCRTable[row][50] == false) {  // "plateau"
                         highlight_ErrPlat = colWarn
                     }
-                    if (window.linRegPCRTable[row][43] == true) {
+                    if (window.linRegPCRTable[row][51] == true) {  // "noisy sample"
                         highlight_ErrNoisy = colWarn
                     }
                     if (window.linRegPCRTable[row][effErrCol] == true) {
@@ -1502,16 +1500,16 @@ function updateLinRegPCRTable() {
                     highlight_meanCq = colWarn
                     highlight_meanN0 = colWarn
                 }
-                if (window.linRegPCRTable[row][40] == false) {
+                if (window.linRegPCRTable[row][48] == false) {  // "amplification"
                     highlight_ErrAmp = colWarn
                 }
-                if (window.linRegPCRTable[row][41] == true) {
+                if (window.linRegPCRTable[row][49] == true) {  // "baseline error"
                     highlight_ErrBase = colWarn
                 }
-                if (window.linRegPCRTable[row][42] == false) {
+                if (window.linRegPCRTable[row][50] == false) {  // "plateau"
                     highlight_ErrPlat = colWarn
                 }
-                if (window.linRegPCRTable[row][43] == true) {
+                if (window.linRegPCRTable[row][51] == true) {  // "noisy sample"
                     highlight_ErrNoisy = colWarn
                 }
                 if (window.linRegPCRTable[row][effErrCol] == true) {
@@ -1601,11 +1599,11 @@ function updateLinRegPCRTable() {
             }
             content += NumPoint(window.linRegPCRTable[row][meanCol + 2]) + "\t"
             if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][40] + '</td>\n'  // "amplification"
-                content += window.linRegPCRTable[row][40] + "\t"  // "amplification"
+                ret += '<td>' + window.linRegPCRTable[row][48] + '</td>\n'  // "amplification"
+                content += window.linRegPCRTable[row][48] + "\t"  // "amplification"
             } else {
                 ret += '<td' + highlight_ErrAmp + '>'
-                if (window.linRegPCRTable[row][40] == true) {  // "amplification"
+                if (window.linRegPCRTable[row][48] == true) {  // "amplification"
                     ret += 'Yes</td>\n'
                     content += "Yes\t"
                 } else {
@@ -1614,11 +1612,11 @@ function updateLinRegPCRTable() {
                 }
             }
             if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][41] + '</td>\n'  // "baseline error"
-                content += window.linRegPCRTable[row][41] + "\t"  // "baseline error"
+                ret += '<td>' + window.linRegPCRTable[row][49] + '</td>\n'  // "baseline error"
+                content += window.linRegPCRTable[row][49] + "\t"  // "baseline error"
             } else {
                 ret += '<td' + highlight_ErrBase + '>'
-                if (window.linRegPCRTable[row][41] == true) {  // "baseline error"
+                if (window.linRegPCRTable[row][49] == true) {  // "baseline error"
                     ret += 'Yes</td>\n'
                     content += "Yes\t"
                 } else {
@@ -1627,11 +1625,11 @@ function updateLinRegPCRTable() {
                 }
             }
             if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][42] + '</td>\n'  // "plateau"
-                content += window.linRegPCRTable[row][42] + "\t"  // "plateau"
+                ret += '<td>' + window.linRegPCRTable[row][50] + '</td>\n'  // "plateau"
+                content += window.linRegPCRTable[row][50] + "\t"  // "plateau"
             } else {
                 ret += '<td' + highlight_ErrPlat + '>'
-                if (window.linRegPCRTable[row][42] == true) {  // "plateau"
+                if (window.linRegPCRTable[row][50] == true) {  // "plateau"
                     ret += 'Yes</td>\n'
                     content += "Yes\t"
                 } else {
@@ -1640,11 +1638,11 @@ function updateLinRegPCRTable() {
                 }
             }
             if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][43] + '</td>\n'  // "noisy sample"
-                content += window.linRegPCRTable[row][43] + "\t"  // "noisy sample"
+                ret += '<td>' + window.linRegPCRTable[row][51] + '</td>\n'  // "noisy sample"
+                content += window.linRegPCRTable[row][51] + "\t"  // "noisy sample"
             } else {
                 ret += '<td' + highlight_ErrNoisy + '>'
-                if (window.linRegPCRTable[row][43] == true) {  // "noisy sample"
+                if (window.linRegPCRTable[row][51] == true) {  // "noisy sample"
                     ret += 'Yes</td>\n'
                     content += "Yes\t"
                 } else {
@@ -1666,10 +1664,10 @@ function updateLinRegPCRTable() {
                 }
             }
             if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][50] + '</td>\n'  // "used for W-o-L setting"
-                content += window.linRegPCRTable[row][50] + "\t"  // "used for W-o-L setting"
+                ret += '<td>' + window.linRegPCRTable[row][60] + '</td>\n'  // "used for W-o-L setting"
+                content += window.linRegPCRTable[row][60] + "\t"  // "used for W-o-L setting"
             } else {
-                if (window.linRegPCRTable[row][50] == true) {  // "used for W-o-L setting"
+                if (window.linRegPCRTable[row][60] == true) {  // "used for W-o-L setting"
                     ret += '<td>Yes</td>\n'
                     content += "Yes\t"
                 } else {
@@ -2213,8 +2211,10 @@ function updateSampSel(updateOnly) {
                           "baseline error": "no_baseline",
                           "no plateau": "no_plateau",
                           "noisy sample": "noisy_sample",
-                          "PCR efficiency outside rage + no plateau": "PCReff_plat",
-                          "PCR efficiency outside rage": "PCReff",
+                          "PCR efficiency outside mean rage": "PCReff_mean",
+                          "PCR efficiency outside mean rage - no plateau": "PCReff_plat_mean",
+                          "PCR efficiency outlier": "PCReff_out",
+                          "PCR efficiency outlier - no plateau": "PCReff_plat_out",
                           "short log lin phase": "shortLogLin",
                           "Cq is shifting": "cqShifting",
                           "too low Cq eff": "tooLowCqEff",
@@ -2224,8 +2224,10 @@ function updateSampSel(updateOnly) {
                           "baseline error",
                           "no plateau",
                           "noisy sample",
-                          "PCR efficiency outside rage + no plateau",
-                          "PCR efficiency outside rage",
+                          "PCR efficiency outside mean rage",
+                          "PCR efficiency outside mean rage - no plateau",
+                          "PCR efficiency outlier",
+                          "PCR efficiency outlier - no plateau",
                           "short log lin phase",
                           "Cq is shifting",
                           "too low Cq eff",
@@ -2248,17 +2250,19 @@ function updateSampSel(updateOnly) {
             var reacts = window.reactData.reacts
             window.sampSelThirdList = []
             for (var lt = 1; lt < window.linRegPCRTable.length; lt++) {
-                if (((newSecondData == "no_amplification") && (window.linRegPCRTable[lt][40] == false)) ||  // "amplification"
-                    ((newSecondData == "no_baseline") && (window.linRegPCRTable[lt][41] == true)) ||  // "baseline error"
-                    ((newSecondData == "no_plateau") && (window.linRegPCRTable[lt][42] == false)) ||  // "plateau"
-                    ((newSecondData == "noisy_sample") && (window.linRegPCRTable[lt][43] == true)) ||  // "noisy sample"
-                    ((newSecondData == "PCReff_plat") && (window.linRegPCRTable[lt][44] == true)) ||  // "PCR efficiency outside rage + no plateau"
-                    ((newSecondData == "PCReff") && (window.linRegPCRTable[lt][45] == true)) ||  // "PCR efficiency outside rage"
-                    ((newSecondData == "shortLogLin") && (window.linRegPCRTable[lt][46] == true)) ||  // "short log lin phase"
-                    ((newSecondData == "cqShifting") && (window.linRegPCRTable[lt][47] == true)) ||  // "Cq is shifting"
-                    ((newSecondData == "tooLowCqEff") && (window.linRegPCRTable[lt][48] == true)) ||  // "too low Cq eff"
-                    ((newSecondData == "tooLowCqN0") && (window.linRegPCRTable[lt][49] == true)) ||  // "too low Cq N0"
-                    ((newSecondData == "not_in_WoL") && (window.linRegPCRTable[lt][50] == false))) {  // "used for W-o-L setting"
+                if (((newSecondData == "no_amplification") && (window.linRegPCRTable[lt][48] == false)) ||  // "amplification"
+                    ((newSecondData == "no_baseline") && (window.linRegPCRTable[lt][49] == true)) ||  // "baseline error"
+                    ((newSecondData == "no_plateau") && (window.linRegPCRTable[lt][50] == false)) ||  // "plateau"
+                    ((newSecondData == "noisy_sample") && (window.linRegPCRTable[lt][51] == true)) ||  // "noisy sample"
+                    ((newSecondData == "PCReff_mean") && (window.linRegPCRTable[lt][52] == true)) ||  // "PCR efficiency outside mean rage"
+                    ((newSecondData == "PCReff_plat_mean") && (window.linRegPCRTable[lt][53] == true)) ||  // "PCR efficiency outside mean rage - no plateau"
+                    ((newSecondData == "PCReff_out") && (window.linRegPCRTable[lt][54] == true)) ||  // "PCR efficiency outlier"
+                    ((newSecondData == "PCReff_plat_out") && (window.linRegPCRTable[lt][55] == true)) ||  // "PCR efficiency outlier - no plateau"
+                    ((newSecondData == "shortLogLin") && (window.linRegPCRTable[lt][56] == true)) ||  // "short log lin phase"
+                    ((newSecondData == "cqShifting") && (window.linRegPCRTable[lt][57] == true)) ||  // "Cq is shifting"
+                    ((newSecondData == "tooLowCqEff") && (window.linRegPCRTable[lt][58] == true)) ||  // "too low Cq eff"
+                    ((newSecondData == "tooLowCqN0") && (window.linRegPCRTable[lt][59] == true)) ||  // "too low Cq N0"
+                    ((newSecondData == "not_in_WoL") && (window.linRegPCRTable[lt][60] == false))) {  // "used for W-o-L setting"
                     for (var i = 0; i < reacts.length; i++) {
                         if (reacts[i].id == window.linRegPCRTable[lt][0]) {  // "id"
                             for (var k = 0; k < reacts[i].datas.length; k++) {
@@ -2403,17 +2407,19 @@ function updateSampSel(updateOnly) {
                                 for (var lt = 1; lt < window.linRegPCRTable.length; lt++) {
                                     if (reacts[i].id == window.linRegPCRTable[lt][0] &&  // "id"
                                         reacts[i].datas[k].tar == window.linRegPCRTable[lt][5] &&  // "target"
-                                        (((newSecondData == "no_amplification") && (window.linRegPCRTable[lt][40] == false)) ||  // "amplification"
-                                         ((newSecondData == "no_baseline") && (window.linRegPCRTable[lt][41] == true)) ||  // "baseline error"
-                                         ((newSecondData == "no_plateau") && (window.linRegPCRTable[lt][42] == false)) ||  // "plateau"
-                                         ((newSecondData == "noisy_sample") && (window.linRegPCRTable[lt][43] == true)) ||  // "noisy sample"
-                                         ((newSecondData == "PCReff_plat") && (window.linRegPCRTable[lt][44] == true)) ||  // "PCR efficiency outside rage + no plateau"
-                                         ((newSecondData == "PCReff") && (window.linRegPCRTable[lt][45] == true)) ||  // "PCR efficiency outside rage"
-                                         ((newSecondData == "shortLogLin") && (window.linRegPCRTable[lt][46] == true)) ||  // "short log lin phase"
-                                         ((newSecondData == "cqShifting") && (window.linRegPCRTable[lt][47] == true)) ||  // "Cq is shifting"
-                                         ((newSecondData == "tooLowCqEff") && (window.linRegPCRTable[lt][48] == true)) ||  // "too low Cq eff"
-                                         ((newSecondData == "tooLowCqN0") && (window.linRegPCRTable[lt][49] == true)) ||  // "too low Cq N0"
-                                         ((newSecondData == "not_in_WoL") && (window.linRegPCRTable[lt][50] == false)))) {  // "used for W-o-L setting"
+                                        (((newSecondData == "no_amplification") && (window.linRegPCRTable[lt][48] == false)) ||  // "amplification"
+                                         ((newSecondData == "no_baseline") && (window.linRegPCRTable[lt][49] == true)) ||  // "baseline error"
+                                         ((newSecondData == "no_plateau") && (window.linRegPCRTable[lt][50] == false)) ||  // "plateau"
+                                         ((newSecondData == "noisy_sample") && (window.linRegPCRTable[lt][51] == true)) ||  // "noisy sample"
+                                         ((newSecondData == "PCReff_mean") && (window.linRegPCRTable[lt][52] == true)) ||  // "PCR efficiency outside mean rage"
+                                         ((newSecondData == "PCReff_plat_mean") && (window.linRegPCRTable[lt][53] == true)) ||  // "PCR efficiency outside mean rage - no plateau"
+                                         ((newSecondData == "PCReff_out") && (window.linRegPCRTable[lt][54] == true)) ||  // "PCR efficiency outlier"
+                                         ((newSecondData == "PCReff_plat_out") && (window.linRegPCRTable[lt][55] == true)) ||  // "PCR efficiency outlier - no plateau"
+                                         ((newSecondData == "shortLogLin") && (window.linRegPCRTable[lt][56] == true)) ||  // "short log lin phase"
+                                         ((newSecondData == "cqShifting") && (window.linRegPCRTable[lt][57] == true)) ||  // "Cq is shifting"
+                                         ((newSecondData == "tooLowCqEff") && (window.linRegPCRTable[lt][58] == true)) ||  // "too low Cq eff"
+                                         ((newSecondData == "tooLowCqN0") && (window.linRegPCRTable[lt][59] == true)) ||  // "too low Cq N0"
+                                         ((newSecondData == "not_in_WoL") && (window.linRegPCRTable[lt][60] == false)))) {  // "used for W-o-L setting"
                                         reacts[i].datas[k]["runview_show"] = true
                                         break
                                     }
@@ -2633,6 +2639,7 @@ function createCoordinates () {
 
     // Baseline and Limits
     if ((window.linRegPCRTable.length > 0) &&
+        (window.curveSource == "bas") &&
         (window.sampSelFirst == "target") &&
         ((window.sampSelSecond != "7s8e45-Show-All") ||
          (window.sampSelThird != "7s8e45-Show-All"))) {
@@ -2718,6 +2725,7 @@ function createCoordinates () {
 function createEfficiencyCurves () {
     var retVal = ""
     if ((window.linRegPCRTable.length > 0) &&
+        (window.curveSource == "bas") &&
         (window.yScale == "log") &&
         (window.sampSelFirst == "target") &&
         (window.sampSelSecond != "7s8e45-Show-All") &&
@@ -2760,17 +2768,17 @@ function createEfficiencyCurves () {
             var meanFitY = parseFloat(window.linRegPCRTable[k][18])  // "log lin fluorescence"
             var indivEff = parseFloat(window.linRegPCRTable[k][19])  // "indiv PCR eff"
 
-            var meanEffPos = 24  // "mean PCR eff + no plateau + efficiency outliers"
-            if ((choiceExcludeNoPlat.value == "y") && (choiceExcludeEff.value == "n")) {
-                meanEffPos = 28  // "mean PCR eff + efficiency outliers"
+            var meanCol = 24;  // "mean PCR eff"
+            if (choiceExcludeNoPlat.value == "y") {
+                meanCol += 4;
             }
-            if ((choiceExcludeNoPlat.value == "n") && (choiceExcludeEff.value == "y")) {
-                meanEffPos = 32  // "mean PCR eff + no plateau"
+            if (choiceExcludeEff.value == "mean") {
+                meanCol += 8;
             }
-            if ((choiceExcludeNoPlat.value == "y") && (choiceExcludeEff.value == "y")) {
-                meanEffPos = 36  // "mean PCR eff"
+            if (choiceExcludeEff.value == "outlier") {
+                meanCol += 16;
             }
-            var meanEff = parseFloat(window.linRegPCRTable[k][meanEffPos])
+            var meanEff = parseFloat(window.linRegPCRTable[k][meanCol])
 
             // Only continue if all values are not nan
             if ((Number.isNaN(meanFitX)) ||
