@@ -67,7 +67,8 @@
           <li><a href="#LRP-Diff-Pascal">8.10. Differences Between Pascal and Python Version</a></li>
           <li><a href="#LRP-Prepare-RDML">8.11. Howto Prepare RDML files</a></li>
           <li><a href="#LRP-Run">8.12. Run LinRegPCR</a></li>
-          <li><a href="#LRP-Acknowledgements">8.13. Acknowledgements</a></li>
+          <li><a href="#LRP-Library">8.13. The Python Library rdmlpython and the Command Line</a></li>
+          <li><a href="#LRP-Acknowledgements">8.14. Acknowledgements</a></li>
         </ul>
       </li>
       <li><a href="#RDML-RunView">9. RDML-RunView</a></li>
@@ -615,7 +616,111 @@
       LinRegPCR tab and loaded with spreadsheet programs like Excel or calc. Please select the correct decimal
       separator for your region.
     </p>
-    <h5 id="LRP-Acknowledgements">8.13. Acknowledgements</h5>
+    <h5 id="LRP-Library">8.13. The Python Library rdmlpython and the Command Line</h5>
+    <p style="text-align: justify">The rdml-tools are great to analyze single files and view the result. Behind the
+      scenes the rdml-tools do no calculations. They shape the input, hand it over to the server, the server does the
+      calculations using the python library rdmlpython, collects the results and hands them to the rdml-tools which
+      display the results and allow to browse them interactively. If big files or a large number of files have to
+      be analyzed or due to privacy reasons the data may not run on external servers, running rdmlpython locally
+      via the command line interface might be an option. Programmers may use rdmlpython to handle RDML files in
+      their own applications.
+    </p>
+
+    <p><b>Installing rdmlpython</b></p>
+    <pre>
+    apt install python3 python3-pip
+
+    pip3 install rdmlpython
+    </pre>
+
+    <b>The Command Line Interface</b><br />
+    <p>Some functions of rdmlpython are available on the command line.</p>
+    <p>Display the help with an overview over the possible commands:</p>
+    <pre>
+    rdmlpython -h
+    rdmlpython --help
+    </pre>
+
+    <p>Display the version number of rdmlpython:</p>
+    <pre>
+    rdmlpython --version
+    </pre>
+
+    <p>Validate file data.rdml against its schema:</p>
+    <pre>
+    rdmlpython -v data.rdml
+    rdmlpython --validate data.rdml
+    </pre>
+
+    <p>List all experiments in the file data.rdml:</p>
+    <pre>
+    rdmlpython -le data.rdml
+    rdmlpython --listexperiment
+    </pre>
+
+    <p>Select experiment "exp_1" and list all runs of this experiment in the file data.rdml:</p>
+    <pre>
+    rdmlpython -e exp_1 -lr data.rdml
+    rdmlpython --experiment exp_1 --listrun data.rdml
+    </pre>
+
+    <p>Run LinRegPCR on file data.rdml and save the modified file in data_out.rdml:</p>
+    <pre>
+    rdmlpython -lrp data.rdml -o data_out.rdml --saveResults results.csv
+    rdmlpython --linRegPCR data.rdml --resultfile data_out.rdml --saveResults results.csv
+    </pre>
+    <p style="text-align: justify">
+      The results are stored it the (large) tab-seperated table results.csv. LinRegPCR will only work on the first
+      run of the first experiment. You may select a different experiment with the -e option and a different run
+      with the -r option. The option --excludeNoPlateau allows to exclude samples with no plateau phase from
+      mean PCR efficiency calculation. The option --excludeEfficiency an be "outlier", "mean" or "include". With
+      --excludeEfficiency "include" no sample will be from mean PCR efficiency calculation based on its individual
+      PCR efficiency. With --excludeEfficiency "mean" and the optional option --pcrEfficiencyExl 0.05 samples with
+      an individual PCR efficiency outside a 0.05 range from the mean PCR efficiency will be excluded from mean
+      PCR efficiency calculation (this was the classic way). With --excludeEfficiency "outlier" only individual
+      PCR efficiency outliers based on a Grubbs's test will be excluded from mean PCR efficiency calculation
+      (recommended and the default option). The option --saveRaw raw_data.csv creates the table raw_data.csv with
+      the raw fluorescence data. The option --saveBaslineCorr baseline_corrected.csv creates the table
+      baseline_corrected.csv with the baseline corrected fluorescence data.
+    </p>
+
+    <b>Using the Python Library</b><br />
+    <p style="text-align: justify">The rdmlpython library has many functions, please look at the
+      <a href="https://github.com/RDML-consortium/rdmlpython/blob/master/rdml.py">source code of rdmlpython</a>
+      for details.
+    </p>
+    <p>As an basic example create the file test.py with this content:</p>
+    <pre>
+    #! /usr/bin/env python
+
+    import rdmlpython as rdml
+
+    # Print the version
+    vers = rdml.get_rdml_lib_version()
+    print("Version " + vers)
+
+    # Validate a file
+    cli_validate = rdml.Rdml()
+    cli_resValidate = cli_validate.validate(filename="test_2_raw_data.rdml")
+    print(cli_resValidate)
+
+    # Run LinRegPCR
+    cli_linRegPCR = rdml.Rdml("test_2_raw_data.rdml")
+    cli_expList = cli_linRegPCR.experiments()
+    cli_exp = cli_expList[0]
+    cli_runList = cli_exp.runs()
+    cli_run = cli_runList[0]
+    cli_result = cli_run.linRegPCR(updateRDML=True, saveResultsCSV=True, timeRun=True, verbose=True)
+    cli_linRegPCR.save("result.rdml")
+    with open("result.csv", "w") as cli_f:
+        cli_f.write(cli_result["resultsCSV"])
+    </pre>
+
+    <p>Run the script with the <a href="static/bin/test_2_raw_data.rdml">downloaded file</a>:</p>
+    <pre>
+    python3 test.py
+    </pre>
+    <h5 id="LRP-Acknowledgements">8.14. Acknowledgements</h5>
     <p style="text-align: justify">
       We wish to thank Prof. Antoon Moorman, Prof. Vincent Christoffels, Dr Maurice van den Hoff (Department of
       Anatomy, Embryology & Physiology, AMC, Amsterdam) and Dr. Onno Bakker (Department Endocrinology and
