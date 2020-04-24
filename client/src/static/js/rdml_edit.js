@@ -3487,6 +3487,9 @@ function newEditRun(prim_pos, sec_pos) {
         ret += '  <tr>\n    <td style="width:25%;">Import Digital Data Wells:</td>\n'
         ret += '    <td style="width:75%">\n<input type="file" class="form-control-file" id="inRunUploadDigWells" multiple></td>\n'
         ret += '  </tr>'
+        ret += '  <tr>\n    <td style="width:25%;">Ignore Channels:</td>\n'
+        ret += '    <td style="width:75%">\n<input type="text" class="form-control" id="inRunUploadDigExclude"></td>\n'
+        ret += '  </tr>'
     }
     ret += '</table></p>\n'
     ret += '<button type="button" class="btn btn-success btn-sm" '
@@ -3637,6 +3640,7 @@ function saveRun(prim_pos, run_pos, edit){
         (document.getElementById("inRunUploadDigWells").value)) {
          ret["tableUploadDigWells"] = true
     }
+    el["tableUploadDigExclude"] = getSaveHtmlData("inRunUploadDigExclude")
     ret["data"] = el
     updateServerData(uuid, JSON.stringify(ret))
 }

@@ -541,6 +541,8 @@ def handle_data():
                 return jsonify(errors=[{"title": "Invalid server request - run dataCollectionSoftware_name missing!"}]), 400
             if "dataCollectionSoftware_version" not in reqdata["data"]:
                 return jsonify(errors=[{"title": "Invalid server request - run dataCollectionSoftware_version missing!"}]), 400
+            if "tableUploadDigExclude" not in reqdata["data"]:
+                return jsonify(errors=[{"title": "Invalid server request - run tableUploadDigExclude missing!"}]), 400
             elem = rd.get_experiment(byposition=reqdata["primary-position"])
             if elem is None:
                 return jsonify(errors=[{"title": "Invalid server request - experiment at position not found!"}]), 400
@@ -643,10 +645,11 @@ def handle_data():
                             wellFile.save(wellFileName)
                             wellFileNames.append(wellFileName)
 
-                    errRec += run_ele.import_digital_data(rd,
-                                                          reqdata["data"]["tableUploadDigFormat"],
-                                                          tabDigOverviewFilename,
-                                                          wellFileNames)
+                    errRec += run_ele.import_digital_data(rootEl=rd,
+                                                          fileformat=reqdata["data"]["tableUploadDigFormat"],
+                                                          filename=tabDigOverviewFilename,
+                                                          filelist=wellFileNames,
+                                                          ignoreCh=reqdata["data"]["tableUploadDigExclude"])
                 if errRec:
                     data["error"] = errRec
             except rdml.RdmlError as err:
