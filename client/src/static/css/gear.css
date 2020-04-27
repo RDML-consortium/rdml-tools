@@ -83,3 +83,16 @@ a.plain:hover {
 .table-list-only {
   display: none;
 }
+
+#helpAllContainer p {
+  margin-bottom: 2em;
+}
+
+#helpAllContainer .regBottom {
+  margin-bottom: 1em;
+}
+
+
+#helpAllContainer ul {
+  list-style-type:none;
+}
