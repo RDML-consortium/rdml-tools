@@ -8,6 +8,7 @@ import uuid
 import re
 import argparse
 import json
+import datetime
 from flask import Flask, send_file, flash, send_from_directory, request, redirect, url_for, jsonify
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
@@ -20,8 +21,11 @@ app = Flask(__name__)
 CORS(app)
 app.config['RDML'] = os.path.join(RDMLWS, "..")
 app.config['UPLOAD_FOLDER'] = os.path.join(app.config['RDML'], "data")
+app.config['LOG_FOLDER'] = os.path.join(app.config['RDML'], "log")
 app.config['MAX_CONTENT_LENGTH'] = 64 * 1024 * 1024   # maximum of 64MB
 app.config['MAX_NUMBER_UPLOAD_FILES'] = 120
+
+LOGRDMLRUNS = True  # log the rdml-tools runs
 
 
 def allowed_file(filename):
@@ -64,6 +68,8 @@ def download(uuidstr):
 @app.route('/api/v1/validate', methods=['POST'])
 def validate_file():
     if request.method == 'POST':
+        if not os.path.exists(app.config['LOG_FOLDER']):
+            os.makedirs(app.config['LOG_FOLDER'])
         if 'showExample' in request.form.keys():
             fexpname = os.path.join(RDMLWS, "error.rdml")
             uuidstr = "error.rdml"
@@ -109,7 +115,16 @@ def validate_file():
         # Run RDML-Python
         rd = rdml.Rdml()
         ret = rd.validate(fexpname)
+        if LOGRDMLRUNS:
+            runTime = datetime.datetime.utcnow()
+            statFile = os.path.join(app.config['LOG_FOLDER'], "rdml_tools_runs_" + runTime.strftime("%Y_%m_%d") + ".log")
+            addLine = request.remote_addr + " - [" + runTime.strftime("%d/%b/%Y:%H:%M:%S +0000") + '] "RDML-Tools-Validate" '
+            addLine += ' "-1" -1' + " " + uuidstr + ' "' + request.headers.get('User-Agent') + '"\n'
+            with open(statFile, "a") as stat:
+                stat.write(addLine)
         return jsonify(data={"table": ret, "uuid": uuidstr})
+
+
     return jsonify(errors=[{"title": "Error in handling POST request!"}]), 400
 
 
@@ -117,6 +132,10 @@ def validate_file():
 def handle_data():
     if request.method == 'POST':
         sf = ""
+        logNote1 = "-1"
+        logNote2 = -1
+        if not os.path.exists(app.config['LOG_FOLDER']):
+            os.makedirs(app.config['LOG_FOLDER'])
         if 'showExample' in request.form.keys():
             fexpname = os.path.join(RDMLWS, "sample.rdml")
             uuidstr = "sample.rdml"
@@ -569,6 +588,7 @@ def handle_data():
                 run_ele["dataCollectionSoftware_version"] = reqdata["data"]["dataCollectionSoftware_version"]
                 errRec = ""
                 if "tableUploadAmplification" in request.files:
+                    logNote1 = "tableUploadAmplification"
                     tabAmpUpload = request.files['tableUploadAmplification']
                     modified = True
                     if uuidstr in ["sample.rdml", "linregpcr.rdml"]:
@@ -586,6 +606,7 @@ def handle_data():
                         tabAmpUpload.save(tabAmpFilename)
                         errRec += run_ele.import_table(rd, tabAmpFilename, "amp")
                 if "tableUploadMelting" in request.files:
+                    logNote1 = "tableUploadMelting"
                     tabMeltUpload = request.files['tableUploadMelting']
                     modified = True
                     if uuidstr in ["sample.rdml", "linregpcr.rdml"]:
@@ -603,6 +624,7 @@ def handle_data():
                         tabMeltUpload.save(tabMeltFilename)
                         errRec += run_ele.import_table(rd, tabMeltFilename, "melt")
                 if "tableUploadDigOverview" in request.files or "tableUploadDigWellsCount" in request.form.keys():
+                    logNote1 = "tableUploadDigital"
                     if "tableUploadDigFormat" not in reqdata["data"]:
                         return jsonify(errors=[{"title": "Invalid server request - run tableUploadDigFormat missing!"}]), 400
                     modified = True
@@ -618,6 +640,7 @@ def handle_data():
                         fexpname = os.path.join(sf, "rdml_" + uuidstr + ".rdml")
 
                     if "tableUploadDigOverview" in request.files:
+
                         tabDigOverviewUpload = request.files['tableUploadDigOverview']
                         if tabDigOverviewUpload.filename != '':
                             if not allowed_tab_file(tabDigOverviewUpload.filename):
@@ -1389,6 +1412,7 @@ def handle_data():
             if "exclude-efficiency" not in reqdata:
                 return jsonify(errors=[{"title": "Invalid server request - exclude-efficiency missing!"}]), 400
             try:
+                logNote1 = "run-linregpcr"
                 experiment = rd.get_experiment(byid=reqdata["sel-experiment"])
                 if experiment is None:
                     return jsonify(errors=[{"title": "Invalid server request - experiment id not found!"}]), 400
@@ -1451,6 +1475,23 @@ def handle_data():
                     os.makedirs(sf)
                 fexpname = os.path.join(sf, "rdml_" + uuidstr + ".rdml")
             rd.save(fexpname)
+            if LOGRDMLRUNS:
+                runTime = datetime.datetime.utcnow()
+                statFile = os.path.join(app.config['LOG_FOLDER'], "rdml_tools_runs_" + runTime.strftime("%Y_%m_%d") + ".log")
+                addLine = request.remote_addr + " - [" + runTime.strftime(
+                    "%d/%b/%Y:%H:%M:%S +0000") + '] "RDML-Tools" '
+                addLine += ' "' + logNote1 + '" "no modify" ' + uuidstr + ' "' + request.headers.get('User-Agent') + '"\n'
+                with open(statFile, "a") as stat:
+                    stat.write(addLine)
+        else:
+            if LOGRDMLRUNS:
+                runTime = datetime.datetime.utcnow()
+                statFile = os.path.join(app.config['LOG_FOLDER'], "rdml_tools_runs_" + runTime.strftime("%Y_%m_%d") + ".log")
+                addLine = request.remote_addr + " - [" + runTime.strftime(
+                    "%d/%b/%Y:%H:%M:%S +0000") + '] "RDML-Tools" '
+                addLine += ' "' + logNote1 + '" "modify" ' + uuidstr + ' "' + request.headers.get('User-Agent') + '"\n'
+                with open(statFile, "a") as stat:
+                    stat.write(addLine)
 
         data["filedata"] = rd.tojson()
         return jsonify(data=data)
