@@ -62,6 +62,8 @@ def download(uuidstr):
         return send_file("sample.rdml", mimetype="application/x-rdml", as_attachment=True, attachment_filename="sample.rdml")
     if uuidstr == "linregpcr.rdml":
         return send_file("linregpcr.rdml", mimetype="application/x-rdml", as_attachment=True, attachment_filename="linregpcr.rdml")
+    if uuidstr == "meltingcurveanalysis.rdml":
+        return send_file("meltingcurveanalysis.rdml", mimetype="application/x-rdml", as_attachment=True, attachment_filename="meltingcurveanalysis.rdml")
     return "File does not exist!"
 
 
@@ -81,6 +83,8 @@ def validate_file():
                 fexpname = os.path.join(RDMLWS, "sample.rdml")
             elif uuidstr == "linregpcr.rdml":
                 fexpname = os.path.join(RDMLWS, "linregpcr.rdml")
+            elif uuidstr == "meltingcurveanalysis.rdml":
+                fexpname = os.path.join(RDMLWS, "meltingcurveanalysis.rdml")
             else:
                 if not is_valid_uuid(uuidstr):
                     return jsonify(errors=[{"title": "Invalid UUID - UUID link outdated or invalid!"}]), 400
@@ -142,6 +146,9 @@ def handle_data():
         elif 'showLinRegPCRExample' in request.form.keys():
             fexpname = os.path.join(RDMLWS, "linregpcr.rdml")
             uuidstr = "linregpcr.rdml"
+        elif 'showMeltcurveExample' in request.form.keys():
+            fexpname = os.path.join(RDMLWS, "meltingcurveanalysis.rdml")
+            uuidstr = "meltingcurveanalysis.rdml"
         elif 'createNew' in request.form.keys():
             uuidstr = str(uuid.uuid4())
             data = {"uuid": uuidstr}
@@ -204,6 +211,8 @@ def handle_data():
                 fexpname = os.path.join(RDMLWS, "sample.rdml")
             elif uuidstr == "linregpcr.rdml":
                 fexpname = os.path.join(RDMLWS, "linregpcr.rdml")
+            elif uuidstr == "meltingcurveanalysis.rdml":
+                fexpname = os.path.join(RDMLWS, "meltingcurveanalysis.rdml")
             else:
                 if not is_valid_uuid(uuidstr):
                     return jsonify(errors=[{"title": "Invalid UUID - UUID link outdated or invalid!"}]), 400
@@ -591,7 +600,7 @@ def handle_data():
                     logNote1 = "tableUploadAmplification"
                     tabAmpUpload = request.files['tableUploadAmplification']
                     modified = True
-                    if uuidstr in ["sample.rdml", "linregpcr.rdml"]:
+                    if uuidstr in ["sample.rdml", "linregpcr.rdml", "meltingcurveanalysis.rdml"]:
                         uuidstr = str(uuid.uuid4())
                         data["uuid"] = uuidstr
                         # Get subfolder
@@ -609,7 +618,7 @@ def handle_data():
                     logNote1 = "tableUploadMelting"
                     tabMeltUpload = request.files['tableUploadMelting']
                     modified = True
-                    if uuidstr in ["sample.rdml", "linregpcr.rdml"]:
+                    if uuidstr in ["sample.rdml", "linregpcr.rdml", "meltingcurveanalysis.rdml"]:
                         uuidstr = str(uuid.uuid4())
                         data["uuid"] = uuidstr
                         # Get subfolder
@@ -630,7 +639,7 @@ def handle_data():
                     modified = True
                     tabDigOverviewFilename = None
                     wellFileNames = []
-                    if uuidstr in ["sample.rdml", "linregpcr.rdml"]:
+                    if uuidstr in ["sample.rdml", "linregpcr.rdml", "meltingcurveanalysis.rdml"]:
                         uuidstr = str(uuid.uuid4())
                         data["uuid"] = uuidstr
                         # Get subfolder
@@ -1431,6 +1440,36 @@ def handle_data():
                 data["error"] = str(err)
                 modified = False
 
+        if "mode" in reqdata and reqdata["mode"] in ["run-meltcurve"]:
+            if "sel-experiment" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - sel-experiment id missing!"}]), 400
+            if "sel-run" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - sel-run id missing!"}]), 400
+            if "pcr-eff-range" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - pcr-eff-range missing!"}]), 400
+            if "update-RDML-data" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - update-RDML-data missing!"}]), 400
+            if "exclude-no-plateau" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - exclude-no-plateau missing!"}]), 400
+            if "exclude-efficiency" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - exclude-efficiency missing!"}]), 400
+            try:
+                logNote1 = "run-meltcurve"
+                experiment = rd.get_experiment(byid=reqdata["sel-experiment"])
+                if experiment is None:
+                    return jsonify(errors=[{"title": "Invalid server request - experiment id not found!"}]), 400
+                s_run = experiment.get_run(byid=reqdata["sel-run"])
+                if s_run is None:
+                    return jsonify(errors=[{"title": "Invalid server request - run id not found!"}]), 400
+                data["reactsdata"] = s_run.webAppMeltCurveAnalysis()  # pcrEfficiencyExl=reqdata["pcr-eff-range"])
+                if "error" in data["reactsdata"]:
+                    data["error"] = data["reactsdata"]["error"]
+                if reqdata["update-RDML-data"]:
+                    modified = True
+            except rdml.RdmlError as err:
+                data["error"] = str(err)
+                modified = False
+
         if "mode" in reqdata and reqdata["mode"] in ["get-digital-file"]:
             if "sel-experiment" not in reqdata:
                 return jsonify(errors=[{"title": "Invalid server request - sel-experiment id missing!"}]), 400
@@ -1466,7 +1505,7 @@ def handle_data():
                 data["error"] = str(err)
 
         if modified is True:
-            if uuidstr in ["sample.rdml", "linregpcr.rdml"]:
+            if uuidstr in ["sample.rdml", "linregpcr.rdml", "meltingcurveanalysis.rdml"]:
                 uuidstr = str(uuid.uuid4())
                 data["uuid"] = uuidstr
                 # Get subfolder

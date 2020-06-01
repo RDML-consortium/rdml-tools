@@ -49,6 +49,9 @@
         <a class="nav-link" href="#linregpcr-tab" id="link-linregpcr">LinRegPCR</a>
       </li>
       <li class="nav-item">
+        <a class="nav-link" href="#meltcurve-tab" id="link-meltcurve">Melting Curve Analysis</a>
+      </li>
+      <li class="nav-item">
         <a class="nav-link" href="#help-tab" id="link-help">Help</a>
       </li>
     </ul>
@@ -70,6 +73,14 @@
             <button type="submit" class="btn btn-outline-primary" id="btn-example">
               <i class="fas fa-eye" style="margin-right: 5px;"></i>
               Load Example
+            </button>
+            <button type="submit" class="btn btn-outline-primary" id="btn-example-linregpcr">
+              <i class="fas fa-eye" style="margin-right: 5px;"></i>
+              Load Example LinRegPCR
+            </button>
+            <button type="submit" class="btn btn-outline-primary" id="btn-example-meltcurve">
+              <i class="fas fa-eye" style="margin-right: 5px;"></i>
+              Load Example Melting Curve Analysis
             </button>
           </div>
         </div>
@@ -188,6 +199,111 @@
         <div id="result-linregpcr"></div>
       </div>
 
+      <div class="tab-pane" id="meltcurve-tab">
+        <table style="width:100%;background-color: #e6e6e6;">
+          <tr>
+            <td style="width:1%;"></td>
+            <td style="width:47%;">PCR efficiency range for excluding samples from mean efficiency calculation:</td>
+            <td style="width:7%;"><input type="text" class="form-control" value="0.05" id="mtext-exl-men-eff"></td>
+            <td style="width:2%;">%</td>
+            <td style="width:4%;"></td>
+            <td style="width:14%;">Update RDML Data:</td>
+            <td style="width:6%;">
+              <select class="form-control" id="mupdateRDMLData">
+                <option value="y">yes</option>
+                <option value="n" selected>no</option>
+              </select>
+            </td>
+            <td style="width:4%;"></td>
+            <td style="width:14%;text-align: right;">
+              <button type="submit" class="btn btn-outline-primary" id="btn-meltcurve">
+                <i class="fas fa-rocket" style="margin-right: 5px;"></i>
+                Run Meltcurve
+              </button>
+            </td>
+            <td style="width:1%;"></td>
+          </tr>
+        </table>
+        <table style="width:100%;" id="tab-optional-grey">
+          <tr>
+            <td style="width:1%;"></td>
+            <td style="width:26%;">Exclude from mean efficiency calculation:</td>
+            <td style="width:21%;">Samples without plateau phase:</td>
+            <td style="width:6%;">
+              <select class="form-control" id="mchoiceExcludeNoPlateau">
+                <option value="y" selected>yes</option>
+                <option value="n">no</option>
+              </select>
+            </td>
+            <td style="width:7%;"></td>
+            <td style="width:18%;">Diverging individual PCR efficiency:</td>
+            <td style="width:20%;">
+              <select class="form-control" id="mchoiceExcludeEfficiency">
+                <option value="outlier" selected>exclude outliers (recommended)</option>
+                <option value="mean">exclude outside mean range (classic)</option>
+                <option value="include">include all</option>
+              </select>
+            </td>
+            <td style="width:1%;"></td>
+          </tr>
+        </table>
+        <table style="width:100%;">
+          <tr>
+            <td style="width:1%;"></td>
+            <td style="width:9%;">Table Format:</td>
+            <td style="width:14%;">
+              <select class="form-control" id="mselTableStyle">
+                <option value="extended" selected>LinRegPCR - Extended</option>
+                <option value="classic-compact">LinRegPCR - Classic</option>
+                <option value="debug">Debug</option>
+              </select>
+            </td>
+            <td style="width:3%;"></td>
+            <td style="width:21%;">Decimal Separator:</td>
+            <td style="width:8%;">
+              <select class="form-control" id="mselSeparator">
+                <option value="point" selected>Point</option>
+                <option value="comma">Comma</option>
+              </select>
+            </td>
+            <td style="width:5%;"></td>
+            <td style="width:14%;">Include Annotations:</td>
+            <td style="width:6%;">
+              <select class="form-control" id="mchoiceIncludeAnnotations">
+                <option value="y">yes</option>
+                <option value="n" selected>no</option>
+              </select>
+            </td>
+            <td style="width:18%;text-align: right;">
+              <button type="submit" class="btn btn-outline-primary" id="btn-rdml-meltcurve">
+                <i class="far fa-save" style="margin-right: 5px;"></i>
+                Save RDML
+              </button>
+            </td>
+            <td style="width:1%;"></td>
+          </tr>
+        </table>
+        <table style="width:100%;">
+          <tr>
+            <td style="width:61%;"></td>
+            <td style="width:38%;text-align: right;">
+              <button type="submit" class="btn btn-outline-primary" id="btn-copy-meltcurve">
+                <i class="fas fa-paste" style="margin-right: 5px;"></i>
+                Copy table to clipboard
+              </button>&nbsp;&nbsp;
+              <button type="submit" class="btn btn-outline-primary" id="btn-save-meltcurve">
+                <i class="far fa-save" style="margin-right: 5px;"></i>
+                Save table as CSV
+              </button>
+            </td>
+            <td style="width:1%;"></td>
+          </tr>
+        </table>
+        <br />
+       <br />
+        <div id="result-meltcurve"></div>
+      </div>
+
       <div class="tab-pane" id="help-tab">
         <h4>Application Description</h4>
         <p> RDML-LinRegPCR is a tool to view single runs of a RDML files. Once the RDML file was loaded, the desired experiment
@@ -199,8 +315,12 @@
         <p> The RDML files can be provided in rdml or xml format (*.rdml, *.rdm,
             and *.xml).</p>
         <h4>Sample Data</h4>
-        <p> The "Show Example" button loads an example trace file
+        <p> The "Show Example" button loads an example RDML file
+            <a href="static/bin/sample.rdml">(click to download the example file)</a>.<br />
+            The "Show Example LinRegPCR" button loads an example RDML file
             <a href="static/bin/linregpcr.rdml">(click to download the example file)</a>.<br />
+            The "Show Example Melting Curve Analysis" button loads an example RDML file
+            <a href="static/bin/meltingcurveanalysis.rdml">(click to download the example file)</a>.<br />
             There are alternative test files available (with longer runtimes):<br />
             <a href="static/bin/test_1_raw_data.rdml">test_1_raw_data.rdml (click to download file)</a>.<br />
             <a href="static/bin/test_2_raw_data.rdml">test_2_raw_data.rdml (click to download file)</a>.<br />
