@@ -81,6 +81,7 @@ window.uuid = "";
 window.rdmlData = "";
 window.reactData = "";
 window.baselineData = "";
+window.meltcurveData = "";
 window.isvalid = "untested";
 
 window.selExperiment = "";
@@ -106,6 +107,7 @@ window.curveSource = "adp"
 window.colorStyle = "tarsam"
 
 window.linRegSaveTable = ""
+window.meltcurveSaveTable = ""
 
 window.tarToDye = {}
 window.tarToNr = {}
@@ -119,7 +121,9 @@ window.usedDyeMaxPos = 0
 window.usedExcluded = {}
 
 window.reactToLinRegTable = {}
+window.reactToMeltcurveTable = {}
 window.linRegPCRTable = []
+window.meltcurveTable = []
 
 window.lastSelReact = ""
 
@@ -151,6 +155,7 @@ function resetAllGlobalVal() {
     window.sampSelThird = "7s8e45-Show-All"  // To avoid conflicts with existing values
     hideElement(resultError)
     resetLinRegPCRdata()
+    resetMeltcurveData()
     updateClientData()
 }
 
@@ -158,13 +163,22 @@ window.resetLinRegPCRdata = resetLinRegPCRdata
 function resetLinRegPCRdata() {
     window.linRegSaveTable = ""
     window.linRegPCRTable = []
-    window.meltcurveTable = []
     window.reactToLinRegTable = {}
     window.curveSource = "adp"
     window.baselineData = ""
     resultLinRegPCR.innerHTML = ""
-    resultMeltcurve.innerHTML = ""
     updateLinRegPCRTable()
+}
+
+window.resetMeltcurveData = resetMeltcurveData
+function resetMeltcurveData() {
+    window.meltcurveSaveTable = ""
+    window.meltcurveTable = []
+    window.reactToMeltcurveTable = {}
+    window.curveSource = "fdm"
+    window.meltcurveData = ""
+    resultMeltcurve.innerHTML = ""
+    updateMeltingTable()
 }
 
 window.updateRDMLCheck = updateRDMLCheck
@@ -517,13 +531,14 @@ function updateServerData(stat, reqData) {
                         }
                     }
                     if (window.reactData.hasOwnProperty("Meltcurve_Result_Table")) {
-                        window.reactsdata = res.data.data.reactsdata
-                        window.curveSource = "bas"
-                        window.meltcurveTable = JSON.parse(window.reactsdata.Meltcurve_Result_Table)
+                        window.meltcurveData = res.data.data.reactsdata
+                        window.yScale = "lin"
+                        window.curveSource = "fdm"
+                        window.meltcurveTable = JSON.parse(window.meltcurveData.Meltcurve_Result_Table)
                         for (var row = 0; row < window.meltcurveTable.length; row++) {
                             var reactPos = window.meltcurveTable[row][0]  // "id"
-                            if (!(window.reactToLinRegTable.hasOwnProperty(reactPos))) {
-                                window.reactToLinRegTable[parseInt(reactPos)] = row
+                            if (!(window.reactToMeltcurveTable.hasOwnProperty(reactPos))) {
+                                window.reactToMeltcurveTable[parseInt(reactPos)] = row
                             }
                         }
                         updateMeltingTable()
@@ -657,6 +672,8 @@ function updateClientData() {
     }
     if ((window.curveSource == "bas") && (window.linRegPCRTable.length < 1)) {
         window.curveSource = "adp"
+    } else if ((["smo", "nrm", "fdm", "sdm", "tdm"].includes(window.curveSource)) && (window.meltcurveTable.length < 1)) {
+        window.curveSource = "mdp"
     }
 
     // The UUID box
@@ -806,6 +823,33 @@ function updateClientData() {
             ret += ' selected'
         }
         ret += '>Meltcurve - Raw Data</option>\n'
+        if (window.meltcurveTable.length > 0) {
+            ret += '        <option value="smo"'
+            if (window.curveSource == "smo") {
+                ret += ' selected'
+            }
+            ret += '>Meltcurve - Smoothed</option>\n'
+            ret += '        <option value="nrm"'
+            if (window.curveSource == "nrm") {
+                ret += ' selected'
+            }
+            ret += '>Meltcurve - Normalized</option>\n'
+            ret += '        <option value="fdm"'
+            if (window.curveSource == "fdm") {
+                ret += ' selected'
+            }
+            ret += '>Meltcurve - First Derivative</option>\n'
+            ret += '        <option value="sdm"'
+            if (window.curveSource == "sdm") {
+                ret += ' selected'
+            }
+            ret += '>Meltcurve - Second Derivative</option>\n'
+            ret += '        <option value="tdm"'
+            if (window.curveSource == "tdm") {
+                ret += ' selected'
+            }
+            ret += '>Meltcurve - Third Derivative</option>\n'
+        }
         ret += '  </select>\n'
         ret += '</td>\n'
         ret += '  <td style="width:4%;"></td>\n'
@@ -1145,6 +1189,31 @@ function updateClientData() {
                 window.winXmax = window.baselineData.bas_cyc_max;
                 window.winYmin = window.baselineData.bas_fluor_min;
                 window.winYmax = window.baselineData.bas_fluor_max;
+            } else if (window.curveSource == "smo") {
+                window.winXmin = window.meltcurveData.smo_temp_min;
+                window.winXmax = window.meltcurveData.smo_temp_max;
+                window.winYmin = window.meltcurveData.smo_fluor_min;
+                window.winYmax = window.meltcurveData.smo_fluor_max;
+            } else if (window.curveSource == "nrm") {
+                window.winXmin = window.meltcurveData.nrm_temp_min;
+                window.winXmax = window.meltcurveData.nrm_temp_max;
+                window.winYmin = window.meltcurveData.nrm_fluor_min;
+                window.winYmax = window.meltcurveData.nrm_fluor_max;
+            } else if (window.curveSource == "fdm") {
+                window.winXmin = window.meltcurveData.fdm_temp_min;
+                window.winXmax = window.meltcurveData.fdm_temp_max;
+                window.winYmin = window.meltcurveData.fdm_fluor_min;
+                window.winYmax = window.meltcurveData.fdm_fluor_max;
+            } else if (window.curveSource == "sdm") {
+                window.winXmin = window.meltcurveData.sdm_temp_min;
+                window.winXmax = window.meltcurveData.sdm_temp_max;
+                window.winYmin = window.meltcurveData.sdm_fluor_min;
+                window.winYmax = window.meltcurveData.sdm_fluor_max;
+            } else if (window.curveSource == "tdm") {
+                window.winXmin = window.meltcurveData.tdm_temp_min;
+                window.winXmax = window.meltcurveData.tdm_temp_max;
+                window.winYmin = window.meltcurveData.tdm_fluor_min;
+                window.winYmax = window.meltcurveData.tdm_fluor_max;
             } else {
                 window.winXmin = window.reactData.mdp_tmp_min;
                 window.winXmax = window.reactData.mdp_tmp_max;
@@ -1877,6 +1946,7 @@ function updateExperimenter() {
         return
     }
     resetLinRegPCRdata()
+    resetMeltcurveData()
     window.selExperiment = newData
     window.selRun = ""
     updateClientData()
@@ -1896,6 +1966,7 @@ function updateRun() {
         return
     }
     resetLinRegPCRdata()
+    resetMeltcurveData()
     var ret = {}
     ret["mode"] = "get-run-data"
     ret["sel-experiment"] = window.selExperiment
@@ -2669,7 +2740,7 @@ function setStartStop() {
 
     if (window.yScale == "lin") {
         if (window.winYmin > 0.0) {
-            window.winYstep = Math.floor(Math.abs(window.winYmax) / 10);
+            window.winYstep = Math.pow(10, Math.floor(Math.log10(window.winYmax / 10)));
             window.winYst = 0.0;
             window.winYend = Math.ceil(window.winYmax / window.winYstep) * window.winYstep;
         } else {
@@ -2972,9 +3043,13 @@ function createAllCurves(){
     var retVal = ""
     var reacts = window.reactData.reacts
     var baseReact = window.reactData.reacts
+    var meltReact = window.reactData.reacts
     if (window.curveSource == "bas") {
         baseReact = window.baselineData.reacts
+    } else if (["smo", "nrm", "fdm", "sdm", "tdm"].includes(window.curveSource)) {
+        meltReact =  window.meltcurveData.reacts;
     }
+
     var the_run = window.rdmlData.rdml.experiments[window.experimentPos].runs[window.runPos]
     var rows = parseInt(the_run.pcrFormat.rows)
     var columns = parseInt(the_run.pcrFormat.columns)
@@ -3053,6 +3128,21 @@ function createAllCurves(){
                                                      baseReact[reac].datas[dataPos].bass, colo);
                             retVal += createOneDots(reac, parseInt(reacts[reac].id), dataPos, "1.2",
                                                     baseReact[reac].datas[dataPos].bass, colo);
+                        } else if (window.curveSource == "smo") {
+                            retVal += createOneCurve(parseInt(reacts[reac].id), dataPos, "1.2",
+                                                     meltReact[reac].datas[dataPos].smo, colo);
+                        } else if (window.curveSource == "nrm") {
+                            retVal += createOneCurve(parseInt(reacts[reac].id), dataPos, "1.2",
+                                                     meltReact[reac].datas[dataPos].nrm, colo);
+                        } else if (window.curveSource == "fdm") {
+                            retVal += createOneCurve(parseInt(reacts[reac].id), dataPos, "1.2",
+                                                     meltReact[reac].datas[dataPos].fdm, colo);
+                        } else if (window.curveSource == "sdm") {
+                            retVal += createOneCurve(parseInt(reacts[reac].id), dataPos, "1.2",
+                                                     meltReact[reac].datas[dataPos].sdm, colo);
+                        } else if (window.curveSource == "tdm") {
+                            retVal += createOneCurve(parseInt(reacts[reac].id), dataPos, "1.2",
+                                                     meltReact[reac].datas[dataPos].tdm, colo);
                         } else {
                             retVal += createOneCurve(parseInt(reacts[reac].id), dataPos, "1.2",
                                                      reacts[reac].datas[dataPos].mdps, colo);
@@ -3076,6 +3166,8 @@ function createOneHighCurve(id, dataPos) {
     var baseReact = window.reactData.reacts
     if (window.curveSource == "bas") {
         baseReact = window.baselineData.reacts
+    } else if (["smo", "nrm", "fdm", "sdm", "tdm"].includes(window.curveSource)) {
+        baseReact =  window.meltcurveData.reacts;
     }
     for (var reac = 0; reac < reacts.length; reac++) {
         if (parseInt(reacts[reac].id) == parseInt(id)) {
