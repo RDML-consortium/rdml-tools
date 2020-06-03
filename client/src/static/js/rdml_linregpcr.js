@@ -672,7 +672,7 @@ function updateClientData() {
     }
     if ((window.curveSource == "bas") && (window.linRegPCRTable.length < 1)) {
         window.curveSource = "adp"
-    } else if ((["smo", "nrm", "fdm", "sdm", "tdm"].includes(window.curveSource)) && (window.meltcurveTable.length < 1)) {
+    } else if ((["smo", "nrm", "fdm"].includes(window.curveSource)) && (window.meltcurveTable.length < 1)) {
         window.curveSource = "mdp"
     }
 
@@ -839,16 +839,6 @@ function updateClientData() {
                 ret += ' selected'
             }
             ret += '>Meltcurve - First Derivative</option>\n'
-            ret += '        <option value="sdm"'
-            if (window.curveSource == "sdm") {
-                ret += ' selected'
-            }
-            ret += '>Meltcurve - Second Derivative</option>\n'
-            ret += '        <option value="tdm"'
-            if (window.curveSource == "tdm") {
-                ret += ' selected'
-            }
-            ret += '>Meltcurve - Third Derivative</option>\n'
         }
         ret += '  </select>\n'
         ret += '</td>\n'
@@ -1204,16 +1194,6 @@ function updateClientData() {
                 window.winXmax = window.meltcurveData.fdm_temp_max;
                 window.winYmin = window.meltcurveData.fdm_fluor_min;
                 window.winYmax = window.meltcurveData.fdm_fluor_max;
-            } else if (window.curveSource == "sdm") {
-                window.winXmin = window.meltcurveData.sdm_temp_min;
-                window.winXmax = window.meltcurveData.sdm_temp_max;
-                window.winYmin = window.meltcurveData.sdm_fluor_min;
-                window.winYmax = window.meltcurveData.sdm_fluor_max;
-            } else if (window.curveSource == "tdm") {
-                window.winXmin = window.meltcurveData.tdm_temp_min;
-                window.winXmax = window.meltcurveData.tdm_temp_max;
-                window.winYmin = window.meltcurveData.tdm_fluor_min;
-                window.winYmax = window.meltcurveData.tdm_fluor_max;
             } else {
                 window.winXmin = window.reactData.mdp_tmp_min;
                 window.winXmax = window.reactData.mdp_tmp_max;
@@ -1878,7 +1858,7 @@ function updateMeltingTable() {
         if (row == 0) {
             ret += '<tr>\n'
         } else {
-            ret += "<tr ondblclick='window.clickSampSel(\"" + window.meltcurveTable[row][5]  // "target"
+            ret += "<tr ondblclick='window.clickSampSel(\"" + window.meltcurveTable[row][3]  // "target"
             ret += "\", \"" + window.meltcurveTable[row][0] + "\")'> \n"  // "id"
         }
         for (var col = 0; col < window.meltcurveTable[row].length; col++) {
@@ -2740,11 +2720,11 @@ function setStartStop() {
 
     if (window.yScale == "lin") {
         if (window.winYmin > 0.0) {
-            window.winYstep = Math.pow(10, Math.floor(Math.log10(window.winYmax / 10)));
+            window.winYstep = Math.pow(10, Math.floor(Math.log10(window.winYmax / 3)));
             window.winYst = 0.0;
             window.winYend = Math.ceil(window.winYmax / window.winYstep) * window.winYstep;
         } else {
-            window.winYstep = Math.pow(10, Math.floor(Math.log10(Math.abs(window.winYmax - window.winYmin) / 10)));
+            window.winYstep = Math.pow(10, Math.floor(Math.log10(Math.abs(window.winYmax - window.winYmin) / 3)));
             window.winYst = Math.floor(window.winYmin / window.winYstep) * window.winYstep;
             window.winYend = Math.ceil(window.winYmax / window.winYstep) * window.winYstep;
         }
@@ -2820,6 +2800,8 @@ function createCoordinates () {
 
     // The Y-Axis
     if (window.yScale == "lin") {
+        var maxYScaleVal = window.winYend - window.winYst + window.winYstep;
+        var yRound = Math.max(0, Math.floor(1 - Math.log10(Math.abs(maxYScaleVal))))
         for (var i = 0; i *  window.winYstep < window.winYend - window.winYst + window.winYstep; i++) {
             var yPos = toSvgYLinScale(window.winYst + i *  window.winYstep);
             retVal += "<line x1='" + window.frameXst + "' y1='" + yPos;
@@ -2827,10 +2809,6 @@ function createCoordinates () {
             retVal += "<text x='" + (window.frameXst - 11) + "' y='" + (yPos + 3);
             retVal += "' font-family='Arial' font-size='10' fill='black' text-anchor='end'>";
             var textValOut = i *  window.winYstep - window.winYst
-            var yRound = 0
-            if (textValOut != 0) {
-                yRound = Math.max(0, Math.floor(2 - Math.log10(Math.abs(textValOut))))
-            }
             retVal += textValOut.toFixed(yRound) + "</text>";
         }
     } else {
@@ -3046,7 +3024,7 @@ function createAllCurves(){
     var meltReact = window.reactData.reacts
     if (window.curveSource == "bas") {
         baseReact = window.baselineData.reacts
-    } else if (["smo", "nrm", "fdm", "sdm", "tdm"].includes(window.curveSource)) {
+    } else if (["smo", "nrm", "fdm"].includes(window.curveSource)) {
         meltReact =  window.meltcurveData.reacts;
     }
 
@@ -3137,12 +3115,6 @@ function createAllCurves(){
                         } else if (window.curveSource == "fdm") {
                             retVal += createOneCurve(parseInt(reacts[reac].id), dataPos, "1.2",
                                                      meltReact[reac].datas[dataPos].fdm, colo);
-                        } else if (window.curveSource == "sdm") {
-                            retVal += createOneCurve(parseInt(reacts[reac].id), dataPos, "1.2",
-                                                     meltReact[reac].datas[dataPos].sdm, colo);
-                        } else if (window.curveSource == "tdm") {
-                            retVal += createOneCurve(parseInt(reacts[reac].id), dataPos, "1.2",
-                                                     meltReact[reac].datas[dataPos].tdm, colo);
                         } else {
                             retVal += createOneCurve(parseInt(reacts[reac].id), dataPos, "1.2",
                                                      reacts[reac].datas[dataPos].mdps, colo);
@@ -3164,11 +3136,13 @@ function createOneHighCurve(id, dataPos) {
     var retVal = ""
     var reacts = window.reactData.reacts
     var baseReact = window.reactData.reacts
+    var meltReact = window.reactData.reacts
     if (window.curveSource == "bas") {
         baseReact = window.baselineData.reacts
-    } else if (["smo", "nrm", "fdm", "sdm", "tdm"].includes(window.curveSource)) {
-        baseReact =  window.meltcurveData.reacts;
+    } else if (["smo", "nrm", "fdm"].includes(window.curveSource)) {
+        meltReact =  window.meltcurveData.reacts;
     }
+
     for (var reac = 0; reac < reacts.length; reac++) {
         if (parseInt(reacts[reac].id) == parseInt(id)) {
             var exlReact = reacts[reac].datas[dataPos].hasOwnProperty("excl")
@@ -3240,6 +3214,15 @@ function createOneHighCurve(id, dataPos) {
                                          baseReact[reac].datas[dataPos].bass, colo);
                 retVal += createOneDots(reac, parseInt(reacts[reac].id), dataPos, "3.0",
                                         baseReact[reac].datas[dataPos].bass, colo);
+            } else if (window.curveSource == "smo") {
+                retVal += createOneCurve(parseInt(reacts[reac].id), dataPos, "3.0",
+                                         meltReact[reac].datas[dataPos].smo, colo);
+            } else if (window.curveSource == "nrm") {
+                retVal += createOneCurve(parseInt(reacts[reac].id), dataPos, "3.0",
+                                         meltReact[reac].datas[dataPos].nrm, colo);
+            } else if (window.curveSource == "fdm") {
+                retVal += createOneCurve(parseInt(reacts[reac].id), dataPos, "3.0",
+                                         meltReact[reac].datas[dataPos].fdm, colo);
             } else {
                 retVal += createOneCurve(parseInt(reacts[reac].id), dataPos, "3.0",
                                          reacts[reac].datas[dataPos].mdps, colo);
