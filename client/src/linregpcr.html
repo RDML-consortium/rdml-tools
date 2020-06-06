@@ -200,22 +200,34 @@
       </div>
 
       <div class="tab-pane" id="meltcurve-tab">
-        <table style="width:100%;background-color: #e6e6e6;">
+        <table style="width:100%;">
           <tr>
             <td style="width:1%;"></td>
-            <td style="width:47%;">PCR efficiency range for excluding samples from mean efficiency calculation:</td>
-            <td style="width:7%;"><input type="text" class="form-control" value="0.05" id="mtext-exl-men-eff"></td>
-            <td style="width:2%;">%</td>
-            <td style="width:4%;"></td>
-            <td style="width:14%;">Update RDML Data:</td>
-            <td style="width:6%;">
-              <select class="form-control" id="mupdateRDMLData">
-                <option value="y">yes</option>
-                <option value="n" selected>no</option>
+            <td style="width:11%;">Baseline Correction:</td>
+            <td style="width:14%;">
+              <select class="form-control" id="mcaNormMethod">
+                <option value="exponential" selected>exponential</option>
+                <option value="bilinear">bilinear</option>
+                <option value="combined">combined</option>
               </select>
             </td>
-            <td style="width:4%;"></td>
-            <td style="width:14%;text-align: right;">
+            <td style="width:3%;"></td>
+            <td style="width:6%;">Fluor Loss:</td>
+            <td style="width:9%;">
+              <select class="form-control" id="mcaFluorLoss">
+                <option value="smoothed">smoothed</option>
+                <option value="normalised" selected>normalised</option>
+              </select>
+            </td>
+            <td style="width:3%;"></td>
+            <td style="width:10%;">True Peak Width:</td>
+            <td style="width:6%;"><input type="text" class="form-control" value="1.0" id="mthext-exl-men-eff"></td>
+            <td style="width:2%;">&deg;C</td>
+            <td style="width:2%;"></td>
+            <td style="width:10%;">Artifact Peak Width:</td>
+            <td style="width:6%;"><input type="text" class="form-control" value="1.0" id="mthext-exl-men-eff"></td>
+            <td style="width:4%;">&deg;C</td>
+            <td style="width:12%;text-align: right;">
               <button type="submit" class="btn btn-outline-primary" id="btn-meltcurve">
                 <i class="fas fa-rocket" style="margin-right: 5px;"></i>
                 Run Meltcurve
@@ -224,57 +236,64 @@
             <td style="width:1%;"></td>
           </tr>
         </table>
-        <table style="width:100%;" id="tab-optional-grey">
+        <table style="width:100%;margin-top:0.7em;margin-bottom:0.7em;">
           <tr>
             <td style="width:1%;"></td>
-            <td style="width:26%;">Exclude from mean efficiency calculation:</td>
-            <td style="width:21%;">Samples without plateau phase:</td>
-            <td style="width:6%;">
-              <select class="form-control" id="mchoiceExcludeNoPlateau">
-                <option value="y" selected>yes</option>
-                <option value="n">no</option>
-              </select>
-            </td>
-            <td style="width:7%;"></td>
-            <td style="width:18%;">Diverging individual PCR efficiency:</td>
-            <td style="width:20%;">
-              <select class="form-control" id="mchoiceExcludeEfficiency">
-                <option value="outlier" selected>exclude outliers (recommended)</option>
-                <option value="mean">exclude outside mean range (classic)</option>
-                <option value="include">include all</option>
-              </select>
-            </td>
-            <td style="width:1%;"></td>
+            <td style="width:20%;">Baseline Correction Parameters: </td>
+            <td style="width:8%;">Exponential:</td>
+            <td style="width:2%;">Low:</td>
+            <td style="width:5%;"><input type="text" class="form-control" value="65.0" id="mthext-exl-men-eff"></td>
+            <td style="width:4%;">&deg;C</td>
+            <td style="width:2%;">High:</td>
+            <td style="width:5%;"><input type="text" class="form-control" value="92.0" id="mthext-exl-men-eff"></td>
+            <td style="width:5%;">&deg;C</td>
+            <td style="width:7%;">Bilinear:</td>
+            <td style="width:2%;">Low:</td>
+            <td style="width:5%;"><input type="text" class="form-control" value="68.0" id="mthext-exl-men-eff"></td>
+            <td style="width:3%;">&deg;C&nbsp;&nbsp;-</td>
+            <td style="width:5%;"><input type="text" class="form-control" value="70.0" id="mthext-exl-men-eff"></td>
+            <td style="width:4%;">&deg;C</td>
+            <td style="width:2%;">High:</td>
+            <td style="width:5%;"><input type="text" class="form-control" value="93.0" id="mthext-exl-men-eff"></td>
+            <td style="width:3%;">&deg;C&nbsp;&nbsp;-</td>
+            <td style="width:5%;"><input type="text" class="form-control" value="94.0" id="mthext-exl-men-eff"></td>
+            <td style="width:2%;">&deg;C</td>
+            <td style="width:5%;"></td>
           </tr>
         </table>
         <table style="width:100%;">
           <tr>
             <td style="width:1%;"></td>
-            <td style="width:9%;">Table Format:</td>
+            <td style="width:11%;">Table Format:</td>
             <td style="width:14%;">
-              <select class="form-control" id="mselTableStyle">
-                <option value="extended" selected>LinRegPCR - Extended</option>
-                <option value="classic-compact">LinRegPCR - Classic</option>
+              <select class="form-control" id="mcalTableStyle">
+                <option value="all" selected>All Peaks</option>
+                <option value="correction">Correction</option>
                 <option value="debug">Debug</option>
               </select>
             </td>
             <td style="width:3%;"></td>
-            <td style="width:21%;">Decimal Separator:</td>
+            <td style="width:10%;">Decimal Separator:</td>
             <td style="width:8%;">
               <select class="form-control" id="mselSeparator">
                 <option value="point" selected>Point</option>
                 <option value="comma">Comma</option>
               </select>
             </td>
-            <td style="width:5%;"></td>
-            <td style="width:14%;">Include Annotations:</td>
-            <td style="width:6%;">
-              <select class="form-control" id="mchoiceIncludeAnnotations">
-                <option value="y">yes</option>
-                <option value="n" selected>no</option>
-              </select>
+            <td style="width:12%;"></td>
+            <td style="width:16%;">
+              <button type="submit" class="btn btn-outline-primary" id="btn-copy-meltcurve">
+                <i class="fas fa-paste" style="margin-right: 5px;"></i>
+                Copy table to clipboard
+              </button>&nbsp;&nbsp;
             </td>
-            <td style="width:18%;text-align: right;">
+            <td style="width:14%;">
+              <button type="submit" class="btn btn-outline-primary" id="btn-save-meltcurve">
+                <i class="far fa-save" style="margin-right: 5px;"></i>
+                Save table as CSV
+              </button>
+            </td>
+            <td style="width:10%;text-align: right;">
               <button type="submit" class="btn btn-outline-primary" id="btn-rdml-meltcurve">
                 <i class="far fa-save" style="margin-right: 5px;"></i>
                 Save RDML
@@ -283,24 +302,8 @@
             <td style="width:1%;"></td>
           </tr>
         </table>
-        <table style="width:100%;">
-          <tr>
-            <td style="width:61%;"></td>
-            <td style="width:38%;text-align: right;">
-              <button type="submit" class="btn btn-outline-primary" id="btn-copy-meltcurve">
-                <i class="fas fa-paste" style="margin-right: 5px;"></i>
-                Copy table to clipboard
-              </button>&nbsp;&nbsp;
-              <button type="submit" class="btn btn-outline-primary" id="btn-save-meltcurve">
-                <i class="far fa-save" style="margin-right: 5px;"></i>
-                Save table as CSV
-              </button>
-            </td>
-            <td style="width:1%;"></td>
-          </tr>
-        </table>
         <br />
-       <br />
+        <br />
         <div id="result-meltcurve"></div>
       </div>
 
