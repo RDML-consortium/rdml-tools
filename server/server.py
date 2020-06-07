@@ -1445,14 +1445,28 @@ def handle_data():
                 return jsonify(errors=[{"title": "Invalid server request - sel-experiment id missing!"}]), 400
             if "sel-run" not in reqdata:
                 return jsonify(errors=[{"title": "Invalid server request - sel-run id missing!"}]), 400
-            if "pcr-eff-range" not in reqdata:
-                return jsonify(errors=[{"title": "Invalid server request - pcr-eff-range missing!"}]), 400
             if "update-RDML-data" not in reqdata:
                 return jsonify(errors=[{"title": "Invalid server request - update-RDML-data missing!"}]), 400
-            if "exclude-no-plateau" not in reqdata:
-                return jsonify(errors=[{"title": "Invalid server request - exclude-no-plateau missing!"}]), 400
-            if "exclude-efficiency" not in reqdata:
-                return jsonify(errors=[{"title": "Invalid server request - exclude-efficiency missing!"}]), 400
+            if "mca-norm-method" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - mca-norm-method missing!"}]), 400
+            if "mca-fluor-loss" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - mca-fluor-loss missing!"}]), 400
+            if "mca-true-peak-width" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - mca-true-peak-width missing!"}]), 400
+            if "mca-artifact-peak-width" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - mca-artifact-peak-width missing!"}]), 400
+            if "mca-exp-low" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - mca-exp-low missing!"}]), 400
+            if "mca-exp-high" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - mca-exp-high missing!"}]), 400
+            if "mca-bilin-low-start" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - mca-bilin-low-start missing!"}]), 400
+            if "mca-bilin-low-stop" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - mca-bilin-low-stop missing!"}]), 400
+            if "mca-bilin-hight-start" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - mca-bilin-hight-start missing!"}]), 400
+            if "mca-bilin-hight-stop" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - mca-bilin-hight-stop missing!"}]), 400
             try:
                 logNote1 = "run-meltcurve"
                 experiment = rd.get_experiment(byid=reqdata["sel-experiment"])
@@ -1461,7 +1475,17 @@ def handle_data():
                 s_run = experiment.get_run(byid=reqdata["sel-run"])
                 if s_run is None:
                     return jsonify(errors=[{"title": "Invalid server request - run id not found!"}]), 400
-                data["reactsdata"] = s_run.webAppMeltCurveAnalysis()  # pcrEfficiencyExl=reqdata["pcr-eff-range"])
+                data["reactsdata"] = s_run.webAppMeltCurveAnalysis(normMethod=reqdata["mca-norm-method"],
+                                                                   fluorSource=reqdata["mca-fluor-loss"],
+                                                                   truePeakWidth=reqdata["mca-true-peak-width"],
+                                                                   artifactPeakWidth=reqdata["mca-artifact-peak-width"],
+                                                                   expoLowTemp=reqdata["mca-exp-low"],
+                                                                   expoHighTemp=reqdata["mca-exp-high"],
+                                                                   bilinLowStartTemp=reqdata["mca-bilin-low-start"],
+                                                                   bilinLowStopTemp=reqdata["mca-bilin-low-stop"],
+                                                                   bilinHighStartTemp=reqdata["mca-bilin-hight-start"],
+                                                                   bilinHighStopTemp=reqdata["mca-bilin-hight-stop"],
+                                                                   updateRDML=reqdata["update-RDML-data"])
                 if "error" in data["reactsdata"]:
                     data["error"] = data["reactsdata"]["error"]
                 if reqdata["update-RDML-data"]:

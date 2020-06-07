@@ -438,42 +438,84 @@ function runMeltcurve() {
         return
     }
     resultMeltcurve.innerHTML = ""
-    var rPCREffRange = 0.05
-    var rUpdateRDML = true
-    window.exNoPlateau = true
-    window.exDiffMean = "outlier"
     hideElement(resultError)
 
     window.sampSelFirst = "7s8e45-Show-All"  // To avoid conflicts with existing values
     window.sampSelSecond = "7s8e45-Show-All"  // To avoid conflicts with existing values
     window.sampSelThird = "7s8e45-Show-All"  // To avoid conflicts with existing values
 
+    var rUpdateRDML = false
+    var vMcaNormMethod = "exponential"
+    var vMcaFluorLoss = "normalised"
+    var vMcaTruePeakWidth = "1.0"
+    var vMcaArtifactPeakWidth = "1.0"
+    var vMcaExpLow = "65.0"
+    var vMcaExpHigh = "92.0"
+    var vMcaBilinLowStart = "68.0"
+    var vMcaBilinLowStop = "70.0"
+    var vMcaBilinHightStart = "93.0"
+    var vMcaBilinHighStop = "94.0"
 
-    var bbPCREff = document.getElementById('text-exl-men-eff')
-    if (bbPCREff) {
-        rPCREffRange = parseFloat(bbPCREff.value)
+    var bbUpdateRDML = document.getElementById('updateMcaRDMLData')
+    if ((bbUpdateRDML) && (bbUpdateRDML.value == "y")) {
+        rUpdateRDML = true
     }
-    var bbUpdateRDML = document.getElementById('updateRDMLData')
-    if ((bbUpdateRDML) && (bbUpdateRDML.value == "n")) {
-        rUpdateRDML = false
+    var eleMcaNormMethod = document.getElementById('mcaNormMethod')
+    if (eleMcaNormMethod) {
+        vMcaNormMethod = eleMcaNormMethod.value
     }
-    var bbExcludeNoPlateau = document.getElementById('choiceExcludeNoPlateau')
-    if ((bbExcludeNoPlateau) && (bbExcludeNoPlateau.value == "n")) {
-        window.exNoPlateau = false
+    var eleMcaFluorLoss = document.getElementById('mcaFluorLoss')
+    if (eleMcaFluorLoss) {
+        vMcaFluorLoss = eleMcaFluorLoss.value
     }
-    var bbExcludeEfficiency = document.getElementById('choiceExcludeEfficiency')
-    if (bbExcludeEfficiency) {
-        window.exDiffMean = bbExcludeEfficiency.value
+    var eleMcaTruePeakWidth = document.getElementById('mcaTruePeakWidth')
+    if (eleMcaTruePeakWidth) {
+        vMcaTruePeakWidth = eleMcaTruePeakWidth.value
+    }
+    var eleMcaArtifactPeakWidth = document.getElementById('mcaArtifactPeakWidth')
+    if (eleMcaArtifactPeakWidth) {
+        vMcaArtifactPeakWidth = eleMcaArtifactPeakWidth.value
+    }
+    var eleMcaExpLow = document.getElementById('mcaExpLow')
+    if (eleMcaExpLow) {
+        vMcaExpLow = eleMcaExpLow.value
+    }
+    var eleMcaExpHigh = document.getElementById('mcaExpHigh')
+    if (eleMcaExpHigh) {
+        vMcaExpHigh = eleMcaExpHigh.value
+    }
+    var eleMcaBilinLowStart = document.getElementById('mcaBilinLowStart')
+    if (eleMcaBilinLowStart) {
+        vMcaBilinLowStart = eleMcaBilinLowStart.value
+    }
+    var eleMcaBilinLowStop = document.getElementById('mcaBilinLowStop')
+    if (eleMcaBilinLowStop) {
+        vMcaBilinLowStop = eleMcaBilinLowStop.value
+    }
+    var eleMcaBilinHightStart = document.getElementById('mcaBilinHightStart')
+    if (eleMcaBilinHightStart) {
+        vMcaBilinHightStart = eleMcaBilinHightStart.value
+    }
+    var eleMcaBilinHighStop = document.getElementById('mcaBilinHighStop')
+    if (eleMcaBilinHighStop) {
+        vMcaBilinHighStop = eleMcaBilinHighStop.value
     }
 
     var ret = {}
     ret["mode"] = "run-meltcurve"
     ret["sel-experiment"] = window.selExperiment
     ret["sel-run"] = window.selRun
-    ret["pcr-eff-range"] = rPCREffRange
     ret["update-RDML-data"] = rUpdateRDML
-    ret["exclude-no-plateau"] = window.exNoPlateau
-    ret["exclude-efficiency"] = window.exDiffMean
+    ret["mca-norm-method"] = vMcaNormMethod
+    ret["mca-fluor-loss"] = vMcaFluorLoss
+    ret["mca-true-peak-width"] = vMcaTruePeakWidth
+    ret["mca-artifact-peak-width"] = vMcaArtifactPeakWidth
+    ret["mca-exp-low"] = vMcaExpLow
+    ret["mca-exp-high"] = vMcaExpHigh
+    ret["mca-bilin-low-start"] = vMcaBilinLowStart
+    ret["mca-bilin-low-stop"] = vMcaBilinLowStop
+    ret["mca-bilin-hight-start"] = vMcaBilinHightStart
+    ret["mca-bilin-hight-stop"] = vMcaBilinHighStop
     updateServerData(uuid, JSON.stringify(ret))
 
     $('[href="#runMeltcurve-tab"]').tab('show')

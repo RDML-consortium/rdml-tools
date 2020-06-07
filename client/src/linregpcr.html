@@ -221,11 +221,11 @@
             </td>
             <td style="width:3%;"></td>
             <td style="width:10%;">True Peak Width:</td>
-            <td style="width:6%;"><input type="text" class="form-control" value="1.0" id="mthext-exl-men-eff"></td>
+            <td style="width:6%;"><input type="text" class="form-control" value="1.0" id="mcaTruePeakWidth"></td>
             <td style="width:2%;">&deg;C</td>
             <td style="width:2%;"></td>
             <td style="width:10%;">Artifact Peak Width:</td>
-            <td style="width:6%;"><input type="text" class="form-control" value="1.0" id="mthext-exl-men-eff"></td>
+            <td style="width:6%;"><input type="text" class="form-control" value="1.0" id="mcaArtifactPeakWidth "></td>
             <td style="width:4%;">&deg;C</td>
             <td style="width:12%;text-align: right;">
               <button type="submit" class="btn btn-outline-primary" id="btn-meltcurve">
@@ -242,21 +242,21 @@
             <td style="width:20%;">Baseline Correction Parameters: </td>
             <td style="width:8%;">Exponential:</td>
             <td style="width:2%;">Low:</td>
-            <td style="width:5%;"><input type="text" class="form-control" value="65.0" id="mthext-exl-men-eff"></td>
+            <td style="width:5%;"><input type="text" class="form-control" value="65.0" id="mcaExpLow"></td>
             <td style="width:4%;">&deg;C</td>
             <td style="width:2%;">High:</td>
-            <td style="width:5%;"><input type="text" class="form-control" value="92.0" id="mthext-exl-men-eff"></td>
+            <td style="width:5%;"><input type="text" class="form-control" value="92.0" id="mcaExpHigh"></td>
             <td style="width:5%;">&deg;C</td>
             <td style="width:7%;">Bilinear:</td>
             <td style="width:2%;">Low:</td>
-            <td style="width:5%;"><input type="text" class="form-control" value="68.0" id="mthext-exl-men-eff"></td>
+            <td style="width:5%;"><input type="text" class="form-control" value="68.0" id="mcaBilinLowStart"></td>
             <td style="width:3%;">&deg;C&nbsp;&nbsp;-</td>
-            <td style="width:5%;"><input type="text" class="form-control" value="70.0" id="mthext-exl-men-eff"></td>
+            <td style="width:5%;"><input type="text" class="form-control" value="70.0" id="mcaBilinLowStop"></td>
             <td style="width:4%;">&deg;C</td>
             <td style="width:2%;">High:</td>
-            <td style="width:5%;"><input type="text" class="form-control" value="93.0" id="mthext-exl-men-eff"></td>
+            <td style="width:5%;"><input type="text" class="form-control" value="93.0" id="mcaBilinHightStart"></td>
             <td style="width:3%;">&deg;C&nbsp;&nbsp;-</td>
-            <td style="width:5%;"><input type="text" class="form-control" value="94.0" id="mthext-exl-men-eff"></td>
+            <td style="width:5%;"><input type="text" class="form-control" value="94.0" id="mcaBilinHighStop"></td>
             <td style="width:2%;">&deg;C</td>
             <td style="width:5%;"></td>
           </tr>
@@ -266,7 +266,7 @@
             <td style="width:1%;"></td>
             <td style="width:11%;">Table Format:</td>
             <td style="width:14%;">
-              <select class="form-control" id="mcalTableStyle">
+              <select class="form-control" id="mcaTableStyle">
                 <option value="all" selected>All Peaks</option>
                 <option value="correction">Correction</option>
                 <option value="debug">Debug</option>
@@ -275,25 +275,37 @@
             <td style="width:3%;"></td>
             <td style="width:10%;">Decimal Separator:</td>
             <td style="width:8%;">
-              <select class="form-control" id="mselSeparator">
+              <select class="form-control" id="mcaSeparator">
                 <option value="point" selected>Point</option>
                 <option value="comma">Comma</option>
               </select>
             </td>
-            <td style="width:12%;"></td>
-            <td style="width:16%;">
+            <td style="width:14%;"></td>
+            <td style="width:38%;text-align: right;">
               <button type="submit" class="btn btn-outline-primary" id="btn-copy-meltcurve">
                 <i class="fas fa-paste" style="margin-right: 5px;"></i>
                 Copy table to clipboard
               </button>&nbsp;&nbsp;
-            </td>
-            <td style="width:14%;">
               <button type="submit" class="btn btn-outline-primary" id="btn-save-meltcurve">
                 <i class="far fa-save" style="margin-right: 5px;"></i>
                 Save table as CSV
               </button>
             </td>
-            <td style="width:10%;text-align: right;">
+            <td style="width:1%;"></td>
+          </tr>
+        </table>
+        <table style="width:100%;margin-top:0.7em;">
+          <tr>
+            <td style="width:56%;"></td>
+            <td style="width:14%;">Update RDML Data:</td>
+            <td style="width:6%;">
+              <select class="form-control" id="updateMcaRDMLData">
+                <option value="y" selected>yes</option>
+                <option value="n">no</option>
+              </select>
+            </td>
+            <td style="width:5%;"></td>
+            <td style="width:18%;text-align: right;">
               <button type="submit" class="btn btn-outline-primary" id="btn-rdml-meltcurve">
                 <i class="far fa-save" style="margin-right: 5px;"></i>
                 Save RDML
