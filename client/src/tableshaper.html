@@ -149,6 +149,13 @@
           <div class="card-body">
             <h5 class="card-title">Settings to reshape the table</h5>
             <div class="form-group">
+            <label for="modReformatAmpMelt">Select PCR type:</label>
+            <select id="modReformatAmpMelt" onchange="updateModification()">
+              <option value="amp" selected="true">Amplification</option>
+              <option value="melt">Meltcurve</option>
+            </select>
+            </div>
+            <div class="form-group">
               <label for="modSetName">Settings identifier:</label>
               <input type="text" class="form-control" id="modSetName" value="User Settings" onchange="updateModification()">
             </div>
@@ -203,14 +210,14 @@
               <div class="row">
                 <div class="col">
                   <div class="form-group">
-                    <label for="modExCycRow">Extract cycle information from row:</label>
+                    <label for="modExCycRow">Extract cycle (Amplification) or temperature (Meltcurve) information from row:</label>
                     <input type="text" class="form-control" id="modExCycRow" value="1" onchange="updateModification()">
                   </div>
                 </div>
                 <div class="col">
                   <div class="form-group">
                     <div class="form-group">
-                      <label for="modExCycRowRegEx">Apply regex:</label>
+                      <label for="modExCycRowRegEx">Apply regex (use "([0-9\.]+)" for Meltcurve):</label>
                       <input type="text" class="form-control" id="modExCycRowRegEx" value="([0-9]+)" onchange="updateModification()">
                     </div>
                   </div>
@@ -221,14 +228,14 @@
               <div class="row">
                 <div class="col">
                   <div class="form-group">
-                    <label for="modExCycCol">Extract cycle information from column:</label>
+                    <label for="modExCycCol">Extract cycle (Amplification) or temperature (Meltcurve) information from column:</label>
                     <input type="text" class="form-control" id="modExCycCol" value="1" onchange="updateModification()">
                   </div>
                 </div>
                 <div class="col">
                   <div class="form-group">
                     <div class="form-group">
-                      <label for="modExCycColRegEx">Apply regex:</label>
+                      <label for="modExCycColRegEx">Apply regex (use "([0-9\.]+)" for Meltcurve):</label>
                       <input type="text" class="form-control" id="modExCycColRegEx" value="([0-9]+)" onchange="updateModification()">
                     </div>
                   </div>
@@ -327,6 +334,22 @@
                   <div class="form-group">
                     <label for="modExDyeRegEx">Apply regex:</label>
                     <input type="text" class="form-control" id="modExDyeRegEx" value="(.*)" onchange="updateModification()">
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col">
+                <div class="form-group">
+                  <label for="modExDyeCol">Select columns on column values (set column to -1 to select all):</label>
+                  <input type="text" class="form-control" id="modExTrueCol" value="-1" onchange="updateModification()">
+                </div>
+              </div>
+              <div class="col">
+                <div class="form-group">
+                  <div class="form-group">
+                    <label for="modExDyeRegEx">Apply regex (must be true to select):</label>
+                    <input type="text" class="form-control" id="modExTrueRegEx" value="2" onchange="updateModification()">
                   </div>
                 </div>
               </div>

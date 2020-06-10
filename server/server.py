@@ -174,6 +174,8 @@ def handle_data():
                 return jsonify(errors=[{"title": "Invalid server request - pcrFormat_rows missing!"}]), 400
             if "pcrFormat_rowLabel" not in request.form.keys():
                 return jsonify(errors=[{"title": "Invalid server request - pcrFormat_rowLabel missing!"}]), 400
+            if "tableDataFormat" not in request.form.keys():
+                return jsonify(errors=[{"title": "Invalid server request - tableDataFormat missing!"}]), 400
             if "tableData" not in request.form.keys():
                 return jsonify(errors=[{"title": "Invalid server request - tableData missing!"}]), 400
             uuidstr = str(uuid.uuid4())
@@ -195,10 +197,17 @@ def handle_data():
                 run_ele["pcrFormat_rows"] = request.form['pcrFormat_rows']
                 run_ele["pcrFormat_rowLabel"] = request.form['pcrFormat_rowLabel']
 
-                tabAmpFilename = os.path.join(sf, "rdml_" + uuidstr + "_amplification_upload.tsv")
-                with open(tabAmpFilename, "w") as tabAmp:
-                    tabAmp.write(request.form['tableData'])
-                run_ele.import_table(rd, tabAmpFilename, "amp")
+                if request.form['pcrFormat_rowLabel'] == "amp":
+                    tabAmpFilename = os.path.join(sf, "rdml_" + uuidstr + "_amplification_upload.tsv")
+                    with open(tabAmpFilename, "w") as tabAmp:
+                        tabAmp.write(request.form['tableData'])
+                    run_ele.import_table(rd, tabAmpFilename, "amp")
+                else:
+                    tabMeltFilename = os.path.join(sf, "rdml_" + uuidstr + "_melting_upload.tsv")
+                    with open(tabMeltFilename, "w") as tabMelt:
+                        tabMelt.write(request.form['tableData'])
+                    run_ele.import_table(rd, tabMeltFilename, "melt")
+
 
             except rdml.RdmlError as err:
                 data["error"] = str(err)

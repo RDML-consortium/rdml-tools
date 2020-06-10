@@ -79,6 +79,7 @@ function createServerRdml() {
     formData.append('pcrFormat_columnLabel', getSaveHtmlData('inRunPcrFormat_columnLabel'))
     formData.append('pcrFormat_rows', getSaveHtmlData('inRunPcrFormat_rows'))
     formData.append('pcrFormat_rowLabel', getSaveHtmlData('inRunPcrFormat_rowLabel'))
+    formData.append('tableDataFormat', getSaveHtmlData('modReformatAmpMelt'))
     formData.append('tableData', content)
 
     var section = document.getElementById('download-section')
@@ -410,6 +411,7 @@ function updateKeyElCheck(newSett,keyName,elName) {
 window.loadModification = loadModification;
 function loadModification(newSett) {
     updateKeyEl(newSett,"settingsID","modSetName");
+    updateKeyEl(newSett,"reformatAmpMelt","modReformatAmpMelt");
     updateKeyEl(newSett,"reformatTableShape","modReformatTableShape");
     updateKeyEl(newSett,"fluorDelColStart","modDelColStart");
     updateKeyEl(newSett,"fluorDelRowStart","modDelRowStart");
@@ -435,11 +437,14 @@ function loadModification(newSett) {
     updateKeyEl(newSett,"exTarTypeRegEx", "modExTarTypeRegEx");
     updateKeyEl(newSett,"exDyeCol", "modExDyeCol");
     updateKeyEl(newSett,"exDyeRegEx", "modExDyeRegEx");
+    updateKeyEl(newSett,"exTrueCol", "modExTrueCol");
+    updateKeyEl(newSett,"exTrueRegEx", "modExTrueRegEx");
 }
 
 window.updateModification = updateModification;
 function updateModification() {
     window.modifySettings["settingsID"] = document.getElementById('modSetName').value;
+    window.modifySettings["reformatAmpMelt"] = document.getElementById('modReformatAmpMelt').value;
     window.modifySettings["reformatTableShape"] = document.getElementById('modReformatTableShape').value;
     window.modifySettings["fluorDelColStart"] = parseInt(document.getElementById('modDelColStart').value);
     window.modifySettings["fluorDelRowStart"] = parseInt(document.getElementById('modDelRowStart').value);
@@ -465,7 +470,10 @@ function updateModification() {
     window.modifySettings["exTarTypeRegEx"] = document.getElementById('modExTarTypeRegEx').value;
     window.modifySettings["exDyeCol"] = parseInt(document.getElementById('modExDyeCol').value);
     window.modifySettings["exDyeRegEx"] = document.getElementById('modExDyeRegEx').value;
+    window.modifySettings["exTrueCol"] = parseInt(document.getElementById('modExTrueCol').value);
+    window.modifySettings["exTrueRegEx"] = document.getElementById('modExTrueRegEx').value;
 
+    // Show the table or the list form elements
     var clElem = document.getElementsByClassName('table-list-only');
     var liElem = document.getElementsByClassName('table-table-only');
     if (window.modifySettings["reformatTableShape"] == "create") {
@@ -510,6 +518,7 @@ function updateModification() {
         tab = ntab;
     }
 
+    // Leave rows at the start or end out
     var minRowNr = 0;
     if (window.modifySettings["fluorDelRowStart"] > 0) {
          minRowNr = window.modifySettings["fluorDelRowStart"];
@@ -518,16 +527,42 @@ function updateModification() {
     if ((window.modifySettings["fluorDelRowEnd"] > 1) && (window.modifySettings["fluorDelRowEnd"] < tab.length)) {
          maxRowNr = window.modifySettings["fluorDelRowEnd"];
     }
+
+    // Draw the reshaped table
     reshapeTableView.innerHTML = drawHtmlTable(tab)
+
+    // Finally extract the information
     var ftab = [["Well", "Sample", "Sample Type", "Target", "Target Type", "Dye"]];
+
+    var trueColRe = new RegExp(window.modifySettings["exTrueRegEx"]);
+    var trueCol = window.modifySettings["exTrueCol"] - 1;
+
     if (window.modifySettings["reformatTableShape"] != "create") {
+        // This is the regular table transformation
         // Insert columns and extract the fluorescence data
         var jumpStep = 1;
         if (window.modifySettings["fluorDelOtherRow"] > 0) {
-             jumpStep = window.modifySettings["fluorDelOtherRow"] + 1 ;
+            jumpStep = window.modifySettings["fluorDelOtherRow"] + 1 ;
         }
+        // Fill the array used to exclude lines
+        var exclFromTable = {}
+        if (trueCol >= 0) {
+            for (var r = minRowNr ; r < maxRowNr ; r += jumpStep) {
+                if (trueColRe.test(tab[r][trueCol])) {
+                    exclFromTable[r] = true;
+                } else {
+                    exclFromTable[r] = false;
+                }
+            }
+        } else {
+            exclFromTable[r] = false;
+        }
+
         var realRowNr = 0;
         for (var r = minRowNr ; r < maxRowNr ; r += jumpStep) {
+            if (exclFromTable[r]) {
+                continue;
+            }
             realRowNr++;
             ftab[realRowNr] = ["", "", "unkn", "", "toi", "unkn_dye"];
             var minColNr = 0;
@@ -571,21 +606,21 @@ function updateModification() {
             var realColNr = 5;
             for (var c = minColNr ; c < maxColNr ; c++) {
                 realColNr++;
+                var fluorVal = "";
                 if (cycRowRe.test(tab[fRow][c])) {
                     var match = cycRowRe.exec(tab[fRow][c]);
+                    fluorVal = match[1];
                     if (window.modifySettings["fluorCommaDot"] == true) {
                         if (match[1].match(/,/) != null) {
-                            var resVal = match[1].replace(/\./g, "");;
-                            ftab[0][realColNr] = Math.ceil(parseFloat(resVal.replace(/,/g, ".")));
-                        } else {
-                            ftab[0][realColNr] = Math.ceil(parseFloat(match[1]));
+                            var resVal = fluorVal.replace(/\./g, "");;
+                            fluorVal = resVal.replace(/,/g, ".");
                         }
-                    } else {
-                        ftab[0][realColNr] = Math.ceil(parseFloat(match[1]));
                     }
-                } else {
-                    ftab[0][realColNr] = "";
+                    if (window.modifySettings["reformatAmpMelt"] == "amp") {
+                        fluorVal = Math.ceil(parseFloat(fluorVal));
+                    }
                 }
+                ftab[0][realColNr] = fluorVal;
             }
         }
         // Well information
@@ -594,6 +629,9 @@ function updateModification() {
             var wellCol = window.modifySettings["exWellCol"] - 1;
             realRowNr = 0;
             for (var r = minRowNr ; r < maxRowNr ; r += jumpStep) {
+                if (exclFromTable[r]) {
+                    continue;
+                }
                 realRowNr++;
                 if (wellColRe.test(tab[r][wellCol])) {
                     var match = wellColRe.exec(tab[r][wellCol]);
@@ -609,6 +647,9 @@ function updateModification() {
             var samCol = window.modifySettings["exSamCol"] - 1;
             realRowNr = 0;
             for (var r = minRowNr ; r < maxRowNr ; r += jumpStep) {
+                if (exclFromTable[r]) {
+                    continue;
+                }
                 realRowNr++;
                 if (samColRe.test(tab[r][samCol])) {
                     var match = samColRe.exec(tab[r][samCol]);
@@ -624,6 +665,9 @@ function updateModification() {
             var samTypeCol = window.modifySettings["exSamTypeCol"] - 1;
             realRowNr = 0;
             for (var r = minRowNr ; r < maxRowNr ; r += jumpStep) {
+                if (exclFromTable[r]) {
+                    continue;
+                }
                 realRowNr++;
                 if (samTypeColRe.test(tab[r][samTypeCol])) {
                     var match = samTypeColRe.exec(tab[r][samTypeCol]);
@@ -640,6 +684,9 @@ function updateModification() {
             var tarCol = window.modifySettings["exTarCol"] - 1;
             realRowNr = 0;
             for (var r = minRowNr ; r < maxRowNr ; r += jumpStep) {
+                if (exclFromTable[r]) {
+                    continue;
+                }
                 realRowNr++;
                 if (tarColRe.test(tab[r][tarCol])) {
                     var match = tarColRe.exec(tab[r][tarCol]);
@@ -655,6 +702,9 @@ function updateModification() {
             var tarTypeCol = window.modifySettings["exTarTypeCol"] - 1;
             realRowNr = 0;
             for (var r = minRowNr ; r < maxRowNr ; r += jumpStep) {
+                if (exclFromTable[r]) {
+                    continue;
+                }
                 realRowNr++;
                 if (tarTypeColRe.test(tab[r][tarTypeCol])) {
                     var match = tarTypeColRe.exec(tab[r][tarTypeCol]);
@@ -670,6 +720,9 @@ function updateModification() {
             var dyeCol = window.modifySettings["exDyeCol"] - 1;
             realRowNr = 0;
             for (var r = minRowNr ; r < maxRowNr ; r += jumpStep) {
+                if (exclFromTable[r]) {
+                    continue;
+                }
                 realRowNr++;
                 if (dyeColRe.test(tab[r][dyeCol])) {
                     var match = dyeColRe.exec(tab[r][dyeCol]);
@@ -680,6 +733,7 @@ function updateModification() {
             }
         }
     } else {
+        // This is a one row is one fluorescence data (the create) version
         var cycCount = 0;
         var wellCount = 0;
         var cycLookUp = {};
@@ -696,6 +750,9 @@ function updateModification() {
         var tarTypeColRe = new RegExp(window.modifySettings["exTarTypeRegEx"]);
         var dyeColRe = new RegExp(window.modifySettings["exDyeRegEx"]);
         for (var r = minRowNr ; r < maxRowNr ; r++) {
+            if (trueColRe.test(tab[r][trueCol])) {
+                continue;
+            }
             var matchCyc = cycColRe.exec(tab[r][cycCol]);
             var cycVal = matchCyc[1];
             var matchWell = wellColRe.exec(tab[r][wellCol]);
@@ -707,7 +764,7 @@ function updateModification() {
             }
             if (wellLookUp.hasOwnProperty(wellVal) != true) {
                 wellLookUp[wellVal] = wellCount + 1;
-                ftab[wellLookUp[wellVal]] = [wellVal, "", "", "", "", ""];
+                ftab[wellLookUp[wellVal]] = [wellVal, "", "unkn", "", "toi", "unkn_dye"];
                 wellCount++;
             }
             // Sample information
@@ -741,16 +798,18 @@ function updateModification() {
                 var match = dyeColRe.exec(tab[r][dyeCol]);
                 ftab[wellLookUp[wellVal]][5] = match[1];
             }
+            // Fluorescence values
+            var fluorVal = tab[r][fluorCol];
             if (window.modifySettings["fluorCommaDot"] == true) {
                 if (tab[r][fluorCol].match(/,/) != null) {
                     var resVal = tab[r][fluorCol].replace(/\./g, "");
-                    ftab[wellLookUp[wellVal]][cycLookUp[cycVal]] = resVal.replace(/,/g, ".");;
-                } else {
-                    ftab[wellLookUp[wellVal]][cycLookUp[cycVal]] = tab[r][fluorCol];
+                    fluorVal = resVal.replace(/,/g, ".");;
                 }
-            } else {
-                ftab[wellLookUp[wellVal]][cycLookUp[cycVal]] = tab[r][fluorCol];
             }
+            if (window.modifySettings["reformatAmpMelt"] == "amp") {
+                fluorVal = Math.ceil(parseFloat(fluorVal));
+            }
+            ftab[wellLookUp[wellVal]][cycLookUp[cycVal]] = fluorVal;
         }
     }
 
@@ -955,6 +1014,7 @@ function errorMessage(err) {
 function getSettingsArr() {
     var ret = [{
                "settingsID":"Applied Biosystems SDS v2.4",
+               "reformatAmpMelt":"amp",
                "reformatTableShape":"keep",
                "fluorDelColStart":3,
                "fluorDelRowStart":2,
@@ -978,9 +1038,12 @@ function getSettingsArr() {
                "exTarTypeCol":null,
                "exTarTypeRegEx":"(.*)",
                "exDyeCol":2,
-               "exDyeRegEx":".+ (.*)"
+               "exDyeRegEx":".+ (.*)",
+               "exTrueCol":-1,
+               "exTrueRegEx":"2"
                },{
                "settingsID":"Applied Biosystems v9.24",
+               "reformatAmpMelt":"amp",
                "reformatTableShape":"keep",
                "fluorDelColStart":2,
                "fluorDelRowStart":1,
@@ -1004,9 +1067,12 @@ function getSettingsArr() {
                "exTarTypeCol":null,
                "exTarTypeRegEx":"(.*)",
                "exDyeCol":null,
-               "exDyeRegEx":"(.*)"
+               "exDyeRegEx":"(.*)",
+               "exTrueCol":-1,
+               "exTrueRegEx":"2"
                },{
                "settingsID":"BioRad CFX v3.1",
+               "reformatAmpMelt":"amp",
                "reformatTableShape":"flip",
                "fluorDelColStart":1,
                "fluorDelRowStart":2,
@@ -1029,9 +1095,12 @@ function getSettingsArr() {
                "exTarTypeCol":null,
                "exTarTypeRegEx":"(.*)",
                "exDyeCol":null,
-               "exDyeRegEx":"(.*)"
+               "exDyeRegEx":"(.*)",
+               "exTrueCol":-1,
+               "exTrueRegEx":"2"
                },{
                "settingsID":"BioRad iCycler v9.35",
+               "reformatAmpMelt":"amp",
                "reformatTableShape":"flip",
                "fluorDelColStart":2,
                "fluorDelRowStart":1,
@@ -1055,9 +1124,12 @@ function getSettingsArr() {
                "exTarTypeCol":null,
                "exTarTypeRegEx":"(.*)",
                "exDyeCol":null,
-               "exDyeRegEx":"(.*)"
+               "exDyeRegEx":"(.*)",
+               "exTrueCol":-1,
+               "exTrueRegEx":"2"
                },{
                "settingsID":"Eppendorf Realplex",
+               "reformatAmpMelt":"amp",
                "reformatTableShape":"keep",
                "fluorDelColStart":6,
                "fluorDelRowStart":4,
@@ -1081,9 +1153,12 @@ function getSettingsArr() {
                "exTarTypeCol":null,
                "exTarTypeRegEx":"(.*)",
                "exDyeCol":6,
-               "exDyeRegEx":"(.*)"
+               "exDyeRegEx":"(.*)",
+               "exTrueCol":-1,
+               "exTrueRegEx":"2"
                },{
                "settingsID":"Illumina Eco v3.0",
+               "reformatAmpMelt":"amp",
                "reformatTableShape":"keep",
                "fluorDelColStart":3,
                "fluorDelRowStart":9,
@@ -1107,9 +1182,12 @@ function getSettingsArr() {
                "exTarTypeCol":null,
                "exTarTypeRegEx":"(.*)",
                "exDyeCol":3,
-               "exDyeRegEx":"(.*)"
+               "exDyeRegEx":"(.*)",
+               "exTrueCol":-1,
+               "exTrueRegEx":"2"
                },{
                "settingsID":"Mic v2.7",
+               "reformatAmpMelt":"amp",
                "reformatTableShape":"flip",
                "fluorDelColStart":1,
                "fluorDelRowStart":1,
@@ -1133,9 +1211,12 @@ function getSettingsArr() {
                "exTarTypeCol":null,
                "exTarTypeRegEx":"(.*)",
                "exDyeCol":null,
-               "exDyeRegEx":"(.*)"
+               "exDyeRegEx":"(.*)",
+               "exTrueCol":-1,
+               "exTrueRegEx":"2"
                },{
                "settingsID":"MJ research",
+               "reformatAmpMelt":"amp",
                "reformatTableShape":"flip",
                "fluorDelColStart":1,
                "fluorDelRowStart":3,
@@ -1159,9 +1240,12 @@ function getSettingsArr() {
                "exTarTypeCol":null,
                "exTarTypeRegEx":"(.*)",
                "exDyeCol":null,
-               "exDyeRegEx":"(.*)"
+               "exDyeRegEx":"(.*)",
+               "exTrueCol":-1,
+               "exTrueRegEx":"2"
                },{
                "settingsID":"QuantStudio 12K Flex",
+               "reformatAmpMelt":"amp",
                "reformatTableShape":"create",
                "fluorDelColStart":1,
                "fluorDelRowStart":18,
@@ -1184,9 +1268,12 @@ function getSettingsArr() {
                "exTarTypeCol":null,
                "exTarTypeRegEx":"(.*)",
                "exDyeCol":null,
-               "exDyeRegEx":"(.*)"
+               "exDyeRegEx":"(.*)",
+               "exTrueCol":-1,
+               "exTrueRegEx":"2"
                },{
                "settingsID":"Roche LC96",
+               "reformatAmpMelt":"amp",
                "reformatTableShape":"keep",
                "fluorDelColStart":1,
                "fluorDelRowStart":1,
@@ -1209,9 +1296,12 @@ function getSettingsArr() {
                "exTarTypeCol":null,
                "exTarTypeRegEx":"(.*)",
                "exDyeCol":1,
-               "exDyeRegEx":"^[A-Za-z]+[0-9]+ (.*)"
+               "exDyeRegEx":"^[A-Za-z]+[0-9]+ (.*)",
+               "exTrueCol":-1,
+               "exTrueRegEx":"2"
                },{
                "settingsID":"Roche LC96 (flip)",
+               "reformatAmpMelt":"amp",
                "reformatTableShape":"flip",
                "fluorDelColStart":1,
                "fluorDelRowStart":1,
@@ -1235,9 +1325,12 @@ function getSettingsArr() {
                "exTarTypeCol":null,
                "exTarTypeRegEx":"(.*)",
                "exDyeCol":1,
-               "exDyeRegEx":"^[A-Za-z]+[0-9]+ (.*)"
+               "exDyeRegEx":"^[A-Za-z]+[0-9]+ (.*)",
+               "exTrueCol":-1,
+               "exTrueRegEx":"2"
                },{
                "settingsID":"Roche LightCycler480",
+               "reformatAmpMelt":"amp",
                "reformatTableShape":"keep",
                "fluorDelColStart":2,
                "fluorDelRowStart":1,
@@ -1261,9 +1354,12 @@ function getSettingsArr() {
                "exTarTypeCol":null,
                "exTarTypeRegEx":"(.*)",
                "exDyeCol":null,
-               "exDyeRegEx":"(.*)"
+               "exDyeRegEx":"(.*)",
+               "exTrueCol":-1,
+               "exTrueRegEx":"2"
                },{
                "settingsID":"Roche LightCycler480 (flip)",
+               "reformatAmpMelt":"amp",
                "reformatTableShape":"flip",
                "fluorDelColStart":1,
                "fluorDelRowStart":2,
@@ -1286,9 +1382,12 @@ function getSettingsArr() {
                "exTarTypeCol":null,
                "exTarTypeRegEx":"(.*)",
                "exDyeCol":null,
-               "exDyeRegEx":"(.*)"
+               "exDyeRegEx":"(.*)",
+               "exTrueCol":-1,
+               "exTrueRegEx":"2"
                },{
                "settingsID":"Roche LightCycler480 (create)",
+               "reformatAmpMelt":"amp",
                "reformatTableShape":"create",
                "fluorDelColStart":1,
                "fluorDelRowStart":2,
@@ -1312,9 +1411,12 @@ function getSettingsArr() {
                "exTarTypeCol":null,
                "exTarTypeRegEx":"(.*)",
                "exDyeCol":null,
-               "exDyeRegEx":"(.*)"
+               "exDyeRegEx":"(.*)",
+               "exTrueCol":-1,
+               "exTrueRegEx":"2"
                },{
                "settingsID":"Rotorgene",
+               "reformatAmpMelt":"amp",
                "reformatTableShape":"keep",
                "fluorDelColStart":6,
                "fluorDelRowStart":4,
@@ -1338,9 +1440,12 @@ function getSettingsArr() {
                "exTarTypeCol":null,
                "exTarTypeRegEx":"(.*)",
                "exDyeCol":6,
-               "exDyeRegEx":"(.*)"
+               "exDyeRegEx":"(.*)",
+               "exTrueCol":-1,
+               "exTrueRegEx":"2"
                },{
                "settingsID":"Stratagene Mx3000P",
+               "reformatAmpMelt":"amp",
                "reformatTableShape":"flip",
                "fluorDelColStart":4,
                "fluorDelRowStart":2,
@@ -1364,9 +1469,12 @@ function getSettingsArr() {
                "exTarTypeCol":null,
                "exTarTypeRegEx":"(.*)",
                "exDyeCol":3,
-               "exDyeRegEx":"[^,]*,[^,]*,[^,]*, (.*)"
+               "exDyeRegEx":"[^,]*,[^,]*,[^,]*, (.*)",
+               "exTrueCol":-1,
+               "exTrueRegEx":"2"
                },{
                "settingsID":"ThermoFisher StepOnePlus",
+               "reformatAmpMelt":"amp",
                "reformatTableShape":"create",
                "fluorDelColStart":1,
                "fluorDelRowStart":8,
@@ -1390,7 +1498,38 @@ function getSettingsArr() {
                "exTarTypeCol":null,
                "exTarTypeRegEx":"(.*)",
                "exDyeCol":null,
-               "exDyeRegEx":"(.*)"
+               "exDyeRegEx":"(.*)",
+               "exTrueCol":-1,
+               "exTrueRegEx":"2"
+               },{
+               "settingsID":"Roche LCS480 Meltcurve v1.5.0.39",
+               "reformatAmpMelt":"melt",
+               "reformatTableShape":"create",
+               "fluorDelColStart":1,
+               "fluorDelRowStart":2,
+               "fluorDelOtherRow":0,
+               "fluorDelColEnd":null,
+               "fluorDelRowEnd":null,
+               "fluorCommaDot":true,
+               "exFluorCol":8,
+               "exCycRow":1,
+               "exCycRowRegEx":"([0-9]+)",
+               "exCycCol":7,
+               "exCycColRegEx":"([0-9\\.]+)",
+               "exWellCol":1,
+               "exWellRegEx":"(^[A-Za-z]+[0-9]+)",
+               "exSamCol":2,
+               "exSamRegEx":"(.*)",
+               "exSamTypeCol":null,
+               "exSamTypeRegEx":"(.*)",
+               "exTarCol":null,
+               "exTarRegEx":"(.*)",
+               "exTarTypeCol":null,
+               "exTarTypeRegEx":"(.*)",
+               "exDyeCol":null,
+               "exDyeRegEx":"(.*)",
+               "exTrueCol":3,
+               "exTrueRegEx":"2"
                }
               ];
     return ret;
