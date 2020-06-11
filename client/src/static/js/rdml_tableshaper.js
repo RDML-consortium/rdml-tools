@@ -32,6 +32,7 @@ loadJFile.addEventListener('change', loadJsonFile, false);
 
 // Global data
 window.inputFile = "";
+window.inputFileName = "";
 window.inputSeparator = "\t";
 window.modifySettings = {};
 window.resultTab = [];
@@ -159,6 +160,7 @@ function loadInputFile(){
     var file = inputFile.files[0];
     if (file) { // && file.type.match("text/*")) {
         var reader = new FileReader();
+        window.inputFileName = file.name.replace(/\.[^\.]+$/, '');
         reader.onload = function(event) {
             var txt = event.target.result;
             txt = txt.replace(/\r\n/g, "\n");
@@ -175,6 +177,7 @@ function loadInputFile(){
 }
 
 function showExample() {
+    window.inputFileName = "example"
     window.inputFile = getSampleStr();
     updateSepCount(window.inputFile);
     var opt = document.getElementById("selMachineSettings");
@@ -364,14 +367,18 @@ function saveTabFile() {
     a.style.display = "none";
     var blob = new Blob([content], {type: "text/tab-separated-values"});
     var browser = detectBrowser();
+    var downloadFileName = window.inputFileName + "_amplification.tsv";
+    if (document.getElementById('modReformatAmpMelt').value == "melt") {
+        downloadFileName = window.inputFileName + "_melting.tsv";
+    }
     if (browser != "edge") {
 	    var url = window.URL.createObjectURL(blob);
 	    a.href = url;
-	    a.download = "shaped_qPCR_data.tsv";
+	    a.download = downloadFileName;
 	    a.click();
 	    window.URL.revokeObjectURL(url);
     } else {
-        window.navigator.msSaveBlob(blob, "shaped_qPCR_data.tsv");
+        window.navigator.msSaveBlob(blob, downloadFileName);
     }
     return;
 };
@@ -759,7 +766,11 @@ function updateModification() {
             var wellVal = matchWell[1];
             if (cycLookUp.hasOwnProperty(cycVal) != true) {
                 cycLookUp[cycVal] = cycCount + 6;
-                ftab[0][cycLookUp[cycVal]] = cycVal;
+                var cycWriteVal = cycVal;
+                if (window.modifySettings["reformatAmpMelt"] == "amp") {
+                    cycWriteVal = Math.ceil(parseFloat(cycWriteVal));
+                }
+                ftab[0][cycLookUp[cycVal]] = cycWriteVal;
                 cycCount++;
             }
             if (wellLookUp.hasOwnProperty(wellVal) != true) {
@@ -805,9 +816,6 @@ function updateModification() {
                     var resVal = tab[r][fluorCol].replace(/\./g, "");
                     fluorVal = resVal.replace(/,/g, ".");;
                 }
-            }
-            if (window.modifySettings["reformatAmpMelt"] == "amp") {
-                fluorVal = Math.ceil(parseFloat(fluorVal));
             }
             ftab[wellLookUp[wellVal]][cycLookUp[cycVal]] = fluorVal;
         }
@@ -1501,6 +1509,35 @@ function getSettingsArr() {
                "exDyeRegEx":"(.*)",
                "exTrueCol":-1,
                "exTrueRegEx":"2"
+               },{
+               "settingsID":"Roche LCS480 Amplification v1.5.0.39",
+               "reformatAmpMelt":"amp",
+               "reformatTableShape":"create",
+               "fluorDelColStart":1,
+               "fluorDelRowStart":2,
+               "fluorDelOtherRow":0,
+               "fluorDelColEnd":null,
+               "fluorDelRowEnd":null,
+               "fluorCommaDot":true,
+               "exFluorCol":8,
+               "exCycRow":1,
+               "exCycRowRegEx":"([0-9]+)",
+               "exCycCol":5,
+               "exCycColRegEx":"([0-9\\.]+)",
+               "exWellCol":1,
+               "exWellRegEx":"(^[A-Za-z]+[0-9]+)",
+               "exSamCol":2,
+               "exSamRegEx":"(.*)",
+               "exSamTypeCol":null,
+               "exSamTypeRegEx":"(.*)",
+               "exTarCol":null,
+               "exTarRegEx":"(.*)",
+               "exTarTypeCol":null,
+               "exTarTypeRegEx":"(.*)",
+               "exDyeCol":null,
+               "exDyeRegEx":"(.*)",
+               "exTrueCol":3,
+               "exTrueRegEx":"3"
                },{
                "settingsID":"Roche LCS480 Meltcurve v1.5.0.39",
                "reformatAmpMelt":"melt",
