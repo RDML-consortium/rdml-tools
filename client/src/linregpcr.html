@@ -264,8 +264,12 @@
         <table style="width:100%;">
           <tr>
             <td style="width:1%;"></td>
-            <td style="width:11%;">Table Format:</td>
-            <td style="width:14%;">
+            <td style="width:18%;">Ignore Peaks With Size Below:</td>
+            <td style="width:5%;"><input type="text" class="form-control" value="5.0" id="mcaPeakCutoff"></td>
+            <td style="width:2%;">%</td>
+            <td style="width:3%;"></td>
+            <td style="width:6%;">Format:</td>
+            <td style="width:9%;">
               <select class="form-control" id="mcaTableStyle">
                 <option value="all" selected>All Peaks</option>
                 <option value="correction">Correction</option>
@@ -280,8 +284,7 @@
                 <option value="comma">Comma</option>
               </select>
             </td>
-            <td style="width:14%;"></td>
-            <td style="width:38%;text-align: right;">
+            <td style="width:34%;text-align: right;">
               <button type="submit" class="btn btn-outline-primary" id="btn-copy-meltcurve">
                 <i class="fas fa-paste" style="margin-right: 5px;"></i>
                 Copy table to clipboard

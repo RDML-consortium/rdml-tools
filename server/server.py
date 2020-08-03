@@ -1476,6 +1476,8 @@ def handle_data():
                 return jsonify(errors=[{"title": "Invalid server request - mca-bilin-hight-start missing!"}]), 400
             if "mca-bilin-hight-stop" not in reqdata:
                 return jsonify(errors=[{"title": "Invalid server request - mca-bilin-hight-stop missing!"}]), 400
+            if "mca-peak-cutoff" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - mca-peak-cutoff missing!"}]), 400
             try:
                 logNote1 = "run-meltcurve"
                 experiment = rd.get_experiment(byid=reqdata["sel-experiment"])
@@ -1494,6 +1496,7 @@ def handle_data():
                                                                    bilinLowStopTemp=reqdata["mca-bilin-low-stop"],
                                                                    bilinHighStartTemp=reqdata["mca-bilin-hight-start"],
                                                                    bilinHighStopTemp=reqdata["mca-bilin-hight-stop"],
+                                                                   peakCutoff=reqdata["mca-peak-cutoff"],
                                                                    updateRDML=reqdata["update-RDML-data"])
                 if "error" in data["reactsdata"]:
                     data["error"] = data["reactsdata"]["error"]

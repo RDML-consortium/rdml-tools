@@ -455,6 +455,7 @@ function runMeltcurve() {
     var vMcaBilinLowStop = "70.0"
     var vMcaBilinHightStart = "93.0"
     var vMcaBilinHighStop = "94.0"
+    var vMcaPeakCutoff = "5.0"
 
     var bbUpdateRDML = document.getElementById('updateMcaRDMLData')
     if ((bbUpdateRDML) && (bbUpdateRDML.value == "y")) {
@@ -500,6 +501,10 @@ function runMeltcurve() {
     if (eleMcaBilinHighStop) {
         vMcaBilinHighStop = eleMcaBilinHighStop.value
     }
+    var eleMcaPeakCutoff = document.getElementById('mcaPeakCutoff')
+    if (eleMcaPeakCutoff) {
+        vMcaPeakCutoff = eleMcaPeakCutoff.value
+    }
 
     var ret = {}
     ret["mode"] = "run-meltcurve"
@@ -516,6 +521,7 @@ function runMeltcurve() {
     ret["mca-bilin-low-stop"] = vMcaBilinLowStop
     ret["mca-bilin-hight-start"] = vMcaBilinHightStart
     ret["mca-bilin-hight-stop"] = vMcaBilinHighStop
+    ret["mca-peak-cutoff"] = vMcaPeakCutoff
     updateServerData(uuid, JSON.stringify(ret))
 
     $('[href="#runMeltcurve-tab"]').tab('show')
