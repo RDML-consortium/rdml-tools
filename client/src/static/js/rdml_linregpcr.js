@@ -1940,7 +1940,7 @@ function updateMeltingTable() {
                 ret += "\", \"" + window.meltcurveTable[row][0] + "\")'> \n"  // "id"
             }
             for (var col = 0; col < window.meltcurveTable[row].length; col++) {
-                if (col < 9) {
+                if (col < 7) {
                     content += window.meltcurveTable[row][col] + "\t"
                     ret += '<td>' + window.meltcurveTable[row][col] + '</td>\n'
                 } else {
@@ -1960,23 +1960,23 @@ function updateMeltingTable() {
                 ret += "\", \"" + window.meltcurveTable[row][0] + "\")'> \n"  // "id"
             }
             for (var col = 0; col < window.meltcurveTable[row].length; col++) {
-                if ((row == 0) && (col < 9)) {
+                if ((row == 0) && (col < 11)) {
                     content += window.meltcurveTable[row][col] + "\t"
                     ret += '<td>' + window.meltcurveTable[row][col] + '</td>\n'
-                } else if (col < 5) {
+                } else if (col < 7) {
                     content += window.meltcurveTable[row][col] + "\t"
                     ret += '<td>' + window.meltcurveTable[row][col] + '</td>\n'
-                } else if (col < 6) {
+                } else if (col < 8) {
                     content += NumPoint(window.meltcurveTable[row][col]) + "\t"
                     ret += '<td>' + NumPoint(window.meltcurveTable[row][col]) + '</td>\n'
-                } else if (col < 7) {
+                } else if (col < 9) {
                     content += floatWithPrec(window.meltcurveTable[row][col], 100) + "\t"
                     ret += '<td>' + floatWithPrec(window.meltcurveTable[row][col], 100) + '</td>\n'
-                } else if (col < 9) {
+                } else if (col < 11) {
                     content += floatWithPrec(window.meltcurveTable[row][col], 1000000) + "\t"
                     ret += '<td>' + floatWithPrec(window.meltcurveTable[row][col], 1000000) + '</td>\n'
                 } else {
-                    var subCol = (col - 13) % 8;
+                    var subCol = (col - 15) % 8;
                     if ((row == 0) && (subCol >= 0) && (subCol < 3)) {
                         content += window.meltcurveTable[row][col] + "\t"
                         ret += '<td>' + window.meltcurveTable[row][col] + '</td>\n'
