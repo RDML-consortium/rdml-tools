@@ -23,11 +23,20 @@ linRegPCRButton.addEventListener('click', runLinRegPCR)
 const linRegPCRRDMLButton = document.getElementById('btn-rdml-linregpcr')
 linRegPCRRDMLButton.addEventListener('click', showRDMLSave)
 
+const meltcurveRDMLButton = document.getElementById('btn-rdml-meltcurve')
+meltcurveRDMLButton.addEventListener('click', showRDMLSave)
+
 const linRegPCRSaveButton = document.getElementById('btn-save-linregpcr')
 linRegPCRSaveButton.addEventListener('click', saveTabLinRegPCR)
 
+const meltcurveSaveButton = document.getElementById('btn-save-meltcurve')
+meltcurveSaveButton.addEventListener('click', saveTabMeltcurve)
+
 const linRegPCRCopyButton = document.getElementById('btn-copy-linregpcr')
 linRegPCRCopyButton.addEventListener('click', copyTabLinRegPCR)
+
+const meltcurveCopyButton = document.getElementById('btn-copy-meltcurve')
+meltcurveCopyButton.addEventListener('click', copyTabMeltcurve)
 
 const choiceExclMeanEff = document.getElementById('text-exl-men-eff')
 choiceExclMeanEff.addEventListener('change', resetLinRegPCRdata)
@@ -49,8 +58,14 @@ meltcurveButton.addEventListener('click', runMeltcurve)
 const choiceTable = document.getElementById('selTableStyle')
 choiceTable.addEventListener('change', updateLinRegPCRTable)
 
+const choiceMeltTable = document.getElementById('mcaTableStyle')
+choiceMeltTable.addEventListener('change', updateMeltingTable)
+
 const choiceDecimalSep = document.getElementById('selSeparator')
-choiceDecimalSep.addEventListener('change', updateLinRegPCRTable)
+choiceDecimalSep.addEventListener('change', updateLinRegPCRDecimalSep)
+
+const choiceMeltDecimalSep = document.getElementById('mcaSeparator')
+choiceMeltDecimalSep.addEventListener('change', updateMeltDecimalSep)
 
 const choiceAnnotations = document.getElementById('choiceIncludeAnnotations')
 choiceAnnotations.addEventListener('change', updateLinRegPCRTable)
@@ -157,6 +172,30 @@ function resetAllGlobalVal() {
     resetLinRegPCRdata()
     resetMeltcurveData()
     updateClientData()
+}
+
+window.updateLinRegPCRDecimalSep = updateLinRegPCRDecimalSep
+function updateLinRegPCRDecimalSep() {
+    if (choiceDecimalSep.value == "point") {
+        window.decimalSepPoint = true;
+        choiceMeltDecimalSep.value = "point";
+    } else {
+        window.decimalSepPoint = false;
+        choiceMeltDecimalSep.value = "comma";
+    }
+    updateLinRegPCRTable()
+}
+
+window.updateMeltDecimalSep = updateMeltDecimalSep
+function updateMeltDecimalSep() {
+    if (choiceMeltDecimalSep.value == "point") {
+        window.decimalSepPoint = true;
+        choiceDecimalSep.value = "point";
+    } else {
+        window.decimalSepPoint = false;
+        choiceDecimalSep.value = "comma";
+    }
+    updateMeltingTable()
 }
 
 window.resetLinRegPCRdata = resetLinRegPCRdata
@@ -1311,11 +1350,6 @@ function updateLinRegPCRTable() {
     if (window.linRegPCRTable.length < 1) {
         return
     }
-    if (choiceDecimalSep.value == "point") {
-        window.decimalSepPoint = true;
-    } else {
-        window.decimalSepPoint = false;
-    }
 
     var annoTab = [];
     var allUsedSamples = {};
@@ -1894,32 +1928,70 @@ function updateMeltingTable() {
     if (window.meltcurveTable.length < 1) {
         return
     }
-    if (choiceDecimalSep.value == "point") {
-        window.decimalSepPoint = true;
-    } else {
-        window.decimalSepPoint = false;
-    }
 
     var content = "";
-    var ret = '<table class="table table-bordered table-striped" id="LinRegPCR_Result_Table">\n'
-    for (var row = 0; row < window.meltcurveTable.length; row++) {
-        if (row == 0) {
-            ret += '<tr>\n'
-        } else {
-            ret += "<tr ondblclick='window.clickSampSel(\"" + window.meltcurveTable[row][3]  // "target"
-            ret += "\", \"" + window.meltcurveTable[row][0] + "\")'> \n"  // "id"
-        }
-        for (var col = 0; col < window.meltcurveTable[row].length; col++) {
-            if (col < 9) {
-                content += window.meltcurveTable[row][col] + "\t"
-                ret += '<td>' + window.meltcurveTable[row][col] + '</td>\n'
+    var ret = '<table class="table table-bordered table-striped" id="Meltcurve_Result_Table">\n'
+    if (choiceMeltTable.value == "debug") {
+        for (var row = 0; row < window.meltcurveTable.length; row++) {
+            if (row == 0) {
+                ret += '<tr>\n'
             } else {
-                content += NumPoint(window.meltcurveTable[row][col]) + "\t"
-                ret += '<td>' + NumPoint(window.meltcurveTable[row][col]) + '</td>\n'
+                ret += "<tr ondblclick='window.clickSampSel(\"" + window.meltcurveTable[row][3]  // "target"
+                ret += "\", \"" + window.meltcurveTable[row][0] + "\")'> \n"  // "id"
             }
+            for (var col = 0; col < window.meltcurveTable[row].length; col++) {
+                if (col < 9) {
+                    content += window.meltcurveTable[row][col] + "\t"
+                    ret += '<td>' + window.meltcurveTable[row][col] + '</td>\n'
+                } else {
+                    content += NumPoint(window.meltcurveTable[row][col]) + "\t"
+                    ret += '<td>' + NumPoint(window.meltcurveTable[row][col]) + '</td>\n'
+                }
+            }
+            content = content.replace(/\t$/g, "\n");
+            ret += '</tr>\n'
         }
-        content = content.replace(/\t$/g, "\n");
-        ret += '</tr>\n'
+    } else {
+        for (var row = 0; row < window.meltcurveTable.length; row++) {
+            if (row == 0) {
+                ret += '<tr>\n'
+            } else {
+                ret += "<tr ondblclick='window.clickSampSel(\"" + window.meltcurveTable[row][3]  // "target"
+                ret += "\", \"" + window.meltcurveTable[row][0] + "\")'> \n"  // "id"
+            }
+            for (var col = 0; col < window.meltcurveTable[row].length; col++) {
+                if ((row == 0) && (col < 9)) {
+                    content += window.meltcurveTable[row][col] + "\t"
+                    ret += '<td>' + window.meltcurveTable[row][col] + '</td>\n'
+                } else if (col < 5) {
+                    content += window.meltcurveTable[row][col] + "\t"
+                    ret += '<td>' + window.meltcurveTable[row][col] + '</td>\n'
+                } else if (col < 6) {
+                    content += NumPoint(window.meltcurveTable[row][col]) + "\t"
+                    ret += '<td>' + NumPoint(window.meltcurveTable[row][col]) + '</td>\n'
+                } else if (col < 7) {
+                    content += floatWithPrec(window.meltcurveTable[row][col], 100) + "\t"
+                    ret += '<td>' + floatWithPrec(window.meltcurveTable[row][col], 100) + '</td>\n'
+                } else if (col < 9) {
+                    content += floatWithPrec(window.meltcurveTable[row][col], 1000000) + "\t"
+                    ret += '<td>' + floatWithPrec(window.meltcurveTable[row][col], 1000000) + '</td>\n'
+                } else {
+                    var subCol = (col - 13) % 8;
+                    if ((row == 0) && (subCol >= 0) && (subCol < 3)) {
+                        content += window.meltcurveTable[row][col] + "\t"
+                        ret += '<td>' + window.meltcurveTable[row][col] + '</td>\n'
+                    } else if ((subCol >= 0) && (subCol < 2)) {
+                        content += floatWithPrec(window.meltcurveTable[row][col], 100) + "\t"
+                        ret += '<td>' + floatWithPrec(window.meltcurveTable[row][col], 100) + '</td>\n'
+                    } else if ((subCol >= 0) && (subCol < 3)) {
+                        content += floatWithPrec(window.meltcurveTable[row][col], 1000000) + "\t"
+                        ret += '<td>' + floatWithPrec(window.meltcurveTable[row][col], 1000000) + '</td>\n'
+                    }
+                }
+            }
+            content = content.replace(/\t$/g, "\n");
+            ret += '</tr>\n'
+        }
     }
 
     ret += '</table>\n'
@@ -1927,13 +1999,15 @@ function updateMeltingTable() {
     resultMeltcurve.innerHTML = ret
 }
 
-
-
-
-
 window.saveTabLinRegPCR = saveTabLinRegPCR;
 function saveTabLinRegPCR() {
     saveTabFile("LinRegPCR.tsv", window.linRegSaveTable)
+    return;
+};
+
+window.saveTabMeltcurve = saveTabMeltcurve;
+function saveTabMeltcurve() {
+    saveTabFile("Meltcurve.tsv", window.meltcurveSaveTable)
     return;
 };
 
@@ -1943,6 +2017,36 @@ function copyTabLinRegPCR() {
         return
     }
     var el = document.getElementById("LinRegPCR_Result_Table");
+	var body = document.body
+	var range
+	var sel
+	if (document.createRange && window.getSelection) {
+		range = document.createRange();
+		sel = window.getSelection();
+		sel.removeAllRanges();
+		try {
+			range.selectNodeContents(el);
+			sel.addRange(range);
+		} catch (e) {
+			range.selectNode(el);
+			sel.addRange(range);
+		}
+	} else if (body.createTextRange) {
+		range = body.createTextRange();
+		range.moveToElementText(el);
+		range.select();
+	}
+	document.execCommand("copy");
+	sel.removeAllRanges();
+    return;
+};
+
+window.copyTabMeltcurve = copyTabMeltcurve;
+function copyTabMeltcurve() {
+    if (window.meltcurveSaveTable == "") {
+        return
+    }
+    var el = document.getElementById("Meltcurve_Result_Table");
 	var body = document.body
 	var range
 	var sel
