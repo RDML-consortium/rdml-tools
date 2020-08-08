@@ -1930,6 +1930,12 @@ function updateMeltingTable() {
     }
 
     var content = "";
+    var colGood = ' style="background-color: #00cc00"'
+    var colWarn = ' style="background-color: #ffc266"'
+    var colErr = ' style="background-color: #ff5c33"'
+    var warnMesA = "no product with expected melting temperature"
+    var warnMesB =  "several products with diverging melting temperatures detected"
+
     var ret = '<table class="table table-bordered table-striped" id="Meltcurve_Result_Table">\n'
     if (choiceMeltTable.value == "debug") {
         for (var row = 0; row < window.meltcurveTable.length; row++) {
@@ -1959,6 +1965,8 @@ function updateMeltingTable() {
                 ret += "<tr ondblclick='window.clickSampSel(\"" + window.meltcurveTable[row][3]  // "target"
                 ret += "\", \"" + window.meltcurveTable[row][0] + "\")'> \n"  // "id"
             }
+            var goodTemp = 0.0
+            var currCol = "";
             for (var col = 0; col < window.meltcurveTable[row].length; col++) {
                 if ((row == 0) && (col < 11)) {
                     content += window.meltcurveTable[row][col] + "\t"
@@ -1971,21 +1979,48 @@ function updateMeltingTable() {
                     ret += '<td>' + NumPoint(window.meltcurveTable[row][col]) + '</td>\n'
                 } else if (col < 9) {
                     content += floatWithPrec(window.meltcurveTable[row][col], 100) + "\t"
-                    ret += '<td>' + floatWithPrec(window.meltcurveTable[row][col], 100) + '</td>\n'
+                    currCol = colGood
+                    if (window.meltcurveTable[row][6].includes(warnMesA)) {
+                        currCol = colWarn
+                    }
+                    if (window.meltcurveTable[row][6].includes(warnMesB)) {
+                        currCol = colWarn
+                    }
+                    if (window.meltcurveTable[row][5].includes(warnMesA)) {
+                        currCol = colErr
+                    }
+                    if (window.meltcurveTable[row][3].includes("Average")) {
+                        currCol = ""
+                    }
+                    ret += '<td' + currCol + '>' + floatWithPrec(window.meltcurveTable[row][col], 100) + '</td>\n'
+                    goodTemp = floatWithPrec(window.meltcurveTable[row][col], 100)
                 } else if (col < 11) {
                     content += floatWithPrec(window.meltcurveTable[row][col], 1000000) + "\t"
                     ret += '<td>' + floatWithPrec(window.meltcurveTable[row][col], 1000000) + '</td>\n'
                 } else {
                     var subCol = (col - 15) % 8;
                     if ((row == 0) && (subCol >= 0) && (subCol < 3)) {
+                        currCol = "";
                         content += window.meltcurveTable[row][col] + "\t"
                         ret += '<td>' + window.meltcurveTable[row][col] + '</td>\n'
                     } else if ((subCol >= 0) && (subCol < 2)) {
-                        content += floatWithPrec(window.meltcurveTable[row][col], 100) + "\t"
-                        ret += '<td>' + floatWithPrec(window.meltcurveTable[row][col], 100) + '</td>\n'
+                        var currTemp = floatWithPrec(window.meltcurveTable[row][col], 100)
+                        if (goodTemp == currTemp) {
+                            currCol = colGood
+                        } else {
+                            currCol = colWarn
+                        }
+                        if (currTemp == "") {
+                            currCol = ""
+                        }
+                        if (window.meltcurveTable[row][3].includes("Average")) {
+                            currCol = ""
+                        }
+                        content += currTemp + "\t"
+                        ret += '<td' + currCol + '>' + currTemp + '</td>\n'
                     } else if ((subCol >= 0) && (subCol < 3)) {
                         content += floatWithPrec(window.meltcurveTable[row][col], 1000000) + "\t"
-                        ret += '<td>' + floatWithPrec(window.meltcurveTable[row][col], 1000000) + '</td>\n'
+                        ret += '<td' + currCol + '>' + floatWithPrec(window.meltcurveTable[row][col], 1000000) + '</td>\n'
                     }
                 }
             }
