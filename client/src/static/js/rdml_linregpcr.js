@@ -1942,7 +1942,7 @@ function updateMeltingTable() {
             if (row == 0) {
                 ret += '<tr>\n'
             } else {
-                ret += "<tr ondblclick='window.clickSampSel(\"" + window.meltcurveTable[row][3]  // "target"
+                ret += "<tr ondblclick='window.clickSampSel(\"" + window.meltcurveTable[row][4]  // "target"
                 ret += "\", \"" + window.meltcurveTable[row][0] + "\")'> \n"  // "id"
             }
             for (var col = 0; col < window.meltcurveTable[row].length; col++) {
@@ -1962,7 +1962,7 @@ function updateMeltingTable() {
             if (row == 0) {
                 ret += '<tr>\n'
             } else {
-                ret += "<tr ondblclick='window.clickSampSel(\"" + window.meltcurveTable[row][3]  // "target"
+                ret += "<tr ondblclick='window.clickSampSel(\"" + window.meltcurveTable[row][4]  // "target"
                 ret += "\", \"" + window.meltcurveTable[row][0] + "\")'> \n"  // "id"
             }
             var goodTemp = 0.0
@@ -1975,8 +1975,16 @@ function updateMeltingTable() {
                     content += window.meltcurveTable[row][col] + "\t"
                     ret += '<td>' + window.meltcurveTable[row][col] + '</td>\n'
                 } else if (col < 8) {
+                    var editLink = NumPoint(window.meltcurveTable[row][col])
                     content += NumPoint(window.meltcurveTable[row][col]) + "\t"
-                    ret += '<td>' + NumPoint(window.meltcurveTable[row][col]) + '</td>\n'
+                    if ((window.meltcurveTable[row][3].includes("Average")) && (editLink == "")) {
+                        currCol = ""
+                        if (window.rdmlData.rdml.version == "1.3") {
+                            editLink = '<a href="' + `${API_LINK}` + "edit.html?UUID=" + window.uuid
+                            editLink += ';TAB=targets-tab;EDITMODE=on" target="_blank">Edit Tm</a>\n'
+                        }
+                    }
+                    ret += '<td>' + editLink + '</td>\n'
                 } else if (col < 9) {
                     content += floatWithPrec(window.meltcurveTable[row][col], 100) + "\t"
                     currCol = colGood
@@ -1992,8 +2000,11 @@ function updateMeltingTable() {
                     if (window.meltcurveTable[row][3].includes("Average")) {
                         currCol = ""
                     }
-                    ret += '<td' + currCol + '>' + floatWithPrec(window.meltcurveTable[row][col], 100) + '</td>\n'
                     goodTemp = floatWithPrec(window.meltcurveTable[row][col], 100)
+                    if (goodTemp == "") {
+                        currCol = ""
+                    }
+                    ret += '<td' + currCol + '>' + goodTemp + '</td>\n'
                 } else if (col < 11) {
                     content += floatWithPrec(window.meltcurveTable[row][col], 1000000) + "\t"
                     ret += '<td>' + floatWithPrec(window.meltcurveTable[row][col], 1000000) + '</td>\n'
@@ -3096,6 +3107,27 @@ function createCoordinates () {
                 }
             }
 
+        }
+    }
+    // Expected Peak line
+    if ((["smo", "nrm", "fdm", "mdp"].includes(window.curveSource)) &&
+        (window.sampSelFirst == "target") &&
+        (window.sampSelSecond != "7s8e45-Show-All")) {
+
+        var mTemp = -1.0
+        var exp = window.rdmlData.rdml.targets
+        for (var i = 0; i < exp.length; i++) {
+            if (exp[i].id == window.sampSelSecond) {
+                if (exp[i].hasOwnProperty("meltingTemperature")) {
+                     mTemp = parseFloat(exp[i].meltingTemperature)
+                }
+            }
+        }
+
+        if (mTemp > 0.0) {
+            var xPos = toSvgXScale(mTemp);
+            retVal += "<line x1='" + xPos + "' y1='" + lineYst;
+            retVal += "' x2='" + xPos + "' y2='" + window.frameYend + "' stroke-width='0.5' stroke='black' />";
         }
     }
 

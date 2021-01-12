@@ -254,6 +254,7 @@ function getSaveHtmlData(key) {
 function checkForUUID() {
     var uuid = ""
     var tab = ""
+    var editMode = false
 
     var path = (window.location.search + "").replace(/^\?/, "") // .pathname decodeURIComponent(;
     path = path.replace(/&/g, ";")
@@ -268,6 +269,9 @@ function checkForUUID() {
         if (pKey == "UUID") {
             uuid = pVal
         }
+        if ((pKey == "EDITMODE") && (pVal == "on")) {
+            editMode = true
+        }
         if (pKey == "TAB") {
             tab = pVal
         }
@@ -280,6 +284,15 @@ function checkForUUID() {
     }
     if (uuid != "") {
         updateServerData(uuid, '{"mode": "upload", "validate": true}')
+        if (editMode) {
+            var butt = document.getElementById('btn-show-edit-buttons')
+            var elem = document.getElementsByClassName('rdml-btn-edit');
+            butt.textContent = "Enable Read-Only Mode"
+            window.showEditButt = true;
+            for (var i = 0 ; i < elem.length ; i++) {
+                elem[i].style.display = "inline";
+            }
+        }
     }
 }
 
