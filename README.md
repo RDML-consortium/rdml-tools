@@ -24,7 +24,7 @@ Install the dependencies:
 
 `sudo apt install python python-pip lxml`
 
-`pip install flask flask_cors numpy`
+`pip install flask flask_cors numpy scipy`
 
 Start the server:
 

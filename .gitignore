@@ -1,3 +1,5 @@
 data/
+server/localconda/conda/*
+server/localconda/.*
 server/run.sh
 *.pyc
