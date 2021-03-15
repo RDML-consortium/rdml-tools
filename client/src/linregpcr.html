@@ -51,6 +51,9 @@
       <li class="nav-item">
         <a class="nav-link" href="#meltcurve-tab" id="link-meltcurve">Melting Curve Analysis</a>
       </li>
+      <li class="nav-item" id="correction-handle-tab" style="display: none;">
+        <a class="nav-link" href="#correction-tab" id="link-correction">Corrected Data</a>
+      </li>
       <li class="nav-item">
         <a class="nav-link" href="#help-tab" id="link-help">Help</a>
       </li>
@@ -195,7 +198,7 @@
           </tr>
         </table>
         <br />
-       <br />
+        <br />
         <div id="result-linregpcr"></div>
       </div>
 
@@ -319,6 +322,35 @@
         <br />
         <br />
         <div id="result-meltcurve"></div>
+      </div>
+
+      <div class="tab-pane" id="correction-tab">
+        <table style="width:100%;">
+          <tr>
+            <td style="width:46%;"></td>
+            <td style="width:12%;">Decimal Separator:</td>
+            <td style="width:8%;">
+              <select class="form-control" id="corrSeparator">
+                <option value="point" selected>Point</option>
+                <option value="comma">Comma</option>
+              </select>
+            </td>
+            <td style="width:33%;text-align: right;">
+              <button type="submit" class="btn btn-outline-primary" id="btn-copy-correction">
+                <i class="fas fa-paste" style="margin-right: 5px;"></i>
+                Copy table to clipboard
+              </button>&nbsp;&nbsp;
+              <button type="submit" class="btn btn-outline-primary" id="btn-save-correction">
+                <i class="far fa-save" style="margin-right: 5px;"></i>
+                Save table as CSV
+              </button>
+            </td>
+            <td style="width:1%;"></td>
+          </tr>
+        </table>
+        <br />
+        <br />
+        <div id="result-correction"></div>
       </div>
 
       <div class="tab-pane" id="help-tab">

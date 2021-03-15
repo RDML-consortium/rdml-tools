@@ -32,11 +32,17 @@ linRegPCRSaveButton.addEventListener('click', saveTabLinRegPCR)
 const meltcurveSaveButton = document.getElementById('btn-save-meltcurve')
 meltcurveSaveButton.addEventListener('click', saveTabMeltcurve)
 
+const correctionSaveButton = document.getElementById('btn-save-correction')
+correctionSaveButton.addEventListener('click', saveTabCorrection)
+
 const linRegPCRCopyButton = document.getElementById('btn-copy-linregpcr')
 linRegPCRCopyButton.addEventListener('click', copyTabLinRegPCR)
 
 const meltcurveCopyButton = document.getElementById('btn-copy-meltcurve')
 meltcurveCopyButton.addEventListener('click', copyTabMeltcurve)
+
+const correctionCopyButton = document.getElementById('btn-copy-correction')
+correctionCopyButton.addEventListener('click', copyCorrection)
 
 const choiceExclMeanEff = document.getElementById('text-exl-men-eff')
 choiceExclMeanEff.addEventListener('change', resetLinRegPCRdata)
@@ -67,6 +73,9 @@ choiceDecimalSep.addEventListener('change', updateLinRegPCRDecimalSep)
 const choiceMeltDecimalSep = document.getElementById('mcaSeparator')
 choiceMeltDecimalSep.addEventListener('change', updateMeltDecimalSep)
 
+const choiceCorrDecimalSep = document.getElementById('corrSeparator')
+choiceCorrDecimalSep.addEventListener('change', updateCorrectionDecimalSep)
+
 const choiceAnnotations = document.getElementById('choiceIncludeAnnotations')
 choiceAnnotations.addEventListener('change', updateLinRegPCRTable)
 
@@ -91,6 +100,7 @@ const selectorsData = document.getElementById('selectors-data')
 const resultData = document.getElementById('result-data')
 const resultLinRegPCR = document.getElementById('result-linregpcr')
 const resultMeltcurve = document.getElementById('result-meltcurve')
+const resultCorrection = document.getElementById('result-correction')
 
 window.uuid = "";
 window.rdmlData = "";
@@ -123,6 +133,7 @@ window.colorStyle = "tarsam"
 
 window.linRegSaveTable = ""
 window.meltcurveSaveTable = ""
+window.correctionSaveTable = ""
 
 window.tarToDye = {}
 window.tarToNr = {}
@@ -179,9 +190,11 @@ function updateLinRegPCRDecimalSep() {
     if (choiceDecimalSep.value == "point") {
         window.decimalSepPoint = true;
         choiceMeltDecimalSep.value = "point";
+        choiceCorrDecimalSep.value = "point";
     } else {
         window.decimalSepPoint = false;
         choiceMeltDecimalSep.value = "comma";
+        choiceCorrDecimalSep.value = "comma";
     }
     updateLinRegPCRTable()
 }
@@ -191,11 +204,27 @@ function updateMeltDecimalSep() {
     if (choiceMeltDecimalSep.value == "point") {
         window.decimalSepPoint = true;
         choiceDecimalSep.value = "point";
+        choiceCorrDecimalSep.value = "point";
     } else {
         window.decimalSepPoint = false;
         choiceDecimalSep.value = "comma";
+        choiceCorrDecimalSep.value = "comma";
     }
     updateMeltingTable()
+}
+
+window.updateCorrectionDecimalSep = updateCorrectionDecimalSep
+function updateCorrectionDecimalSep() {
+    if (choiceCorrDecimalSep.value == "point") {
+        window.decimalSepPoint = true;
+        choiceDecimalSep.value = "point";
+        choiceMeltDecimalSep.value = "point";
+    } else {
+        window.decimalSepPoint = false;
+        choiceDecimalSep.value = "comma";
+        choiceMeltDecimalSep.value = "comma";
+    }
+    updateCorrectionTable()
 }
 
 window.resetLinRegPCRdata = resetLinRegPCRdata
@@ -655,6 +684,7 @@ function updateServerData(stat, reqData) {
                 }
                 fillLookupDics()
                 updateClientData()
+                updateCorrectionTable()
             }
         })
         .catch(err => {
@@ -1923,6 +1953,122 @@ function updateLinRegPCRTable() {
 }
 
 
+window.updateCorrectionTable = updateCorrectionTable
+function updateCorrectionTable() {
+    var ele = document.getElementById('correction-handle-tab')
+    ele.style.display = "none";
+    resultCorrection.innerHTML = ""
+    window.correctionSaveTable = ""
+    if (window.reactData.hasOwnProperty("anyCalcCorrections")) {
+        if (window.reactData.anyCalcCorrections > 0) {
+            ele.style.display = "inline";
+            if ((window.experimentPos > -1) && (window.runPos > -1) && (window.reactData.hasOwnProperty("reacts"))) {
+                var ret = '<table class="table table-bordered table-striped" id="Correction_Result_Table">\n'
+                var pcrFormat = window.rdmlData.rdml.experiments[window.experimentPos].runs[window.runPos].pcrFormat
+                var rows = parseInt(pcrFormat.rows)
+                var columns = parseInt(pcrFormat.columns)
+                var rowLabel = pcrFormat.rowLabel
+                var columnLabel = pcrFormat.columnLabel
+                ret += '<tr><td>id</td><td>well</td><td>sample</td><td>target</td>'
+                ret += '<td style="width: 180px;">excluded</td><td style="width: 180px;">note</td><td>PCR efficiency</td>'
+                ret += '<td>corrected Cq</td><td>corrected N0</td><td>correction factor</td>'
+                ret += '<td>raw Cq</td><td>raw N0</td></tr>\n'
+                var content = 'id\twell\tsample\ttarget\texcluded\tnote\tPCR efficiency\t'
+                content += 'corrected Cq\tcorrected N0\tcorrection factor\traw Cq\traw N0\n'
+                for (var id = 1; id < rows * columns + 1; id++) {
+                    for (var reac = 0; reac < window.reactData.reacts.length; reac++) {
+                        var react = window.reactData.reacts[reac]
+                        if (parseInt(react.id) == id) {
+                            for (var dat = 0; dat < react.datas.length; dat++) {
+                                var dataS = react.datas[dat]
+                                ret += '<tr><td>' + id + '</td><td>'
+                                content += id + '\t'
+                                var calcCol = (id - 1) % columns
+                                var calcRow = (id - 1) / columns
+                                var wellID = ""
+                                if (rowLabel == "123") {
+                                    wellID += (calcRow + 1)
+                                } else if (rowLabel == "ABC") {
+                                    wellID += String.fromCharCode('A'.charCodeAt(0) + calcRow)
+                                }
+                                if (columnLabel == "123") {
+                                    wellID += (calcCol + 1)
+                                } else if (columnLabel == "ABC") {
+                                    wellID += String.fromCharCode('A'.charCodeAt(0) + calcCol)
+                                }
+                                ret += wellID + '</td><td>' + react.sample + '</td><td style="width: 180px;">'
+                                content += wellID + '\t' + react.sample + '\t'
+                                ret += dataS.tar + '</td><td style="width: 180px;">'
+                                content += dataS.tar + '\t'
+                                if (dataS.hasOwnProperty("excl")) {
+                                    ret += dataS.excl + '</td><td style="width: 180px;">'
+                                    content += dataS.excl + '\t'
+                                } else {
+                                    ret += '</td><td style="width: 180px;">'
+                                    content += '\t'
+                                }
+                                if (dataS.hasOwnProperty("note")) {
+                                    ret += dataS.note + '</td><td>'
+                                    content += dataS.note + '\t'
+                                } else {
+                                    ret += '</td><td>'
+                                    content += '\t'
+                                }
+                                if (dataS.hasOwnProperty("ampEff")) {
+                                    ret += NumPoint(dataS.ampEff) + '</td><td>'
+                                    content += NumPoint(dataS.ampEff) + '\t'
+                                } else {
+                                    ret += '</td><td>'
+                                    content += '\t'
+                                }
+                                if (dataS.hasOwnProperty("corrCq")) {
+                                    ret += NumPoint(dataS.corrCq) + '</td><td>'
+                                    content += NumPoint(dataS.corrCq) + '\t'
+                                } else {
+                                    ret += '</td><td>'
+                                    content += '\t'
+                                }
+                                if (dataS.hasOwnProperty("corrN0")) {
+                                    ret += NumPoint(dataS.corrN0) + '</td><td>'
+                                    content += NumPoint(dataS.corrN0) + '\t'
+                                } else {
+                                    ret += '</td><td>'
+                                    content += '\t'
+                                }
+                                if (dataS.hasOwnProperty("corrF")) {
+                                    ret += NumPoint(dataS.corrF) + '</td><td>'
+                                    content += NumPoint(dataS.corrF) + '\t'
+                                } else {
+                                    ret += '</td><td>'
+                                    content += '\t'
+                                }
+                                 if (dataS.hasOwnProperty("cq")) {
+                                    ret += NumPoint(dataS.cq) + '</td><td>'
+                                    content += NumPoint(dataS.cq) + '\t'
+                                } else {
+                                    ret += '</td><td>'
+                                    content += '\t'
+                                }
+                                 if (dataS.hasOwnProperty("N0")) {
+                                    ret += NumPoint(dataS.N0) + '</td></tr>\n'
+                                    content += NumPoint(dataS.N0) + '\n'
+                                } else {
+                                    ret += '</td><td>\n'
+                                    content += '\n'
+                                }
+                            }
+                        }
+                    }
+                }
+                ret += '</table>\n'
+                resultCorrection.innerHTML = ret
+                window.correctionSaveTable = content
+            }
+        }
+    }
+}
+
+
 window.updateMeltingTable = updateMeltingTable
 function updateMeltingTable() {
     if (window.meltcurveTable.length < 1) {
@@ -2057,6 +2203,12 @@ function saveTabMeltcurve() {
     return;
 };
 
+window.saveTabCorrection = saveTabCorrection;
+function saveTabCorrection() {
+    saveTabFile("Corrections.tsv", window.correctionSaveTable)
+    return;
+};
+
 window.copyTabLinRegPCR = copyTabLinRegPCR;
 function copyTabLinRegPCR() {
     if (window.linRegSaveTable == "") {
@@ -2093,6 +2245,36 @@ function copyTabMeltcurve() {
         return
     }
     var el = document.getElementById("Meltcurve_Result_Table");
+	var body = document.body
+	var range
+	var sel
+	if (document.createRange && window.getSelection) {
+		range = document.createRange();
+		sel = window.getSelection();
+		sel.removeAllRanges();
+		try {
+			range.selectNodeContents(el);
+			sel.addRange(range);
+		} catch (e) {
+			range.selectNode(el);
+			sel.addRange(range);
+		}
+	} else if (body.createTextRange) {
+		range = body.createTextRange();
+		range.moveToElementText(el);
+		range.select();
+	}
+	document.execCommand("copy");
+	sel.removeAllRanges();
+    return;
+};
+
+window.copyCorrection = copyCorrection;
+function copyCorrection() {
+    if (window.correctionSaveTable == "") {
+        return
+    }
+    var el = document.getElementById("Correction_Result_Table");
 	var body = document.body
 	var range
 	var sel
