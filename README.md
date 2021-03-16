@@ -4,6 +4,8 @@ A collection of web applications to visualize, edit and validate RDML files.
 Install a local copy for testing
 --------------------------------
 
+`sudo apt-get install -y git-all`
+
 `git clone --recursive https://github.com/RDML-consortium/rdml-tools.git rdml_tools`
 
 `cd rdml_tools`
@@ -22,15 +24,15 @@ The server runs in a terminal
 
 Install the dependencies:
 
-`sudo apt install python python-pip lxml`
+`sudo apt install python3 python3-pip python3-lxml`
 
-`pip install flask flask_cors numpy scipy`
+`sudo pip3 install flask flask_cors numpy scipy`
 
 Start the server:
 
 `cd rdml_tools`
 
-`python server/server.py`
+`python3 server/server.py`
 
 Setup and run the client
 ------------------------
