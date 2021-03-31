@@ -433,8 +433,8 @@ function showLinRegPCRExample() {
 function showMeltcurveExample() {
     window.selRun = "";
     window.selPCRStyle = "classic";
-    window.selExperiment = "Experiment 1";
-    window.selRunOnLoad = "Run 1";
+    window.selExperiment = "Artifact Mix";
+    window.selRunOnLoad = "Artifact Mix with SYBR Green I";
     window.selDigitalOnLoad = "none";
     resetAllGlobalVal()
 
