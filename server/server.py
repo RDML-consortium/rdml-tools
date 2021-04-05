@@ -1476,6 +1476,10 @@ def handle_data():
                 return jsonify(errors=[{"title": "Invalid server request - mca-bilin-hight-start missing!"}]), 400
             if "mca-bilin-hight-stop" not in reqdata:
                 return jsonify(errors=[{"title": "Invalid server request - mca-bilin-hight-stop missing!"}]), 400
+            if "mca-peak-lowtemp" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - mca-peak-lowtemp missing!"}]), 400
+            if "mca-peak-hightemp" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - mca-peak-hightemp missing!"}]), 400
             if "mca-peak-cutoff" not in reqdata:
                 return jsonify(errors=[{"title": "Invalid server request - mca-peak-cutoff missing!"}]), 400
             try:
@@ -1496,6 +1500,8 @@ def handle_data():
                                                                    bilinLowStopTemp=reqdata["mca-bilin-low-stop"],
                                                                    bilinHighStartTemp=reqdata["mca-bilin-hight-start"],
                                                                    bilinHighStopTemp=reqdata["mca-bilin-hight-stop"],
+                                                                   peakLowTemp=reqdata["mca-peak-lowtemp"],
+                                                                   peakHighTemp=reqdata["mca-peak-hightemp"],
                                                                    peakCutoff=reqdata["mca-peak-cutoff"],
                                                                    updateRDML=reqdata["update-RDML-data"])
                 if "error" in data["reactsdata"]:

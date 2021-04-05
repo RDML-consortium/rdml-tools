@@ -523,6 +523,8 @@ function runMeltcurve() {
     var vMcaBilinLowStop = "70.0"
     var vMcaBilinHightStart = "93.0"
     var vMcaBilinHighStop = "94.0"
+    var vMcaPeakLowTemp = "60.0"
+    var vMcaPeakHighTemp ="98.0"
     var vMcaPeakCutoff = "5.0"
 
     var bbUpdateRDML = document.getElementById('updateMcaRDMLData')
@@ -569,6 +571,14 @@ function runMeltcurve() {
     if (eleMcaBilinHighStop) {
         vMcaBilinHighStop = eleMcaBilinHighStop.value
     }
+    var eleMcaPeakLowTemp = document.getElementById('mcaPeakLowTemp')
+    if (eleMcaPeakLowTemp) {
+        vMcaPeakLowTemp = eleMcaPeakLowTemp.value
+    }
+    var eleMcaPeakHighTemp = document.getElementById('mcaPeakHighTemp')
+    if (eleMcaPeakHighTemp) {
+        vMcaPeakHighTemp = eleMcaPeakHighTemp.value
+    }
     var eleMcaPeakCutoff = document.getElementById('mcaPeakCutoff')
     if (eleMcaPeakCutoff) {
         vMcaPeakCutoff = eleMcaPeakCutoff.value
@@ -589,6 +599,8 @@ function runMeltcurve() {
     ret["mca-bilin-low-stop"] = vMcaBilinLowStop
     ret["mca-bilin-hight-start"] = vMcaBilinHightStart
     ret["mca-bilin-hight-stop"] = vMcaBilinHighStop
+    ret["mca-peak-lowtemp"] = vMcaPeakLowTemp
+    ret["mca-peak-hightemp"] = vMcaPeakHighTemp
     ret["mca-peak-cutoff"] = vMcaPeakCutoff
     updateServerData(uuid, JSON.stringify(ret))
 

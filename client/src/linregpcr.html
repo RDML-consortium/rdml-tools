@@ -222,18 +222,46 @@
                 <option value="normalised" selected>normalised</option>
               </select>
             </td>
-            <td style="width:3%;"></td>
-            <td style="width:10%;">True Peak Width:</td>
-            <td style="width:6%;"><input type="text" class="form-control" value="1.0" id="mcaTruePeakWidth"></td>
-            <td style="width:2%;">&deg;C</td>
-            <td style="width:2%;"></td>
-            <td style="width:10%;">Artifact Peak Width:</td>
-            <td style="width:6%;"><input type="text" class="form-control" value="1.0" id="mcaArtifactPeakWidth "></td>
-            <td style="width:4%;">&deg;C</td>
+            <td style="width:23%;"></td>
+            <td style="width:14%;">Update RDML Data:</td>
+            <td style="width:6%;">
+              <select class="form-control" id="updateMcaRDMLData">
+                <option value="y">yes</option>
+                <option value="n" selected>no</option>
+              </select>
+            </td>
             <td style="width:12%;text-align: right;">
               <button type="submit" class="btn btn-outline-primary" id="btn-meltcurve">
                 <i class="fas fa-rocket" style="margin-right: 5px;"></i>
                 Run Meltcurve
+              </button>
+            </td>
+            <td style="width:1%;"></td>
+          </tr>
+        </table>
+        <table style="width:100%;margin-top:0.7em;">
+          <tr>
+            <td style="width:1%;"></td>
+            <td style="width:11%;">True Peak Width:</td>
+            <td style="width:5%;"><input type="text" class="form-control" value="1.0" id="mcaTruePeakWidth"></td>
+            <td style="width:2%;">&deg;C</td>
+            <td style="width:2%;"></td>
+            <td style="width:11%;">Artifact Peak Width:</td>
+            <td style="width:5%;"><input type="text" class="form-control" value="1.0" id="mcaArtifactPeakWidth "></td>
+            <td style="width:4%;">&deg;C</td>
+            <td style="width:2%;"></td>
+            <td style="width:9%;">Min Peak Temp:</td>
+            <td style="width:5%;"><input type="text" class="form-control" value="60.0" id="mcaPeakLowTemp"></td>
+            <td style="width:2%;">&deg;C</td>
+            <td style="width:2%;"></td>
+            <td style="width:9%;">Max Peak Temp:</td>
+            <td style="width:5%;"><input type="text" class="form-control" value="98.0" id="mcaPeakHighTemp "></td>
+            <td style="width:4%;">&deg;C</td>
+            <td style="width:2%;"></td>
+            <td style="width:18%;text-align: right;">
+              <button type="submit" class="btn btn-outline-primary" id="btn-rdml-meltcurve">
+                <i class="far fa-save" style="margin-right: 5px;"></i>
+                Save RDML
               </button>
             </td>
             <td style="width:1%;"></td>
@@ -294,26 +322,6 @@
               <button type="submit" class="btn btn-outline-primary" id="btn-save-meltcurve">
                 <i class="far fa-save" style="margin-right: 5px;"></i>
                 Save table as CSV
-              </button>
-            </td>
-            <td style="width:1%;"></td>
-          </tr>
-        </table>
-        <table style="width:100%;margin-top:0.7em;">
-          <tr>
-            <td style="width:56%;"></td>
-            <td style="width:14%;">Update RDML Data:</td>
-            <td style="width:6%;">
-              <select class="form-control" id="updateMcaRDMLData">
-                <option value="y">yes</option>
-                <option value="n" selected>no</option>
-              </select>
-            </td>
-            <td style="width:5%;"></td>
-            <td style="width:18%;text-align: right;">
-              <button type="submit" class="btn btn-outline-primary" id="btn-rdml-meltcurve">
-                <i class="far fa-save" style="margin-right: 5px;"></i>
-                Save RDML
               </button>
             </td>
             <td style="width:1%;"></td>
