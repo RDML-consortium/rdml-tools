@@ -206,7 +206,7 @@
         <table style="width:100%;">
           <tr>
             <td style="width:1%;"></td>
-            <td style="width:11%;">Baseline Correction:</td>
+            <td style="width:12%;">Baseline Correction:</td>
             <td style="width:14%;">
               <select class="form-control" id="mcaNormMethod">
                 <option value="exponential" selected>exponential</option>
@@ -214,16 +214,20 @@
                 <option value="combined">combined</option>
               </select>
             </td>
-            <td style="width:3%;"></td>
-            <td style="width:6%;">Fluor Loss:</td>
+            <td style="width:2%;"></td>
+            <td style="width:7%;">Fluor Loss:</td>
             <td style="width:9%;">
               <select class="form-control" id="mcaFluorLoss">
                 <option value="smoothed">smoothed</option>
                 <option value="normalised" selected>normalised</option>
               </select>
             </td>
-            <td style="width:23%;"></td>
-            <td style="width:14%;">Update RDML Data:</td>
+            <td style="width:2%;"></td>
+            <td style="width:13%;">True Peak Tolerance:</td>
+            <td style="width:5%;"><input type="text" class="form-control" value="1.0" id="mcaTruePeakWidth"></td>
+            <td style="width:2%;">&deg;C</td>
+            <td style="width:2%;"></td>
+            <td style="width:12%;">Update RDML Data:</td>
             <td style="width:6%;">
               <select class="form-control" id="updateMcaRDMLData">
                 <option value="y">yes</option>
@@ -242,23 +246,23 @@
         <table style="width:100%;margin-top:0.7em;">
           <tr>
             <td style="width:1%;"></td>
-            <td style="width:11%;">True Peak Width:</td>
-            <td style="width:5%;"><input type="text" class="form-control" value="1.0" id="mcaTruePeakWidth"></td>
-            <td style="width:2%;">&deg;C</td>
-            <td style="width:2%;"></td>
-            <td style="width:11%;">Artifact Peak Width:</td>
+            <td style="width:15%;">Artifact Peak Tolerance:</td>
             <td style="width:5%;"><input type="text" class="form-control" value="1.0" id="mcaArtifactPeakWidth "></td>
-            <td style="width:4%;">&deg;C</td>
-            <td style="width:2%;"></td>
-            <td style="width:9%;">Min Peak Temp:</td>
+            <td style="width:2%;">&deg;C</td>
+            <td style="width:3%;"></td>
+            <td style="width:10%;">Min Peak Temp:</td>
             <td style="width:5%;"><input type="text" class="form-control" value="60.0" id="mcaPeakLowTemp"></td>
             <td style="width:2%;">&deg;C</td>
-            <td style="width:2%;"></td>
-            <td style="width:9%;">Max Peak Temp:</td>
+            <td style="width:3%;"></td>
+            <td style="width:10%;">Max Peak Temp:</td>
             <td style="width:5%;"><input type="text" class="form-control" value="98.0" id="mcaPeakHighTemp "></td>
-            <td style="width:4%;">&deg;C</td>
-            <td style="width:2%;"></td>
-            <td style="width:18%;text-align: right;">
+            <td style="width:2%;">&deg;C</td>
+            <td style="width:3%;"></td>
+            <td style="width:10%;">Max Peak Width:</td>
+            <td style="width:5%;"><input type="text" class="form-control" value="5.0" id="mcaPeakMaxWidth"></td>
+            <td style="width:2%;">&deg;C</td>
+            <td style="width:3%;"></td>
+            <td style="width:13%;text-align: right;">
               <button type="submit" class="btn btn-outline-primary" id="btn-rdml-meltcurve">
                 <i class="far fa-save" style="margin-right: 5px;"></i>
                 Save RDML

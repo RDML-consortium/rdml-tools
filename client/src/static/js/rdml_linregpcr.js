@@ -525,6 +525,7 @@ function runMeltcurve() {
     var vMcaBilinHighStop = "94.0"
     var vMcaPeakLowTemp = "60.0"
     var vMcaPeakHighTemp ="98.0"
+    var vMcaPeakMaxWidth ="5.0"
     var vMcaPeakCutoff = "5.0"
 
     var bbUpdateRDML = document.getElementById('updateMcaRDMLData')
@@ -579,6 +580,10 @@ function runMeltcurve() {
     if (eleMcaPeakHighTemp) {
         vMcaPeakHighTemp = eleMcaPeakHighTemp.value
     }
+    var eleMcaPeakMaxWidth = document.getElementById('mcaPeakMaxWidth')
+    if (eleMcaPeakMaxWidth) {
+        vMcaPeakMaxWidth = eleMcaPeakMaxWidth.value
+    }
     var eleMcaPeakCutoff = document.getElementById('mcaPeakCutoff')
     if (eleMcaPeakCutoff) {
         vMcaPeakCutoff = eleMcaPeakCutoff.value
@@ -601,6 +606,7 @@ function runMeltcurve() {
     ret["mca-bilin-hight-stop"] = vMcaBilinHighStop
     ret["mca-peak-lowtemp"] = vMcaPeakLowTemp
     ret["mca-peak-hightemp"] = vMcaPeakHighTemp
+    ret["mca-peak-maxwidth"] = vMcaPeakMaxWidth
     ret["mca-peak-cutoff"] = vMcaPeakCutoff
     updateServerData(uuid, JSON.stringify(ret))
 
@@ -2126,7 +2132,7 @@ function updateMeltingTable() {
             var goodTemp = 0.0
             var currCol = "";
             for (var col = 0; col < window.meltcurveTable[row].length; col++) {
-                if ((row == 0) && (col < 11)) {
+                if ((row == 0) && (col < 12)) {
                     content += window.meltcurveTable[row][col] + "\t"
                     ret += '<td>' + window.meltcurveTable[row][col] + '</td>\n'
                 } else if (col < 7) {
@@ -2163,12 +2169,15 @@ function updateMeltingTable() {
                         currCol = ""
                     }
                     ret += '<td' + currCol + '>' + goodTemp + '</td>\n'
-                } else if (col < 11) {
+                } else if (col < 10) {
+                    content += floatWithPrec(window.meltcurveTable[row][col], 100) + "\t"
+                    ret += '<td>' + floatWithPrec(window.meltcurveTable[row][col], 100) + '</td>\n'
+                } else if (col < 12) {
                     content += floatWithPrec(window.meltcurveTable[row][col], 1000000) + "\t"
                     ret += '<td>' + floatWithPrec(window.meltcurveTable[row][col], 1000000) + '</td>\n'
                 } else {
-                    var subCol = (col - 15) % 8;
-                    if ((row == 0) && (subCol >= 0) && (subCol < 3)) {
+                    var subCol = (col - 16) % 9;
+                    if ((row == 0) && (subCol >= 0) && (subCol < 4)) {
                         currCol = "";
                         content += window.meltcurveTable[row][col] + "\t"
                         ret += '<td>' + window.meltcurveTable[row][col] + '</td>\n'
@@ -2188,6 +2197,9 @@ function updateMeltingTable() {
                         content += currTemp + "\t"
                         ret += '<td' + currCol + '>' + currTemp + '</td>\n'
                     } else if ((subCol >= 0) && (subCol < 3)) {
+                        content += floatWithPrec(window.meltcurveTable[row][col], 100) + "\t"
+                        ret += '<td' + currCol + '>' + floatWithPrec(window.meltcurveTable[row][col], 100) + '</td>\n'
+                    } else if ((subCol >= 0) && (subCol < 4)) {
                         content += floatWithPrec(window.meltcurveTable[row][col], 1000000) + "\t"
                         ret += '<td' + currCol + '>' + floatWithPrec(window.meltcurveTable[row][col], 1000000) + '</td>\n'
                     }
