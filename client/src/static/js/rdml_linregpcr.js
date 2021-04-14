@@ -168,6 +168,7 @@ window.winXst = 0;
 window.winXend = 75;
 window.winYst = 0;
 window.winYstep = 500;
+window.winYprec = 0;
 window.winYend = 5000;
 // The output window
 window.frameXst = 0;
@@ -3124,11 +3125,39 @@ function setStartStop() {
 
     if (window.yScale == "lin") {
         if (window.winYmin > 0.0) {
-            window.winYstep = Math.pow(10, Math.floor(Math.log10(window.winYmax / 3)));
+            var dimension = Math.pow(10, Math.floor(Math.log(window.winYmax) / Math.log(10)))
+            var scaleNorm = window.winYmax / dimension
+            if (scaleNorm > 6) {
+                window.winYstep = 2.0 * dimension
+                window.winYprec = 0
+            } else if (scaleNorm > 4) {
+                window.winYstep = 1.0 * dimension
+                window.winYprec = 0
+            } else if (scaleNorm > 2) {
+                window.winYstep = 0.5 * dimension
+                window.winYprec = 1
+            } else {
+                window.winYstep = 0.2 * dimension
+                window.winYprec = 1
+            }
             window.winYst = 0.0;
             window.winYend = Math.ceil(window.winYmax / window.winYstep) * window.winYstep;
         } else {
-            window.winYstep = Math.pow(10, Math.floor(Math.log10(Math.abs(window.winYmax - window.winYmin) / 3)));
+            var dimension = Math.pow(10, Math.floor(Math.log(window.winYmax - window.winYmin) / Math.log(10)))
+            var scaleNorm = window.winYmax / dimension
+            if (scaleNorm > 6) {
+                window.winYstep = 2.0 * dimension
+                window.winYprec = 0
+            } else if (scaleNorm > 4) {
+                window.winYstep = 1.0 * dimension
+                window.winYprec = 0
+            } else if (scaleNorm > 2) {
+                window.winYstep = 0.5 * dimension
+                window.winYprec = 1
+            } else {
+                window.winYstep = 0.2 * dimension
+                window.winYprec = 1
+            }
             window.winYst = Math.floor(window.winYmin / window.winYstep) * window.winYstep;
             window.winYend = Math.ceil(window.winYmax / window.winYstep) * window.winYstep;
         }
@@ -3206,6 +3235,9 @@ function createCoordinates () {
     if (window.yScale == "lin") {
         var maxYScaleVal = window.winYend - window.winYst + window.winYstep;
         var yRound = Math.max(0, Math.floor(1 - Math.log10(Math.abs(maxYScaleVal))))
+        if (Math.log10(maxYScaleVal) < 1.0) {
+            yRound = yRound + window.winYprec
+        }
         for (var i = 0; i *  window.winYstep < window.winYend - window.winYst + window.winYstep; i++) {
             var yPos = toSvgYLinScale(window.winYst + i *  window.winYstep);
             retVal += "<line x1='" + window.frameXst + "' y1='" + yPos;
