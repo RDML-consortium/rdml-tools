@@ -854,6 +854,10 @@ function updateClientData() {
     }
     ret += '<a href="' + `${API_LINK}` + "validate.html?UUID=" + window.uuid + '" target="_blank">'
     ret += `${API_LINK}` + "validate.html?UUID=" + window.uuid + '</a> (valid for 3 days)\n<br />\n'
+    ret += '</p>\n'
+    ret += '<p>Remove Uploaded Data from Server:<br />'
+    ret += '<a href="' + `${API_LINK}` + "remove.html?UUID=" + window.uuid + '" target="_blank">'
+    ret += `${API_LINK}`  + "remove.html?UUID=" + window.uuid + '</a> (valid for 3 days)\n<br />\n'
     ret += '</p>\n</div>\n</div>\n'
     resultLink.innerHTML = ret
 

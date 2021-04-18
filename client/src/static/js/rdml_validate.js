@@ -81,7 +81,11 @@ function handleSuccess(res) {
     var ret = '<p>Link to this result page:\n'
     ret += '<a href="' + `${API_LINK}` + "validate.html?UUID=" + res.uuid + '">'
     ret += `${API_LINK}` + "validate.html?UUID=" + res.uuid + '</a>\n'
-    ret += ' (valid for 3 days)\n</p>\n<br />\n'
+    ret += ' (valid for 3 days)\n</p>\n'
+    ret += '<p>Link to remove uploaded data:\n'
+    ret += '<a href="' + `${API_LINK}` + "remove.html?UUID=" + res.uuid + '" target="_blank">'
+    ret += `${API_LINK}`  + "remove.html?UUID=" + res.uuid + '</a> (valid for 3 days)\n<br />\n'
+    ret += '</p>\n<br />\n'
     var resArr = res.table.split('\n')
     ret += '<table style="width:100%; border-collapse: separate; border-spacing: 5px;">\n'
     for (var i = 0 ; i < resArr.length ; i++) {

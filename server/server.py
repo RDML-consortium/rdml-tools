@@ -4,6 +4,7 @@ from __future__ import division
 from __future__ import print_function
 
 import os
+import glob
 import uuid
 import re
 import argparse
@@ -65,6 +66,33 @@ def download(uuidstr):
     if uuidstr == "meltingcurveanalysis.rdml":
         return send_file("meltingcurveanalysis.rdml", mimetype="application/x-rdml", as_attachment=True, attachment_filename="meltingcurveanalysis.rdml")
     return "File does not exist!"
+
+
+@app.route('/api/v1/remove', methods=['POST'])
+def remove_file():
+    if request.method == 'POST':
+        if 'uuid' in request.form.keys():
+            uuidstr = request.form['uuid']
+            if uuidstr in ["error.rdml", "sample.rdml", "linregpcr.rdml", "meltingcurveanalysis.rdml"]:
+                return jsonify(errors=[{"title": "Sample files can not be deleted!"}]), 400
+            else:
+                if not is_valid_uuid(uuidstr):
+                    return jsonify(errors=[{"title": "Invalid UUID - UUID link outdated or invalid!"}]), 400
+                sf = os.path.join(app.config['UPLOAD_FOLDER'], uuidstr[0:2])
+                if not os.path.exists(sf):
+                    return jsonify(errors=[{"title": "Invalid path - UUID link outdated or invalid!"}]), 400
+                fileList = glob.glob(os.path.join(sf, "rdml_" + uuidstr + "*"))
+                if request.form['mode'] == "check":
+                    mess = "There are " + str(len(fileList)) + " files on the server to be removed."
+                else:
+                    mess = "Removed " + str(len(fileList)) + " files from the server."
+                    for filePath in fileList:
+                        try:
+                            os.remove(filePath)
+                        except OSError:
+                            return jsonify(errors=[{"title": "Error while deleting file!"}]), 400
+            return jsonify(data={"files": mess, "uuid": uuidstr, "mode": request.form['mode']})
+    return jsonify(errors=[{"title": "Error in handling POST request!"}]), 400
 
 
 @app.route('/api/v1/validate', methods=['POST'])
