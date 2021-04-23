@@ -488,6 +488,9 @@ function runLinRegPCR() {
         window.exDiffMean = bbExcludeEfficiency.value
     }
 
+    window.yScale = "log"
+    window.curveSource = "bas"
+
     var ret = {}
     ret["mode"] = "run-linregpcr"
     ret["sel-experiment"] = window.selExperiment
@@ -590,6 +593,9 @@ function runMeltcurve() {
         vMcaPeakCutoff = eleMcaPeakCutoff.value
     }
 
+    window.yScale = "lin"
+    window.curveSource = "fdm"
+
     var ret = {}
     ret["mode"] = "run-meltcurve"
     ret["sel-experiment"] = window.selExperiment
@@ -651,7 +657,6 @@ function updateServerData(stat, reqData) {
                     window.reactData = res.data.data.reactsdata
                     if (window.reactData.hasOwnProperty("LinRegPCR_Result_Table")) {
                         window.baselineData = res.data.data.reactsdata
-                        window.curveSource = "bas"
                         window.linRegPCRTable = JSON.parse(window.reactData.LinRegPCR_Result_Table)
                         for (var row = 0; row < window.linRegPCRTable.length; row++) {
                             var reactPos = window.linRegPCRTable[row][0]  // "id"
@@ -667,8 +672,6 @@ function updateServerData(stat, reqData) {
                     }
                     if (window.reactData.hasOwnProperty("Meltcurve_Result_Table")) {
                         window.meltcurveData = res.data.data.reactsdata
-                        window.yScale = "lin"
-                        window.curveSource = "fdm"
                         window.meltcurveTable = JSON.parse(window.meltcurveData.Meltcurve_Result_Table)
                         for (var row = 0; row < window.meltcurveTable.length; row++) {
                             var reactPos = window.meltcurveTable[row][0]  // "id"
@@ -854,10 +857,6 @@ function updateClientData() {
     }
     ret += '<a href="' + `${API_LINK}` + "validate.html?UUID=" + window.uuid + '" target="_blank">'
     ret += `${API_LINK}` + "validate.html?UUID=" + window.uuid + '</a> (valid for 3 days)\n<br />\n'
-    ret += '</p>\n'
-    ret += '<p>Remove Uploaded Data from Server:<br />'
-    ret += '<a href="' + `${API_LINK}` + "remove.html?UUID=" + window.uuid + '" target="_blank">'
-    ret += `${API_LINK}`  + "remove.html?UUID=" + window.uuid + '</a> (valid for 3 days)\n<br />\n'
     ret += '</p>\n</div>\n</div>\n'
     resultLink.innerHTML = ret
 
@@ -1995,9 +1994,9 @@ function updateCorrectionTable() {
                 ret += '<tr><td>id</td><td>well</td><td>sample</td><td>target</td>'
                 ret += '<td style="width: 180px;">excluded</td><td style="width: 180px;">note</td><td>PCR efficiency</td>'
                 ret += '<td>corrected Cq</td><td>corrected N0</td><td>correction factor</td>'
-                ret += '<td>raw Cq</td><td>raw N0</td></tr>\n'
+                ret += '<td>observed Cq</td><td>observed N0</td></tr>\n'
                 var content = 'id\twell\tsample\ttarget\texcluded\tnote\tPCR efficiency\t'
-                content += 'corrected Cq\tcorrected N0\tcorrection factor\traw Cq\traw N0\n'
+                content += 'corrected Cq\tcorrected N0\tcorrection factor\tobserved Cq\tobserved N0\n'
                 for (var id = 1; id < rows * columns + 1; id++) {
                     for (var reac = 0; reac < window.reactData.reacts.length; reac++) {
                         var react = window.reactData.reacts[reac]
@@ -2128,6 +2127,10 @@ function updateMeltingTable() {
         }
     } else {
         for (var row = 0; row < window.meltcurveTable.length; row++) {
+            // Del the average line
+            if (window.meltcurveTable[row][3].includes("Average")) {
+                continue
+            }
             if (row == 0) {
                 ret += '<tr>\n'
             } else {
@@ -3107,6 +3110,7 @@ function showSVG() {
 function createSVG() {
     setStartStop();
     var retVal = createEfficiencyCurves();
+    retVal += createMeltcurveBox();
     retVal += createAllCurves();
     retVal += createCoordinates ();
     retVal += "<g id='svgHighCurve'></g>"
@@ -3218,6 +3222,45 @@ function toSvgYLogScale(val) {
 
 }
 
+function createMeltcurveBox () {
+    var lineXend = window.frameXend + 5;
+    var lineYst = window.frameYst - 5;
+    var retVal = ""
+    // Expected Peak line
+    if ((["smo", "nrm", "fdm", "mdp"].includes(window.curveSource)) &&
+        (window.sampSelFirst == "target") &&
+        (window.sampSelSecond != "7s8e45-Show-All")) {
+
+        var mTemp = -1.0
+        var mWidth = 0.0
+        var exp = window.rdmlData.rdml.targets
+        for (var i = 0; i < exp.length; i++) {
+            if (exp[i].id == window.sampSelSecond) {
+                if (exp[i].hasOwnProperty("meltingTemperature")) {
+                    mTemp = parseFloat(exp[i].meltingTemperature)
+                    var eleMcaTruePeakWidth = document.getElementById('mcaTruePeakWidth')
+                    if (eleMcaTruePeakWidth) {
+                        mWidth = parseFloat(eleMcaTruePeakWidth.value)
+                    }
+                }
+            }
+        }
+        if ((mTemp > 0.0) && (!(isNaN(mWidth)))) {
+            var rlPos = toSvgXScale(mTemp - mWidth)
+            var rrPos = toSvgXScale(mTemp + mWidth)
+            var rwPos = rrPos - rlPos
+            var rhPos = window.frameYend - lineYst
+            retVal += "<rect x='" + rlPos + "' y='" + lineYst;
+            retVal += "' width='" + rwPos + "' height='" + rhPos + "' fill=rgb(230,230,230) />"
+        }
+        if (mTemp > 0.0) {
+            var xPos = toSvgXScale(mTemp);
+            retVal += "<line x1='" + xPos + "' y1='" + lineYst;
+            retVal += "' x2='" + xPos + "' y2='" + window.frameYend + "' stroke-width='0.5' stroke='black' />";
+        }
+    }
+    return retVal;
+}
 
 function createCoordinates () {
     var lineXend = window.frameXend + 5;
@@ -3351,28 +3394,6 @@ function createCoordinates () {
 
         }
     }
-    // Expected Peak line
-    if ((["smo", "nrm", "fdm", "mdp"].includes(window.curveSource)) &&
-        (window.sampSelFirst == "target") &&
-        (window.sampSelSecond != "7s8e45-Show-All")) {
-
-        var mTemp = -1.0
-        var exp = window.rdmlData.rdml.targets
-        for (var i = 0; i < exp.length; i++) {
-            if (exp[i].id == window.sampSelSecond) {
-                if (exp[i].hasOwnProperty("meltingTemperature")) {
-                     mTemp = parseFloat(exp[i].meltingTemperature)
-                }
-            }
-        }
-
-        if (mTemp > 0.0) {
-            var xPos = toSvgXScale(mTemp);
-            retVal += "<line x1='" + xPos + "' y1='" + lineYst;
-            retVal += "' x2='" + xPos + "' y2='" + window.frameYend + "' stroke-width='0.5' stroke='black' />";
-        }
-    }
-
     retVal += "<line x1='" + window.frameXst + "' y1='" + window.frameYend;
     retVal += "' x2='" + lineXend + "' y2='" + window.frameYend + "' stroke-width='2' stroke='black' stroke-linecap='square'/>";
     retVal += "<line x1='" + window.frameXst + "' y1='" + lineYst;
