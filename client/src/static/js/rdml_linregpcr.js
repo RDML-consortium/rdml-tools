@@ -3251,7 +3251,7 @@ function createMeltcurveBox () {
             var rwPos = rrPos - rlPos
             var rhPos = window.frameYend - lineYst
             retVal += "<rect x='" + rlPos + "' y='" + lineYst;
-            retVal += "' width='" + rwPos + "' height='" + rhPos + "' fill=rgb(230,230,230) />"
+            retVal += "' width='" + rwPos + "' height='" + rhPos + "' fill='rgb(230,230,230)' />"
         }
         if (mTemp > 0.0) {
             var xPos = toSvgXScale(mTemp);
