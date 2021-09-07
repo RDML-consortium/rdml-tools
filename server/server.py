@@ -225,7 +225,7 @@ def handle_data():
                 run_ele["pcrFormat_rows"] = request.form['pcrFormat_rows']
                 run_ele["pcrFormat_rowLabel"] = request.form['pcrFormat_rowLabel']
 
-                if request.form['pcrFormat_rowLabel'] == "amp":
+                if request.form['tableDataFormat'] == "amp":
                     tabAmpFilename = os.path.join(sf, "rdml_" + uuidstr + "_amplification_upload.tsv")
                     with open(tabAmpFilename, "w") as tabAmp:
                         tabAmp.write(request.form['tableData'])
