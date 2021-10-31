@@ -57,19 +57,11 @@ function createServerRdml() {
         return;
     }
     var content = "";
-    var missingData = false
     for (var i = 0 ; i < window.resultTab.length ; i++) {
         for (var k = 0 ; k < window.resultTab[i].length ; k++) {
             content += window.resultTab[i][k] + "\t"
-            if ((k < 6) && (window.resultTab[i][k] == "")) {
-                missingData = true
-            }
         }
         content = content.replace(/\t$/g, "\n");
-    }
-    if (missingData == true) {
-        alert("The columns 1 to 6 must be filled.")
-        return;
     }
 
     const formData = new FormData()
@@ -273,11 +265,11 @@ function drawImportTable() {
     for (var i = 0 ; i < preTab.length ; i++) {
         tab.push(preTab[i].split(window.inputSeparator));
     }
-    inputTableView.innerHTML = drawHtmlTable(tab)
+    inputTableView.innerHTML = drawHtmlTable(tab, false)
 }
 
 window.drawHtmlTable = drawHtmlTable;
-function drawHtmlTable(tab) {
+function drawHtmlTable(tab, useColor) {
     var retVal = "<table class=\"tablePreview\">\n"
     retVal += "<tr>\n<th style=\"background-color: grey;\"></th>\n";
     var maxXCount = 0;
@@ -299,8 +291,20 @@ function drawHtmlTable(tab) {
     retVal += "</tr>\n"
     for (var i = 0 ; i < maxLength ; i++) {
         retVal += "<tr>\n<td style=\"background-color: grey;\">" + (i + 1) + "</td>\n"
+        var complete = true;
+        if (useColor == true) {
+            for (var k = 0 ; k < 6 ; k++) {
+                if (tab[i][k] == "") {
+                    complete = false;
+                }
+            }
+        }
         for (var k = 0 ; k < tab[i].length ; k++) {
-            retVal += "<td>" + tab[i][k] + "</td>\n"
+            if ((useColor == true) && (i != 0) && (complete == true)) {
+                retVal += "<td style=\"background-color:#00e600;\">" + tab[i][k] + "</td>\n"
+            } else {
+                retVal += "<td>" + tab[i][k] + "</td>\n"
+            }
         }
         retVal += "</tr>\n"
     }
@@ -536,7 +540,7 @@ function updateModification() {
     }
 
     // Draw the reshaped table
-    reshapeTableView.innerHTML = drawHtmlTable(tab)
+    reshapeTableView.innerHTML = drawHtmlTable(tab, false)
 
     // Finally extract the information
     var ftab = [["Well", "Sample", "Sample Type", "Target", "Target Type", "Dye"]];
@@ -957,7 +961,7 @@ function compResTable() {
 
 window.updateExport = updateExport;
 function updateExport() {
-    exportTableView.innerHTML = drawHtmlTable(window.resultTab)
+    exportTableView.innerHTML = drawHtmlTable(window.resultTab, true)
 
 }
 

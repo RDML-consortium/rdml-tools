@@ -37,6 +37,7 @@ const debugData = document.getElementById('debug-data')
 window.uuid = "";
 window.rdmlData = "";
 window.isvalid = "untested";
+window.errorMessage = "";
 
 window.showEditButt = false;
 window.editMode = false;
@@ -351,6 +352,7 @@ function updateServerData(stat, reqData) {
 
     hideElement(resultError)
     showElement(resultInfo)
+    window.errorMessage = "";
 
     axios
         .post(`${API_URL}/data`, formData)
@@ -372,11 +374,13 @@ function updateServerData(stat, reqData) {
                 }
                 hideElement(resultInfo)
                 if (res.data.data.hasOwnProperty("error")) {
+                    window.errorMessage = res.data.data.error;
                     showElement(resultError)
                     var err = '<i class="fas fa-fire"></i>\n<span id="error-message">'
-                    err += res.data.data.error + '</span>'
+                    err += window.errorMessage + '</span>'
                     resultError.innerHTML = err
                 } else {
+                    window.errorMessage = "";
                     hideElement(resultError)
                 }
                 if (res.data.data.hasOwnProperty("exporttable")) {
@@ -394,8 +398,9 @@ function updateServerData(stat, reqData) {
             }
             hideElement(resultInfo)
             showElement(resultError)
+            window.errorMessage += " " + errorMessage
             var err = '<i class="fas fa-fire"></i>\n<span id="error-message">'
-            err += errorMessage + '</span>'
+            err += window.errorMessage + '</span>'
             resultError.innerHTML = err
         })
 }
@@ -549,8 +554,10 @@ function updateClientData() {
     }
     if (window.isvalid == "invalid") {
         ret += '<p>File is not valid RDML! Click here for more information:<br />'
-        resultError.innerHTML = '<i class="fas fa-fire"></i>\n<span id="error-message">' +
-                                'Error: Uploaded file is not valid RDML!</span>'
+        var errT = '<i class="fas fa-fire"></i>\n<span id="error-message">'
+        errT += 'Error: Uploaded file is not valid RDML! '
+        errT += window.errorMessage + '</span>'
+        resultError.innerHTML = errT
         showElement(resultError)
     }
     ret += '<a href="' + `${API_LINK}` + "validate.html?UUID=" + window.uuid + '" target="_blank">'

@@ -17,6 +17,21 @@ Update your local copy
 
 `git submodule update --recursive --remote`
 
+Reconnect the submodules (for developpers)
+------------------------------------------
+
+`cd server/rdmlpython`
+
+`git branch`
+
+`git checkout main`
+
+`cd schema`
+
+`git branch`
+
+`git checkout main`
+
 Setup and run the server
 ------------------------
 
