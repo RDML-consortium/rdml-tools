@@ -1,4 +1,5 @@
 data/
+log/
 server/localconda/conda/*
 server/localconda/.*
 server/run.sh

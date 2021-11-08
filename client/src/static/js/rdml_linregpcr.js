@@ -2102,7 +2102,8 @@ function updateMeltingTable() {
     var colWarn = ' style="background-color: #ffc266"'
     var colErr = ' style="background-color: #ff5c33"'
     var warnMesA = "no product with expected melting temperature"
-    var warnMesB =  "several products with diverging melting temperatures detected"
+    var warnMesB =  "several products with different melting temperatures detected"
+    var warnMesC =  "product contamination detected"
 
     var ret = '<table class="table table-bordered table-striped" id="Meltcurve_Result_Table">\n'
     if (choiceMeltTable.value == "debug") {
@@ -2167,6 +2168,12 @@ function updateMeltingTable() {
                         currCol = colWarn
                     }
                     if (window.meltcurveTable[row][5].includes(warnMesA)) {
+                        currCol = colErr
+                    }
+                    if (window.meltcurveTable[row][5].includes(warnMesB)) {
+                        currCol = colErr
+                    }
+                    if (window.meltcurveTable[row][5].includes(warnMesC)) {
                         currCol = colErr
                     }
                     if (window.meltcurveTable[row][3].includes("Average")) {
