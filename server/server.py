@@ -71,13 +71,13 @@ def download(uuidstr):
                         with open(fexpfilename, 'r') as the_file:
                             downFileName = the_file.read()
                             downFileName = downFileName.replace(".xml", ".rdml")
-                    return send_file(os.path.join(sf, fname), mimetype="application/x-rdml", as_attachment=True, attachment_filename=downFileName)
+                    return send_file(os.path.join(sf, fname), mimetype="application/x-rdml", as_attachment=True, download_name=downFileName)
     if uuidstr == "sample.rdml":
-        return send_file("sample.rdml", mimetype="application/x-rdml", as_attachment=True, attachment_filename="sample.rdml")
+        return send_file("sample.rdml", mimetype="application/x-rdml", as_attachment=True, download_name="sample.rdml")
     if uuidstr == "linregpcr.rdml":
-        return send_file("linregpcr.rdml", mimetype="application/x-rdml", as_attachment=True, attachment_filename="linregpcr.rdml")
+        return send_file("linregpcr.rdml", mimetype="application/x-rdml", as_attachment=True, download_name="linregpcr.rdml")
     if uuidstr == "meltingcurveanalysis.rdml":
-        return send_file("meltingcurveanalysis.rdml", mimetype="application/x-rdml", as_attachment=True, attachment_filename="meltingcurveanalysis.rdml")
+        return send_file("meltingcurveanalysis.rdml", mimetype="application/x-rdml", as_attachment=True, download_name="meltingcurveanalysis.rdml")
     return "File does not exist!"
 
 
@@ -1462,7 +1462,151 @@ def handle_data():
                 s_run = experiment.get_run(byid=reqdata["sel-run"])
                 if s_run is None:
                     return jsonify(errors=[{"title": "Invalid server request - run id not found!"}]), 400
-                s_run.setExclNote(reqdata["sel-react"], reqdata["sel-tar"], reqdata["sel-excl"], reqdata["sel-note"])
+                s_run.setClasExcl(reqdata["sel-react"], reqdata["sel-tar"], reqdata["sel-excl"], False)
+                s_run.setClasNote(reqdata["sel-react"], reqdata["sel-tar"], reqdata["sel-note"], False)
+                data["reactsdata"] = s_run.getreactjson()
+            except rdml.RdmlError as err:
+                data["error"] = str(err)
+            else:
+                modified = True
+
+        if "mode" in reqdata and reqdata["mode"] in ["run-ed-del-react"]:
+            if "sel-experiment" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - sel-experiment id missing!"}]), 400
+            if "sel-run" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - sel-run id missing!"}]), 400
+            if "sel-react" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - sel-react id missing!"}]), 400
+            if "sel-well" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - sel-well id missing!"}]), 400
+            try:
+                experiment = rd.get_experiment(byid=reqdata["sel-experiment"])
+                if experiment is None:
+                    return jsonify(errors=[{"title": "Invalid server request - experiment id not found!"}]), 400
+                s_run = experiment.get_run(byid=reqdata["sel-run"])
+                if s_run is None:
+                    return jsonify(errors=[{"title": "Invalid server request - run id not found!"}]), 400
+                if reqdata["sel-react"] > 0:
+                    s_run.removeReact(reqdata["sel-react"])
+                else:
+                    if reqdata["sel-well"] != "":
+                        s_run.removeReactGrp(reqdata["sel-well"])
+                data["reactsdata"] = s_run.getreactjson()
+            except rdml.RdmlError as err:
+                data["error"] = str(err)
+            else:
+                modified = True
+
+        if "mode" in reqdata and reqdata["mode"] in ["run-ed-del-re-tar"]:
+            if "sel-experiment" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - sel-experiment id missing!"}]), 400
+            if "sel-run" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - sel-run id missing!"}]), 400
+            if "sel-react" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - sel-react id missing!"}]), 400
+            if "sel-well" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - sel-well id missing!"}]), 400
+            if "sel-pcr" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - sel-pcr id missing!"}]), 400
+            if "sel-tar" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - sel-tar id missing!"}]), 400
+            try:
+                experiment = rd.get_experiment(byid=reqdata["sel-experiment"])
+                if experiment is None:
+                    return jsonify(errors=[{"title": "Invalid server request - experiment id not found!"}]), 400
+                s_run = experiment.get_run(byid=reqdata["sel-run"])
+                if s_run is None:
+                    return jsonify(errors=[{"title": "Invalid server request - run id not found!"}]), 400
+                if reqdata["sel-pcr"] == "classic":
+                    if reqdata["sel-react"] > 0:
+                        s_run.removeReactTar(reqdata["sel-react"], reqdata["sel-tar"])
+                    else:
+                        if reqdata["sel-well"] != "":
+                            s_run.removeReactTarGrp(reqdata["sel-well"], reqdata["sel-tar"])
+                data["reactsdata"] = s_run.getreactjson()
+            except rdml.RdmlError as err:
+                data["error"] = str(err)
+            else:
+                modified = True
+
+        if "mode" in reqdata and reqdata["mode"] in ["run-ed-up-excl"]:
+            if "sel-experiment" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - sel-experiment id missing!"}]), 400
+            if "sel-run" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - sel-run id missing!"}]), 400
+            if "sel-react" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - sel-react id missing!"}]), 400
+            if "sel-well" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - sel-well id missing!"}]), 400
+            if "sel-pcr" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - sel-pcr id missing!"}]), 400
+            if "sel-tar" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - sel-tar id missing!"}]), 400
+            if "sel-excl" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - sel-excl missing!"}]), 400
+            if "sel-append" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - sel-append missing!"}]), 400
+            try:
+                experiment = rd.get_experiment(byid=reqdata["sel-experiment"])
+                if experiment is None:
+                    return jsonify(errors=[{"title": "Invalid server request - experiment id not found!"}]), 400
+                s_run = experiment.get_run(byid=reqdata["sel-run"])
+                if s_run is None:
+                    return jsonify(errors=[{"title": "Invalid server request - run id not found!"}]), 400
+                if reqdata["sel-pcr"] == "classic":
+                    if reqdata["sel-react"] > 0:
+                        s_run.setClasExcl(reqdata["sel-react"],
+                                          reqdata["sel-tar"],
+                                          reqdata["sel-excl"],
+                                          reqdata["sel-append"])
+                    else:
+                        if reqdata["sel-well"] != "":
+                            s_run.setClasExclGrp(reqdata["sel-well"],
+                                                 reqdata["sel-tar"],
+                                                 reqdata["sel-excl"],
+                                                 reqdata["sel-append"])
+                data["reactsdata"] = s_run.getreactjson()
+            except rdml.RdmlError as err:
+                data["error"] = str(err)
+            else:
+                modified = True
+
+        if "mode" in reqdata and reqdata["mode"] in ["run-ed-up-note"]:
+            if "sel-experiment" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - sel-experiment id missing!"}]), 400
+            if "sel-run" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - sel-run id missing!"}]), 400
+            if "sel-react" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - sel-react id missing!"}]), 400
+            if "sel-well" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - sel-well id missing!"}]), 400
+            if "sel-pcr" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - sel-pcr id missing!"}]), 400
+            if "sel-tar" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - sel-tar id missing!"}]), 400
+            if "sel-note" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - sel-note missing!"}]), 400
+            if "sel-append" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - sel-append missing!"}]), 400
+            try:
+                experiment = rd.get_experiment(byid=reqdata["sel-experiment"])
+                if experiment is None:
+                    return jsonify(errors=[{"title": "Invalid server request - experiment id not found!"}]), 400
+                s_run = experiment.get_run(byid=reqdata["sel-run"])
+                if s_run is None:
+                    return jsonify(errors=[{"title": "Invalid server request - run id not found!"}]), 400
+                if reqdata["sel-pcr"] == "classic":
+                    if reqdata["sel-react"] > 0:
+                        s_run.setClasNote(reqdata["sel-react"],
+                                          reqdata["sel-tar"],
+                                          reqdata["sel-note"],
+                                          reqdata["sel-append"])
+                    else:
+                        if reqdata["sel-well"] != "":
+                            s_run.setClasNoteGrp(reqdata["sel-well"],
+                                                 reqdata["sel-tar"],
+                                                 reqdata["sel-note"],
+                                                 reqdata["sel-append"])
                 data["reactsdata"] = s_run.getreactjson()
             except rdml.RdmlError as err:
                 data["error"] = str(err)

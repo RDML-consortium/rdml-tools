@@ -2103,7 +2103,7 @@ function updateMeltingTable() {
     var colErr = ' style="background-color: #ff5c33"'
     var warnMesA = "no product with expected melting temperature"
     var warnMesB =  "several products with different melting temperatures detected"
-    var warnMesC =  "product contamination detected"
+    var warnMesC =  "product detected in negative control"
 
     var ret = '<table class="table table-bordered table-striped" id="Meltcurve_Result_Table">\n'
     if (choiceMeltTable.value == "debug") {
@@ -2536,7 +2536,7 @@ function showEditNotes() {
             }
         }
         var retVal = '<div class="card">'
-        retVal += '  <div class="card-header">Annotoation</div>'
+        retVal += '  <div class="card-header">Annotation</div>'
         retVal += '  <div class="card-body">'
         retVal += '    <div class="form-group">'
         retVal += '      <label for="runView-ele-excl">Excluded:</label>'
@@ -2551,7 +2551,7 @@ function showEditNotes() {
         retVal += '<button type="submit" class="btn btn-outline-primary" '
         retVal += 'onclick="updateExclNotes(\'' + sReact + '\',\'' + sTar + '\')">'
         retVal += '      <i class="fas fa-rocket" style="margin-right: 5px;"></i>'
-        retVal += '        Update Exclusion an Notes in RDML file'
+        retVal += '        Update Exclusion and Notes in RDML file'
         retVal += '    </button><br /><br />'
         retVal += '    Here you can view the exclusion remarks and from RDML version 1.3 the'
         retVal += '    notes of the RDML file. Any entry in exclusion will exclude this reaction/target combination '
