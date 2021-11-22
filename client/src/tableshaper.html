@@ -170,29 +170,29 @@
         <div class="card">
           <div class="card-body">
             <h5 class="card-title">Settings to extract the fluorescence data block</h5>
-            <div class="form-group">
-              <label for="modDelRowStart">Number of heading rows to delete:</label>
-              <input type="text" class="form-control" id="modDelRowStart" value="1" onchange="updateModification()">
+            <div class="form-row">
+              <label class="col-sm-4 col-form-label" for="modDelRowStart">Number of heading rows to delete:</label>
+              <input type="text" class="form-control col-sm-8" id="modDelRowStart" value="1" onchange="updateModification()">
             </div>
-            <div class="form-group table-table-only">
-              <label for="modDelOtherRow">Number of rows to delete between values:</label>
-              <input type="text" class="form-control" id="modDelOtherRow" value="0" onchange="updateModification()">
+            <div class="form-row table-table-only">
+              <label class="col-sm-4 col-form-label" for="modDelOtherRow">Number of rows to delete between values:</label>
+              <input type="text" class="form-control col-sm-8" id="modDelOtherRow" value="0" onchange="updateModification()">
             </div>
-            <div class="form-group">
-              <label for="modDelRowEnd">Number of rows to keep (maximal):</label>
-              <input type="text" class="form-control" id="modDelRowEnd" value="" onchange="updateModification()">
+            <div class="form-row">
+              <label class="col-sm-4 col-form-label" for="modDelRowEnd">Number of rows to keep (maximal):</label>
+              <input type="text" class="form-control col-sm-8" id="modDelRowEnd" value="" onchange="updateModification()">
             </div>
-            <div class="form-group table-list-only">
-              <label for="modExFluorCol">Extract fluorescence information from column:</label>
-              <input type="text" class="form-control" id="modExFluorCol" value="4" onchange="updateModification()">
+            <div class="form-row table-list-only">
+              <label class="col-sm-4 col-form-label" for="modExFluorCol">Extract fluorescence information from column:</label>
+              <input type="text" class="form-control col-sm-8" id="modExFluorCol" value="4" onchange="updateModification()">
             </div>
-            <div class="form-group table-table-only">
-              <label for="modDelColStart">Number of heading columns to delete:</label>
-              <input type="text" class="form-control" id="modDelColStart" value="1" onchange="updateModification()">
+            <div class="form-row table-table-only">
+              <label class="col-sm-4 col-form-label" for="modDelColStart">Number of heading columns to delete:</label>
+              <input type="text" class="form-control col-sm-8" id="modDelColStart" value="1" onchange="updateModification()">
             </div>
-            <div class="form-group table-table-only">
-              <label for="modDelColEnd">Number of colums to keep (maximal):</label>
-              <input type="text" class="form-control" id="modDelColEnd" value="" onchange="updateModification()">
+            <div class="form-row table-table-only">
+              <label class="col-sm-4 col-form-label" for="modDelColEnd">Number of colums to keep (maximal):</label>
+              <input type="text" class="form-control col-sm-8" id="modDelColEnd" value="" onchange="updateModification()">
             </div>
             <div class="form-check">
               <label class="form-check-label">
@@ -209,17 +209,15 @@
             <div class="table-table-only">
               <div class="row">
                 <div class="col">
-                  <div class="form-group">
-                    <label for="modExCycRow">Extract cycle (Amplification) or temperature (Meltcurve) information from row:</label>
-                    <input type="text" class="form-control" id="modExCycRow" value="1" onchange="updateModification()">
+                  <div class="form-row">
+                    <label class="col-sm-8 col-form-label" for="modExCycRow">Extract cycle (Amp) or temp. (Melt) data from row:</label>
+                    <input type="text" class="form-control col-sm-4" id="modExCycRow" value="1" onchange="updateModification()">
                   </div>
                 </div>
                 <div class="col">
-                  <div class="form-group">
-                    <div class="form-group">
-                      <label for="modExCycRowRegEx">Apply regex (use "([0-9\.]+)" for Meltcurve):</label>
-                      <input type="text" class="form-control" id="modExCycRowRegEx" value="([0-9]+)" onchange="updateModification()">
-                    </div>
+                  <div class="form-row">
+                    <label class="col-sm-8 col-form-label" for="modExCycRowRegEx">Apply regex (use "([0-9\.]+)" for Meltcurve):</label>
+                    <input type="text" class="form-control col-sm-4" id="modExCycRowRegEx" value="([0-9]+)" onchange="updateModification()">
                   </div>
                 </div>
               </div>
@@ -227,130 +225,114 @@
             <div class="table-list-only">
               <div class="row">
                 <div class="col">
-                  <div class="form-group">
-                    <label for="modExCycCol">Extract cycle (Amplification) or temperature (Meltcurve) information from column:</label>
-                    <input type="text" class="form-control" id="modExCycCol" value="1" onchange="updateModification()">
+                  <div class="form-row">
+                    <label class="col-sm-8 col-form-label" for="modExCycCol">Extract cycle (Amplification) or temperature (Meltcurve) information from column:</label>
+                    <input type="text" class="form-control col-sm-4" id="modExCycCol" value="1" onchange="updateModification()">
                   </div>
                 </div>
                 <div class="col">
-                  <div class="form-group">
-                    <div class="form-group">
-                      <label for="modExCycColRegEx">Apply regex (use "([0-9\.]+)" for Meltcurve):</label>
-                      <input type="text" class="form-control" id="modExCycColRegEx" value="([0-9]+)" onchange="updateModification()">
-                    </div>
+                  <div class="form-row">
+                    <label class="col-sm-8 col-form-label" for="modExCycColRegEx">Apply regex (use "([0-9\.]+)" for Meltcurve):</label>
+                    <input type="text" class="form-control col-sm-4" id="modExCycColRegEx" value="([0-9]+)" onchange="updateModification()">
                   </div>
                 </div>
               </div>
             </div>
             <div class="row">
               <div class="col">
-                <div class="form-group">
-                  <label for="modExWellCol">Extract well information from column:</label>
-                  <input type="text" class="form-control" id="modExWellCol" value="1" onchange="updateModification()">
+                <div class="form-row">
+                  <label class="col-sm-8 col-form-label" for="modExWellCol">Extract well information from column:</label>
+                  <input type="text" class="form-control col-sm-4" id="modExWellCol" value="1" onchange="updateModification()">
                 </div>
               </div>
               <div class="col">
-                <div class="form-group">
-                  <div class="form-group">
-                    <label for="modExWellRegEx">Apply regex:</label>
-                    <input type="text" class="form-control" id="modExWellRegEx" value="(^[A-Za-z]+[0-9]+)" onchange="updateModification()">
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="row">
-              <div class="col">
-                <div class="form-group">
-                  <label for="modExSamCol">Extract sample information from column:</label>
-                  <input type="text" class="form-control" id="modExSamCol" value="" onchange="updateModification()">
-                </div>
-              </div>
-              <div class="col">
-                <div class="form-group">
-                  <div class="form-group">
-                    <label for="modExSamRegEx">Apply regex:</label>
-                    <input type="text" class="form-control" id="modExSamRegEx" value="(.*)" onchange="updateModification()">
-                  </div>
+                <div class="form-row">
+                   <label class="col-sm-8 col-form-label" for="modExWellRegEx">Apply regex:</label>
+                   <input type="text" class="form-control col-sm-4" id="modExWellRegEx" value="(^[A-Za-z]+[0-9]+)" onchange="updateModification()">
                 </div>
               </div>
             </div>
             <div class="row">
               <div class="col">
-                <div class="form-group">
-                  <label for="modExSamTypeCol">Extract sample type information from column:</label>
-                  <input type="text" class="form-control" id="modExSamTypeCol" value="" onchange="updateModification()">
+                <div class="form-row">
+                  <label class="col-sm-8 col-form-label" for="modExSamCol">Extract sample information from column:</label>
+                  <input type="text" class="form-control col-sm-4" id="modExSamCol" value="" onchange="updateModification()">
                 </div>
               </div>
               <div class="col">
-                <div class="form-group">
-                  <div class="form-group">
-                    <label for="modExSamTypeRegEx">Apply regex:</label>
-                    <input type="text" class="form-control" id="modExSamTypeRegEx" value="(.*)" onchange="updateModification()">
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="row">
-              <div class="col">
-                <div class="form-group">
-                  <label for="modExTarCol">Extract target information from column:</label>
-                  <input type="text" class="form-control" id="modExTarCol" value="" onchange="updateModification()">
-                </div>
-              </div>
-              <div class="col">
-                <div class="form-group">
-                  <div class="form-group">
-                    <label for="modExTarRegEx">Apply regex:</label>
-                    <input type="text" class="form-control" id="modExTarRegEx" value="(.*)" onchange="updateModification()">
-                  </div>
+                <div class="form-row">
+                  <label class="col-sm-8 col-form-label" for="modExSamRegEx">Apply regex:</label>
+                  <input type="text" class="form-control col-sm-4" id="modExSamRegEx" value="(.*)" onchange="updateModification()">
                 </div>
               </div>
             </div>
             <div class="row">
               <div class="col">
-                <div class="form-group">
-                  <label for="modExTarTypeCol">Extract target type information from column:</label>
-                  <input type="text" class="form-control" id="modExTarTypeCol" value="" onchange="updateModification()">
+                <div class="form-row">
+                  <label class="col-sm-8 col-form-label" for="modExSamTypeCol">Extract sample type information from column:</label>
+                  <input type="text" class="form-control col-sm-4" id="modExSamTypeCol" value="" onchange="updateModification()">
                 </div>
               </div>
               <div class="col">
-                <div class="form-group">
-                  <div class="form-group">
-                    <label for="modExTarTypeRegEx">Apply regex:</label>
-                    <input type="text" class="form-control" id="modExTarTypeRegEx" value="(.*)" onchange="updateModification()">
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="row">
-              <div class="col">
-                <div class="form-group">
-                  <label for="modExDyeCol">Extract dye information from column:</label>
-                  <input type="text" class="form-control" id="modExDyeCol" value="" onchange="updateModification()">
-                </div>
-              </div>
-              <div class="col">
-                <div class="form-group">
-                  <div class="form-group">
-                    <label for="modExDyeRegEx">Apply regex:</label>
-                    <input type="text" class="form-control" id="modExDyeRegEx" value="(.*)" onchange="updateModification()">
-                  </div>
+                <div class="form-row">
+                  <label class="col-sm-8 col-form-label" for="modExSamTypeRegEx">Apply regex:</label>
+                  <input type="text" class="form-control col-sm-4" id="modExSamTypeRegEx" value="(.*)" onchange="updateModification()">
                 </div>
               </div>
             </div>
             <div class="row">
               <div class="col">
-                <div class="form-group">
-                  <label for="modExDyeCol">Select columns on column values (set column to -1 to select all):</label>
-                  <input type="text" class="form-control" id="modExTrueCol" value="-1" onchange="updateModification()">
+                <div class="form-row">
+                  <label class="col-sm-8 col-form-label" for="modExTarCol">Extract target information from column:</label>
+                  <input type="text" class="form-control col-sm-4" id="modExTarCol" value="" onchange="updateModification()">
                 </div>
               </div>
               <div class="col">
-                <div class="form-group">
-                  <div class="form-group">
-                    <label for="modExDyeRegEx">Apply regex (must be true to be removed):</label>
-                    <input type="text" class="form-control" id="modExTrueRegEx" value="2" onchange="updateModification()">
-                  </div>
+                <div class="form-row">
+                  <label class="col-sm-8 col-form-label" for="modExTarRegEx">Apply regex:</label>
+                  <input type="text" class="form-control col-sm-4" id="modExTarRegEx" value="(.*)" onchange="updateModification()">
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col">
+                <div class="form-row">
+                  <label class="col-sm-8 col-form-label" for="modExTarTypeCol">Extract target type information from column:</label>
+                  <input type="text" class="form-control col-sm-4" id="modExTarTypeCol" value="" onchange="updateModification()">
+                </div>
+              </div>
+              <div class="col">
+                <div class="form-row">
+                  <label class="col-sm-8 col-form-label" for="modExTarTypeRegEx">Apply regex:</label>
+                  <input type="text" class="form-control col-sm-4" id="modExTarTypeRegEx" value="(.*)" onchange="updateModification()">
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col">
+                <div class="form-row">
+                  <label class="col-sm-8 col-form-label" for="modExDyeCol">Extract dye information from column:</label>
+                  <input type="text" class="form-control col-sm-4" id="modExDyeCol" value="" onchange="updateModification()">
+                </div>
+              </div>
+              <div class="col">
+                <div class="form-row">
+                  <label class="col-sm-8 col-form-label" for="modExDyeRegEx">Apply regex:</label>
+                  <input type="text" class="form-control col-sm-4" id="modExDyeRegEx" value="(.*)" onchange="updateModification()">
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col">
+                <div class="form-row">
+                  <label class="col-sm-8 col-form-label" for="modExDyeCol">Select columns on col values (-1 selects all):</label>
+                  <input type="text" class="form-control col-sm-4" id="modExTrueCol" value="-1" onchange="updateModification()">
+                </div>
+              </div>
+              <div class="col">
+                <div class="form-row">
+                  <label class="col-sm-8 col-form-label" for="modExDyeRegEx">Apply regex (must be true to be removed):</label>
+                  <input type="text" class="form-control col-sm-4" id="modExTrueRegEx" value="2" onchange="updateModification()">
                 </div>
               </div>
             </div>
