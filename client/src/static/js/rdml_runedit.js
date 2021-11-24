@@ -450,6 +450,7 @@ function updateClientData() {
         var exClasRowUsed = false
         var exDigiRowUsed = false
         var rowCont = ""
+        var lastClassic = 0
         for (var r = 0; r < rows; r++) {
             rowCont += '  <tr>'
             if (rowLabel == "123") {
@@ -507,7 +508,33 @@ function updateClientData() {
                                 cell += 'Excl: ' + cExcl + '<br />'
                                 cell += 'Note: ' + cNote + '</td>'
                                 exClasRowUsed = true
-                            } else {
+                                lastClassic = dataPos
+                            }
+                            var dataPos = exRowCount - lastClassic - 1
+                            if ((exClasRowUsed == false) &&
+                                (reacts[reac].hasOwnProperty("partitions")) &&
+                                (reacts[reac].partitions.hasOwnProperty("datas")) &&
+                                (dataPos < reacts[reac].partitions.datas.length)) {
+                                var cBgCol = "#ffffff"
+                                var cExcl = ""
+                                var cNote = ""
+                                if (reacts[reac].partitions.datas[dataPos].hasOwnProperty("note")) {
+                                    cNote = reacts[reac].partitions.datas[dataPos].note
+                                    cBgCol = "#ccff66"
+                                }
+                                if (reacts[reac].partitions.datas[dataPos].hasOwnProperty("excluded")) {
+                                    cExcl = reacts[reac].partitions.datas[dataPos].excluded
+                                    cBgCol = "#ff704d"
+                                }
+                                cell = '  <td style="font-size:0.7em;background-color:' + cBgCol + ';"'
+                                cell += ' onclick="showReactSel(1, ' + reac + ', ' + dataPos + ')">'
+                                cell += reacts[reac].partitions.datas[dataPos].tar + '<br />'
+                                cell += 'Excl: ' + cExcl + '<br />'
+                                cell += 'Note: ' + cNote + '</td>'
+                                exDigiRowUsed = true
+                                }
+                            if ((exClasRowUsed == false) &&
+                                (exDigiRowUsed == false)) {
                                 cell = '  <td></td>'
                             }
                         }
@@ -572,9 +599,11 @@ function updateClientData() {
                 rowCont += cell
             }
             rowCont += '</tr>\n'
-            if (exClasRowUsed == true) {
+            if ((exClasRowUsed == true) ||
+                (exDigiRowUsed == true)) {
                 ret += rowCont
                 exClasRowUsed = false
+                exDigiRowUsed = false
                 r--
                 exRowCount++
             } else {

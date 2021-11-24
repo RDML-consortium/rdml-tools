@@ -1519,10 +1519,17 @@ def handle_data():
                     return jsonify(errors=[{"title": "Invalid server request - run id not found!"}]), 400
                 if reqdata["sel-pcr"] == "classic":
                     if reqdata["sel-react"] > 0:
-                        s_run.removeReactTar(reqdata["sel-react"], reqdata["sel-tar"])
+                        s_run.removeClasReactTar(reqdata["sel-react"], reqdata["sel-tar"])
                     else:
                         if reqdata["sel-well"] != "":
-                            s_run.removeReactTarGrp(reqdata["sel-well"], reqdata["sel-tar"])
+                            s_run.removeClasReactTarGrp(reqdata["sel-well"], reqdata["sel-tar"])
+                else:
+                    if reqdata["sel-react"] > 0:
+                        s_run.removeDigiReactTar(reqdata["sel-react"], reqdata["sel-tar"])
+                    else:
+                        if reqdata["sel-well"] != "":
+                            s_run.removeDigiReactTarGrp(reqdata["sel-well"], reqdata["sel-tar"])
+
                 data["reactsdata"] = s_run.getreactjson()
             except rdml.RdmlError as err:
                 data["error"] = str(err)
@@ -1562,6 +1569,18 @@ def handle_data():
                     else:
                         if reqdata["sel-well"] != "":
                             s_run.setClasExclGrp(reqdata["sel-well"],
+                                                 reqdata["sel-tar"],
+                                                 reqdata["sel-excl"],
+                                                 reqdata["sel-append"])
+                else:
+                    if reqdata["sel-react"] > 0:
+                        s_run.setDigiExcl(reqdata["sel-react"],
+                                          reqdata["sel-tar"],
+                                          reqdata["sel-excl"],
+                                          reqdata["sel-append"])
+                    else:
+                        if reqdata["sel-well"] != "":
+                            s_run.setDigiExclGrp(reqdata["sel-well"],
                                                  reqdata["sel-tar"],
                                                  reqdata["sel-excl"],
                                                  reqdata["sel-append"])
@@ -1607,6 +1626,19 @@ def handle_data():
                                                  reqdata["sel-tar"],
                                                  reqdata["sel-note"],
                                                  reqdata["sel-append"])
+                else:
+                    if reqdata["sel-react"] > 0:
+                        s_run.setDigiNote(reqdata["sel-react"],
+                                          reqdata["sel-tar"],
+                                          reqdata["sel-note"],
+                                          reqdata["sel-append"])
+                    else:
+                        if reqdata["sel-well"] != "":
+                            s_run.setDigiNoteGrp(reqdata["sel-well"],
+                                                 reqdata["sel-tar"],
+                                                 reqdata["sel-note"],
+                                                 reqdata["sel-append"])
+
                 data["reactsdata"] = s_run.getreactjson()
             except rdml.RdmlError as err:
                 data["error"] = str(err)
