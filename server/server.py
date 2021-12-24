@@ -30,17 +30,31 @@ app.config['MAX_NUMBER_UPLOAD_FILES'] = 120
 LOGRDMLRUNS = True  # log the rdml-tools runs
 LOGIPANONYM = True  # anonymize the ip address in log files
 
-def ip_anonym(ip_add):
-    if not LOGIPANONYM:
-        return str(ip_add)
-    ip_bit = ip_address(ip_add).packed
-    mod_ip = bytearray(ip_bit)
-    if len(ip_bit) == 4:
-        mod_ip[3] = 0
-    if len(ip_bit) == 16:
-        for count_ip in range(6, len(mod_ip)):
-            mod_ip[count_ip] = 0
-    return str(ip_address(bytes(mod_ip)))
+
+def logData(pProg, pKey, pValue, uuid):
+    if not LOGRDMLRUNS:
+        return
+
+    runTime = datetime.datetime.utcnow()
+    addLine = runTime.strftime("%Y-%m-%dT%H:%M:%S")
+    addLine += "\t" + pProg + "\t" + pKey + "\t" + pValue + "\t" + uuid + "\t"
+    if LOGIPANONYM:
+        ip_bit = ip_address(request.remote_addr).packed
+        mod_ip = bytearray(ip_bit)
+        if len(ip_bit) == 4:
+            mod_ip[3] = 0
+        if len(ip_bit) == 16:
+            for count_ip in range(6, len(mod_ip)):
+                mod_ip[count_ip] = 0
+        addLine += str(ip_address(bytes(mod_ip))) + "\t\t"
+    else:
+        addLine += request.remote_addr + "\t\t"
+    addLine += request.headers.get('User-Agent').replace("\t", " ") + "\n"
+
+    statFile = os.path.join(app.config['LOG_FOLDER'], "rdml_tools_" + runTime.strftime("%Y_%m_%d") + ".log")
+    with open(statFile, "a") as stat:
+        stat.write(addLine)
+
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in set(['rdml', 'rdm', 'xml'])
@@ -104,6 +118,7 @@ def remove_file():
                             os.remove(filePath)
                         except OSError:
                             return jsonify(errors=[{"title": "Error while deleting file!"}]), 400
+            logData("RDML-Tools", "Remove_File", '1', uuidstr)
             return jsonify(data={"files": mess, "uuid": uuidstr, "mode": request.form['mode']})
     return jsonify(errors=[{"title": "Error in handling POST request!"}]), 400
 
@@ -161,15 +176,11 @@ def validate_file():
         rd = rdml.Rdml()
         ret = rd.validate(fexpname)
         if LOGRDMLRUNS:
-            runTime = datetime.datetime.utcnow()
-            statFile = os.path.join(app.config['LOG_FOLDER'], "rdml_tools_runs_" + runTime.strftime("%Y_%m_%d") + ".log")
-            addLine = ip_anonym(request.remote_addr) + " - [" + runTime.strftime("%d/%b/%Y:%H:%M:%S +0000") + '] "RDML-Tools-Validate" '
-            addLine += ' "-1" -1' + " " + uuidstr + ' "' + request.headers.get('User-Agent') + '"\n'
-            with open(statFile, "a") as stat:
-                stat.write(addLine)
+            if ret == 'Schema validation result:\tTrue\tRDML file is valid.\n':
+                logData("RDML-Tools", "Validate", '1', uuidstr)
+            else:
+                logData("RDML-Tools", "Validate", '0', uuidstr)
         return jsonify(data={"table": ret, "uuid": uuidstr})
-
-
     return jsonify(errors=[{"title": "Error in handling POST request!"}]), 400
 
 
@@ -177,8 +188,7 @@ def validate_file():
 def handle_data():
     if request.method == 'POST':
         sf = ""
-        logNote1 = "-1"
-        logNote2 = -1
+        logNote1 = "Edit"
         if not os.path.exists(app.config['LOG_FOLDER']):
             os.makedirs(app.config['LOG_FOLDER'])
         if 'showExample' in request.form.keys():
@@ -191,6 +201,7 @@ def handle_data():
             fexpname = os.path.join(RDMLWS, "meltingcurveanalysis.rdml")
             uuidstr = "meltingcurveanalysis.rdml"
         elif 'createNew' in request.form.keys():
+            logNote1 = "New"
             uuidstr = str(uuid.uuid4())
             data = {"uuid": uuidstr}
             # Get subfolder
@@ -248,8 +259,6 @@ def handle_data():
                     with open(tabMeltFilename, "w") as tabMelt:
                         tabMelt.write(request.form['tableData'])
                     run_ele.import_table(rd, tabMeltFilename, "melt")
-
-
             except rdml.RdmlError as err:
                 data["error"] = str(err)
 
@@ -1787,23 +1796,9 @@ def handle_data():
                     os.makedirs(sf)
                 fexpname = os.path.join(sf, "rdml_" + uuidstr + ".rdml")
             rd.save(fexpname)
-            if LOGRDMLRUNS:
-                runTime = datetime.datetime.utcnow()
-                statFile = os.path.join(app.config['LOG_FOLDER'], "rdml_tools_runs_" + runTime.strftime("%Y_%m_%d") + ".log")
-                addLine = ip_anonym(request.remote_addr) + " - [" + runTime.strftime(
-                    "%d/%b/%Y:%H:%M:%S +0000") + '] "RDML-Tools" '
-                addLine += ' "' + logNote1 + '" "no modify" ' + uuidstr + ' "' + request.headers.get('User-Agent') + '"\n'
-                with open(statFile, "a") as stat:
-                    stat.write(addLine)
+            logData("RDML-Tools", logNote1, "modify", uuidstr)
         else:
-            if LOGRDMLRUNS:
-                runTime = datetime.datetime.utcnow()
-                statFile = os.path.join(app.config['LOG_FOLDER'], "rdml_tools_runs_" + runTime.strftime("%Y_%m_%d") + ".log")
-                addLine = ip_anonym(request.remote_addr) + " - [" + runTime.strftime(
-                    "%d/%b/%Y:%H:%M:%S +0000") + '] "RDML-Tools" '
-                addLine += ' "' + logNote1 + '" "modify" ' + uuidstr + ' "' + request.headers.get('User-Agent') + '"\n'
-                with open(statFile, "a") as stat:
-                    stat.write(addLine)
+            logData("RDML-Tools", logNote1, "view", uuidstr)
         data["filedata"] = rd.tojson()
         return jsonify(data=data)
     return jsonify(errors=[{"title": "Error in handling POST request!"}]), 400
