@@ -4,6 +4,8 @@ from __future__ import division
 from __future__ import print_function
 
 import os
+import subprocess
+import threading
 import glob
 import uuid
 import re
@@ -27,6 +29,7 @@ app.config['LOG_FOLDER'] = os.path.join(app.config['RDML'], "log")
 app.config['MAX_CONTENT_LENGTH'] = 64 * 1024 * 1024   # maximum of 64MB
 app.config['MAX_NUMBER_UPLOAD_FILES'] = 120
 
+KILLTIME = 60 # time in seconds till a subprocess is killed!
 LOGRDMLRUNS = True  # log the rdml-tools runs
 LOGIPANONYM = True  # anonymize the ip address in log files
 
@@ -51,9 +54,15 @@ def logData(pProg, pKey, pValue, uuid):
         addLine += request.remote_addr + "\t\t"
     addLine += request.headers.get('User-Agent').replace("\t", " ") + "\n"
 
-    statFile = os.path.join(app.config['LOG_FOLDER'], "rdml_tools_" + runTime.strftime("%Y_%m_%d") + ".log")
+    statFile = os.path.join(app.config['LOG_FOLDER'], "rdml_tools_" + runTime.strftime("%Y_%m") + ".log")
     with open(statFile, "a") as stat:
         stat.write(addLine)
+
+
+def subp_watchdog(proc, stat):
+    """Kill process on timeout and note in stat"""
+    stat['timeout'] = True
+    proc.kill()
 
 
 def allowed_file(filename):
@@ -69,6 +78,82 @@ uuid_re = re.compile(r'(^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f
 
 def is_valid_uuid(s):
     return uuid_re.match(s) is not None
+
+
+@app.route('/api/v1/statistics', methods=['POST'])
+def runstatistics():
+    if request.method == 'POST':
+        try:
+            log_args = ['python3', 'logSum.py']
+            stat = {'timeout':False}
+            proc = subprocess.Popen(log_args)
+            timer = threading.Timer(KILLTIME, subp_watchdog, (proc, stat))
+            timer.start()
+            proc.wait()
+            timer.cancel()
+            if stat['timeout'] and not proc.returncode == 100:
+                return jsonify(errors = [{"title": "Error: Statistics calculation was teminated due to long runtime of more than " + str(KILLTIME)  + " seconds!"}]), 400
+        except OSError as e:
+            if e.errno == errno.ENOENT:
+                return jsonify(errors = [{"title": "Binary ./logSum.py not found!"}]), 400
+            else:
+                return jsonify(errors = [{"title": "OSError " + str(e.errno)  + " running binary ./logSum.py!"}]), 400
+
+        report = [[0, "Date", "xxxxx", "xxxxx"],
+                  [1, "New RDML", "RDML-Tools", "New"],
+                  [2, "Edit RDML", "RDML-Tools", "Edit"],
+                  [3, "Validate RDML", "RDML-Tools", "Validate"],
+                  [4, "LinRegPCR", "RDML-Tools", "run-linregpcr"],
+                  [5, "Meltcurve", "RDML-Tools", "run-meltcurve"],
+                  [6, "Plate", "RDML-Tools", "gggggggg"],
+                  [7, "Statistics", "RDML-Tools", "Statistics"]]
+        pLook = {}
+        for col in report:
+            pLook[col[2] + "_" + col[3]] = col[0]
+        rawData = ""
+        logFiles = [f for f in os.listdir(app.config['LOG_FOLDER']) if os.path.isfile(os.path.join(app.config['LOG_FOLDER'], f))]
+        for fil in logFiles:
+            if not fil.startswith("rdml_tools_"):
+                continue
+            if not fil.endswith(".sum"):
+                continue
+            try:
+                with open(os.path.join(app.config['LOG_FOLDER'], fil), "r") as res:
+                    rawData += res.read()
+                rawData += "\n"
+            except OSError as e:
+                return jsonify(errors=[{"title": "Error: Could not read statistics file " + fil + "!"}]), 400
+
+        finalData = {}
+        lineData = rawData.split("\n")
+        for row in lineData:
+            cells = row.split("\t")
+            if len(cells) > 3:
+                if cells[0] not in finalData:
+                    finalData[cells[0]] = [0, 0, 0, 0, 0, 0, 0, 0]
+                curKey = cells[1] + "_" + cells[2]
+                if curKey in pLook:
+                    finalData[cells[0]][pLook[curKey]] += int(cells[3])
+        data = ""
+        for col in report:
+            data += col[1] + "\t"
+        data = re.sub(r"\t$", "\n", data)
+        allDates = list(finalData.keys())
+        allDates.sort()
+        allDates.reverse()
+        for dat in allDates:
+            data += dat + "\t"
+            data += str(finalData[dat][1]) + "\t"
+            data += str(finalData[dat][2]) + "\t"
+            data += str(finalData[dat][3]) + "\t"
+            data += str(finalData[dat][4]) + "\t"
+            data += str(finalData[dat][5]) + "\t"
+            data += str(finalData[dat][6]) + "\t"
+            data += str(finalData[dat][7]) + "\n"
+            print(dat)
+        logData("RDML-Tools", "Statistics", "1", "---")
+        return jsonify({"outfile": data}), 200
+    return jsonify(errors=[{"title": "Error: No POST request!"}]), 400
 
 
 @app.route('/api/v1/download/<uuidstr>')

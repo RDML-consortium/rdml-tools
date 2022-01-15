@@ -4,8 +4,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <title>RDML-Tools | GEAR</title>
-  <meta name="description" content="Tools to handle RDML files.">
+  <title>RDML-Statistics | GEAR</title>
+  <meta name="description" content="Validate RDML files.">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.0/css/all.css">
   <link rel="stylesheet" href="static/css/gear.css">
@@ -15,8 +15,8 @@
 
   <header class="px-0 py-4">
     <div class="container">
-      <h1 class="display-4 app-name">RDML-Tools</h1>
-        <p class="lead">Tools to handle RDML files.</p>
+      <h1 class="display-4 app-name">RDML-Statistics</h1>
+        <p class="lead">Watch the server glow.</p>
         <a class="plain" href="https://www-db.embl.de/EMBLPersonGroup-PersonPicture/MailForm/?recipient=ggenomics" target="_blank">
           <i class="fas fa-question"></i> Get help
         </a>
@@ -31,32 +31,15 @@
     </div>
   </header>
 
-  <main class="container">
-    <h4><a href="edit.html" target="_blank">RDML-Edit</a></h4>
-    <p> RDML-Edit allows to view and edit RDML files.</p>
-
-    <h4><a href="linregpcr.html" target="_blank">RDML-LinRegPCR</a></h4>
-    <p> RDML-LinRegPCR analyzes single runs of a RDML file.</p>
-
-    <h4><a href="runview.html" target="_blank">RDML-RunView</a></h4>
-    <p> RDML-RunView views single runs of a RDML file.</p>
-
-    <h4><a href="runedit.html" target="_blank">RDML-RunEdit</a></h4>
-    <p> RDML-RunEdit edits errors and notes of a single run.</p>
-
-    <h4><a href="validate.html" target="_blank">RDML-Validate</a></h4>
-    <p> RDML-Validate is a tool to validate RDML files against the RDML schema.</p>
-
-    <h4><a href="tableshaper.html" target="_blank">RDML-TableShaper</a></h4>
-    <p> RDML-TableShaper shapes a table for import into RDML.</p>
-
-    <h4><a href="statistics.html" target="_blank">RDML-Statistics</a></h4>
-    <p> RDML-Statistics prints statistics about RDML-Tools usage.</p>
-
-    <h4><a href="help.html" target="_blank">RDML-Tools Help</a></h4>
-    <p> RDML-Tools Help provides an introduction into the RDML-Tools.</p>
-
-    <h4 style="display: none;"><a href="remove.html" target="_blank">RDML-Tools Remove</a></h4>
+  <main class="container" id="helpAllContainer">
+    <div id="result-error" class="alert alert-danger d-none" role="alert">
+    </div>
+    <div id="result-info" class="alert alert-info" role="alert">
+      <i class="fas fa-spinner spinner"></i>
+      Statistics are calculated, please be patient. It may take up to one minute to calculate the results.
+    </div>
+    <div id="results-statistics" class="table_fit_to_table">
+    </div>
   </main>
 
   <footer>
@@ -95,6 +78,9 @@
   <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script src="static/js/rdml_statistics.js"></script>
 
 </body>
 

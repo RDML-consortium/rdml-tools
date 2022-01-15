@@ -92,7 +92,13 @@ a.plain:hover {
   margin-bottom: 1em;
 }
 
-
 #helpAllContainer ul {
   list-style-type:none;
 }
+
+#rdml-full-with {
+  border: 0;
+  width: 100%;
+  empty-cells: show;
+}
+
