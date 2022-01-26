@@ -3725,6 +3725,16 @@ function repairRDMLFile() {
     updateServerData(uuid, JSON.stringify(ret))
 }
 
+window.recalcMeltingTemps = recalcMeltingTemps;
+function recalcMeltingTemps() {
+    if (!(window.rdmlData.hasOwnProperty("rdml"))) {
+        return
+    }
+    var ret = {}
+    ret["mode"] = "recalc-melting-temps"
+    updateServerData(uuid, JSON.stringify(ret))
+}
+
 window.exportTable = exportTable;
 function exportTable(sExp, sRun, sMode) {
     if (!(window.rdmlData.hasOwnProperty("rdml"))) {

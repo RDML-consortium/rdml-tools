@@ -434,6 +434,12 @@ def handle_data():
                 data["error"] = errRec
                 modified = True
 
+        if "mode" in reqdata and reqdata["mode"] == "recalc-melting-temps":
+            errRec = rd.fixTempsMeltcurve()
+            if errRec:
+                data["error"] = errRec
+                modified = True
+
         if "mode" in reqdata and reqdata["mode"] == "export-run":
             if "export-mode" not in reqdata:
                 return jsonify(errors=[{"title": "Invalid server request - export-mode missing!"}]), 400
