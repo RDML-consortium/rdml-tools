@@ -731,7 +731,7 @@ function updateClientData() {
                 ret += '>Export Melting Data</button>&nbsp;&nbsp;'
 
                 ret += '<button type="button" class="btn btn-success rdml-btn-edit btn-sm" '
-                ret += 'onclick="newEditRun(' + i + ', ' + s + ', \'edit\');">Edit Run</button>&nbsp;&nbsp;'
+                ret += 'onclick="newEditRun(' + i + ', ' + s + ', \'' + exp[i].id + '\');">Edit Run</button>&nbsp;&nbsp;'
                 ret += '<button type="button" class="btn btn-success rdml-btn-edit btn-sm" '
                 ret += 'onclick="selectSecElement(\'experiment\', ' + i + ', \'run\', ' + s + ', \'experimenter\', '
                 ret += '\'pExp-experiment-' + i + '-run-' + s + '\');"">Change Attached Experimenters</button>&nbsp;&nbsp;&nbsp;&nbsp;'
@@ -756,7 +756,7 @@ function updateClientData() {
             ret += '<div id="pRun-experiment-' + i + '"></div>'
 
             ret += '<button type="button" class="btn btn-success rdml-btn-edit btn-sm" '
-            ret += 'onclick="newEditRun(' + i + ', 999999);">New Run</button>'
+            ret += 'onclick="newEditRun(' + i + ', 999999, \'' + exp[i].id + '\');">New Run</button>'
             ret += '</div>\n</div><br />\n'
 
             var doc = '<div class="card">\n<div class="card-body">\n'
@@ -3336,7 +3336,7 @@ function newEditStep(prim_pos, step_pos, type) {
 
 // Edit or create an experiment run
 window.newEditRun = newEditRun;
-function newEditRun(prim_pos, sec_pos) {
+function newEditRun(prim_pos, sec_pos, exp) {
     if (!(window.rdmlData.hasOwnProperty("rdml"))) {
         return
     }
@@ -3358,6 +3358,18 @@ function newEditRun(prim_pos, sec_pos) {
         ret += '<h5 class="card-title">New Run:</h5>\n'
     }
     ret += '<p><table style="width:100%;">'
+    ret += '  <tr>\n    <td style="width:25%;">Experiment:</td>\n'
+    ret += '    <td style="width:75%">\n'
+    ret += '<select class="form-control" id="inRunParentExperiment">\n'
+    var allExperiments = window.rdmlData.rdml.experiments;
+    for (var cc = 0; cc < allExperiments.length; cc++) {
+        ret += '        <option value="' + allExperiments[cc].id + '"'
+        if (exp == allExperiments[cc].id) {
+            ret += ' selected'
+        }
+        ret += '>' + allExperiments[cc].id + '</option>\n'
+    }
+    ret += '</select>\n</td>\n'
     ret += '  <tr>\n    <td style="width:25%;background-color:#ffcc99;">ID:</td>\n'
     ret += '    <td style="width:75%"><input type="text" class="form-control" '
     ret += 'id="inRunId" value="'+ id_val + '"></td>\n'
@@ -3636,6 +3648,7 @@ function saveRun(prim_pos, run_pos, edit){
     ret["run-position"] = run_pos
     ret["new-position"] = getSaveHtmlData("inRunPos") - 1
     var el = {}
+    el["runParentExperiment"] = getSaveHtmlData("inRunParentExperiment")
     el["id"] = getSaveHtmlData("inRunId")
     el["description"] = getSaveHtmlData("inRunDescription")
     el["runDate"] = getSaveHtmlData("inRunRunDate")

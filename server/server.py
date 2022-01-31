@@ -703,6 +703,8 @@ def handle_data():
                 return jsonify(errors=[{"title": "Invalid server request - run new-position missing!"}]), 400
             if "data" not in reqdata:
                 return jsonify(errors=[{"title": "Invalid server request - run data missing!"}]), 400
+            if "runParentExperiment" not in reqdata["data"]:
+                return jsonify(errors=[{"title": "Invalid server request - run runParentExperiment missing!"}]), 400
             if "id" not in reqdata["data"]:
                 return jsonify(errors=[{"title": "Invalid server request - run id missing!"}]), 400
             if "description" not in reqdata["data"]:
@@ -850,6 +852,8 @@ def handle_data():
                                                           filename=tabDigOverviewFilename,
                                                           filelist=wellFileNames,
                                                           ignoreCh=reqdata["data"]["tableUploadDigExclude"])
+                if elem["id"] != reqdata["data"]["runParentExperiment"]:
+                    rd.move_experiment_run(reqdata["data"]["runParentExperiment"], elem["id"], run_ele["id"])
                 if errRec:
                     data["error"] = errRec
             except rdml.RdmlError as err:
