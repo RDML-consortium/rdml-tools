@@ -275,6 +275,148 @@ def validate_file():
     return jsonify(errors=[{"title": "Error in handling POST request!"}]), 400
 
 
+@app.route('/api/v1/merge', methods=['POST'])
+def merge_data():
+    if request.method == 'POST':
+        if not os.path.exists(app.config['LOG_FOLDER']):
+            os.makedirs(app.config['LOG_FOLDER'])
+        if 'showExample' in request.form.keys():
+            fexpname = os.path.join(RDMLWS, "merge.rdml")
+            faddname = os.path.join(RDMLWS, "merge_add.rdml")
+            uuidstr = "merge-example"
+        elif 'uuid' in request.form.keys():
+            uuidstr = request.form['uuid']
+            if uuidstr == "merge-example":
+                fexpname = os.path.join(RDMLWS, "merge.rdml")
+                faddname = os.path.join(RDMLWS, "merge_add.rdml")
+            else:
+                if not is_valid_uuid(uuidstr):
+                    return jsonify(errors=[{"title": "Invalid UUID - UUID link outdated or invalid!"}]), 400
+                sf = os.path.join(app.config['UPLOAD_FOLDER'], uuidstr[0:2])
+                if not os.path.exists(sf):
+                    return jsonify(errors=[{"title": "Invalid path - UUID link outdated or invalid!"}]), 400
+                fname = "rdml_" + uuidstr + ".rdml"
+                if not allowed_file(fname):
+                    return jsonify(errors=[{"title": "Invalid base filename - UUID link outdated or invalid!"}]), 400
+                fexpname = os.path.join(sf, fname)
+                if not os.path.isfile(fexpname):
+                    return jsonify(errors=[{"title": "Invalid base file - UUID Link outdated or invalid!"}]), 400
+                aname = "rdml_" + uuidstr + "_add.rdml"
+                if not allowed_file(aname):
+                    return jsonify(errors=[{"title": "Invalid add filename - UUID link outdated or invalid!"}]), 400
+                faddname = os.path.join(sf, aname)
+                if not os.path.isfile(faddname):
+                    return jsonify(errors=[{"title": "Invalid add file - UUID Link outdated or invalid!"}]), 400
+        else:
+            if 'queryFile' not in request.files:
+                return jsonify(errors=[{"title": "Base RDML file is missing!"}]), 400
+            if 'addFile' not in request.files:
+                return jsonify(errors=[{"title": "Add RDML add file is missing!"}]), 400
+            fexp = request.files['queryFile']
+            aexp = request.files['addFile']
+            if fexp.filename == '':
+                return jsonify(errors=[{"title": "Base RDML file name is missing!"}]), 400
+            if aexp.filename == '':
+                return jsonify(errors=[{"title": "Add RDML file name is missing!"}]), 400
+            if not allowed_file(fexp.filename):
+                return jsonify(errors=[{"title": "Base RDML file has incorrect file type!"}]), 400
+            if not allowed_file(aexp.filename):
+                return jsonify(errors=[{"title": "Add RDML file has incorrect file type!"}]), 400
+            uuidstr = str(uuid.uuid4())
+            # Get subfolder
+            sf = os.path.join(app.config['UPLOAD_FOLDER'], uuidstr[0:2])
+            if not os.path.exists(sf):
+                os.makedirs(sf)
+            fexpname = os.path.join(sf, "rdml_" + uuidstr + ".rdml")
+            fexpfilename = os.path.join(sf, "rdml_" + uuidstr + ".txt")
+            with open(fexpfilename, 'a') as the_file:
+                the_file.write(fexp.filename)
+            fexp.save(fexpname)
+            faddname = os.path.join(sf, "rdml_" + uuidstr + "_add.rdml")
+            faddfilename = os.path.join(sf, "rdml_" + uuidstr + "_add.txt")
+            with open(faddfilename, 'a') as the_file:
+                the_file.write(aexp.filename)
+            aexp.save(faddname)
+
+        if 'reqData' not in request.form.keys():
+            return jsonify(errors=[{"title": "Invalid server request - reqData missing!"}]), 400
+        reqdata = json.loads(request.form['reqData'])
+
+        data = {"uuid": uuidstr, "rdml_lib_version": rdml.get_rdml_lib_version()}
+        try:
+            rd = rdml.Rdml(fexpname)
+        except rdml.RdmlError as err:
+            data["error"] = err
+        if rd.version() == "1.0":
+            rd.migrate_version_1_0_to_1_1()
+            rd.save(fexpname)
+            rd = rdml.Rdml(fexpname)
+        try:
+            rdAdd = rdml.Rdml(faddname)
+        except rdml.RdmlError as err:
+            data["error"] = err
+        if rdAdd.version() == "1.0":
+            rdAdd.migrate_version_1_0_to_1_1()
+            rdAdd.save(faddname)
+            rdAdd = rdml.Rdml(faddname)
+        modified = False
+
+        data["adddata"] = rdAdd.tojson()
+        data["addisvalid"] = rdAdd.isvalid(fexpname)
+
+        if "mode" in reqdata and reqdata["mode"] == "modify":
+            if "ele-type" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - ele-type missing!"}]), 400
+            if "ele-id" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - ele-id information missing!"}]), 400
+            if "add-mode" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - add-mode information missing!"}]), 400
+            try:
+                modified = True
+                if reqdata["ele-type"] == "experimenter":
+                    rd.import_experimenter(rdAdd.get_experimenter(byid=reqdata["ele-id"]))
+                if reqdata["ele-type"] == "all-experimenters":
+                    rd.import_all_experimenters(rdAdd, reqdata["add-mode"])
+                if reqdata["ele-type"] == "documentation":
+                    rd.import_documentation(rdAdd.get_documentation(byid=reqdata["ele-id"]))
+                if reqdata["ele-type"] == "all-documentations":
+                    rd.import_all_documentations(rdAdd, reqdata["add-mode"])
+                if reqdata["ele-type"] == "dye":
+                    rd.import_dye(rdAdd.get_dye(byid=reqdata["ele-id"]))
+                if reqdata["ele-type"] == "all-dyes":
+                    rd.import_all_dyes(rdAdd, reqdata["add-mode"])
+
+
+
+
+            except rdml.RdmlError as err:
+                data["error"] = str(err)
+        if modified is True:
+            if uuidstr not in ["sample.rdml", "error.rdml", "linregpcr.rdml", "meltingcurveanalysis.rdml", "merge-example"]:
+                rd.save(fexpname)
+                logData("RDML-Tools", "Merge", "modify", uuidstr)
+            else:
+                uuidstr = str(uuid.uuid4())
+                data["uuid"] = uuidstr
+                # Get subfolder
+                sf = os.path.join(app.config['UPLOAD_FOLDER'], uuidstr[0:2])
+                if not os.path.exists(sf):
+                    os.makedirs(sf)
+                fexpname = os.path.join(sf, "rdml_" + uuidstr + ".rdml")
+                rd.save(fexpname)
+                frelname = os.path.join(RDMLWS, "merge_add.rdml")
+                rdAdd = rdml.Rdml(frelname)
+                faddname = os.path.join(sf, "rdml_" + uuidstr + "_add.rdml")
+                rdAdd.save(faddname)
+                logData("RDML-Tools", "Merge", "example", uuidstr)
+        else:
+            logData("RDML-Tools", "Merge", "view", uuidstr)
+        data["basedata"] = rd.tojson()
+        data["baseisvalid"] = rd.isvalid(fexpname)
+        return jsonify(data=data)
+    return jsonify(errors=[{"title": "Error in handling POST request!"}]), 400
+
+
 @app.route('/api/v1/data', methods=['POST'])
 def handle_data():
     if request.method == 'POST':
@@ -1888,7 +2030,7 @@ def handle_data():
             except rdml.RdmlError as err:
                 data["error"] = str(err)
         if modified is True:
-            if uuidstr in ["sample.rdml", "linregpcr.rdml", "meltingcurveanalysis.rdml"]:
+            if uuidstr in ["sample.rdml", "error.rdml", "linregpcr.rdml", "meltingcurveanalysis.rdml"]:
                 uuidstr = str(uuid.uuid4())
                 data["uuid"] = uuidstr
                 # Get subfolder
