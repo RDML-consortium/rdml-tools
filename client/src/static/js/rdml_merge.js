@@ -341,7 +341,7 @@ function updateClientData() {
     for (var i = 0; i < baseData.dyes.length; i++) {
         joinDyes[baseData.dyes[i].id] = 0
     }
-    for (var i = 0; i < addData.documentations.length; i++) {
+    for (var i = 0; i < addData.dyes.length; i++) {
         joinDyes[addData.dyes[i].id] = 0
     }
     for (var i = 0; i < baseData.dyes.length; i++) {
@@ -351,7 +351,19 @@ function updateClientData() {
         joinDyes[addData.dyes[i].id] += 2
     }
 
-
+    var joinSamples = {}  // 1: base, 2: add, 3: both
+    for (var i = 0; i < baseData.samples.length; i++) {
+        joinSamples[baseData.samples[i].id] = 0
+    }
+    for (var i = 0; i < addData.samples.length; i++) {
+        joinSamples[addData.samples[i].id] = 0
+    }
+    for (var i = 0; i < baseData.samples.length; i++) {
+        joinSamples[baseData.samples[i].id] += 1
+    }
+    for (var i = 0; i < addData.samples.length; i++) {
+        joinSamples[addData.samples[i].id] += 2
+    }
 
     var joinTargets = {}  // 1: base, 2: add, 3: both
     for (var i = 0; i < baseData.targets.length; i++) {
@@ -367,36 +379,72 @@ function updateClientData() {
         joinTargets[addData.targets[i].id] += 2
     }
 
+    var joinThermCycCons = {}  // 1: base, 2: add, 3: both
+    for (var i = 0; i < baseData.therm_cyc_cons.length; i++) {
+        joinThermCycCons[baseData.therm_cyc_cons[i].id] = 0
+    }
+    for (var i = 0; i < addData.therm_cyc_cons.length; i++) {
+        joinThermCycCons[addData.therm_cyc_cons[i].id] = 0
+    }
+    for (var i = 0; i < baseData.therm_cyc_cons.length; i++) {
+        joinThermCycCons[baseData.therm_cyc_cons[i].id] += 1
+    }
+    for (var i = 0; i < addData.therm_cyc_cons.length; i++) {
+        joinThermCycCons[addData.therm_cyc_cons[i].id] += 2
+    }
+
+    var joinExperiments = {}  // 1: base, 2: add, 3: both
+    for (var i = 0; i < baseData.experiments.length; i++) {
+        joinExperiments[baseData.experiments[i].id] = 0
+    }
+    for (var i = 0; i < addData.experiments.length; i++) {
+        joinExperiments[addData.experiments[i].id] = 0
+    }
+    for (var i = 0; i < baseData.experiments.length; i++) {
+        joinExperiments[baseData.experiments[i].id] += 1
+    }
+    for (var i = 0; i < addData.experiments.length; i++) {
+        joinExperiments[addData.experiments[i].id] += 2
+    }
+
     ret = ''
-    var joinExperimentersList = Object.keys(joinExperimenters)
-    joinExperimentersList.sort()
-    if (joinExperimentersList.length > 0) {
-        ret += '<h2>Experimenters:</h2>\n'
+    var joinExperimentsList = Object.keys(joinExperiments)
+    joinExperimentsList.sort()
+    if (joinExperimentsList.length > 0) {
+        ret += '<br /><br />\n'
+        ret += '<h2>Experiments:</h2>\n'
         ret += '<p>\n<td colspan="5"><button type="button" class="btn btn-success" '
-        ret += 'onclick="moveElement(\'all-experimenters\', \'not required\', \'update\');"'
-        ret += '>Update existing Experimenters</button>&nbsp;&nbsp;&nbsp;&nbsp;\n'
+        ret += 'onclick="moveElement(\'all-experiments\', \'not required\', \'update\');"'
+        ret += '>Update existing Experiments (-)</button>&nbsp;&nbsp;&nbsp;&nbsp;\n'
         ret += '  <button type="button" class="btn btn-success" '
-        ret += 'onclick="moveElement(\'all-experimenters\', \'not required\', \'only-new\');"'
-        ret += '>Copy only additional Experimenters</button>&nbsp;&nbsp;&nbsp;&nbsp;\n'
+        ret += 'onclick="moveElement(\'all-experiments\', \'not required\', \'update-incl-dep\');"'
+        ret += '>Update existing Experiments (+)</button><br /><br />\n'
         ret += '  <button type="button" class="btn btn-success" '
-        ret += 'onclick="moveElement(\'all-experimenters\', \'not required\', \'all\');"'
-        ret += '>Copy all Experimenters</button><br /><br />\n'
+        ret += 'onclick="moveElement(\'all-experiments\', \'not required\', \'only-new\');"'
+        ret += '>Copy only additional Experiments (-)</button>&nbsp;&nbsp;&nbsp;&nbsp;\n'
+        ret += '  <button type="button" class="btn btn-success" '
+        ret += 'onclick="moveElement(\'all-experiments\', \'not required\', \'only-new-incl-dep\');"'
+        ret += '>Copy only additional Experiments(+)</button><br /><br />\n'
+        ret += '  <button type="button" class="btn btn-success" '
+        ret += 'onclick="moveElement(\'all-experiments\', \'not required\', \'all\');"'
+        ret += '>Copy all Experiments (-)</button>&nbsp;&nbsp;&nbsp;&nbsp;\n'
+        ret += '  <button type="button" class="btn btn-success" '
+        ret += 'onclick="moveElement(\'all-experiments\', \'not required\', \'all-incl-dep\');"'
+        ret += '>Copy all Experiments (+)</button><br /><br />\n'
         ret += '</p>\n'
         ret += '<table style="width:100%;">'
         ret += '  <tr>\n'
-        ret += '     <th style="width:20%;">File</th>\n'
         ret += '     <th style="width:20%;">Base RDML</th>\n'
         ret += '     <th style="width:20%;">RDML to Add</th>\n'
         ret += '     <th style="width:20%;"></th>\n'
-        ret += '     <th style="width:20%;"></th>\n'
+        ret += '     <th style="width:40%;"></th>\n'
         ret += '  </tr>\n'
     }
-    for (var i = 0; i < joinExperimentersList.length; i++) {
-        var currId = joinExperimentersList[i]
-        var found = joinExperimenters[currId]
-        //alert(currId + " - " + found)
+    for (var i = 0; i < joinExperimentsList.length; i++) {
+        var currId = joinExperimentsList[i]
+        var found = joinExperiments[currId]
+        // alert(currId + " - " + found)
         ret += '  <tr>\n'
-        ret += '     <td>Experimenter</td>\n'
         if ((found == 1) || (found == 3)) {
             ret += '     <td>' + currId + '</td>\n'
         } else {
@@ -405,9 +453,11 @@ function updateClientData() {
         if ((found == 2) || (found == 3)) {
             ret += '     <td>' + currId + '</td>\n'
             ret += '     <td><button type="button" class="btn btn-success" '
-            ret += 'onclick="moveElement(\'experimenter\', \'' + currId + '\', \'all\');"'
-            ret += '>Copy ' + currId + '</button></td>\n'
-            ret += '     <td></td>\n'
+            ret += 'onclick="moveElement(\'experiment\', \'' + currId + '\', \'only-new\');"'
+            ret += '>Copy ' + currId + ' (-)</button></td>\n'
+            ret += '     <td><button type="button" class="btn btn-success" '
+            ret += 'onclick="moveElement(\'experiment\', \'' + currId + '\', \'all-dep\');"'
+            ret += '>Copy ' + currId + ' (+)</button></td>\n'
         } else {
             ret += '     <td></td>\n'
             ret += '     <td></td>\n'
@@ -415,40 +465,47 @@ function updateClientData() {
         }
         ret += '  </tr>\n'
     }
-    if (joinExperimentersList.length > 0) {
+    if (joinExperimentsList.length > 0) {
         ret += '</table>\n'
     }
 
-    var joinDocumentationsList = Object.keys(joinDocumentations)
-    joinDocumentationsList.sort()
-    if (joinDocumentationsList.length > 0) {
+    var joinTargetsList = Object.keys(joinTargets)
+    joinTargetsList.sort()
+    if (joinTargetsList.length > 0) {
         ret += '<br /><br />\n'
-        ret += '<h2>Documentations:</h2>\n'
+        ret += '<h2>Targets:</h2>\n'
         ret += '<p>\n<td colspan="5"><button type="button" class="btn btn-success" '
-        ret += 'onclick="moveElement(\'all-documentations\', \'not required\', \'update\');"'
-        ret += '>Update existing Documentations</button>&nbsp;&nbsp;&nbsp;&nbsp;\n'
+        ret += 'onclick="moveElement(\'all-targets\', \'not required\', \'update\');"'
+        ret += '>Update existing Targets (-)</button>&nbsp;&nbsp;&nbsp;&nbsp;\n'
         ret += '  <button type="button" class="btn btn-success" '
-        ret += 'onclick="moveElement(\'all-documentations\', \'not required\', \'only-new\');"'
-        ret += '>Copy only additional Documentations</button>&nbsp;&nbsp;&nbsp;&nbsp;\n'
+        ret += 'onclick="moveElement(\'all-targets\', \'not required\', \'update-incl-dep\');"'
+        ret += '>Update existing Targets (+)</button><br /><br />\n'
         ret += '  <button type="button" class="btn btn-success" '
-        ret += 'onclick="moveElement(\'all-documentations\', \'not required\', \'all\');"'
-        ret += '>Copy all Documentations</button><br /><br />\n'
+        ret += 'onclick="moveElement(\'all-targets\', \'not required\', \'only-new\');"'
+        ret += '>Copy only additional Targets (-)</button>&nbsp;&nbsp;&nbsp;&nbsp;\n'
+        ret += '  <button type="button" class="btn btn-success" '
+        ret += 'onclick="moveElement(\'all-targets\', \'not required\', \'only-new-incl-dep\');"'
+        ret += '>Copy only additional Targets(+)</button><br /><br />\n'
+        ret += '  <button type="button" class="btn btn-success" '
+        ret += 'onclick="moveElement(\'all-targets\', \'not required\', \'all\');"'
+        ret += '>Copy all Targets (-)</button>&nbsp;&nbsp;&nbsp;&nbsp;\n'
+        ret += '  <button type="button" class="btn btn-success" '
+        ret += 'onclick="moveElement(\'all-targets\', \'not required\', \'all-incl-dep\');"'
+        ret += '>Copy all Targets (+)</button><br /><br />\n'
         ret += '</p>\n'
         ret += '<table style="width:100%;">'
         ret += '  <tr>\n'
-        ret += '     <th style="width:20%;">File</th>\n'
         ret += '     <th style="width:20%;">Base RDML</th>\n'
         ret += '     <th style="width:20%;">RDML to Add</th>\n'
         ret += '     <th style="width:20%;"></th>\n'
-        ret += '     <th style="width:20%;"></th>\n'
+        ret += '     <th style="width:40%;"></th>\n'
         ret += '  </tr>\n'
     }
-    for (var i = 0; i < joinDocumentationsList.length; i++) {
-        var currId = joinDocumentationsList[i]
-        var found = joinDocumentations[currId]
+    for (var i = 0; i < joinTargetsList.length; i++) {
+        var currId = joinTargetsList[i]
+        var found = joinTargets[currId]
         // alert(currId + " - " + found)
         ret += '  <tr>\n'
-        ret += '     <td>Documentation</td>\n'
         if ((found == 1) || (found == 3)) {
             ret += '     <td>' + currId + '</td>\n'
         } else {
@@ -457,9 +514,11 @@ function updateClientData() {
         if ((found == 2) || (found == 3)) {
             ret += '     <td>' + currId + '</td>\n'
             ret += '     <td><button type="button" class="btn btn-success" '
-            ret += 'onclick="moveElement(\'documentation\', \'' + currId + '\', \'all\');"'
-            ret += '>Copy ' + currId + '</button></td>\n'
-            ret += '     <td></td>\n'
+            ret += 'onclick="moveElement(\'target\', \'' + currId + '\', \'only-new\');"'
+            ret += '>Copy ' + currId + ' (-)</button></td>\n'
+            ret += '     <td><button type="button" class="btn btn-success" '
+            ret += 'onclick="moveElement(\'target\', \'' + currId + '\', \'all-dep\');"'
+            ret += '>Copy ' + currId + ' (+)</button></td>\n'
         } else {
             ret += '     <td></td>\n'
             ret += '     <td></td>\n'
@@ -467,7 +526,7 @@ function updateClientData() {
         }
         ret += '  </tr>\n'
     }
-    if (joinDocumentationsList.length > 0) {
+    if (joinTargetsList.length > 0) {
         ret += '</table>\n'
     }
 
@@ -488,11 +547,10 @@ function updateClientData() {
         ret += '</p>\n'
         ret += '<table style="width:100%;">'
         ret += '  <tr>\n'
-        ret += '     <th style="width:20%;">File</th>\n'
         ret += '     <th style="width:20%;">Base RDML</th>\n'
         ret += '     <th style="width:20%;">RDML to Add</th>\n'
         ret += '     <th style="width:20%;"></th>\n'
-        ret += '     <th style="width:20%;"></th>\n'
+        ret += '     <th style="width:40%;"></th>\n'
         ret += '  </tr>\n'
     }
     for (var i = 0; i < joinDyesList.length; i++) {
@@ -500,7 +558,6 @@ function updateClientData() {
         var found = joinDyes[currId]
         // alert(currId + " - " + found)
         ret += '  <tr>\n'
-        ret += '     <td>Dye</td>\n'
         if ((found == 1) || (found == 3)) {
             ret += '     <td>' + currId + '</td>\n'
         } else {
@@ -509,7 +566,7 @@ function updateClientData() {
         if ((found == 2) || (found == 3)) {
             ret += '     <td>' + currId + '</td>\n'
             ret += '     <td><button type="button" class="btn btn-success" '
-            ret += 'onclick="moveElement(\'dye\', \'' + currId + '\', \'all\');"'
+            ret += 'onclick="moveElement(\'dye\', \'' + currId + '\', \'only-new\');"'
             ret += '>Copy ' + currId + '</button></td>\n'
             ret += '     <td></td>\n'
         } else {
@@ -523,20 +580,43 @@ function updateClientData() {
         ret += '</table>\n'
     }
 
-
-
-
-
-
-    ret += '<table style="width:100%;">'
-
-    var joinTargetsList = Object.keys(joinTargets)
-    joinTargetsList.sort()
-    for (var i = 0; i < joinTargetsList.length; i++) {
-        var currId = joinTargetsList[i]
-        var found = joinTargets[currId]
+    var joinThermCycConsList = Object.keys(joinThermCycCons)
+    joinThermCycConsList.sort()
+    if (joinThermCycConsList.length > 0) {
+        ret += '<br /><br />\n'
+        ret += '<h2>Thermal Cycling Conditions:</h2>\n'
+        ret += '<p>\n<td colspan="5"><button type="button" class="btn btn-success" '
+        ret += 'onclick="moveElement(\'all-thermCycCons\', \'not required\', \'update\');"'
+        ret += '>Update existing ThermCycCons (-)</button>&nbsp;&nbsp;&nbsp;&nbsp;\n'
+        ret += '  <button type="button" class="btn btn-success" '
+        ret += 'onclick="moveElement(\'all-thermCycCons\', \'not required\', \'update-incl-dep\');"'
+        ret += '>Update existing ThermCycCons (+)</button><br /><br />\n'
+        ret += '  <button type="button" class="btn btn-success" '
+        ret += 'onclick="moveElement(\'all-thermCycCons\', \'not required\', \'only-new\');"'
+        ret += '>Copy only additional ThermCycCons (-)</button>&nbsp;&nbsp;&nbsp;&nbsp;\n'
+        ret += '  <button type="button" class="btn btn-success" '
+        ret += 'onclick="moveElement(\'all-thermCycCons\', \'not required\', \'only-new-incl-dep\');"'
+        ret += '>Copy only additional ThermCycCons(+)</button><br /><br />\n'
+        ret += '  <button type="button" class="btn btn-success" '
+        ret += 'onclick="moveElement(\'all-thermCycCons\', \'not required\', \'all\');"'
+        ret += '>Copy all ThermCycCons (-)</button>&nbsp;&nbsp;&nbsp;&nbsp;\n'
+        ret += '  <button type="button" class="btn btn-success" '
+        ret += 'onclick="moveElement(\'all-thermCycCons\', \'not required\', \'all-incl-dep\');"'
+        ret += '>Copy all ThermCycCons (+)</button><br /><br />\n'
+        ret += '</p>\n'
+        ret += '<table style="width:100%;">'
         ret += '  <tr>\n'
-        ret += '     <td>Target</td>\n'
+        ret += '     <th style="width:20%;">Base RDML</th>\n'
+        ret += '     <th style="width:20%;">RDML to Add</th>\n'
+        ret += '     <th style="width:20%;"></th>\n'
+        ret += '     <th style="width:40%;"></th>\n'
+        ret += '  </tr>\n'
+    }
+    for (var i = 0; i < joinThermCycConsList.length; i++) {
+        var currId = joinThermCycConsList[i]
+        var found = joinThermCycCons[currId]
+        // alert(currId + " - " + found)
+        ret += '  <tr>\n'
         if ((found == 1) || (found == 3)) {
             ret += '     <td>' + currId + '</td>\n'
         } else {
@@ -544,16 +624,182 @@ function updateClientData() {
         }
         if ((found == 2) || (found == 3)) {
             ret += '     <td>' + currId + '</td>\n'
+            ret += '     <td><button type="button" class="btn btn-success" '
+            ret += 'onclick="moveElement(\'thermCycCon\', \'' + currId + '\', \'only-new\');"'
+            ret += '>Copy ' + currId + ' (-)</button></td>\n'
+            ret += '     <td><button type="button" class="btn btn-success" '
+            ret += 'onclick="moveElement(\'thermCycCon\', \'' + currId + '\', \'all-dep\');"'
+            ret += '>Copy ' + currId + ' (+)</button></td>\n'
+        } else {
+            ret += '     <td></td>\n'
+            ret += '     <td></td>\n'
+            ret += '     <td></td>\n'
+        }
+        ret += '  </tr>\n'
+    }
+    if (joinThermCycConsList.length > 0) {
+        ret += '</table>\n'
+    }
+
+    var joinDocumentationsList = Object.keys(joinDocumentations)
+    joinDocumentationsList.sort()
+    if (joinDocumentationsList.length > 0) {
+        ret += '<br /><br />\n'
+        ret += '<h2>Documentations:</h2>\n'
+        ret += '<p>\n<td colspan="5"><button type="button" class="btn btn-success" '
+        ret += 'onclick="moveElement(\'all-documentations\', \'not required\', \'update\');"'
+        ret += '>Update existing Documentations</button>&nbsp;&nbsp;&nbsp;&nbsp;\n'
+        ret += '  <button type="button" class="btn btn-success" '
+        ret += 'onclick="moveElement(\'all-documentations\', \'not required\', \'only-new\');"'
+        ret += '>Copy only additional Documentations</button>&nbsp;&nbsp;&nbsp;&nbsp;\n'
+        ret += '  <button type="button" class="btn btn-success" '
+        ret += 'onclick="moveElement(\'all-documentations\', \'not required\', \'all\');"'
+        ret += '>Copy all Documentations</button><br /><br />\n'
+        ret += '</p>\n'
+        ret += '<table style="width:100%;">'
+        ret += '  <tr>\n'
+        ret += '     <th style="width:20%;">Base RDML</th>\n'
+        ret += '     <th style="width:20%;">RDML to Add</th>\n'
+        ret += '     <th style="width:20%;"></th>\n'
+        ret += '     <th style="width:40%;"></th>\n'
+        ret += '  </tr>\n'
+    }
+    for (var i = 0; i < joinDocumentationsList.length; i++) {
+        var currId = joinDocumentationsList[i]
+        var found = joinDocumentations[currId]
+        // alert(currId + " - " + found)
+        ret += '  <tr>\n'
+        if ((found == 1) || (found == 3)) {
+            ret += '     <td>' + currId + '</td>\n'
         } else {
             ret += '     <td></td>\n'
         }
-        ret += '     <td></td>\n'
-        ret += '     <td></td>\n'
+        if ((found == 2) || (found == 3)) {
+            ret += '     <td>' + currId + '</td>\n'
+            ret += '     <td><button type="button" class="btn btn-success" '
+            ret += 'onclick="moveElement(\'documentation\', \'' + currId + '\', \'only-new\');"'
+            ret += '>Copy ' + currId + '</button></td>\n'
+            ret += '     <td></td>\n'
+        } else {
+            ret += '     <td></td>\n'
+            ret += '     <td></td>\n'
+            ret += '     <td></td>\n'
+        }
         ret += '  </tr>\n'
     }
+    if (joinDocumentationsList.length > 0) {
+        ret += '</table>\n'
+    }
 
+    var joinExperimentersList = Object.keys(joinExperimenters)
+    joinExperimentersList.sort()
+    if (joinExperimentersList.length > 0) {
+        ret += '<h2>Experimenters:</h2>\n'
+        ret += '<p>\n<td colspan="5"><button type="button" class="btn btn-success" '
+        ret += 'onclick="moveElement(\'all-experimenters\', \'not required\', \'update\');"'
+        ret += '>Update existing Experimenters</button>&nbsp;&nbsp;&nbsp;&nbsp;\n'
+        ret += '  <button type="button" class="btn btn-success" '
+        ret += 'onclick="moveElement(\'all-experimenters\', \'not required\', \'only-new\');"'
+        ret += '>Copy only additional Experimenters</button>&nbsp;&nbsp;&nbsp;&nbsp;\n'
+        ret += '  <button type="button" class="btn btn-success" '
+        ret += 'onclick="moveElement(\'all-experimenters\', \'not required\', \'all\');"'
+        ret += '>Copy all Experimenters</button><br /><br />\n'
+        ret += '</p>\n'
+        ret += '<table style="width:100%;">'
+        ret += '  <tr>\n'
+        ret += '     <th style="width:20%;">Base RDML</th>\n'
+        ret += '     <th style="width:20%;">RDML to Add</th>\n'
+        ret += '     <th style="width:20%;"></th>\n'
+        ret += '     <th style="width:40%;"></th>\n'
+        ret += '  </tr>\n'
+    }
+    for (var i = 0; i < joinExperimentersList.length; i++) {
+        var currId = joinExperimentersList[i]
+        var found = joinExperimenters[currId]
+        //alert(currId + " - " + found)
+        ret += '  <tr>\n'
+        if ((found == 1) || (found == 3)) {
+            ret += '     <td>' + currId + '</td>\n'
+        } else {
+            ret += '     <td></td>\n'
+        }
+        if ((found == 2) || (found == 3)) {
+            ret += '     <td>' + currId + '</td>\n'
+            ret += '     <td><button type="button" class="btn btn-success" '
+            ret += 'onclick="moveElement(\'experimenter\', \'' + currId + '\', \'only-new\');"'
+            ret += '>Copy ' + currId + '</button></td>\n'
+            ret += '     <td></td>\n'
+        } else {
+            ret += '     <td></td>\n'
+            ret += '     <td></td>\n'
+            ret += '     <td></td>\n'
+        }
+        ret += '  </tr>\n'
+    }
+    if (joinExperimentersList.length > 0) {
+        ret += '</table>\n'
+    }
 
-    ret += '</table>\n'
+    var joinSamplesList = Object.keys(joinSamples)
+    joinSamplesList.sort()
+    if (joinSamplesList.length > 0) {
+        ret += '<br /><br />\n'
+        ret += '<h2>Samples:</h2>\n'
+        ret += '<p>\n<td colspan="5"><button type="button" class="btn btn-success" '
+        ret += 'onclick="moveElement(\'all-samples\', \'not required\', \'update\');"'
+        ret += '>Update existing Samples (-)</button>&nbsp;&nbsp;&nbsp;&nbsp;\n'
+        ret += '  <button type="button" class="btn btn-success" '
+        ret += 'onclick="moveElement(\'all-samples\', \'not required\', \'update-incl-dep\');"'
+        ret += '>Update existing Samples (+)</button><br /><br />\n'
+        ret += '  <button type="button" class="btn btn-success" '
+        ret += 'onclick="moveElement(\'all-samples\', \'not required\', \'only-new\');"'
+        ret += '>Copy only additional Samples (-)</button>&nbsp;&nbsp;&nbsp;&nbsp;\n'
+        ret += '  <button type="button" class="btn btn-success" '
+        ret += 'onclick="moveElement(\'all-samples\', \'not required\', \'only-new-incl-dep\');"'
+        ret += '>Copy only additional Samples(+)</button><br /><br />\n'
+        ret += '  <button type="button" class="btn btn-success" '
+        ret += 'onclick="moveElement(\'all-samples\', \'not required\', \'all\');"'
+        ret += '>Copy all Samples (-)</button>&nbsp;&nbsp;&nbsp;&nbsp;\n'
+        ret += '  <button type="button" class="btn btn-success" '
+        ret += 'onclick="moveElement(\'all-samples\', \'not required\', \'all-incl-dep\');"'
+        ret += '>Copy all Samples (+)</button><br /><br />\n'
+        ret += '</p>\n'
+        ret += '<table style="width:100%;">'
+        ret += '  <tr>\n'
+        ret += '     <th style="width:20%;">Base RDML</th>\n'
+        ret += '     <th style="width:20%;">RDML to Add</th>\n'
+        ret += '     <th style="width:20%;"></th>\n'
+        ret += '     <th style="width:40%;"></th>\n'
+        ret += '  </tr>\n'
+    }
+    for (var i = 0; i < joinSamplesList.length; i++) {
+        var currId = joinSamplesList[i]
+        var found = joinSamples[currId]
+        // alert(currId + " - " + found)
+        ret += '  <tr>\n'
+        if ((found == 1) || (found == 3)) {
+            ret += '     <td>' + currId + '</td>\n'
+        } else {
+            ret += '     <td></td>\n'
+        }
+        if ((found == 2) || (found == 3)) {
+            ret += '     <td>' + currId + '</td>\n'
+            ret += '     <td><button type="button" class="btn btn-success" '
+            ret += 'onclick="moveElement(\'sample\', \'' + currId + '\', \'only-new\');"'
+            ret += '>Copy ' + currId + ' (-)</button></td>\n'
+            ret += '     <td><button type="button" class="btn btn-success" '
+            ret += 'onclick="moveElement(\'sample\', \'' + currId + '\', \'all-dep\');"'
+            ret += '>Copy ' + currId + ' (+)</button></td>\n'
+        } else {
+            ret += '     <td></td>\n'
+            ret += '     <td></td>\n'
+            ret += '     <td></td>\n'
+        }
+        ret += '  </tr>\n'
+    }
+    if (joinSamplesList.length > 0) {
+        ret += '</table>\n'
+    }
 
     resultData.innerHTML = ret
 }

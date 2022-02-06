@@ -385,9 +385,22 @@ def merge_data():
                     rd.import_dye(rdAdd.get_dye(byid=reqdata["ele-id"]))
                 if reqdata["ele-type"] == "all-dyes":
                     rd.import_all_dyes(rdAdd, reqdata["add-mode"])
-
-
-
+                if reqdata["ele-type"] == "sample":
+                    rd.import_sample(rdAdd, rdAdd.get_sample(byid=reqdata["ele-id"]), reqdata["add-mode"])
+                if reqdata["ele-type"] == "all-samples":
+                    rd.import_all_samples(rdAdd, reqdata["add-mode"])
+                if reqdata["ele-type"] == "target":
+                    rd.import_target(rdAdd, rdAdd.get_target(byid=reqdata["ele-id"]), reqdata["add-mode"])
+                if reqdata["ele-type"] == "all-targets":
+                    rd.import_all_targets(rdAdd, reqdata["add-mode"])
+                if reqdata["ele-type"] == "thermCycCon":
+                    rd.import_therm_cyc_cons(rdAdd, rdAdd.get_therm_cyc_cons(byid=reqdata["ele-id"]), reqdata["add-mode"])
+                if reqdata["ele-type"] == "all-thermCycCons":
+                    rd.import_all_therm_cyc_cons(rdAdd, reqdata["add-mode"])
+                if reqdata["ele-type"] == "experiment":
+                    rd.import_experiment(rdAdd, rdAdd.get_experiment(byid=reqdata["ele-id"]), reqdata["add-mode"])
+                if reqdata["ele-type"] == "all-experiments":
+                    rd.import_all_experiments(rdAdd, reqdata["add-mode"])
 
             except rdml.RdmlError as err:
                 data["error"] = str(err)
