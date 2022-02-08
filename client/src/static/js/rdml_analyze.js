@@ -899,7 +899,46 @@ function updateClientData() {
     }
     ret += '</td>\n'
     ret += '<td style="width:4%;"></td>'
-    ret += '    <td style="width:18%;"></td>\n</tr>\n'
+    ret += '    <td style="width:7%;">PCR type:</td>\n<td style="width:11%;">'
+    ret += '  <select class="form-control" id="dropSelPCRStyle" onchange="updatePCRStyle()">'
+
+    if (window.selDigitalOnLoad == "none") {
+        if ((window.experimentPos > -1) && (window.runPos > -1) && (window.reactData.hasOwnProperty("reacts"))) {
+            var countData = 0
+            var countPart = 0
+            var eReacts = window.reactData.reacts
+            for (var reac = 0; reac < eReacts.length; reac++) {
+                if ((eReacts[reac].hasOwnProperty("datas")) &&
+                    (eReacts[reac].datas.length > 0)) {
+                    countData += 1;
+                }
+                if ((eReacts[reac].hasOwnProperty("partitions")) &&
+                    (eReacts[reac].partitions.hasOwnProperty("datas"))) {
+                    countPart += 1;
+                }
+            }
+            if (countData > countPart) {
+                window.selPCRStyle = "classic"
+                ret += '    <option value="classic" selected>classic</option>\n'
+                ret += '    <option value="digital">digital</option>\n'
+            } else {
+                window.selPCRStyle = "digital"
+                ret += '    <option value="classic">classic</option>\n'
+                ret += '    <option value="digital" selected>digital</option>\n'
+            }
+            window.selDigitalOnLoad = ""
+        }
+    } else {
+        if (window.selPCRStyle == "classic") {
+            ret += '    <option value="classic" selected>classic</option>\n'
+            ret += '    <option value="digital">digital</option>\n'
+        } else {
+            ret += '    <option value="classic">classic</option>\n'
+            ret += '    <option value="digital" selected>digital</option>\n'
+        }
+    }
+    ret += '  </select>\n'
+    ret += '</td>\n</tr>\n'
     ret += '</table>\n'
 
     if (window.selPCRStyle == "classic") {

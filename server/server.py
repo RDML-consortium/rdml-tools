@@ -33,6 +33,8 @@ KILLTIME = 60 # time in seconds till a subprocess is killed!
 LOGRDMLRUNS = True  # log the rdml-tools runs
 LOGIPANONYM = True  # anonymize the ip address in log files
 
+SAMPLEFILES = ["sample.rdml", "error.rdml", "linregpcr.rdml", "meltingcurveanalysis.rdml", "merge-example"]
+
 
 def logData(pProg, pKey, pValue, uuid):
     if not LOGRDMLRUNS:
@@ -191,7 +193,7 @@ def remove_file():
     if request.method == 'POST':
         if 'uuid' in request.form.keys():
             uuidstr = request.form['uuid']
-            if uuidstr in ["error.rdml", "sample.rdml", "linregpcr.rdml", "meltingcurveanalysis.rdml"]:
+            if uuidstr in SAMPLEFILES:
                 return jsonify(errors=[{"title": "Sample files can not be deleted!"}]), 400
             else:
                 if not is_valid_uuid(uuidstr):
@@ -405,7 +407,7 @@ def merge_data():
             except rdml.RdmlError as err:
                 data["error"] = str(err)
         if modified is True:
-            if uuidstr not in ["sample.rdml", "error.rdml", "linregpcr.rdml", "meltingcurveanalysis.rdml", "merge-example"]:
+            if uuidstr not in SAMPLEFILES:
                 rd.save(fexpname)
                 logData("RDML-Tools", "Merge", "modify", uuidstr)
             else:
@@ -925,7 +927,7 @@ def handle_data():
                     logNote1 = "tableUploadAmplification"
                     tabAmpUpload = request.files['tableUploadAmplification']
                     modified = True
-                    if uuidstr in ["sample.rdml", "linregpcr.rdml", "meltingcurveanalysis.rdml"]:
+                    if uuidstr in SAMPLEFILES:
                         uuidstr = str(uuid.uuid4())
                         data["uuid"] = uuidstr
                         # Get subfolder
@@ -943,7 +945,7 @@ def handle_data():
                     logNote1 = "tableUploadMelting"
                     tabMeltUpload = request.files['tableUploadMelting']
                     modified = True
-                    if uuidstr in ["sample.rdml", "linregpcr.rdml", "meltingcurveanalysis.rdml"]:
+                    if uuidstr in SAMPLEFILES:
                         uuidstr = str(uuid.uuid4())
                         data["uuid"] = uuidstr
                         # Get subfolder
@@ -964,7 +966,7 @@ def handle_data():
                     modified = True
                     tabDigOverviewFilename = None
                     wellFileNames = []
-                    if uuidstr in ["sample.rdml", "linregpcr.rdml", "meltingcurveanalysis.rdml"]:
+                    if uuidstr in SAMPLEFILES:
                         uuidstr = str(uuid.uuid4())
                         data["uuid"] = uuidstr
                         # Get subfolder
@@ -2043,7 +2045,7 @@ def handle_data():
             except rdml.RdmlError as err:
                 data["error"] = str(err)
         if modified is True:
-            if uuidstr in ["sample.rdml", "error.rdml", "linregpcr.rdml", "meltingcurveanalysis.rdml"]:
+            if uuidstr in SAMPLEFILES:
                 uuidstr = str(uuid.uuid4())
                 data["uuid"] = uuidstr
                 # Get subfolder
