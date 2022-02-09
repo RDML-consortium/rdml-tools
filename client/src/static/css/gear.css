@@ -69,6 +69,12 @@ a.plain:hover {
   text-align: center;
 }
 
+#rdmlPlateVTab, #rdmlPlateVTab td, #rdmlPlateVTab th {
+  border: 1px solid black;
+  text-align: center;
+  vertical-align: top;
+}
+
 .tablePreview, .tablePreview td, .tablePreview th {
   border: 1px solid black;
   border-collapse: collapse;

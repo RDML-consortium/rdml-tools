@@ -649,6 +649,8 @@ function updateClientData() {
             ret += '      <input type="text" class="form-control" id="runView-ele-note" onchange="updateErrNote()"'
             ret += ' value="' + window.selNote + '" >'
             ret += '    </div>'
+        } else {
+            ret += '      <input type="hidden" id="runView-ele-note" value="" >'
         }
         ret += '<button type="submit" class="btn btn-outline-primary" '
         ret += 'onclick="replaceExcl()">'

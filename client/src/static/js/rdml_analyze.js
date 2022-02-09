@@ -8,14 +8,14 @@ const resultLink = document.getElementById('uuid-link-box')
 const submitButton = document.getElementById('btn-submit')
 submitButton.addEventListener('click', showUpload)
 
-const exampleButton = document.getElementById('btn-example')
-exampleButton.addEventListener('click', showExample)
+const examplePlateCorrButton = document.getElementById('btn-example-platecorr')
+examplePlateCorrButton.addEventListener('click', showPlateCorrExample)
 
-const exampleLinRegPCRButton = document.getElementById('btn-example-linregpcr')
-exampleLinRegPCRButton.addEventListener('click', showLinRegPCRExample)
 
-const exampleMeltcurveButton = document.getElementById('btn-example-meltcurve')
-exampleMeltcurveButton.addEventListener('click', showMeltcurveExample)
+
+
+
+
 
 const linRegPCRButton = document.getElementById('btn-linregpcr')
 linRegPCRButton.addEventListener('click', runLinRegPCR)
@@ -56,28 +56,10 @@ choiceExcludeNoPlat.addEventListener('change', updateRDMLCheck)
 const choiceExcludeEff = document.getElementById('choiceExcludeEfficiency')
 choiceExcludeEff.addEventListener('change', updateRDMLCheck)
 
-const meltcurveButton = document.getElementById('btn-meltcurve')
-meltcurveButton.addEventListener('click', runMeltcurve)
 
 
 
-const choiceTable = document.getElementById('selTableStyle')
-choiceTable.addEventListener('change', updateLinRegPCRTable)
 
-const choiceMeltTable = document.getElementById('mcaTableStyle')
-choiceMeltTable.addEventListener('change', updateMeltingTable)
-
-const choiceDecimalSep = document.getElementById('selSeparator')
-choiceDecimalSep.addEventListener('change', updateLinRegPCRDecimalSep)
-
-const choiceMeltDecimalSep = document.getElementById('mcaSeparator')
-choiceMeltDecimalSep.addEventListener('change', updateMeltDecimalSep)
-
-const choiceCorrDecimalSep = document.getElementById('corrSeparator')
-choiceCorrDecimalSep.addEventListener('change', updateCorrectionDecimalSep)
-
-const choiceAnnotations = document.getElementById('choiceIncludeAnnotations')
-choiceAnnotations.addEventListener('change', updateLinRegPCRTable)
 
 const rdmlLibVersion = document.getElementById('rdml_lib_version')
 
@@ -105,31 +87,41 @@ const resultCorrection = document.getElementById('result-correction')
 window.uuid = "";
 window.rdmlData = "";
 window.reactData = "";
-window.baselineData = "";
-window.meltcurveData = "";
 window.isvalid = "untested";
 
 window.selExperiment = "";
 window.selRun = "";
 window.selPCRStyle = "classic";
 window.selRunOnLoad = "";
-window.reloadCurves = false;
-window.fixCurves = false;
+window.reloadRun = false;
 window.selDigitalOnLoad = "none";
 
-window.maxLogRange = 10000;
+window.plateView = "plate";
+window.colorStyle = "tarsam";
+window.decimalSepPoint = true;
+window.selAnnotation = "";
+
+window.selAnnota = false;
+window.selPCREff = false;
+window.selRawCq = false;
+window.selRawN0 = false;
+window.selCorCq = true;
+window.selCorN0 = true;
+window.selCorF = false;
+window.selCorP = false;
+window.selNote = false;
+window.selExcl = false;
+
+window.plateSaveTable = "";
+
+
+
+
+
 
 window.exNoPlateau = true;
 window.exDiffMean = "outlier";
-window.decimalSepPoint = true;
 
-window.sampSelFirst = "7s8e45-Show-All"  // To avoid conflicts with existing values
-window.sampSelSecond = "7s8e45-Show-All"  // To avoid conflicts with existing values
-window.sampSelThird = "7s8e45-Show-All"  // To avoid conflicts with existing values
-window.sampSelThirdList = []
-window.yScale = "log"
-window.curveSource = "adp"
-window.colorStyle = "tarsam"
 
 window.linRegSaveTable = ""
 window.meltcurveSaveTable = ""
@@ -151,92 +143,32 @@ window.reactToMeltcurveTable = {}
 window.linRegPCRTable = []
 window.meltcurveTable = []
 
-window.lastSelReact = ""
-
-// Global values for svg curves
-// The value range
-window.valXmin = 0;
-window.valXmax = 75;
-window.valYmin = 0;
-window.valYmax = 5000;
-// The value window
-window.winXmin = 0;
-window.winXmax = 75;
-window.winYmin = 0;
-window.winYmax = 5000;
-window.winXst = 0;
-window.winXend = 75;
-window.winYst = 0;
-window.winYstep = 500;
-window.winYprec = 0;
-window.winYend = 5000;
-// The output window
-window.frameXst = 0;
-window.frameXend = 500;
-window.frameYst = 0;
-window.frameYend = 300;
 
 function resetAllGlobalVal() {
-    window.sampSelFirst = "7s8e45-Show-All"  // To avoid conflicts with existing values
-    window.sampSelSecond = "7s8e45-Show-All"  // To avoid conflicts with existing values
-    window.sampSelThird = "7s8e45-Show-All"  // To avoid conflicts with existing values
     hideElement(resultError)
     resetLinRegPCRdata()
     resetMeltcurveData()
     updateClientData()
 }
 
-window.updateLinRegPCRDecimalSep = updateLinRegPCRDecimalSep
-function updateLinRegPCRDecimalSep() {
-    if (choiceDecimalSep.value == "point") {
+window.updatePlateDeciSep = updatePlateDeciSep
+function updatePlateDeciSep() {
+    var data = getSaveHtmlData("dropSelPlateDeciSep")
+    if (data == "point") {
         window.decimalSepPoint = true;
-        choiceMeltDecimalSep.value = "point";
-        choiceCorrDecimalSep.value = "point";
     } else {
         window.decimalSepPoint = false;
-        choiceMeltDecimalSep.value = "comma";
-        choiceCorrDecimalSep.value = "comma";
     }
-    updateLinRegPCRTable()
+    updateClientData()
 }
 
-window.updateMeltDecimalSep = updateMeltDecimalSep
-function updateMeltDecimalSep() {
-    if (choiceMeltDecimalSep.value == "point") {
-        window.decimalSepPoint = true;
-        choiceDecimalSep.value = "point";
-        choiceCorrDecimalSep.value = "point";
-    } else {
-        window.decimalSepPoint = false;
-        choiceDecimalSep.value = "comma";
-        choiceCorrDecimalSep.value = "comma";
-    }
-    updateMeltingTable()
-}
-
-window.updateCorrectionDecimalSep = updateCorrectionDecimalSep
-function updateCorrectionDecimalSep() {
-    if (choiceCorrDecimalSep.value == "point") {
-        window.decimalSepPoint = true;
-        choiceDecimalSep.value = "point";
-        choiceMeltDecimalSep.value = "point";
-    } else {
-        window.decimalSepPoint = false;
-        choiceDecimalSep.value = "comma";
-        choiceMeltDecimalSep.value = "comma";
-    }
-    updateCorrectionTable()
-}
 
 window.resetLinRegPCRdata = resetLinRegPCRdata
 function resetLinRegPCRdata() {
     window.linRegSaveTable = ""
     window.linRegPCRTable = []
     window.reactToLinRegTable = {}
-    window.curveSource = "adp"
-    window.baselineData = ""
     resultLinRegPCR.innerHTML = ""
-    updateLinRegPCRTable()
 }
 
 window.resetMeltcurveData = resetMeltcurveData
@@ -244,10 +176,7 @@ function resetMeltcurveData() {
     window.meltcurveSaveTable = ""
     window.meltcurveTable = []
     window.reactToMeltcurveTable = {}
-    window.curveSource = "fdm"
-    window.meltcurveData = ""
     resultMeltcurve.innerHTML = ""
-    updateMeltingTable()
 }
 
 window.updateRDMLCheck = updateRDMLCheck
@@ -260,7 +189,6 @@ function updateRDMLCheck() {
     } else {
         optionalGreyTab.style.backgroundColor = "#ffffff"
     }
-    updateLinRegPCRTable()
 }
 
 document.addEventListener("DOMContentLoaded", function() {
@@ -270,12 +198,6 @@ document.addEventListener("DOMContentLoaded", function() {
 function showRDMLSave() {
     var elem = document.getElementById('download-link')
     elem.click()
-}
-
-window.updateMinLogRange = updateMinLogRange
-function updateMinLogRange() {
-    window.maxLogRange = parseInt(document.getElementById('text-max-log-range').value)
-    updateClientData()
 }
 
 function saveUndef(tst) {
@@ -359,6 +281,15 @@ function getSaveHtmlData(key) {
     }
 }
 
+function getSaveHtmlCheckbox(key) {
+    var el = document.getElementById(key)
+    if (el) {
+        return el.checked
+    } else {
+        return false
+    }
+}
+
 function checkForUUID() {
     var uuid = ""
     var tab = ""
@@ -407,27 +338,15 @@ $('#mainTab a').on('click', function(e) {
     $(this).tab('show')
 })
 
-function showExample() {
+function showPlateCorrExample() {
     window.selRun = "";
     window.selPCRStyle = "classic";
-    window.selExperiment = "Experiment_1";
-    window.selRunOnLoad = "Run_1";
+    window.selExperiment = "Plate Correction";
+    window.selRunOnLoad = "Plate 1";
     window.selDigitalOnLoad = "none";
     resetAllGlobalVal()
 
-    updateServerData("example", '{"mode": "upload", "validate": true}')
-    $('[href="#runs-tab"]').tab('show')
-}
-
-function showLinRegPCRExample() {
-    window.selRun = "";
-    window.selPCRStyle = "classic";
-    window.selExperiment = "Experiment_1";
-    window.selRunOnLoad = "Run_1";
-    window.selDigitalOnLoad = "none";
-    resetAllGlobalVal()
-
-    updateServerData("linregpcr", '{"mode": "upload", "validate": true}')
+    updateServerData("platecorr", '{"mode": "upload", "validate": true}')
     $('[href="#runs-tab"]').tab('show')
 }
 
@@ -462,34 +381,7 @@ function runLinRegPCR() {
     resultLinRegPCR.innerHTML = ""
     var rPCREffRange = 0.05
     var rUpdateRDML = true
-    window.exNoPlateau = true
-    window.exDiffMean = "outlier"
     hideElement(resultError)
-
-    window.sampSelFirst = "7s8e45-Show-All"  // To avoid conflicts with existing values
-    window.sampSelSecond = "7s8e45-Show-All"  // To avoid conflicts with existing values
-    window.sampSelThird = "7s8e45-Show-All"  // To avoid conflicts with existing values
-
-
-    var bbPCREff = document.getElementById('text-exl-men-eff')
-    if (bbPCREff) {
-        rPCREffRange = parseFloat(bbPCREff.value)
-    }
-    var bbUpdateRDML = document.getElementById('updateRDMLData')
-    if ((bbUpdateRDML) && (bbUpdateRDML.value == "n")) {
-        rUpdateRDML = false
-    }
-    var bbExcludeNoPlateau = document.getElementById('choiceExcludeNoPlateau')
-    if ((bbExcludeNoPlateau) && (bbExcludeNoPlateau.value == "n")) {
-        window.exNoPlateau = false
-    }
-    var bbExcludeEfficiency = document.getElementById('choiceExcludeEfficiency')
-    if (bbExcludeEfficiency) {
-        window.exDiffMean = bbExcludeEfficiency.value
-    }
-
-    window.yScale = "log"
-    window.curveSource = "bas"
 
     var ret = {}
     ret["mode"] = "run-linregpcr"
@@ -504,131 +396,13 @@ function runLinRegPCR() {
     $('[href="#linregpcr-tab"]').tab('show')
 }
 
-function runMeltcurve() {
-    if (window.selRun == "") {
-        alert("Select an experiment and run first!")
-        return
-    }
-    resultMeltcurve.innerHTML = ""
-    hideElement(resultError)
-
-    window.sampSelFirst = "7s8e45-Show-All"  // To avoid conflicts with existing values
-    window.sampSelSecond = "7s8e45-Show-All"  // To avoid conflicts with existing values
-    window.sampSelThird = "7s8e45-Show-All"  // To avoid conflicts with existing values
-
-    var rUpdateRDML = false
-    var vMcaNormMethod = "exponential"
-    var vMcaFluorLoss = "normalised"
-    var vMcaTruePeakWidth = "1.0"
-    var vMcaArtifactPeakWidth = "1.0"
-    var vMcaExpLow = "65.0"
-    var vMcaExpHigh = "92.0"
-    var vMcaBilinLowStart = "68.0"
-    var vMcaBilinLowStop = "70.0"
-    var vMcaBilinHightStart = "93.0"
-    var vMcaBilinHighStop = "94.0"
-    var vMcaPeakLowTemp = "60.0"
-    var vMcaPeakHighTemp ="98.0"
-    var vMcaPeakMaxWidth ="5.0"
-    var vMcaPeakCutoff = "5.0"
-
-    var bbUpdateRDML = document.getElementById('updateMcaRDMLData')
-    if ((bbUpdateRDML) && (bbUpdateRDML.value == "y")) {
-        rUpdateRDML = true
-    }
-    var eleMcaNormMethod = document.getElementById('mcaNormMethod')
-    if (eleMcaNormMethod) {
-        vMcaNormMethod = eleMcaNormMethod.value
-    }
-    var eleMcaFluorLoss = document.getElementById('mcaFluorLoss')
-    if (eleMcaFluorLoss) {
-        vMcaFluorLoss = eleMcaFluorLoss.value
-    }
-    var eleMcaTruePeakWidth = document.getElementById('mcaTruePeakWidth')
-    if (eleMcaTruePeakWidth) {
-        vMcaTruePeakWidth = eleMcaTruePeakWidth.value
-    }
-    var eleMcaArtifactPeakWidth = document.getElementById('mcaArtifactPeakWidth')
-    if (eleMcaArtifactPeakWidth) {
-        vMcaArtifactPeakWidth = eleMcaArtifactPeakWidth.value
-    }
-    var eleMcaExpLow = document.getElementById('mcaExpLow')
-    if (eleMcaExpLow) {
-        vMcaExpLow = eleMcaExpLow.value
-    }
-    var eleMcaExpHigh = document.getElementById('mcaExpHigh')
-    if (eleMcaExpHigh) {
-        vMcaExpHigh = eleMcaExpHigh.value
-    }
-    var eleMcaBilinLowStart = document.getElementById('mcaBilinLowStart')
-    if (eleMcaBilinLowStart) {
-        vMcaBilinLowStart = eleMcaBilinLowStart.value
-    }
-    var eleMcaBilinLowStop = document.getElementById('mcaBilinLowStop')
-    if (eleMcaBilinLowStop) {
-        vMcaBilinLowStop = eleMcaBilinLowStop.value
-    }
-    var eleMcaBilinHightStart = document.getElementById('mcaBilinHightStart')
-    if (eleMcaBilinHightStart) {
-        vMcaBilinHightStart = eleMcaBilinHightStart.value
-    }
-    var eleMcaBilinHighStop = document.getElementById('mcaBilinHighStop')
-    if (eleMcaBilinHighStop) {
-        vMcaBilinHighStop = eleMcaBilinHighStop.value
-    }
-    var eleMcaPeakLowTemp = document.getElementById('mcaPeakLowTemp')
-    if (eleMcaPeakLowTemp) {
-        vMcaPeakLowTemp = eleMcaPeakLowTemp.value
-    }
-    var eleMcaPeakHighTemp = document.getElementById('mcaPeakHighTemp')
-    if (eleMcaPeakHighTemp) {
-        vMcaPeakHighTemp = eleMcaPeakHighTemp.value
-    }
-    var eleMcaPeakMaxWidth = document.getElementById('mcaPeakMaxWidth')
-    if (eleMcaPeakMaxWidth) {
-        vMcaPeakMaxWidth = eleMcaPeakMaxWidth.value
-    }
-    var eleMcaPeakCutoff = document.getElementById('mcaPeakCutoff')
-    if (eleMcaPeakCutoff) {
-        vMcaPeakCutoff = eleMcaPeakCutoff.value
-    }
-
-    window.yScale = "lin"
-    window.curveSource = "fdm"
-
-    var ret = {}
-    ret["mode"] = "run-meltcurve"
-    ret["sel-experiment"] = window.selExperiment
-    ret["sel-run"] = window.selRun
-    ret["update-RDML-data"] = rUpdateRDML
-    ret["mca-norm-method"] = vMcaNormMethod
-    ret["mca-fluor-loss"] = vMcaFluorLoss
-    ret["mca-true-peak-width"] = vMcaTruePeakWidth
-    ret["mca-artifact-peak-width"] = vMcaArtifactPeakWidth
-    ret["mca-exp-low"] = vMcaExpLow
-    ret["mca-exp-high"] = vMcaExpHigh
-    ret["mca-bilin-low-start"] = vMcaBilinLowStart
-    ret["mca-bilin-low-stop"] = vMcaBilinLowStop
-    ret["mca-bilin-hight-start"] = vMcaBilinHightStart
-    ret["mca-bilin-hight-stop"] = vMcaBilinHighStop
-    ret["mca-peak-lowtemp"] = vMcaPeakLowTemp
-    ret["mca-peak-hightemp"] = vMcaPeakHighTemp
-    ret["mca-peak-maxwidth"] = vMcaPeakMaxWidth
-    ret["mca-peak-cutoff"] = vMcaPeakCutoff
-    updateServerData(uuid, JSON.stringify(ret))
-
-    $('[href="#runMeltcurve-tab"]').tab('show')
-}
-
 // TODO client-side validation
 function updateServerData(stat, reqData) {
     const formData = new FormData()
-    if (stat == "example") {
-        formData.append('showExample', 'showExample')
+    if (stat == "platecorr") {
+        formData.append('showPlateCorrExample', 'showPlateCorrExample')
     } else if (stat == "linregpcr") {
         formData.append('showLinRegPCRExample', 'showLinRegPCRExample')
-    } else if (stat == "meltcurve") {
-        formData.append('showMeltcurveExample', 'showMeltcurveExample')
     } else if (stat == "data") {
         formData.append('queryFile', inputFile.files[0])
     } else {
@@ -655,36 +429,6 @@ function updateServerData(stat, reqData) {
                 }
                 if (res.data.data.hasOwnProperty("reactsdata")) {
                     window.reactData = res.data.data.reactsdata
-                    if (window.reactData.hasOwnProperty("LinRegPCR_Result_Table")) {
-                        window.baselineData = res.data.data.reactsdata
-                        window.linRegPCRTable = JSON.parse(window.reactData.LinRegPCR_Result_Table)
-                        for (var row = 0; row < window.linRegPCRTable.length; row++) {
-                            var reactPos = window.linRegPCRTable[row][0]  // "id"
-                            if (!(window.reactToLinRegTable.hasOwnProperty(reactPos))) {
-                                window.reactToLinRegTable[parseInt(reactPos)] = row
-                            }
-                        }
-                        updateLinRegPCRTable()
-                        var bbUpdateRDML = document.getElementById('updateRDMLData')
-                        if ((bbUpdateRDML) && (bbUpdateRDML.value == "y")){
-                            window.reloadCurves = true;
-                        }
-                    }
-                    if (window.reactData.hasOwnProperty("Meltcurve_Result_Table")) {
-                        window.meltcurveData = res.data.data.reactsdata
-                        window.meltcurveTable = JSON.parse(window.meltcurveData.Meltcurve_Result_Table)
-                        for (var row = 0; row < window.meltcurveTable.length; row++) {
-                            var reactPos = window.meltcurveTable[row][0]  // "id"
-                            if (!(window.reactToMeltcurveTable.hasOwnProperty(reactPos))) {
-                                window.reactToMeltcurveTable[parseInt(reactPos)] = row
-                            }
-                        }
-                        updateMeltingTable()
-                        var bbUpdateRDML = document.getElementById('updateRDMLData')
-                        if ((bbUpdateRDML) && (bbUpdateRDML.value == "y")){
-                            window.reloadCurves = true;
-                        }
-                    }
                     // For debugging
                     // document.getElementById('text-jsDebug').value = JSON.stringify(window.reactData, null, 2)
                 }
@@ -706,7 +450,6 @@ function updateServerData(stat, reqData) {
                 }
                 fillLookupDics()
                 updateClientData()
-                updateCorrectionTable()
             }
         })
         .catch(err => {
@@ -792,7 +535,7 @@ function updateClientData() {
         window.selRun = window.selRunOnLoad
         if ((window.rdmlData.hasOwnProperty("rdml")) && (window.selExperiment != "") && (window.selRun != "")){
             var ret = {}
-            ret["mode"] = "get-run-data"
+            ret["mode"] = "get-run-data-wo-curves"
             ret["sel-experiment"] = window.selExperiment
             ret["sel-run"] = window.selRun
             window.selRunOnLoad = ""
@@ -800,19 +543,14 @@ function updateClientData() {
         }
         return
     }
-    if (window.reloadCurves == true) {
+    if (window.reloadRun == true) {
         var ret = {}
-        ret["mode"] = "get-run-data"
+        ret["mode"] = "get-run-data-wo-curves"
         ret["sel-experiment"] = window.selExperiment
         ret["sel-run"] = window.selRun
-        window.reloadCurves = false
+        window.reloadRun = false
         updateServerData(uuid, JSON.stringify(ret))
         return
-    }
-    if ((window.curveSource == "bas") && (window.linRegPCRTable.length < 1)) {
-        window.curveSource = "adp"
-    } else if ((["smo", "nrm", "fdm"].includes(window.curveSource)) && (window.meltcurveTable.length < 1)) {
-        window.curveSource = "mdp"
     }
 
     // The UUID box
@@ -868,7 +606,7 @@ function updateClientData() {
 
     ret = '<table style="width:100%;background-color: #e6e6e6;">'
     ret += '  <tr>\n    <td style="width:8%;">Experiment:</td>\n<td style="width:29%;">'
-    ret += '  <select class="form-control" id="dropSelExperiment" onchange="updateExperimenter()">'
+    ret += '  <select class="form-control" id="dropSelExperiment" onchange="updateExperiment()">'
     ret += '    <option value="">No experiment selected</option>\n'
     window.experimentPos = -1
     for (var i = 0; i < exp.length; i++) {
@@ -943,157 +681,169 @@ function updateClientData() {
 
     if (window.selPCRStyle == "classic") {
         ret += '<table style="width:100%;">'
-        ret += '  <tr>\n    <td style="width:8%;">Data Source:</td>\n<td style="width:29%;">'
-        ret += '  <select class="form-control" id="dropSelCurveSource" onchange="updateCurveSource()">'
-        ret += '        <option value="adp"'
-        if (window.curveSource == "adp") {
+        ret += '  <tr>\n    <td style="width:8%;">Data View:</td>\n<td style="width:10%;">'
+        ret += '  <select class="form-control" id="dropSelPlateView" onchange="updatePlateView()">'
+        ret += '        <option value="plate"'
+        if (window.plateView == "plate") {
             ret += ' selected'
         }
-        ret += '>Amplification - Raw Data</option>\n'
-        if (window.linRegPCRTable.length > 0) {
-            ret += '        <option value="bas"'
-            if (window.curveSource == "bas") {
-                ret += ' selected'
-            }
-            ret += '>Amplification - Baseline Corrected</option>\n'
-        }
-        ret += '        <option value="mdp"'
-        if (window.curveSource == "mdp") {
+        ret += '>Plate</option>\n'
+        ret += '        <option value="list"'
+        if (window.plateView == "list") {
             ret += ' selected'
         }
-        ret += '>Meltcurve - Raw Data</option>\n'
-        if (window.meltcurveTable.length > 0) {
-            ret += '        <option value="smo"'
-            if (window.curveSource == "smo") {
-                ret += ' selected'
-            }
-            ret += '>Meltcurve - Smoothed</option>\n'
-            ret += '        <option value="nrm"'
-            if (window.curveSource == "nrm") {
-                ret += ' selected'
-            }
-            ret += '>Meltcurve - Normalized</option>\n'
-            ret += '        <option value="fdm"'
-            if (window.curveSource == "fdm") {
-                ret += ' selected'
-            }
-            ret += '>Meltcurve - First Derivative</option>\n'
-        }
+        ret += '>List</option>\n'
         ret += '  </select>\n'
         ret += '</td>\n'
         ret += '  <td style="width:4%;"></td>\n'
-        ret += '  <td style="width:9%;">Color Coding:</td>\n<td style="width:28%;">'
-        ret += '  <select class="form-control" id="dropSelColorStyle" onchange="updateColorStyle()">'
-        ret += '        <option value="tarsam"'
-        if (window.colorStyle == "tarsam") {
-            ret += ' selected'
-        }
-        ret += '>Target & Sample</option>\n'
-        ret += '        <option value="type"'
-        if (window.colorStyle == "type") {
-            ret += ' selected'
-        }
-        ret += '>Sample Type</option>\n'
-        ret += '        <option value="tar"'
-        if (window.colorStyle == "tar") {
-            ret += ' selected'
-        }
-        ret += '>Target</option>\n'
-        ret += '        <option value="sam"'
-        if (window.colorStyle == "sam") {
-            ret += ' selected'
-        }
-        ret += '>Sample</option>\n'
-        ret += '  </select>\n'
-        ret += '</td>\n<td style="width:4%;"></td>\n'
-        ret += '  <td style="width:5%;">Y-Axis:</td>\n<td style="width:13%;">'
-        ret += '  <select class="form-control" id="dropSelYScale" onchange="updateYScale()">'
-        ret += '        <option value="lin"'
-        if (window.yScale == "lin") {
-            ret += ' selected'
-        }
-        ret += '>Linear Scale</option>\n'
-        ret += '        <option value="log"'
-        if (window.yScale == "log") {
-            ret += ' selected'
-        }
-        ret += '>Logarithmic Scale</option>\n'
-        ret += '  </select>\n'
-        ret += '</td>\n</tr>\n'
-        ret += '</table>\n'
-        ret += '<table style="width:100%;">'
-        ret += '  <tr>\n    <td style="width:12%;">Select Sample by</td>\n<td style="width:25%;">'
-        ret += '  <select class="form-control" id="dropSampSelFirst" onchange="updateSampSel(0)">'
-        ret += '        <option value="7s8e45-Show-All"'
-        if (window.sampSelFirst == "7s8e45-Show-All") {
-            ret += ' selected'
-        }
-        ret += '>Show All</option>\n'
-        ret += '        <option value="sample"'
-        if (window.sampSelFirst == "sample") {
-            ret += ' selected'
-        }
-        ret += '>Sample</option>\n'
-        ret += '        <option value="target"'
-        if (window.sampSelFirst == "target") {
-            ret += ' selected'
-        }
-        ret += '>Target</option>\n'
-        ret += '        <option value="dye_id"'
-        if (window.sampSelFirst == "dye_id") {
-            ret += ' selected'
-        }
-        ret += '>Dye by ID</option>\n'
-        ret += '        <option value="dye_pos"'
-        if (window.sampSelFirst == "dye_pos") {
-            ret += ' selected'
-        }
-        ret += '>Dye by Position</option>\n'
-        ret += '        <option value="excluded"'
-        if (window.sampSelFirst == "excluded") {
-            ret += ' selected'
-        }
-        ret += '>Excluded</option>\n'
-        if (window.linRegPCRTable.length > 0 ) {
-            ret += '        <option value="linRegPCR"'
-            if (window.sampSelFirst == "linRegPCR") {
+        if (window.plateView == "plate") {
+            ret += '  <td style="width:9%;">Color Coding:</td>\n<td style="width:12%;">'
+            ret += '  <select class="form-control" id="dropSelColorStyle" onchange="updateColorStyle()">'
+            ret += '        <option value="tarsam"'
+            if (window.colorStyle == "tarsam") {
                 ret += ' selected'
             }
-            ret += '>Warnings by LinRegPCR</option>\n'
+            ret += '>Target & Sample</option>\n'
+            ret += '        <option value="type"'
+            if (window.colorStyle == "type") {
+                ret += ' selected'
+            }
+            ret += '>Sample Type</option>\n'
+            ret += '        <option value="tar"'
+            if (window.colorStyle == "tar") {
+                ret += ' selected'
+            }
+            ret += '>Target</option>\n'
+            ret += '        <option value="sam"'
+            if (window.colorStyle == "sam") {
+                ret += ' selected'
+            }
+            ret += '>Sample</option>\n'
+            ret += '  </select>\n'
+            ret += '</td>\n<td style="width:4%;"></td>\n'
+            ret += '  <td style="width:9%;">Decimal Separator:</td>\n<td style="width:12%;">'
+            ret += '  <select class="form-control" id="dropSelPlateDeciSep" onchange="updatePlateDeciSep()">'
+            ret += '        <option value="point"'
+            if (window.decimalSepPoint == true) {
+                ret += ' selected'
+            }
+            ret += '>Point</option>\n'
+            ret += '        <option value="comma"'
+            if (window.decimalSepPoint == false) {
+                ret += ' selected'
+            }
+            ret += '>Comma</option>\n'
+            ret += '  </select>\n'
+            ret += '</td>\n<td style="width:4%;"></td>\n'
+            ret += '  <td style="width:9%;">Select Annotation:</td>\n<td style="width:12%;">'
+            ret += '  <select class="form-control" id="dropSelColorStyle" onchange="updateAnnotation()">'
+            ret += '        <option value="tarsam"'
+            if (window.selAnnotation == "") {
+                ret += ' selected'
+            }
+            ret += '>Not Selected</option>\n'
+            ret += '        <option value="type"'
+            if (window.selAnnotation == "type") {
+                ret += ' selected'
+            }
+            ret += '>Sample Type</option>\n'
+            ret += '  </select>\n'
+            ret += '</td>\n<td style="width:7%;">'
+        } else {
+            ret += '  <td style="width:9%;"></td>\n<td style="width:28%;">'
+            ret += '</td>\n<td style="width:4%;"></td>\n'
+            ret += '  <td style="width:37%;">'
         }
-        ret += '  </select>\n'
-        ret += '</td>\n'
-        ret += '  <td style="width:4%;"></td>\n'
-        ret += '  <td style="width:9%;">and</td>\n'
-        ret += '  <td style="width:28%;">'
-        ret += '  <select class="form-control" id="dropSampSelSecond" onchange="updateSampSel(0)">'
-        ret += '  </select>\n'
-        ret += '</td>\n'
-        ret += '<td style="width:4%;"></td>'
-        ret += '<td style="width:5%;"></td>'
-        ret += '  <td style="width:13%;">'
-        ret += '  <select class="form-control" id="dropSampSelThird" onchange="updateSampSel(0)">'
-        ret += '  </select>\n'
         ret += '</td>\n</tr>\n'
         ret += '</table>\n'
-        ret += '<table style="width:100%;">'
-        ret += '  <tr>\n    <td style="width:25%;">Maximal fluorescence range in Log view</td>\n<td style="width:12%;">'
-        ret += '  <input type="text" class="form-control" id="text-max-log-range"'
-        ret += ' value="' + window.maxLogRange + '" onchange="updateMinLogRange()">\n'
-        ret += '</td>\n'
-        ret += '  <td style="width:4%;"></td>\n'
-        ret += '  <td style="width:9%;"></td>\n'
-        ret += '  <td style="width:28%;">'
-        ret += '</td>\n'
-        ret += '<td style="width:4%;"></td>'
-        ret += '<td style="width:5%;"></td>'
-        ret += '  <td style="width:13%;">'
-        ret += '    <button type="submit" class="btn btn-outline-primary" onclick="saveSVGFile()">'
-        ret += '      <i class="far fa-save" style="margin-right: 5px;"></i>'
-        ret += '        Save curves as SVG file'
-        ret += '    </button>'
-        ret += '</td>\n</tr>\n'
-        ret += '</table>\n'
+        if (window.plateView == "plate") {
+            ret += '<table style="width:100%;">'
+            ret += '  <tr>\n    <td style="width:4%;"></td>\n'
+            ret += '  <td style="width:8%;">'
+            ret += '  <div class="form-check">\n'
+            ret += '    <input type="checkbox" class="form-check-input" id="checkAnnota"'
+            if (window.selAnnota == true) {
+              ret += ' checked="checked"'
+            }
+            ret += ' onchange="updateCheckboxes()">\n'
+            ret += '    <label class="form-check-label" for="checkAnnota">Annotation</label>\n'
+            ret += '  </div>\n</td>\n<td style="width:8%;">'
+            ret += '  <div class="form-check">\n'
+            ret += '    <input type="checkbox" class="form-check-input" id="checkPCREff"'
+            if (window.selPCREff == true) {
+              ret += ' checked="checked"'
+            }
+            ret += ' onchange="updateCheckboxes()">\n'
+            ret += '    <label class="form-check-label" for="checkPCREff">PCR Eff</label>\n'
+            ret += '  </div>\n</td>\n<td style="width:8%;">'
+            ret += '  <div class="form-check">\n'
+            ret += '    <input type="checkbox" class="form-check-input" id="checkRawCq"'
+            if (window.selRawCq == true) {
+              ret += ' checked="checked"'
+            }
+            ret += ' onchange="updateCheckboxes()">\n'
+            ret += '    <label class="form-check-label" for="checkRawCq">raw Cq</label>\n'
+            ret += '  </div>\n</td>\n<td style="width:8%;">'
+            ret += '  <div class="form-check">\n'
+            ret += '    <input type="checkbox" class="form-check-input" id="checkRawN0"'
+            if (window.selRawN0 == true) {
+              ret += ' checked="checked"'
+            }
+            ret += ' onchange="updateCheckboxes()">\n'
+            ret += '    <label class="form-check-label" for="checkRawN0">raw N0</label>\n'
+            ret += '  </div>\n</td>\n<td style="width:8%;">'
+            ret += '  <div class="form-check">\n'
+            ret += '    <input type="checkbox" class="form-check-input" id="checkCorCq"'
+            if (window.selCorCq == true) {
+              ret += ' checked="checked"'
+            }
+            ret += ' onchange="updateCheckboxes()">\n'
+            ret += '    <label class="form-check-label" for="checkCorCq">corr Cq</label>\n'
+            ret += '  </div>\n</td>\n<td style="width:8%;">'
+            ret += '  <div class="form-check">\n'
+            ret += '    <input type="checkbox" class="form-check-input" id="checkCorN0"'
+            if (window.selCorN0 == true) {
+              ret += ' checked="checked"'
+            }
+            ret += ' onchange="updateCheckboxes()">\n'
+            ret += '    <label class="form-check-label" for="checkCorN0">corr N0</label>\n'
+            ret += '  </div>\n</td>\n<td style="width:8%;">'
+            ret += '  <div class="form-check">\n'
+            ret += '    <input type="checkbox" class="form-check-input" id="checkCorF"'
+            if (window.selCorF == true) {
+              ret += ' checked="checked"'
+            }
+            ret += ' onchange="updateCheckboxes()">\n'
+            ret += '    <label class="form-check-label" for="checkCorF">corr Factor</label>\n'
+            ret += '  </div>\n</td>\n<td style="width:8%;">'
+            ret += '  <div class="form-check">\n'
+            ret += '    <input type="checkbox" class="form-check-input" id="checkCorP"'
+            if (window.selCorP == true) {
+              ret += ' checked="checked"'
+            }
+            ret += ' onchange="updateCheckboxes()">\n'
+            ret += '    <label class="form-check-label" for="checkCorP">corr Plate</label>\n'
+            ret += '  </div>\n</td>\n<td style="width:8%;">'
+            ret += '  <div class="form-check">\n'
+            ret += '    <input type="checkbox" class="form-check-input" id="checkNote"'
+            if (window.selNote == true) {
+              ret += ' checked="checked"'
+            }
+            ret += ' onchange="updateCheckboxes()">\n'
+            ret += '    <label class="form-check-label" for="checkNote">Note</label>\n'
+            ret += '  </div>\n</td>\n<td style="width:8%;">'
+            ret += '  <div class="form-check">\n'
+            ret += '    <input type="checkbox" class="form-check-input" id="checkExcl"'
+            if (window.selExcl == true) {
+              ret += ' checked="checked"'
+            }
+            ret += ' onchange="updateCheckboxes()">\n'
+            ret += '    <label class="form-check-label" for="checkExcl">Excluded</label>\n'
+            ret += '  </div>\n</td>\n<td style="width:16%;">'
+            ret += '</td>\n</tr>\n'
+            ret += '</table>\n'
+        } else {
+        }
     }
     selectorsData.innerHTML = ret
     ret = ""
@@ -1108,7 +858,7 @@ function updateClientData() {
         if (window.selPCRStyle != "classic") {
             ret += '<a href="#" onclick="getDigitalOverviewFile()">Overview as table data (.tsv)</a><br /><br />'
         }
-        ret += '<table id="rdmlPlateTab" style="width:100%;">'
+        ret += '<table id="rdmlPlateVTab" style="width:100%;">'
         ret += '<tr><td></td>'
         for (var h = 0; h < columns; h++) {
             if (columnLabel == "123") {
@@ -1217,14 +967,81 @@ function updateClientData() {
                                     fon_col = "#ffffff"
                                 }
                                 cell = '  <td id="plateTab_' + id + '" style="font-size:0.7em;background-color:' + colo
-                                cell += ';color:' + fon_col + ';" onclick="showReactSel(' + id + ', ' + dataPos + ')">'
+                                cell += ';color:' + fon_col + ';" >'
                                 cell += reacts[reac].sample + '<br />'
                                 if ((reacts[reac].hasOwnProperty("datas")) &&
                                     (window.reactData.max_data_len > 0)) {
                                     cell += reacts[reac].datas[dataPos].tar + '<br />'
-                                    cell += 'Cq: ' + reacts[reac].datas[dataPos].cq + '</td>'
+                                    if (window.selPCREff == true) {
+                                        cell += 'Eff: '
+                                        if (reacts[reac].datas[dataPos].hasOwnProperty("ampEff")) {
+                                            cell += floatWithPrec(reacts[reac].datas[dataPos].ampEff, 1000)
+                                        }
+                                        cell += '<br />'
+                                    }
+                                     if (window.selRawCq == true) {
+                                        cell += 'raw Cq: '
+                                        if (reacts[reac].datas[dataPos].hasOwnProperty("cq")) {
+                                            cell += floatWithPrec(reacts[reac].datas[dataPos].cq, 100)
+                                        }
+                                        cell += '<br />'
+                                    }
+                                     if (window.selRawN0 == true) {
+                                        cell += 'raw N0: '
+                                        if (reacts[reac].datas[dataPos].hasOwnProperty("N0")) {
+                                            cell += floatWithExPrec(reacts[reac].datas[dataPos].N0, 2)
+                                        }
+                                        cell += '<br />'
+                                    }
+                                     if (window.selCorCq == true) {
+                                        cell += 'Cq: '
+                                        if (reacts[reac].datas[dataPos].hasOwnProperty("corrCq")) {
+                                            cell += floatWithPrec(reacts[reac].datas[dataPos].corrCq, 100)
+                                        }
+                                        cell += '<br />'
+                                    }
+                                     if (window.selCorN0 == true) {
+                                        cell += 'N0: '
+                                        if (reacts[reac].datas[dataPos].hasOwnProperty("corrN0")) {
+                                            cell += floatWithExPrec(reacts[reac].datas[dataPos].corrN0, 2)
+                                        }
+                                        cell += '<br />'
+                                    }
+                                    if (window.selCorF == true) {
+                                        cell += 'Corr F: '
+                                        if (reacts[reac].datas[dataPos].hasOwnProperty("corrF")) {
+                                            cell += floatWithPrec(reacts[reac].datas[dataPos].corrF, 100)
+                                        } else {
+                                            cell += floatWithPrec('1.0', 100)
+                                        }
+                                        cell += '<br />'
+                                    }
+                                    if (window.selCorP == true) {
+                                        cell += 'Corr P: '
+                                        if (reacts[reac].datas[dataPos].hasOwnProperty("corrP")) {
+                                            cell += floatWithPrec(reacts[reac].datas[dataPos].corrP, 100)
+                                        } else {
+                                            cell += floatWithPrec('1.0', 100)
+                                        }
+                                        cell += '<br />'
+                                    }
+                                    if (window.selNote == true) {
+                                        cell += 'Note:<br />'
+                                        if (reacts[reac].datas[dataPos].hasOwnProperty("note")) {
+                                            cell += reacts[reac].datas[dataPos].note
+                                        }
+                                        cell += '<br />'
+                                    }
+                                    if (window.selExcl == true) {
+                                        cell += 'Excluded:<br />'
+                                        if (reacts[reac].datas[dataPos].hasOwnProperty("excl")) {
+                                            cell += reacts[reac].datas[dataPos].excl
+                                        }
+                                        cell += '<br />'
+                                    }
+                                    cell += '</td>'
                                 } else {
-                                    cell += '---</td>'
+                                    cell += '---<br />---</td>'
                                 }
                                 exRowUsed = true
                             }
@@ -1295,67 +1112,8 @@ function updateClientData() {
             rowCont = ""
         }
         ret += '</table>'
-
-        if ((window.reactData.max_data_len > 0) && (window.selPCRStyle == "classic")) {
-            var finRet = '        <div class="container">'
-            finRet += '          <div class="row">'
-            finRet += '            <div class="col" id="plate-data">' + ret + '</div>'
-            finRet += '            <div class="col" id="curves-data"></div>'
-            finRet += '          </div>'
-            finRet += '          <div class="row">'
-            finRet += '            <div class="col" id="edit-notes"></div>'
-            finRet += '          </div>'
-            finRet += '        </div>'
-            resultData.innerHTML = finRet;
-
-            if (window.curveSource == "adp") {
-                window.winXmin = 0;
-                window.winXmax = window.reactData.adp_cyc_max;
-                window.winYmin = window.reactData.adp_fluor_min;
-                window.winYmax = window.reactData.adp_fluor_max;
-            } else if (window.curveSource == "bas") {
-                window.winXmin = 0;
-                window.winXmax = window.baselineData.bas_cyc_max;
-                window.winYmin = window.baselineData.bas_fluor_min;
-                window.winYmax = window.baselineData.bas_fluor_max;
-            } else if (window.curveSource == "smo") {
-                window.winXmin = window.meltcurveData.smo_temp_min;
-                window.winXmax = window.meltcurveData.smo_temp_max;
-                window.winYmin = window.meltcurveData.smo_fluor_min;
-                window.winYmax = window.meltcurveData.smo_fluor_max;
-            } else if (window.curveSource == "nrm") {
-                window.winXmin = window.meltcurveData.nrm_temp_min;
-                window.winXmax = window.meltcurveData.nrm_temp_max;
-                window.winYmin = window.meltcurveData.nrm_fluor_min;
-                window.winYmax = window.meltcurveData.nrm_fluor_max;
-            } else if (window.curveSource == "fdm") {
-                window.winXmin = window.meltcurveData.fdm_temp_min;
-                window.winXmax = window.meltcurveData.fdm_temp_max;
-                window.winYmin = window.meltcurveData.fdm_fluor_min;
-                window.winYmax = window.meltcurveData.fdm_fluor_max;
-            } else {
-                window.winXmin = window.reactData.mdp_tmp_min;
-                window.winXmax = window.reactData.mdp_tmp_max;
-                window.winYmin = window.reactData.mdp_fluor_min;
-                window.winYmax = window.reactData.mdp_fluor_max;
-            }
-            showSVG();
-            showEditNotes();
-        } else {
-            resultData.innerHTML = ret
-        }
-    } else {
-        resultData.innerHTML = ret
     }
-
-    if (window.fixCurves == true) {
-        window.fixCurves = false
-        updateSampSel(2)
-        window.sampSelThird = "7s8e45-Show-All"
-        updateSampSel(0)
-    } else {
-        updateSampSel(1)
-    }
+    resultData.innerHTML = ret
 }
 
 window.floatWithPrec = floatWithPrec
@@ -1377,6 +1135,9 @@ function floatWithExPrec(val, prec) {
     if (val == "") {
         return "";
     }
+    if (Number.parseFloat(val) < 0.0) {
+        return floatWithPrec(val, 10);
+    }
     ret += String(Number.parseFloat(val).toExponential(prec));
     if (window.decimalSepPoint == false) {
         ret = ret.replace(/\./g, ',');
@@ -1395,839 +1156,6 @@ function NumPoint(val) {
         ret = ret.replace(/\./g, ',');
     }
     return ret;
-}
-
-window.updateLinRegPCRTable = updateLinRegPCRTable
-function updateLinRegPCRTable() {
-    if (window.linRegPCRTable.length < 1) {
-        return
-    }
-
-    var annoTab = [];
-    var allUsedSamples = {};
-    if (choiceAnnotations.value  == "y") {
-        // Collect the samples
-        var allUsedSamples = {};
-        for (var row = 1; row < window.linRegPCRTable.length; row++) {
-            allUsedSamples[window.linRegPCRTable[row][2]] = 1  // "sample"
-        }
-        // Collect the properties
-        var allUsedProperties = {};
-        var allSamples = window.rdmlData.rdml.samples
-        for (var samp = 0; samp < allSamples.length; samp++) {
-            if (allSamples[samp].id in allUsedSamples) {
-                for (var prop = 0; prop < allSamples[samp].annotations.length; prop++) {
-                    allUsedProperties[allSamples[samp].annotations[prop].property] = 1
-                }
-            }
-        }
-        var allProperties = Object.keys(allUsedProperties)
-        allProperties.sort()
-        annoTab = [allProperties];
-        // Fill empty table
-        var tempInnerTab = [];
-        var lookupAnnotationKey = {};
-        for (var col = 0; col < allProperties.length; col++) {
-            tempInnerTab.push("");
-            lookupAnnotationKey[allProperties[col]] = col;
-        }
-        for (var row = 1; row < window.linRegPCRTable.length; row++) {
-            annoTab.push(JSON.parse(JSON.stringify(tempInnerTab)));
-        }
-        // Overwrite with the values
-        for (var samp = 0; samp < allSamples.length; samp++) {
-            if (allSamples[samp].id in allUsedSamples) {
-                var filledTab = JSON.parse(JSON.stringify(tempInnerTab));
-                for (var prop = 0; prop < allSamples[samp].annotations.length; prop++) {
-                    filledTab[lookupAnnotationKey[allSamples[samp].annotations[prop].property]] = allSamples[samp].annotations[prop].value
-                }
-                for (var row = 1; row < window.linRegPCRTable.length; row++) {
-                    if (window.linRegPCRTable[row][2] == allSamples[samp].id) {  // "sample"
-                        annoTab[row] = filledTab
-                    }
-                }
-            }
-        }
-
-    }
-
-    var content = "";
-    var ret = '<table class="table table-bordered table-striped" id="LinRegPCR_Result_Table">\n'
-    if (choiceTable.value == "debug") {
-        for (var row = 0; row < window.linRegPCRTable.length; row++) {
-            if (row == 0) {
-                ret += '<tr>\n'
-            } else {
-                ret += "<tr ondblclick='window.clickSampSel(\"" + window.linRegPCRTable[row][5]  // "target"
-                ret += "\", \"" + window.linRegPCRTable[row][0] + "\")'> \n"  // "id"
-            }
-            for (var col = 0; col < window.linRegPCRTable[row].length; col++) {
-                if (col < 9) {
-                    content += window.linRegPCRTable[row][col] + "\t"
-                    ret += '<td>' + window.linRegPCRTable[row][col] + '</td>\n'
-                } else {
-                    content += NumPoint(window.linRegPCRTable[row][col]) + "\t"
-                    ret += '<td>' + NumPoint(window.linRegPCRTable[row][col]) + '</td>\n'
-                }
-            }
-            content = content.replace(/\t$/g, "\n");
-            ret += '</tr>\n'
-        }
-    } else if (choiceTable.value == "classic-compact") {
-        var meanCol = 24;  // "mean PCR eff"
-        var effErrCol = 54;  // "PCR efficiency outlier"
-        if (choiceExcludeNoPlat.value == "y") {
-            meanCol += 4;
-            effErrCol += 1;
-        }
-        if (choiceExcludeEff.value == "mean") {
-            meanCol += 8;
-            effErrCol -= 2;
-        }
-        if (choiceExcludeEff.value == "outlier") {
-            meanCol += 16;
-        }
-
-        var pcrFormat = window.rdmlData.rdml.experiments[window.experimentPos].runs[window.runPos].pcrFormat
-        var columns = parseInt(pcrFormat.columns)
-        var rowLabel = pcrFormat.rowLabel
-        var columnLabel = pcrFormat.columnLabel
-
-        for (var row = 0; row < window.linRegPCRTable.length; row++) {
-            if (row == 0) {
-                ret += '<tr>\n'
-            } else {
-                ret += "<tr ondblclick='window.clickSampSel(\"" + window.linRegPCRTable[row][5]  // "target"
-                ret += "\", \"" + window.linRegPCRTable[row][0] + "\")'> \n"  // "id"
-            }
-            ret += '<td>' + window.linRegPCRTable[row][0] + '</td>\n'  // "id"
-            content += window.linRegPCRTable[row][0] + "\t"  // "id"
-            ret += '<td>' + window.linRegPCRTable[row][1] + '</td>\n'  // "well"
-            content += window.linRegPCRTable[row][1] + "\t"  // "well"
-            ret += '<td>' + window.linRegPCRTable[row][2] + '</td>\n'  // "sample"
-            content += window.linRegPCRTable[row][2] + "\t"  // "sample"
-            if (choiceAnnotations.value  == "y") {
-                for (var col = 0; col < annoTab[row].length; col++) {
-                    if (row == 0) {
-                        ret += '<td>annotation ' + annoTab[row][col] + '</td>\n'
-                        content += 'annotation ' + annoTab[row][col] + "\t"
-                    } else {
-                        ret += '<td>' + annoTab[row][col] + '</td>\n'
-                        content += annoTab[row][col] + "\t"
-                    }
-                }
-            }
-            if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][19] + '</td>\n'  // "indiv PCR eff"
-            } else {
-                if (window.linRegPCRTable[row][effErrCol] == true) {
-                    ret += '<td style="background-color: #ffc266;">'
-                    ret += floatWithPrec(window.linRegPCRTable[row][19], 1000) + '</td>\n'  // "indiv PCR eff"
-                } else {
-                    ret += '<td>' + floatWithPrec(window.linRegPCRTable[row][19], 1000) + '</td>\n'  // "indiv PCR eff"
-                }
-            }
-            content += NumPoint(window.linRegPCRTable[row][19]) + "\t"  // "indiv PCR eff"
-            ret += '<td>' + window.linRegPCRTable[row][5] + '</td>\n'  // "target"
-            content += window.linRegPCRTable[row][5] + "\t"  // "target"
-            if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][12] + '</td>\n'  // "common threshold"
-            } else {
-                ret += '<td>' + floatWithPrec(window.linRegPCRTable[row][12], 1000) + '</td>\n'  // "common threshold"
-            }
-            content += NumPoint(window.linRegPCRTable[row][12]) + "\t"  // "common threshold"
-            if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][meanCol] + '</td>\n'
-            } else {
-                ret += '<td>' + floatWithPrec(window.linRegPCRTable[row][meanCol], 1000) + '</td>\n'
-            }
-            content += NumPoint(window.linRegPCRTable[row][meanCol]) + "\t"
-            if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][meanCol + 1] + '</td>\n'
-            } else {
-                ret += '<td>' + floatWithPrec(window.linRegPCRTable[row][meanCol + 1], 1000) + '</td>\n'
-            }
-            content += NumPoint(window.linRegPCRTable[row][meanCol + 1]) + "\t"
-            if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][meanCol + 3] + '</td>\n'
-            } else {
-                ret += '<td>' + floatWithPrec(window.linRegPCRTable[row][meanCol + 3], 1000) + '</td>\n'
-            }
-            content += NumPoint(window.linRegPCRTable[row][meanCol + 3]) + "\t"
-            if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][meanCol + 2] + '</td>\n'
-            } else {
-                ret += '<td>' + floatWithExPrec(window.linRegPCRTable[row][meanCol + 2], 2) + '</td>\n'
-            }
-            content += NumPoint(window.linRegPCRTable[row][meanCol + 2]) + "\t"
-            if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][48] + '</td>\n'  // "amplification"
-                content += window.linRegPCRTable[row][48] + "\t"  // "amplification"
-            } else {
-                if (window.linRegPCRTable[row][48] == true) {  // "amplification"
-                    ret += '<td>Yes</td>\n'
-                    content += "Yes\t"
-                } else {
-                    ret += '<td style="background-color: #ffc266;">No</td>\n'
-                    content += "No\t"
-                }
-            }
-            if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][49] + '</td>\n'  // "baseline error"
-                content += window.linRegPCRTable[row][49] + "\t"  // "baseline error"
-            } else {
-                if (window.linRegPCRTable[row][49] == true) {  // "baseline error"
-                    ret += '<td style="background-color: #ffc266;">Yes</td>\n'
-                    content += "Yes\t"
-                } else {
-                    ret += '<td>No</td>\n'
-                    content += "No\t"
-                }
-            }
-            if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][50] + '</td>\n'  // "plateau"
-                content += window.linRegPCRTable[row][50] + "\t"  // "plateau"
-            } else {
-                if (window.linRegPCRTable[row][50] == true) {  // "plateau"
-                    ret += '<td>Yes</td>\n'
-                    content += "Yes\t"
-                } else {
-                    ret += '<td style="background-color: #ffc266;">No</td>\n'
-                    content += "No\t"
-                }
-            }
-            if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][51] + '</td>\n'  // "noisy sample"
-                content += window.linRegPCRTable[row][51] + "\t"  // "noisy sample"
-            } else {
-                if (window.linRegPCRTable[row][51] == true) {  // "noisy sample"
-                    ret += '<td style="background-color: #ffc266;">Yes</td>\n'
-                    content += "Yes\t"
-                } else {
-                    ret += '<td>No</td>\n'
-                    content += "No\t"
-                }
-            }
-            if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][effErrCol] + '</td>\n'
-                content += window.linRegPCRTable[row][effErrCol] + "\t"
-            } else {
-                if (window.linRegPCRTable[row][effErrCol] == true) {
-                    ret += '<td style="background-color: #ffc266;">Yes</td>\n'
-                    content += "Yes\t"
-                } else {
-                    ret += '<td>No</td>\n'
-                    content += "No\t"
-                }
-            }
-            if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][60] + '</td>\n'  // "used for W-o-L setting"
-                content += window.linRegPCRTable[row][60] + "\t"  // "used for W-o-L setting"
-            } else {
-                if (window.linRegPCRTable[row][60] == true) {  // "used for W-o-L setting"
-                    ret += '<td>Yes</td>\n'
-                    content += "Yes\t"
-                } else {
-                    ret += '<td style="background-color: #ffc266;">No</td>\n'
-                    content += "No\t"
-                }
-            }
-
-            content = content.replace(/\t$/g, "\n");
-            ret += '</tr>\n'
-        }
-    } else if (choiceTable.value == "extended") {
-        var saveExNoPlateau = "n"
-        var colorNotes = ' style="background-color: #cccccc"'
-
-        var meanCol = 24;  // "mean PCR eff"
-        var effErrCol = 54;  // "PCR efficiency outlier"
-        if (choiceExcludeNoPlat.value == "y") {
-            meanCol += 4;
-            effErrCol += 1;
-        }
-        if (choiceExcludeEff.value == "mean") {
-            meanCol += 8;
-            effErrCol -= 2;
-        }
-        if (choiceExcludeEff.value == "outlier") {
-            meanCol += 16;
-        }
-        if (window.exNoPlateau == true) {
-            saveExNoPlateau = "y"
-        }
-        // Grey out note and exclusion strings if they are not up to date
-        if ((choiceExcludeNoPlat.value == saveExNoPlateau) && (choiceExcludeEff.value == window.exDiffMean)) {
-            colorNotes = ''
-        }
-
-        var pcrFormat = window.rdmlData.rdml.experiments[window.experimentPos].runs[window.runPos].pcrFormat
-        var columns = parseInt(pcrFormat.columns)
-        var rowLabel = pcrFormat.rowLabel
-        var columnLabel = pcrFormat.columnLabel
-
-        for (var row = 0; row < window.linRegPCRTable.length; row++) {
-            // Parse "excl" and "note"
-            var highlight_nInLog = ""
-            var highlight_indivPCREff = ""
-            var highlight_nIncluded = ""
-            var highlight_meanPCREff = ""
-            var highlight_meanCq = ""
-            var highlight_meanN0 = ""
-            var highlight_ErrAmp = ""
-            var highlight_ErrBase = ""
-            var highlight_ErrPlat = ""
-            var highlight_ErrNoisy = ""
-            var highlight_ErrEffOutside = ""
-
-            var colWarn = ' style="background-color: #ffc266"'
-            var colErr = ' style="background-color: #ff5c33"'
-
-            var cqValue = -1.0;
-            if (window.linRegPCRTable[row][meanCol + 3] != "") {
-                cqValue = parseFloat(window.linRegPCRTable[row][meanCol + 3])
-            }
-
-            // Similar to rdml.py
-            if (["ntc", "nac", "ntp", "nrt"].includes(window.linRegPCRTable[row][3])) {  // "sample type"
-                if (cqValue > 0.0) {
-                    highlight_meanCq = colErr
-                    highlight_meanN0 = colErr
-                    if (window.linRegPCRTable[row][48] == true) {  // "amplification"
-                        highlight_ErrAmp = colErr
-                    }
-                    if (window.linRegPCRTable[row][50] == true) {  // "plateau"
-                        highlight_ErrPlat = colErr
-                    }
-                    if (window.linRegPCRTable[row][effErrCol] == false) {
-                        highlight_ErrEffOutside = colErr
-                        highlight_meanPCREff = colWarn
-                        highlight_indivPCREff = colWarn
-                    }
-                } else {
-                    if (window.linRegPCRTable[row][48] == true) {  // "amplification"
-                        highlight_ErrAmp = colWarn
-                    }
-                    if (window.linRegPCRTable[row][50] == true) {  // "plateau"
-                        highlight_ErrPlat = colWarn
-                    }
-                    if (window.linRegPCRTable[row][effErrCol] == false) {
-                        highlight_ErrEffOutside = colWarn
-                        highlight_meanPCREff = colWarn
-                        highlight_indivPCREff = colWarn
-                    }
-                }
-            }
-            if (["std", "pos"].includes(window.linRegPCRTable[row][3])) {  // "sample type"
-                if (parseInt(window.linRegPCRTable[row][14]) < 5) {  // "n in log phase"
-                    highlight_nInLog = colWarn
-                }
-                if (parseFloat(window.linRegPCRTable[row][19]) < 1.7) {  // "indiv PCR eff"
-                    highlight_indivPCREff = colWarn
-                }
-                if (cqValue > 34.0) {
-                    highlight_meanCq = colWarn
-                    highlight_meanN0 = colWarn
-                }
-                if ((cqValue > -0.001) && (cqValue < 10.0)) {
-                    highlight_meanCq = colWarn
-                    highlight_meanN0 = colWarn
-                }
-
-                if (!(cqValue > 0.0)) {
-                    highlight_meanCq = colErr
-                    highlight_meanN0 = colErr
-                    if (window.linRegPCRTable[row][48] == false) {  // "amplification"
-                        highlight_ErrAmp = colErr
-                    }
-                    if (window.linRegPCRTable[row][49] == true) {  // "baseline error"
-                        highlight_ErrBase = colErr
-                    }
-                    if (window.linRegPCRTable[row][50] == false) {  // "plateau"
-                        highlight_ErrPlat = colErr
-                    }
-                    if (window.linRegPCRTable[row][51] == true) {  // "noisy sample"
-                        highlight_ErrNoisy = colErr
-                    }
-                    if (window.linRegPCRTable[row][effErrCol] == true) {
-                        highlight_ErrEffOutside = colErr
-                        highlight_meanPCREff = colWarn
-                        highlight_indivPCREff = colWarn
-                    }
-                } else {
-                    if (window.linRegPCRTable[row][48] == false) {  // "amplification"
-                        highlight_ErrAmp = colWarn
-                    }
-                    if (window.linRegPCRTable[row][49] == true) {  // "baseline error"
-                        highlight_ErrBase = colWarn
-                    }
-                    if (window.linRegPCRTable[row][50] == false) {  // "plateau"
-                        highlight_ErrPlat = colWarn
-                    }
-                    if (window.linRegPCRTable[row][51] == true) {  // "noisy sample"
-                        highlight_ErrNoisy = colWarn
-                    }
-                    if (window.linRegPCRTable[row][effErrCol] == true) {
-                        highlight_ErrEffOutside = colWarn
-                        highlight_meanPCREff = colWarn
-                        highlight_indivPCREff = colWarn
-                    }
-                }
-            }
-            if (window.linRegPCRTable[row][3] == "unkn") {  // "sample type"
-                if (parseInt(window.linRegPCRTable[row][14]) < 5) {  // "n in log phase"
-                    highlight_nInLog = colWarn
-                }
-                if (parseFloat(window.linRegPCRTable[row][19]) < 1.7) {  // "indiv PCR eff"
-                    highlight_indivPCREff = colWarn
-                }
-                if (cqValue > 34.0) {
-                    highlight_meanCq = colWarn
-                    highlight_meanN0 = colWarn
-                }
-                if ((cqValue > -0.001) && (cqValue < 10.0)) {
-                    highlight_meanCq = colWarn
-                    highlight_meanN0 = colWarn
-                }
-                if (window.linRegPCRTable[row][48] == false) {  // "amplification"
-                    highlight_ErrAmp = colWarn
-                }
-                if (window.linRegPCRTable[row][49] == true) {  // "baseline error"
-                    highlight_ErrBase = colWarn
-                }
-                if (window.linRegPCRTable[row][50] == false) {  // "plateau"
-                    highlight_ErrPlat = colWarn
-                }
-                if (window.linRegPCRTable[row][51] == true) {  // "noisy sample"
-                    highlight_ErrNoisy = colWarn
-                }
-                if (window.linRegPCRTable[row][effErrCol] == true) {
-                    highlight_ErrEffOutside = colWarn
-                    highlight_meanPCREff = colWarn
-                    highlight_indivPCREff = colWarn
-                }
-            }
-
-            if (row == 0) {
-                ret += '<tr>\n'
-            } else {
-                ret += "<tr ondblclick='window.clickSampSel(\"" + window.linRegPCRTable[row][5]  // "target"
-                ret += "\", \"" + window.linRegPCRTable[row][0] + "\")'> \n"  // "id"
-            }
-            for (var col = 0; col < 7; col++) { // "id" - "target chemistry"
-                ret += '<td>' + window.linRegPCRTable[row][col] + '</td>\n'
-                content += window.linRegPCRTable[row][col] + "\t"
-            }
-            if (choiceAnnotations.value  == "y") {
-                for (var col = 0; col < annoTab[row].length; col++) {
-                    if (row == 0) {
-                        ret += '<td>annotation ' + annoTab[row][col] + '</td>\n'
-                        content += 'annotation ' + annoTab[row][col] + "\t"
-                    } else {
-                        ret += '<td>' + annoTab[row][col] + '</td>\n'
-                        content += annoTab[row][col] + "\t"
-                    }
-                }
-            }
-            for (var col = 7; col < 9; col++) { // "excluded" - "note"
-                var brForm = window.linRegPCRTable[row][col].replace(/;/g, ";<br />")
-                ret += '<td' + colorNotes + '>' + brForm + '</td>\n'
-                content += window.linRegPCRTable[row][col] + "\t"
-            }
-            if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][12] + '</td>\n'  // "common threshold"
-            } else {
-                ret += '<td>' + floatWithPrec(window.linRegPCRTable[row][12], 1000) + '</td>\n'  // "common threshold"
-            }
-            content += NumPoint(window.linRegPCRTable[row][12]) + "\t"  // "common threshold"
-            if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][14] + '</td>\n'  // "n in log phase"
-            } else {
-                ret += '<td' + highlight_nInLog + '>' + window.linRegPCRTable[row][14] + '</td>\n'  // "n in log phase"
-            }
-            content += NumPoint(window.linRegPCRTable[row][14]) + "\t"  // "n in log phase"
-            if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][16] + '</td>\n'  // "n included"
-            } else {
-                ret += '<td' + highlight_nIncluded + '>' + window.linRegPCRTable[row][16] + '</td>\n'  // "n included"
-            }
-            content += NumPoint(window.linRegPCRTable[row][16]) + "\t"  // "n included"
-            if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][19] + '</td>\n'  // "indiv PCR eff"
-            } else {
-                ret += '<td' + highlight_indivPCREff + '>'
-                ret += floatWithPrec(window.linRegPCRTable[row][19], 1000) + '</td>\n'  // "indiv PCR eff"
-            }
-            content += NumPoint(window.linRegPCRTable[row][19]) + "\t"  // "indiv PCR eff"
-            if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][meanCol] + '</td>\n'
-            } else {
-                ret += '<td' + highlight_meanPCREff + '>'
-                ret += floatWithPrec(window.linRegPCRTable[row][meanCol], 1000) + '</td>\n'
-            }
-            content += NumPoint(window.linRegPCRTable[row][meanCol]) + "\t"
-            if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][meanCol + 1] + '</td>\n'
-            } else {
-                ret += '<td' + highlight_meanPCREff + '>'
-                ret += floatWithPrec(window.linRegPCRTable[row][meanCol + 1], 1000) + '</td>\n'
-            }
-            content += NumPoint(window.linRegPCRTable[row][meanCol + 1]) + "\t"
-            if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][meanCol + 3] + '</td>\n'
-            } else {
-                ret += '<td' + highlight_meanCq + '>'
-                ret += floatWithPrec(window.linRegPCRTable[row][meanCol + 3], 1000) + '</td>\n'
-            }
-            content += NumPoint(window.linRegPCRTable[row][meanCol + 3]) + "\t"
-            if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][meanCol + 2] + '</td>\n'
-            } else {
-                ret += '<td' + highlight_meanN0 + '>'
-                ret += floatWithExPrec(window.linRegPCRTable[row][meanCol + 2], 2) + '</td>\n'
-            }
-            content += NumPoint(window.linRegPCRTable[row][meanCol + 2]) + "\t"
-            if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][48] + '</td>\n'  // "amplification"
-                content += window.linRegPCRTable[row][48] + "\t"  // "amplification"
-            } else {
-                ret += '<td' + highlight_ErrAmp + '>'
-                if (window.linRegPCRTable[row][48] == true) {  // "amplification"
-                    ret += 'Yes</td>\n'
-                    content += "Yes\t"
-                } else {
-                    ret += 'No</td>\n'
-                    content += "No\t"
-                }
-            }
-            if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][49] + '</td>\n'  // "baseline error"
-                content += window.linRegPCRTable[row][49] + "\t"  // "baseline error"
-            } else {
-                ret += '<td' + highlight_ErrBase + '>'
-                if (window.linRegPCRTable[row][49] == true) {  // "baseline error"
-                    ret += 'Yes</td>\n'
-                    content += "Yes\t"
-                } else {
-                    ret += 'No</td>\n'
-                    content += "No\t"
-                }
-            }
-            if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][50] + '</td>\n'  // "plateau"
-                content += window.linRegPCRTable[row][50] + "\t"  // "plateau"
-            } else {
-                ret += '<td' + highlight_ErrPlat + '>'
-                if (window.linRegPCRTable[row][50] == true) {  // "plateau"
-                    ret += 'Yes</td>\n'
-                    content += "Yes\t"
-                } else {
-                    ret += 'No</td>\n'
-                    content += "No\t"
-                }
-            }
-            if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][51] + '</td>\n'  // "noisy sample"
-                content += window.linRegPCRTable[row][51] + "\t"  // "noisy sample"
-            } else {
-                ret += '<td' + highlight_ErrNoisy + '>'
-                if (window.linRegPCRTable[row][51] == true) {  // "noisy sample"
-                    ret += 'Yes</td>\n'
-                    content += "Yes\t"
-                } else {
-                    ret += 'No</td>\n'
-                    content += "No\t"
-                }
-            }
-            if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][effErrCol] + '</td>\n'
-                content += window.linRegPCRTable[row][effErrCol] + "\t"
-            } else {
-                ret += '<td' + highlight_ErrEffOutside + '>'
-                if (window.linRegPCRTable[row][effErrCol] == true) {
-                    ret += 'Yes</td>\n'
-                    content += "Yes\t"
-                } else {
-                    ret += 'No</td>\n'
-                    content += "No\t"
-                }
-            }
-            if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][60] + '</td>\n'  // "used for W-o-L setting"
-                content += window.linRegPCRTable[row][60] + "\t"  // "used for W-o-L setting"
-            } else {
-                if (window.linRegPCRTable[row][60] == true) {  // "used for W-o-L setting"
-                    ret += '<td>Yes</td>\n'
-                    content += "Yes\t"
-                } else {
-                    ret += '<td style="background-color: #ffc266;">No</td>\n'
-                    content += "No\t"
-                }
-            }
-
-            content = content.replace(/\t$/g, "\n");
-            ret += '</tr>\n'
-        }
-    }
-    ret += '</table>\n'
-    window.linRegSaveTable = content
-    resultLinRegPCR.innerHTML = ret
-}
-
-
-window.updateCorrectionTable = updateCorrectionTable
-function updateCorrectionTable() {
-    var ele = document.getElementById('correction-handle-tab')
-    ele.style.display = "none";
-    resultCorrection.innerHTML = ""
-    window.correctionSaveTable = ""
-    if (window.reactData.hasOwnProperty("anyCalcCorrections")) {
-        if (window.reactData.anyCalcCorrections > 0) {
-            ele.style.display = "inline";
-            if ((window.experimentPos > -1) && (window.runPos > -1) && (window.reactData.hasOwnProperty("reacts"))) {
-                var ret = '<table class="table table-bordered table-striped" id="Correction_Result_Table">\n'
-                var pcrFormat = window.rdmlData.rdml.experiments[window.experimentPos].runs[window.runPos].pcrFormat
-                var rows = parseInt(pcrFormat.rows)
-                var columns = parseInt(pcrFormat.columns)
-                var rowLabel = pcrFormat.rowLabel
-                var columnLabel = pcrFormat.columnLabel
-                ret += '<tr><td>id</td><td>well</td><td>sample</td><td>target</td>'
-                ret += '<td style="width: 180px;">excluded</td><td style="width: 180px;">note</td><td>PCR efficiency</td>'
-                ret += '<td>corrected Cq</td><td>corrected N0</td><td>correction factor</td>'
-                ret += '<td>observed Cq</td><td>observed N0</td></tr>\n'
-                var content = 'id\twell\tsample\ttarget\texcluded\tnote\tPCR efficiency\t'
-                content += 'corrected Cq\tcorrected N0\tcorrection factor\tobserved Cq\tobserved N0\n'
-                for (var id = 1; id < rows * columns + 1; id++) {
-                    for (var reac = 0; reac < window.reactData.reacts.length; reac++) {
-                        var react = window.reactData.reacts[reac]
-                        if (parseInt(react.id) == id) {
-                            for (var dat = 0; dat < react.datas.length; dat++) {
-                                var dataS = react.datas[dat]
-                                ret += '<tr><td>' + id + '</td><td>'
-                                content += id + '\t'
-                                var calcCol = (id - 1) % columns
-                                var calcRow = (id - 1) / columns
-                                var wellID = ""
-                                if (rowLabel == "123") {
-                                    wellID += (calcRow + 1)
-                                } else if (rowLabel == "ABC") {
-                                    wellID += String.fromCharCode('A'.charCodeAt(0) + calcRow)
-                                }
-                                if (columnLabel == "123") {
-                                    wellID += (calcCol + 1)
-                                } else if (columnLabel == "ABC") {
-                                    wellID += String.fromCharCode('A'.charCodeAt(0) + calcCol)
-                                }
-                                ret += wellID + '</td><td>' + react.sample + '</td><td style="width: 180px;">'
-                                content += wellID + '\t' + react.sample + '\t'
-                                ret += dataS.tar + '</td><td style="width: 180px;">'
-                                content += dataS.tar + '\t'
-                                if (dataS.hasOwnProperty("excl")) {
-                                    ret += dataS.excl + '</td><td style="width: 180px;">'
-                                    content += dataS.excl + '\t'
-                                } else {
-                                    ret += '</td><td style="width: 180px;">'
-                                    content += '\t'
-                                }
-                                if (dataS.hasOwnProperty("note")) {
-                                    ret += dataS.note + '</td><td>'
-                                    content += dataS.note + '\t'
-                                } else {
-                                    ret += '</td><td>'
-                                    content += '\t'
-                                }
-                                if (dataS.hasOwnProperty("ampEff")) {
-                                    ret += NumPoint(dataS.ampEff) + '</td><td>'
-                                    content += NumPoint(dataS.ampEff) + '\t'
-                                } else {
-                                    ret += '</td><td>'
-                                    content += '\t'
-                                }
-                                if (dataS.hasOwnProperty("corrCq")) {
-                                    ret += NumPoint(dataS.corrCq) + '</td><td>'
-                                    content += NumPoint(dataS.corrCq) + '\t'
-                                } else {
-                                    ret += '</td><td>'
-                                    content += '\t'
-                                }
-                                if (dataS.hasOwnProperty("corrN0")) {
-                                    ret += NumPoint(dataS.corrN0) + '</td><td>'
-                                    content += NumPoint(dataS.corrN0) + '\t'
-                                } else {
-                                    ret += '</td><td>'
-                                    content += '\t'
-                                }
-                                if (dataS.hasOwnProperty("corrF")) {
-                                    ret += NumPoint(dataS.corrF) + '</td><td>'
-                                    content += NumPoint(dataS.corrF) + '\t'
-                                } else {
-                                    ret += '</td><td>'
-                                    content += '\t'
-                                }
-                                 if (dataS.hasOwnProperty("cq")) {
-                                    ret += NumPoint(dataS.cq) + '</td><td>'
-                                    content += NumPoint(dataS.cq) + '\t'
-                                } else {
-                                    ret += '</td><td>'
-                                    content += '\t'
-                                }
-                                 if (dataS.hasOwnProperty("N0")) {
-                                    ret += NumPoint(dataS.N0) + '</td></tr>\n'
-                                    content += NumPoint(dataS.N0) + '\n'
-                                } else {
-                                    ret += '</td><td>\n'
-                                    content += '\n'
-                                }
-                            }
-                        }
-                    }
-                }
-                ret += '</table>\n'
-                resultCorrection.innerHTML = ret
-                window.correctionSaveTable = content
-            }
-        }
-    }
-}
-
-
-window.updateMeltingTable = updateMeltingTable
-function updateMeltingTable() {
-    if (window.meltcurveTable.length < 1) {
-        return
-    }
-
-    var content = "";
-    var colGood = ' style="background-color: #00cc00"'
-    var colWarn = ' style="background-color: #ffc266"'
-    var colErr = ' style="background-color: #ff5c33"'
-    var warnMesA = "no product with expected melting temperature"
-    var warnMesB =  "several products with different melting temperatures detected"
-    var warnMesC =  "product detected in negative control"
-
-    var ret = '<table class="table table-bordered table-striped" id="Meltcurve_Result_Table">\n'
-    if (choiceMeltTable.value == "debug") {
-        for (var row = 0; row < window.meltcurveTable.length; row++) {
-            if (row == 0) {
-                ret += '<tr>\n'
-            } else {
-                ret += "<tr ondblclick='window.clickSampSel(\"" + window.meltcurveTable[row][4]  // "target"
-                ret += "\", \"" + window.meltcurveTable[row][0] + "\")'> \n"  // "id"
-            }
-            for (var col = 0; col < window.meltcurveTable[row].length; col++) {
-                if (col < 7) {
-                    content += window.meltcurveTable[row][col] + "\t"
-                    ret += '<td>' + window.meltcurveTable[row][col] + '</td>\n'
-                } else {
-                    content += NumPoint(window.meltcurveTable[row][col]) + "\t"
-                    ret += '<td>' + NumPoint(window.meltcurveTable[row][col]) + '</td>\n'
-                }
-            }
-            content = content.replace(/\t$/g, "\n");
-            ret += '</tr>\n'
-        }
-    } else {
-        for (var row = 0; row < window.meltcurveTable.length; row++) {
-            // Del the average line
-            if (window.meltcurveTable[row][3].includes("Average")) {
-                continue
-            }
-            if (row == 0) {
-                ret += '<tr>\n'
-            } else {
-                ret += "<tr ondblclick='window.clickSampSel(\"" + window.meltcurveTable[row][4]  // "target"
-                ret += "\", \"" + window.meltcurveTable[row][0] + "\")'> \n"  // "id"
-            }
-            var goodTemp = 0.0
-            var currCol = "";
-            for (var col = 0; col < window.meltcurveTable[row].length; col++) {
-                if ((row == 0) && (col < 12)) {
-                    content += window.meltcurveTable[row][col] + "\t"
-                    ret += '<td>' + window.meltcurveTable[row][col] + '</td>\n'
-                } else if (col < 7) {
-                    content += window.meltcurveTable[row][col] + "\t"
-                    ret += '<td>' + window.meltcurveTable[row][col] + '</td>\n'
-                } else if (col < 8) {
-                    var editLink = NumPoint(window.meltcurveTable[row][col])
-                    content += NumPoint(window.meltcurveTable[row][col]) + "\t"
-                    if ((window.meltcurveTable[row][3].includes("Average")) && (editLink == "")) {
-                        currCol = ""
-                        if (window.rdmlData.rdml.version == "1.3") {
-                            editLink = '<a href="' + `${API_LINK}` + "edit.html?UUID=" + window.uuid
-                            editLink += ';TAB=targets-tab;EDITMODE=on" target="_blank">Edit Tm</a>\n'
-                        }
-                    }
-                    ret += '<td>' + editLink + '</td>\n'
-                } else if (col < 9) {
-                    content += floatWithPrec(window.meltcurveTable[row][col], 100) + "\t"
-                    currCol = colGood
-                    if (window.meltcurveTable[row][6].includes(warnMesA)) {
-                        currCol = colWarn
-                    }
-                    if (window.meltcurveTable[row][6].includes(warnMesB)) {
-                        currCol = colWarn
-                    }
-                    if (window.meltcurveTable[row][5].includes(warnMesA)) {
-                        currCol = colErr
-                    }
-                    if (window.meltcurveTable[row][5].includes(warnMesB)) {
-                        currCol = colErr
-                    }
-                    if (window.meltcurveTable[row][5].includes(warnMesC)) {
-                        currCol = colErr
-                    }
-                    if (window.meltcurveTable[row][3].includes("Average")) {
-                        currCol = ""
-                    }
-                    goodTemp = floatWithPrec(window.meltcurveTable[row][col], 100)
-                    if (goodTemp == "") {
-                        currCol = ""
-                    }
-                    ret += '<td' + currCol + '>' + goodTemp + '</td>\n'
-                } else if (col < 10) {
-                    content += floatWithPrec(window.meltcurveTable[row][col], 100) + "\t"
-                    ret += '<td>' + floatWithPrec(window.meltcurveTable[row][col], 100) + '</td>\n'
-                } else if (col < 12) {
-                    content += floatWithPrec(window.meltcurveTable[row][col], 1000000) + "\t"
-                    ret += '<td>' + floatWithPrec(window.meltcurveTable[row][col], 1000000) + '</td>\n'
-                } else {
-                    var subCol = (col - 16) % 9;
-                    if ((row == 0) && (subCol >= 0) && (subCol < 4)) {
-                        currCol = "";
-                        content += window.meltcurveTable[row][col] + "\t"
-                        ret += '<td>' + window.meltcurveTable[row][col] + '</td>\n'
-                    } else if ((subCol >= 0) && (subCol < 2)) {
-                        var currTemp = floatWithPrec(window.meltcurveTable[row][col], 100)
-                        if (goodTemp == currTemp) {
-                            currCol = colGood
-                        } else {
-                            currCol = colWarn
-                        }
-                        if (currTemp == "") {
-                            currCol = ""
-                        }
-                        if (window.meltcurveTable[row][3].includes("Average")) {
-                            currCol = ""
-                        }
-                        content += currTemp + "\t"
-                        ret += '<td' + currCol + '>' + currTemp + '</td>\n'
-                    } else if ((subCol >= 0) && (subCol < 3)) {
-                        content += floatWithPrec(window.meltcurveTable[row][col], 100) + "\t"
-                        ret += '<td' + currCol + '>' + floatWithPrec(window.meltcurveTable[row][col], 100) + '</td>\n'
-                    } else if ((subCol >= 0) && (subCol < 4)) {
-                        content += floatWithPrec(window.meltcurveTable[row][col], 1000000) + "\t"
-                        ret += '<td' + currCol + '>' + floatWithPrec(window.meltcurveTable[row][col], 1000000) + '</td>\n'
-                    }
-                }
-            }
-            content = content.replace(/\t$/g, "\n");
-            ret += '</tr>\n'
-        }
-    }
-
-    ret += '</table>\n'
-    window.meltcurveSaveTable = content
-    resultMeltcurve.innerHTML = ret
 }
 
 window.saveTabLinRegPCR = saveTabLinRegPCR;
@@ -2338,8 +1266,8 @@ function copyCorrection() {
     return;
 };
 
-window.updateExperimenter = updateExperimenter;
-function updateExperimenter() {
+window.updateExperiment = updateExperiment;
+function updateExperiment() {
     var newData = getSaveHtmlData("dropSelExperiment")
     if (window.selExperiment == newData) {
         return
@@ -2367,7 +1295,7 @@ function updateRun() {
     resetLinRegPCRdata()
     resetMeltcurveData()
     var ret = {}
-    ret["mode"] = "get-run-data"
+    ret["mode"] = "get-run-data-wo-curves"
     ret["sel-experiment"] = window.selExperiment
     ret["sel-run"] = window.selRun
     updateServerData(uuid, JSON.stringify(ret))
@@ -2490,601 +1418,30 @@ function saveTabFile(fileName, content) {
     return;
 };
 
-window.saveSVGFile = saveSVGFile;
-function saveSVGFile() {
-    var fileName = "curves.svg"
-    var content = createSVG();
-    var a = document.createElement("a");
-    document.body.appendChild(a);
-    a.style.display = "none";
-    var blob = new Blob([content], {type: "image/svg+xml"});
-    var browser = detectBrowser();
-    if (browser != "edge") {
-	    var url = window.URL.createObjectURL(blob);
-	    a.href = url;
-	    a.download = fileName;
-	    a.click();
-	    window.URL.revokeObjectURL(url);
-    } else {
-        window.navigator.msSaveBlob(blob, fileName);
-    }
-    return;
-}
-
-window.showEditNotes = showEditNotes;
-function showEditNotes() {
-    if ((window.sampSelFirst == "target") &&
-        (window.sampSelSecond != "7s8e45-Show-All") &&
-        (window.sampSelThird != "7s8e45-Show-All")) {
-        var sReact = sampSelThird;
-        var sTar = window.sampSelSecond;
-        var exclStr = "";
-        var noteStr = "";
-        var reacts = window.reactData.reacts
-        for (var i = 0; i < reacts.length; i++) {
-            if (reacts[i].id == sReact) {
-                for (var k = 0; k < reacts[i].datas.length; k++) {
-                    if (reacts[i].datas[k].tar == sTar) {
-                        if (reacts[i].datas[k].hasOwnProperty("excl")) {
-                            exclStr = reacts[i].datas[k].excl;
-                        }
-                        if (reacts[i].datas[k].hasOwnProperty("note")) {
-                            noteStr = reacts[i].datas[k].note;
-                        }
-                    }
-                }
-            }
-        }
-        var retVal = '<div class="card">'
-        retVal += '  <div class="card-header">Annotation</div>'
-        retVal += '  <div class="card-body">'
-        retVal += '    <div class="form-group">'
-        retVal += '      <label for="runView-ele-excl">Excluded:</label>'
-        retVal += '      <input type="text" class="form-control" id="runView-ele-excl" value="' + exclStr + '">'
-        retVal += '    </div>'
-        if (window.rdmlData.rdml.version == "1.3") {
-            retVal += '    <div class="form-group">'
-            retVal += '      <label for="runView-ele-notes">Notes:</label>'
-            retVal += '      <input type="text" class="form-control" id="runView-ele-notes" value="' + noteStr + '">'
-            retVal += '    </div>'
-        }
-        retVal += '<button type="submit" class="btn btn-outline-primary" '
-        retVal += 'onclick="updateExclNotes(\'' + sReact + '\',\'' + sTar + '\')">'
-        retVal += '      <i class="fas fa-rocket" style="margin-right: 5px;"></i>'
-        retVal += '        Update Exclusion and Notes in RDML file'
-        retVal += '    </button><br /><br />'
-        retVal += '    Here you can view the exclusion remarks and from RDML version 1.3 the'
-        retVal += '    notes of the RDML file. Any entry in exclusion will exclude this reaction/target combination '
-        retVal += '    from further analysis. <br />'
-        retVal += '    Be aware: LinRegPCR runs with <i>"Update RDML Data: Yes"</i> selected will overwrite all '
-        retVal += '    exclusion remarks and notes in the current run! Only edit this elements when the LinRegPCR '
-        retVal += '    analysis is complete. <br />'
-        retVal += '  </div>'
-        retVal += '</div>'
-        var sectionResults = document.getElementById('edit-notes')
-        sectionResults.innerHTML = retVal;
-    }
-}
-
-window.updateExclNotes = updateExclNotes;
-function updateExclNotes(sReact, sTar) {
-    var exclStr = getSaveHtmlData("runView-ele-excl");
-    var noteStr = getSaveHtmlData("runView-ele-notes");
-    if (window.linRegPCRTable.length > 0) {
-        for (var row = 0; row < window.linRegPCRTable.length; row++) {
-            if ((window.linRegPCRTable[row][0] == sReact) &&  // "id"
-                (window.linRegPCRTable[row][5] == sTar)){  // "target"
-                window.linRegPCRTable[row][7] = exclStr  // "excluded"
-                window.linRegPCRTable[row][8] = noteStr  // "note"
-                updateLinRegPCRTable();
-            }
-        }
-    }
-    var ret = {}
-    ret["mode"] = "update-excl-notes"
-    ret["sel-experiment"] = window.selExperiment
-    ret["sel-run"] = window.selRun
-    ret["sel-react"] = sReact
-    ret["sel-tar"] = sTar
-    ret["sel-excl"] = exclStr
-    ret["sel-note"] = noteStr
-    window.fixCurves = true
-    updateServerData(uuid, JSON.stringify(ret))
-}
-
 window.updatePCRStyle = updatePCRStyle;
 function updatePCRStyle() {
-    var newData = getSaveHtmlData("dropSelPCRStyle")
-    window.selPCRStyle = newData
+    window.selPCRStyle = getSaveHtmlData("dropSelPCRStyle")
     updateClientData()
 }
 
-window.clickSampSel = clickSampSel;
-function clickSampSel(tar, id) {
-    window.sampSelFirst = "target"
-    window.sampSelSecond = tar
-    window.sampSelThird = id
-    updateSampSel(2)
-    window.sampSelThird = "7s8e45-Show-All"
-    updateSampSel(0)
-    $('[href="#runs-tab"]').tab('show')
-}
-
-window.updateSampSel = updateSampSel;
-function updateSampSel(updateOnly) {
-    // updateOnly = 0   New selected data, erase the rest
-    // updateOnly = 1   Default way
-    // updateOnly = 2   Set the choices as new and reselect
-    var dropSecFirst = document.getElementById("dropSampSelFirst")
-    var dropSecSecond = document.getElementById("dropSampSelSecond")
-    var dropSecThird = document.getElementById("dropSampSelThird")
-    if (!(dropSecFirst && dropSecSecond && dropSecThird)) {
-        // One of the selections does not exist
-        return
-    }
-    var newFirstData = getSaveHtmlData("dropSampSelFirst")
-    var newSecondData = getSaveHtmlData("dropSampSelSecond")
-    var newThirdData = getSaveHtmlData("dropSampSelThird")
-    var reSelectSamples = false
-
-    if ((updateOnly == 0) && (window.sampSelFirst != newFirstData)) {
-        window.sampSelFirst = newFirstData
-        window.sampSelSecond = "7s8e45-Show-All"
-        newSecondData = "7s8e45-Show-All"
-        window.sampSelThird = "7s8e45-Show-All"
-        newThirdData = "7s8e45-Show-All"
-        reSelectSamples = true
-    }
-    if ((updateOnly == 0) && (window.sampSelSecond != newSecondData)) {
-        window.sampSelSecond = newSecondData
-        window.sampSelThird = "7s8e45-Show-All"  // To avoid conflicts with existing values
-        newThirdData = "7s8e45-Show-All"
-        reSelectSamples = true
-    }
-    if ((updateOnly == 0) && (window.sampSelThird != newThirdData)) {
-        window.sampSelThird = newThirdData
-        reSelectSamples = true
-    }
-
-    if (updateOnly == 2) {
-        newFirstData = window.sampSelFirst
-        newSecondData = window.sampSelSecond
-        newThirdData = window.sampSelThird
-        reSelectSamples = true
-    }
-
-    // The second select
-    var dropSec = document.getElementById("dropSampSelSecond")
-    for (var opt = dropSec.options.length - 1; opt > -1; opt--) {
-        dropSec.remove(dropSec.opt);
-    }
-    var option = document.createElement("option");
-    option.text = "Show All"
-    option.value = "7s8e45-Show-All"  // To avoid conflicts with existing values
-    dropSec.add(option)
-    if (window.sampSelSecond == "7s8e45-Show-All") {
-        dropSec.options[0].selected = true
-    } else {
-        dropSec.options[0].selected = false
-    }
-
-    if (window.sampSelFirst == "sample") {
-        var allSamples = Object.keys(window.samToNr)
-        var selectNr = 0
-        allSamples.sort()
-        for (var sam = 0; sam < allSamples.length; sam++) {
-            var option = document.createElement("option");
-            option.text = allSamples[sam]
-            option.value = allSamples[sam]
-            dropSec.add(option)
-            if (allSamples[sam] == window.sampSelSecond) {
-                dropSec.options[sam + 1].selected = true
-            } else {
-                dropSec.options[sam + 1].selected = false
-            }
-        }
-        if ((reSelectSamples == true) && (window.reactData.hasOwnProperty("reacts"))) {
-            var reacts = window.reactData.reacts
-            window.sampSelThirdList = []
-            for (var i = 0; i < reacts.length; i++) {
-                if (reacts[i].sample == newSecondData) {
-                    window.sampSelThirdList.push(parseInt(reacts[i].id))
-                }
-            }
-            window.sampSelThirdList.sort(function(a, b){return a - b})
-        }
-    }
-
-    if (window.sampSelFirst == "target") {
-        var allTargets = Object.keys(window.tarToNr)
-        var selectNr = 0
-        allTargets.sort()
-        for (var sam = 0; sam < allTargets.length; sam++) {
-            var option = document.createElement("option");
-            option.text = allTargets[sam]
-            option.value = allTargets[sam]
-            dropSec.add(option)
-            if (allTargets[sam] == window.sampSelSecond) {
-                dropSec.options[sam + 1].selected = true
-            } else {
-                dropSec.options[sam + 1].selected = false
-            }
-        }
-        if ((reSelectSamples == true) && (window.reactData.hasOwnProperty("reacts"))) {
-            var reacts = window.reactData.reacts
-            window.sampSelThirdList = []
-            for (var i = 0; i < reacts.length; i++) {
-                var keepSam = false
-                for (var k = 0; k < reacts[i].datas.length; k++) {
-                    if (reacts[i].datas[k].tar == newSecondData) {
-                        keepSam = true
-                    }
-                }
-                if (keepSam == true) {
-                    window.sampSelThirdList.push(parseInt(reacts[i].id))
-                }
-            }
-            window.sampSelThirdList.sort(function(a, b){return a - b})
-        }
-    }
-
-    if (window.sampSelFirst == "dye_id") {
-        var allDyeIds = Object.keys(window.usedDyeIds)
-        var selectNr = 0
-        allDyeIds.sort()
-        for (var sam = 0; sam < allDyeIds.length; sam++) {
-            var option = document.createElement("option");
-            option.text = allDyeIds[sam]
-            option.value = allDyeIds[sam]
-            dropSec.add(option)
-            if (allDyeIds[sam] == window.sampSelSecond) {
-                dropSec.options[sam + 1].selected = true
-            } else {
-                dropSec.options[sam + 1].selected = false
-            }
-        }
-        if ((reSelectSamples == true) && (window.reactData.hasOwnProperty("reacts"))) {
-            var reacts = window.reactData.reacts
-            window.sampSelThirdList = []
-            for (var i = 0; i < reacts.length; i++) {
-                var keepSam = false
-                for (var k = 0; k < reacts[i].datas.length; k++) {
-                    if (window.tarToDye[reacts[i].datas[k].tar] == newSecondData) {
-                        keepSam = true
-                    }
-                }
-                if (keepSam == true) {
-                    window.sampSelThirdList.push(parseInt(reacts[i].id))
-                }
-            }
-            window.sampSelThirdList.sort(function(a, b){return a - b})
-        }
-    }
-
-    if (window.sampSelFirst == "dye_pos") {
-        for (var sam = 0; sam < window.usedDyeMaxPos + 1; sam++) {
-            var option = document.createElement("option");
-            option.text = sam + 1
-            option.value = sam
-            dropSec.add(option)
-            if (sam == window.sampSelSecond) {
-                dropSec.options[sam + 1].selected = true
-            } else {
-                dropSec.options[sam + 1].selected = false
-            }
-        }
-        if ((reSelectSamples == true) && (window.reactData.hasOwnProperty("reacts"))) {
-            var reacts = window.reactData.reacts
-            window.sampSelThirdList = []
-            for (var i = 0; i < reacts.length; i++) {
-                if (reacts[i].datas.length >= window.usedDyeMaxPos) {
-                    window.sampSelThirdList.push(parseInt(reacts[i].id))
-                }
-            }
-            window.sampSelThirdList.sort(function(a, b){return a - b})
-        }
-    }
-
-    if (window.sampSelFirst == "excluded") {
-        var allExcluded = Object.keys(window.usedExcluded)
-        var selectNr = 0
-        allExcluded.sort()
-        for (var sam = 0; sam < allExcluded.length; sam++) {
-            var option = document.createElement("option");
-            if (allExcluded[sam] == "7s8e45-Empty-Val") {
-                option.text = "No exclusion reason"
-            } else {
-                option.text = allExcluded[sam]
-            }
-            option.value = allExcluded[sam]
-            dropSec.add(option)
-            if (allExcluded[sam] == window.sampSelSecond) {
-                dropSec.options[sam + 1].selected = true
-            } else {
-                dropSec.options[sam + 1].selected = false
-            }
-        }
-        if ((reSelectSamples == true) && (window.reactData.hasOwnProperty("reacts"))) {
-            var reacts = window.reactData.reacts
-            window.sampSelThirdList = []
-            for (var i = 0; i < reacts.length; i++) {
-                var keepSam = false
-                for (var k = 0; k < reacts[i].datas.length; k++) {
-                    if (reacts[i].datas[k].hasOwnProperty("excl")) {
-                        if ((window.sampSelSecond == "7s8e45-Show-All") ||
-                            ((reacts[i].datas[k].excl != "") && (reacts[i].datas[k].excl == newSecondData)) ||
-                            ((reacts[i].datas[k].excl == "") && ("7s8e45-Empty-Val" == newSecondData))) {
-                            keepSam = true
-                        }
-                    }
-                }
-                if (keepSam == true) {
-                    window.sampSelThirdList.push(parseInt(reacts[i].id))
-                }
-            }
-            window.sampSelThirdList.sort(function(a, b){return a - b})
-        }
-    }
-    if (window.sampSelFirst == "linRegPCR") {
-        var linregLookup = {"no amplification": "no_amplification",
-                          "baseline error": "no_baseline",
-                          "no plateau": "no_plateau",
-                          "noisy sample": "noisy_sample",
-                          "PCR efficiency outside mean rage": "PCReff_mean",
-                          "PCR efficiency outside mean rage - no plateau": "PCReff_plat_mean",
-                          "PCR efficiency outlier": "PCReff_out",
-                          "PCR efficiency outlier - no plateau": "PCReff_plat_out",
-                          "short log lin phase": "shortLogLin",
-                          "Cq is shifting": "cqShifting",
-                          "too low Cq eff": "tooLowCqEff",
-                          "too low Cq N0": "tooLowCqN0",
-                          "not used for W-o-L setting": "not_in_WoL"}
-        var linregList = ["no amplification",
-                          "baseline error",
-                          "no plateau",
-                          "noisy sample",
-                          "PCR efficiency outside mean rage",
-                          "PCR efficiency outside mean rage - no plateau",
-                          "PCR efficiency outlier",
-                          "PCR efficiency outlier - no plateau",
-                          "short log lin phase",
-                          "Cq is shifting",
-                          "too low Cq eff",
-                          "too low Cq N0",
-                          "not used for W-o-L setting"]
-        var selectNr = 0
-        for (var sam = 0; sam < linregList.length; sam++) {
-            var option = document.createElement("option");
-            option.text = linregList[sam]
-            option.value = linregLookup[linregList[sam]]
-            dropSec.add(option)
-            if (linregLookup[linregList[sam]] == window.sampSelSecond) {
-                dropSec.options[sam + 1].selected = true
-            } else {
-                dropSec.options[sam + 1].selected = false
-            }
-        }
-        if ((reSelectSamples == true) && (window.reactData.hasOwnProperty("reacts")) &&
-            (window.linRegPCRTable.length > 0 )) {
-            var reacts = window.reactData.reacts
-            window.sampSelThirdList = []
-            for (var lt = 1; lt < window.linRegPCRTable.length; lt++) {
-                if (((newSecondData == "no_amplification") && (window.linRegPCRTable[lt][48] == false)) ||  // "amplification"
-                    ((newSecondData == "no_baseline") && (window.linRegPCRTable[lt][49] == true)) ||  // "baseline error"
-                    ((newSecondData == "no_plateau") && (window.linRegPCRTable[lt][50] == false)) ||  // "plateau"
-                    ((newSecondData == "noisy_sample") && (window.linRegPCRTable[lt][51] == true)) ||  // "noisy sample"
-                    ((newSecondData == "PCReff_mean") && (window.linRegPCRTable[lt][52] == true)) ||  // "PCR efficiency outside mean rage"
-                    ((newSecondData == "PCReff_plat_mean") && (window.linRegPCRTable[lt][53] == true)) ||  // "PCR efficiency outside mean rage - no plateau"
-                    ((newSecondData == "PCReff_out") && (window.linRegPCRTable[lt][54] == true)) ||  // "PCR efficiency outlier"
-                    ((newSecondData == "PCReff_plat_out") && (window.linRegPCRTable[lt][55] == true)) ||  // "PCR efficiency outlier - no plateau"
-                    ((newSecondData == "shortLogLin") && (window.linRegPCRTable[lt][56] == true)) ||  // "short log lin phase"
-                    ((newSecondData == "cqShifting") && (window.linRegPCRTable[lt][57] == true)) ||  // "Cq is shifting"
-                    ((newSecondData == "tooLowCqEff") && (window.linRegPCRTable[lt][58] == true)) ||  // "too low Cq eff"
-                    ((newSecondData == "tooLowCqN0") && (window.linRegPCRTable[lt][59] == true)) ||  // "too low Cq N0"
-                    ((newSecondData == "not_in_WoL") && (window.linRegPCRTable[lt][60] == false))) {  // "used for W-o-L setting"
-                    for (var i = 0; i < reacts.length; i++) {
-                        if (reacts[i].id == window.linRegPCRTable[lt][0]) {  // "id"
-                            for (var k = 0; k < reacts[i].datas.length; k++) {
-                                if (reacts[i].datas[k].tar == window.linRegPCRTable[lt][5]) {  // "target"
-                                    window.sampSelThirdList.push(parseInt(reacts[i].id))
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            window.sampSelThirdList.sort(function(a, b){return a - b})
-        }
-    }
-
-
-    // The third select
-    var dropThird = document.getElementById("dropSampSelThird")
-    for (var opt = dropThird.options.length - 1; opt > -1; opt--) {
-        dropThird.remove(dropThird.opt);
-    }
-    var option = document.createElement("option");
-    option.text = "Show All"
-    option.value = "7s8e45-Show-All"  // To avoid conflicts with existing values
-    dropThird.add(option)
-    if (window.sampSelThird == "7s8e45-Show-All") {
-        dropThird.options[0].selected = true
-    } else {
-        dropThird.options[0].selected = false
-    }
-
-    if ((window.experimentPos > -1) && (window.runPos > -1) && (window.reactData.hasOwnProperty("reacts"))) {
-        var pcrFormat = window.rdmlData.rdml.experiments[window.experimentPos].runs[window.runPos].pcrFormat
-        var columns = parseInt(pcrFormat.columns)
-        var rowLabel = pcrFormat.rowLabel
-        var columnLabel = pcrFormat.columnLabel
-        for (var thirdSam = 0; thirdSam < sampSelThirdList.length; thirdSam++) {
-            var option = document.createElement("option");
-            var thirdCol = (parseInt(sampSelThirdList[thirdSam]) - 1) % columns + 1
-            var thirdRow = Math.floor((parseInt(sampSelThirdList[thirdSam]) - 1)/ columns)
-            var wellText = ""
-            if (rowLabel == "123") {
-                wellText += thirdRow
-            } else if (rowLabel == "ABC") {
-                wellText += String.fromCharCode('A'.charCodeAt(0) + thirdRow)
-            }
-            if ((columnLabel == "123") && (rowLabel == "123")) {
-                wellText += " "
-            }
-            if ((columnLabel == "ABC") && (rowLabel == "ABC")) {
-                wellText += " "
-            }
-            if (columnLabel == "123") {
-                wellText += thirdCol
-            } else if (columnLabel == "ABC") {
-                wellText += String.fromCharCode('A'.charCodeAt(0) + thirdCol)
-            }
-            option.text = wellText
-            option.value = sampSelThirdList[thirdSam]
-            dropThird.add(option)
-            if (sampSelThirdList[thirdSam] == window.sampSelThird) {
-                dropThird.options[thirdSam + 1].selected = true
-            } else {
-                dropThird.options[thirdSam + 1].selected = false
-            }
-        }
-    }
-
-
-    if (reSelectSamples == true) {
-        if (window.sampSelThird == "7s8e45-Show-All") {
-            if ((window.sampSelFirst != "excluded") && (window.sampSelSecond == "7s8e45-Show-All")) {
-                if (window.reactData.hasOwnProperty("reacts")) {
-                    var reacts = window.reactData.reacts
-                    for (var i = 0; i < reacts.length; i++) {
-                        for (var k = 0; k < reacts[i].datas.length; k++) {
-                            reacts[i].datas[k]["runview_show"] = true
-                        }
-                    }
-                }
-                window.sampSelThirdList = []
-            } else {
-                if (window.reactData.hasOwnProperty("reacts")) {
-                    var reacts = window.reactData.reacts
-                    for (var i = 0; i < reacts.length; i++) {
-                        if (window.sampSelFirst == "sample") {
-                            var selectItNow = false
-                            if (reacts[i].sample == newSecondData) {
-                                selectItNow = true
-                            }
-                            for (var k = 0; k < reacts[i].datas.length; k++) {
-                                reacts[i].datas[k]["runview_show"] = selectItNow
-                            }
-                        }
-
-                        if (window.sampSelFirst == "target") {
-                            for (var k = 0; k < reacts[i].datas.length; k++) {
-                                if (reacts[i].datas[k].tar == newSecondData) {
-                                    reacts[i].datas[k]["runview_show"] = true
-                                } else {
-                                    reacts[i].datas[k]["runview_show"] = false
-                                }
-                            }
-                        }
-
-                        if (window.sampSelFirst == "dye_id") {
-                            for (var k = 0; k < reacts[i].datas.length; k++) {
-                                if (window.tarToDye[reacts[i].datas[k].tar] == newSecondData) {
-                                    reacts[i].datas[k]["runview_show"] = true
-                                } else {
-                                    reacts[i].datas[k]["runview_show"] = false
-                                }
-                            }
-                        }
-
-                        if (window.sampSelFirst == "dye_pos") {
-                            for (var k = 0; k < reacts[i].datas.length; k++) {
-                                if (k == newSecondData) {
-                                    reacts[i].datas[k]["runview_show"] = true
-                                } else {
-                                    reacts[i].datas[k]["runview_show"] = false
-                                }
-                            }
-                        }
-
-                        if (window.sampSelFirst == "excluded") {
-                            for (var k = 0; k < reacts[i].datas.length; k++) {
-                                reacts[i].datas[k]["runview_show"] = false
-                                if (reacts[i].datas[k].hasOwnProperty("excl")) {
-                                    if ((window.sampSelSecond == "7s8e45-Show-All") ||
-                                        ((reacts[i].datas[k].excl != "") && (reacts[i].datas[k].excl == newSecondData)) ||
-                                        ((reacts[i].datas[k].excl == "") && ("7s8e45-Empty-Val" == newSecondData))) {
-                                        reacts[i].datas[k]["runview_show"] = true
-                                    }
-                                }
-                            }
-                        }
-
-                        if ((window.sampSelFirst == "linRegPCR") && (window.linRegPCRTable.length > 0 )) {
-                            for (var k = 0; k < reacts[i].datas.length; k++) {
-                                reacts[i].datas[k]["runview_show"] = false
-                                for (var lt = 1; lt < window.linRegPCRTable.length; lt++) {
-                                    if (reacts[i].id == window.linRegPCRTable[lt][0] &&  // "id"
-                                        reacts[i].datas[k].tar == window.linRegPCRTable[lt][5] &&  // "target"
-                                        (((newSecondData == "no_amplification") && (window.linRegPCRTable[lt][48] == false)) ||  // "amplification"
-                                         ((newSecondData == "no_baseline") && (window.linRegPCRTable[lt][49] == true)) ||  // "baseline error"
-                                         ((newSecondData == "no_plateau") && (window.linRegPCRTable[lt][50] == false)) ||  // "plateau"
-                                         ((newSecondData == "noisy_sample") && (window.linRegPCRTable[lt][51] == true)) ||  // "noisy sample"
-                                         ((newSecondData == "PCReff_mean") && (window.linRegPCRTable[lt][52] == true)) ||  // "PCR efficiency outside mean rage"
-                                         ((newSecondData == "PCReff_plat_mean") && (window.linRegPCRTable[lt][53] == true)) ||  // "PCR efficiency outside mean rage - no plateau"
-                                         ((newSecondData == "PCReff_out") && (window.linRegPCRTable[lt][54] == true)) ||  // "PCR efficiency outlier"
-                                         ((newSecondData == "PCReff_plat_out") && (window.linRegPCRTable[lt][55] == true)) ||  // "PCR efficiency outlier - no plateau"
-                                         ((newSecondData == "shortLogLin") && (window.linRegPCRTable[lt][56] == true)) ||  // "short log lin phase"
-                                         ((newSecondData == "cqShifting") && (window.linRegPCRTable[lt][57] == true)) ||  // "Cq is shifting"
-                                         ((newSecondData == "tooLowCqEff") && (window.linRegPCRTable[lt][58] == true)) ||  // "too low Cq eff"
-                                         ((newSecondData == "tooLowCqN0") && (window.linRegPCRTable[lt][59] == true)) ||  // "too low Cq N0"
-                                         ((newSecondData == "not_in_WoL") && (window.linRegPCRTable[lt][60] == false)))) {  // "used for W-o-L setting"
-                                        reacts[i].datas[k]["runview_show"] = true
-                                        break
-                                    }
-                                }
-                            }
-                        }
-
-                    }
-                }
-            }
-        } else {
-            if (window.reactData.hasOwnProperty("reacts")) {
-                var reacts = window.reactData.reacts
-                for (var i = 0; i < reacts.length; i++) {
-                    var selectItNow = false
-                    if (reacts[i].id == sampSelThird) {
-                        selectItNow = true
-                    }
-                    for (var k = 0; k < reacts[i].datas.length; k++) {
-                        reacts[i].datas[k]["runview_show"] = selectItNow
-                    }
-                }
-            }
-        }
-
-        updateClientData()
-    }
-}
-
-window.updateYScale = updateYScale;
-function updateYScale() {
-    var newData = getSaveHtmlData("dropSelYScale")
-    if (window.yScale == newData) {
-        return
-    }
-    window.yScale = newData
+window.updatePlateView = updatePlateView;
+function updatePlateView() {
+    window.plateView = getSaveHtmlData("dropSelPlateView")
     updateClientData()
 }
 
-window.updateCurveSource = updateCurveSource;
-function updateCurveSource() {
-    var newData = getSaveHtmlData("dropSelCurveSource")
-    if (window.curveSource == newData) {
-        return
-    }
-    window.curveSource = newData
+window.updateCheckboxes = updateCheckboxes;
+function updateCheckboxes() {
+    window.selAnnota = getSaveHtmlCheckbox("checkAnnota")
+    window.selPCREff = getSaveHtmlCheckbox("checkPCREff")
+    window.selRawCq = getSaveHtmlCheckbox("checkRawCq")
+    window.selRawN0 = getSaveHtmlCheckbox("checkRawN0")
+    window.selCorCq = getSaveHtmlCheckbox("checkCorCq")
+    window.selCorN0 = getSaveHtmlCheckbox("checkCorN0")
+    window.selCorF = getSaveHtmlCheckbox("checkCorF")
+    window.selCorP = getSaveHtmlCheckbox("checkCorP")
+    window.selNote = getSaveHtmlCheckbox("checkNote")
+    window.selExcl = getSaveHtmlCheckbox("checkExcl")
     updateClientData()
 }
 
@@ -3096,647 +1453,6 @@ function updateColorStyle() {
     }
     window.colorStyle = newData
     updateClientData()
-}
-
-window.showSVG = showSVG;
-function showSVG() {
-    var retVal = createSVG();
-    if (0) {
-    var regEx1 = /</g;
-    retVal = retVal.replace(regEx1, "%3C");
-    var regEx2 = />/g;
-    retVal = retVal.replace(regEx2, "%3E");
-    var regEx3 = /#/g;
-    retVal = retVal.replace(regEx3, "%23");
-    retVal = '<img src="data:image/svg+xml,' + retVal + '" alt="Digest-SVG" width="900px">';
-    }
-    var sectionResults = document.getElementById('curves-data')
-    sectionResults.innerHTML = retVal;
-}
-
-function createSVG() {
-    setStartStop();
-    var retVal = createEfficiencyCurves();
-    retVal += createMeltcurveBox();
-    retVal += createAllCurves();
-    retVal += createCoordinates ();
-    retVal += "<g id='svgHighCurve'></g>"
-    retVal += "</svg>";
-    var head = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='-60 -40 600 400' width='900px'>";
-    return head + retVal;
-}
-
-function setStartStop() {
-    if (window.curveSource == "adp") {
-        window.winXst = window.winXmin;
-        window.winXend = 5 * Math.ceil(window.winXmax / 5);
-    } else if (window.curveSource == "bas") {
-        window.winXst = window.winXmin;
-        window.winXend = 5 * Math.ceil(window.winXmax / 5);
-    } else {
-        window.winXst = 5 * Math.floor(window.winXmin / 5);
-        window.winXend = 5 * Math.ceil(window.winXmax / 5);
-    }
-
-    if (window.yScale == "lin") {
-        if (window.winYmin > 0.0) {
-            var dimension = Math.pow(10, Math.floor(Math.log(window.winYmax) / Math.log(10)))
-            var scaleNorm = window.winYmax / dimension
-            if (scaleNorm > 6) {
-                window.winYstep = 2.0 * dimension
-                window.winYprec = 0
-            } else if (scaleNorm > 4) {
-                window.winYstep = 1.0 * dimension
-                window.winYprec = 0
-            } else if (scaleNorm > 2) {
-                window.winYstep = 0.5 * dimension
-                window.winYprec = 1
-            } else {
-                window.winYstep = 0.2 * dimension
-                window.winYprec = 1
-            }
-            window.winYst = 0.0;
-            window.winYend = Math.ceil(window.winYmax / window.winYstep) * window.winYstep;
-        } else {
-            var dimension = Math.pow(10, Math.floor(Math.log(window.winYmax - window.winYmin) / Math.log(10)))
-            var scaleNorm = window.winYmax / dimension
-            if (scaleNorm > 6) {
-                window.winYstep = 2.0 * dimension
-                window.winYprec = 0
-            } else if (scaleNorm > 4) {
-                window.winYstep = 1.0 * dimension
-                window.winYprec = 0
-            } else if (scaleNorm > 2) {
-                window.winYstep = 0.5 * dimension
-                window.winYprec = 1
-            } else {
-                window.winYstep = 0.2 * dimension
-                window.winYprec = 1
-            }
-            window.winYst = Math.floor(window.winYmin / window.winYstep) * window.winYstep;
-            window.winYend = Math.ceil(window.winYmax / window.winYstep) * window.winYstep;
-        }
-    } else {
-        if (window.winYmax < 0.000000001) {
-            // There are no useful values
-            window.winYst = 0.1;
-            window.winYend = 10.0;
-        } else {
-            // First fix the max window
-            window.winYstep = Math.pow(10, Math.floor(Math.log10(Math.abs(window.winYmax) / 10)));
-            window.winYend = Math.ceil(window.winYmax / window.winYstep) * window.winYstep;
-            // Get the right start
-            window.winYstep = Math.pow(10, Math.floor(Math.log10(Math.abs(window.winYmin))));
-            window.winYst = Math.floor(window.winYmin / window.winYstep) * window.winYstep;
-            if (window.winYst < window.winYend/Math.abs(window.maxLogRange)) {
-                window.winYstep = Math.pow(10, Math.floor(Math.log10(Math.abs(window.winYend/window.maxLogRange))));
-                window.winYst = Math.floor((window.winYend/window.maxLogRange) / window.winYstep) * window.winYstep;
-            }
-        }
-    }
-}
-
-function toSvgXScale(val) {
-    return window.frameXst + (val - window.winXst) / (window.winXend - window.winXst) * (window.frameXend - window.frameXst);
-}
-
-function toSvgYScale(val) {
-    if (window.yScale == "lin") {
-        return toSvgYLinScale(val);
-    } else {
-        return toSvgYLogScale(val);
-    }
-}
-
-function toSvgSaveYScale(val) {
-    if (window.yScale == "lin") {
-        return toSvgYLinScale(val);
-    } else {
-        if (val < window.winYst) {
-            return toSvgYLogScale(window.winYst);
-        } else {
-            return toSvgYLogScale(val);
-        }
-    }
-}
-
-function toSvgYLinScale(val) {
-    return window.frameYend - (val - window.winYst) / (window.winYend - window.winYst) * (window.frameYend - window.frameYst);
-}
-
-function toSvgYLogScale(val) {
-    return window.frameYend - (Math.log10(val) - Math.log10(window.winYst)) / (Math.log10(window.winYend) - Math.log10(window.winYst)) * (window.frameYend - window.frameYst);
-
-}
-
-function createMeltcurveBox () {
-    var lineXend = window.frameXend + 5;
-    var lineYst = window.frameYst - 5;
-    var retVal = ""
-    // Expected Peak line
-    if ((["smo", "nrm", "fdm", "mdp"].includes(window.curveSource)) &&
-        (window.sampSelFirst == "target") &&
-        (window.sampSelSecond != "7s8e45-Show-All")) {
-
-        var mTemp = -1.0
-        var mWidth = 0.0
-        var exp = window.rdmlData.rdml.targets
-        for (var i = 0; i < exp.length; i++) {
-            if (exp[i].id == window.sampSelSecond) {
-                if (exp[i].hasOwnProperty("meltingTemperature")) {
-                    mTemp = parseFloat(exp[i].meltingTemperature)
-                    var eleMcaTruePeakWidth = document.getElementById('mcaTruePeakWidth')
-                    if (eleMcaTruePeakWidth) {
-                        mWidth = parseFloat(eleMcaTruePeakWidth.value)
-                    }
-                }
-            }
-        }
-        if ((mTemp > 0.0) && (!(isNaN(mWidth)))) {
-            var rlPos = toSvgXScale(mTemp - mWidth)
-            var rrPos = toSvgXScale(mTemp + mWidth)
-            var rwPos = rrPos - rlPos
-            var rhPos = window.frameYend - lineYst
-            retVal += "<rect x='" + rlPos + "' y='" + lineYst;
-            retVal += "' width='" + rwPos + "' height='" + rhPos + "' fill='rgb(230,230,230)' />"
-        }
-        if (mTemp > 0.0) {
-            var xPos = toSvgXScale(mTemp);
-            retVal += "<line x1='" + xPos + "' y1='" + lineYst;
-            retVal += "' x2='" + xPos + "' y2='" + window.frameYend + "' stroke-width='0.5' stroke='black' />";
-        }
-    }
-    return retVal;
-}
-
-function createCoordinates () {
-    var lineXend = window.frameXend + 5;
-    var lineYst = window.frameYst - 5;
-    var retVal = ""
-
-    // The X-Axis
-    var xStep = 5;
-    for (var i = 0; (i * xStep + window.winXst) < (window.winXend + xStep); i++) {
-        var xPos = toSvgXScale(i * xStep + window.winXst);
-        retVal += "<line x1='" + xPos + "' y1='" + window.frameYend;
-        retVal += "' x2='" + xPos + "' y2='" + (window.frameYend + 7) + "' stroke-width='2' stroke='black' />";
-        retVal += "<text x='" + xPos + "' y='" + (window.frameYend + 26);
-        retVal += "' font-family='Arial' font-size='20' fill='black' text-anchor='middle'>";
-        retVal += (i * xStep + window.winXst) + "</text>";
-    }
-
-    // The Y-Axis
-    if (window.yScale == "lin") {
-        var maxYScaleVal = window.winYend - window.winYst + window.winYstep;
-        var yRound = Math.max(0, Math.floor(1 - Math.log10(Math.abs(maxYScaleVal))))
-        if (Math.log10(maxYScaleVal) < 1.0) {
-            yRound = yRound + window.winYprec
-        }
-        for (var i = 0; i *  window.winYstep < window.winYend - window.winYst + window.winYstep; i++) {
-            var yPos = toSvgYLinScale(window.winYst + i *  window.winYstep);
-            retVal += "<line x1='" + window.frameXst + "' y1='" + yPos;
-            retVal += "' x2='" + (window.frameXst - 7) + "' y2='" + yPos + "' stroke-width='2' stroke='black' />";
-            retVal += "<text x='" + (window.frameXst - 11) + "' y='" + (yPos + 3);
-            retVal += "' font-family='Arial' font-size='10' fill='black' text-anchor='end'>";
-            var textValOut = i *  window.winYstep - window.winYst
-            retVal += textValOut.toFixed(yRound) + "</text>";
-        }
-    } else {
-        var sumVal = window.winYst
-        var yLogStep= window.winYstep
-        for (var i = 0; (sumVal + i * yLogStep) < window.winYend ; i++) {
-            if ((sumVal + i * yLogStep) / yLogStep >= 10) {
-                yLogStep = yLogStep * 10
-                i = 0
-                sumVal = yLogStep
-            }
-            var yPos = toSvgYLogScale(sumVal + i * yLogStep);
-            retVal += "<line x1='" + window.frameXst + "' y1='" + yPos;
-            retVal += "' x2='" + (window.frameXst - 7) + "' y2='" + yPos + "' stroke-width='2' stroke='black' />";
-            var textValOut = sumVal + i * yLogStep
-            var yRound = Math.max(0, Math.floor(2 - Math.log10(Math.abs(textValOut))))
-            if (!(((Math.round(textValOut.toFixed(yRound) / yLogStep) == 5) && (window.maxLogRange > 3000)) ||
-                  (Math.round(textValOut.toFixed(yRound) / yLogStep) == 7) ||
-                  (Math.round(textValOut.toFixed(yRound) / yLogStep) == 9) )) {
-                retVal += "<text x='" + (window.frameXst - 11) + "' y='" + (yPos + 3);
-                retVal += "' font-family='Arial' font-size='10' fill='black' text-anchor='end'>";
-                retVal += textValOut.toFixed(yRound) + "</text>";
-            }
-        }
-    }
-
-    // Baseline and Limits
-    if ((window.linRegPCRTable.length > 0) &&
-        (window.curveSource == "bas") &&
-        (window.sampSelFirst == "target") &&
-        ((window.sampSelSecond != "7s8e45-Show-All") ||
-         (window.sampSelThird != "7s8e45-Show-All"))) {
-        var selReact = ""
-        var selData = ""
-        var runOn = true
-
-        if (window.reactData.hasOwnProperty("reacts")) {
-            var reacts = window.reactData.reacts
-            for (var i = 0; i < reacts.length; i++) {
-                for (var k = 0; k < reacts[i].datas.length; k++) {
-                    if (reacts[i].datas[k]["runview_show"] == true) {
-                        selReact = reacts[i].id
-                        selData = reacts[i].datas[k].tar
-                        k = reacts[i].datas.length
-                        runOn = false
-                    }
-                }
-                if (runOn == false) {
-                    i = reacts.length
-                }
-            }
-
-            runOn = true
-            var i = window.reactToLinRegTable[parseInt(selReact)]
-            var k = -1
-            while ((runOn) && (selReact == window.linRegPCRTable[i][0])) {  // "id"
-                if (selData == window.linRegPCRTable[i][5]) {  // "target"
-                    k = i
-                    runOn = false
-                }
-                i++
-            }
-
-            if (k > -1) {
-                var yPos = toSvgYScale(parseFloat(window.linRegPCRTable[k][10]))  // "lower limit"
-                retVal += "<line x1='" + window.frameXst + "' y1='" + yPos;
-                retVal += "' x2='" + lineXend + "' y2='" + yPos;
-                retVal += "' stroke-width='1.5' stroke='blue' stroke-linecap='square'/>";
-
-                yPos = toSvgYScale(parseFloat(window.linRegPCRTable[k][11]))  // "upper limit"
-                retVal += "<line x1='" + window.frameXst + "' y1='" + yPos;
-                retVal += "' x2='" + lineXend + "' y2='" + yPos;
-                retVal += "' stroke-width='1.5' stroke='blue' stroke-linecap='square'/>";
-
-                yPos = toSvgYScale(parseFloat(window.linRegPCRTable[k][12]))  // "common threshold"
-                retVal += "<line x1='" + window.frameXst + "' y1='" + yPos;
-                retVal += "' x2='" + lineXend + "' y2='" + yPos;
-                retVal += "' stroke-width='1.5' stroke='lime' stroke-linecap='square'/>";
-
-                if (window.sampSelThird != "7s8e45-Show-All") {
-                    var cqCol = 27  // "Cq (mean eff) + no plateau + efficiency outliers"
-                    if ((choiceExcludeNoPlat.value == "y") && (choiceExcludeEff.value == "n")) {
-                        cqCol = 31  // "Cq (mean eff) + efficiency outliers"
-                    }
-                    if ((choiceExcludeNoPlat.value == "n") && (choiceExcludeEff.value == "y")) {
-                        cqCol = 35  // "Cq (mean eff) + no plateau"
-                    }
-                    if ((choiceExcludeNoPlat.value == "y") && (choiceExcludeEff.value == "y")) {
-                        cqCol = 39  // "Cq (mean eff)"
-                    }
-                    var cqVal = parseFloat(window.linRegPCRTable[k][cqCol])
-                    if (cqVal > 0.0) {
-                        var xPos = toSvgXScale(cqVal);
-                        retVal += "<line x1='" + xPos + "' y1='" + yPos;
-                        retVal += "' x2='" + xPos + "' y2='" + window.frameYend;
-                        retVal += "' stroke-width='1.5' stroke='lime' stroke-linecap='square'/>";
-                    }
-                }
-            }
-
-        }
-    }
-    retVal += "<line x1='" + window.frameXst + "' y1='" + window.frameYend;
-    retVal += "' x2='" + lineXend + "' y2='" + window.frameYend + "' stroke-width='2' stroke='black' stroke-linecap='square'/>";
-    retVal += "<line x1='" + window.frameXst + "' y1='" + lineYst;
-    retVal += "' x2='" + window.frameXst + "' y2='" + window.frameYend + "' stroke-width='2' stroke='black' stroke-linecap='square'/>";
-
-    return retVal;
-}
-
-function createEfficiencyCurves () {
-    var retVal = ""
-    if ((window.linRegPCRTable.length > 0) &&
-        (window.curveSource == "bas") &&
-        (window.yScale == "log") &&
-        (window.sampSelFirst == "target") &&
-        (window.sampSelSecond != "7s8e45-Show-All") &&
-        (window.sampSelThird != "7s8e45-Show-All") &&
-        (window.reactData.hasOwnProperty("reacts"))) {
-        var lineXend = window.frameXend + 5;
-        var lineYst = window.frameYst - 5;
-        var selReact = ""
-        var selData = ""
-        var runOn = true
-        var reacts = window.reactData.reacts
-        for (var i = 0; i < reacts.length; i++) {
-            for (var k = 0; k < reacts[i].datas.length; k++) {
-                if (reacts[i].datas[k]["runview_show"] == true) {
-                    selReact = reacts[i].id
-                    selData = reacts[i].datas[k].tar
-                    k = reacts[i].datas.length
-                    runOn = false
-                }
-            }
-            if (runOn == false) {
-                i = reacts.length
-            }
-        }
-
-        runOn = true
-        var i = window.reactToLinRegTable[parseInt(selReact)]
-        var k = -1
-        while ((runOn) && (selReact == window.linRegPCRTable[i][0])) {  // "id"
-            if (selData == window.linRegPCRTable[i][5]) {  // "target"
-                k = i
-                runOn = false
-            }
-            i++
-        }
-
-        if (k > -1) {
-            var chemistry = window.linRegPCRTable[k][6]  // "target chemistry"
-            var meanFitX = parseFloat(window.linRegPCRTable[k][17])  // "log lin cycle"
-            var meanFitY = parseFloat(window.linRegPCRTable[k][18])  // "log lin fluorescence"
-            var indivEff = parseFloat(window.linRegPCRTable[k][19])  // "indiv PCR eff"
-
-            var meanCol = 24;  // "mean PCR eff"
-            if (choiceExcludeNoPlat.value == "y") {
-                meanCol += 4;
-            }
-            if (choiceExcludeEff.value == "mean") {
-                meanCol += 8;
-            }
-            if (choiceExcludeEff.value == "outlier") {
-                meanCol += 16;
-            }
-            var meanEff = parseFloat(window.linRegPCRTable[k][meanCol])
-
-            // Only continue if all values are not nan
-            if ((Number.isNaN(meanFitX)) ||
-                (Number.isNaN(meanFitY)) ||
-                (Number.isNaN(indivEff)) ||
-                (Number.isNaN(meanEff))) {
-                return retVal;
-            }
-
-            var yPos1 = toSvgYScale(window.winYst);
-            var yPos2 = toSvgYScale(window.winYend);
-            var xPos1 = toSvgXScale(meanFitX + (Math.log10(window.winYst) - Math.log10(meanFitY)) / Math.log10(indivEff));
-            var xPos2 = toSvgXScale(meanFitX + (Math.log10(window.winYend) - Math.log10(meanFitY)) / Math.log10(indivEff));
-            retVal += "<line x1='" + xPos1 + "' y1='" + yPos1;
-            retVal += "' x2='" + xPos2 + "' y2='" + yPos2;
-            retVal += "' stroke-width='0.5' stroke='grey' stroke-linecap='square'/>";
-
-            xPos1 = toSvgXScale(meanFitX + (Math.log10(window.winYst) - Math.log10(meanFitY)) / Math.log10(meanEff));
-            xPos2 = toSvgXScale(meanFitX + (Math.log10(window.winYend) - Math.log10(meanFitY)) / Math.log10(meanEff));
-            retVal += "<line x1='" + xPos1 + "' y1='" + yPos1;
-            retVal += "' x2='" + xPos2 + "' y2='" + yPos2;
-            retVal += "' stroke-width='0.5' stroke='black' stroke-linecap='square'/>";
-
-            // For debugging
-            if (0) {
-                // alert(meanFitX + " - " + meanFitY)
-                var yPos = toSvgYScale(meanFitY);
-                retVal += "<line x1='" + window.frameXst + "' y1='" + yPos;
-                retVal += "' x2='" + lineXend + "' y2='" + yPos;
-                retVal += "' stroke-width='0.5' stroke='red' stroke-linecap='square'/>";
-                var xPos = toSvgXScale(meanFitX);
-                retVal += "<line x1='" + xPos + "' y1='" + yPos;
-                retVal += "' x2='" + xPos + "' y2='" + window.frameYend;
-                retVal += "' stroke-width='0.5' stroke='red' stroke-linecap='square'/>";
-            }
-        }
-    }
-    return retVal;
-}
-
-function createAllCurves(){
-    var retVal = ""
-    var reacts = window.reactData.reacts
-    var baseReact = window.reactData.reacts
-    var meltReact = window.reactData.reacts
-    if (window.curveSource == "bas") {
-        baseReact = window.baselineData.reacts
-    } else if (["smo", "nrm", "fdm"].includes(window.curveSource)) {
-        meltReact =  window.meltcurveData.reacts;
-    }
-
-    var the_run = window.rdmlData.rdml.experiments[window.experimentPos].runs[window.runPos]
-    var rows = parseInt(the_run.pcrFormat.rows)
-    var columns = parseInt(the_run.pcrFormat.columns)
-    for (var r = 0; r < rows; r++) {
-        for (var c = 0; c < columns; c++) {
-            var id = r * columns + c + 1
-            for (var reac = 0; reac < reacts.length; reac++) {
-                for (var dataPos = 0; dataPos < reacts[reac].datas.length; dataPos++) {
-                    if ((reacts[reac].datas[dataPos].hasOwnProperty("runview_show")) &&
-                        (reacts[reac].datas[dataPos].runview_show == true) &&
-                        (parseInt(reacts[reac].id) == id)) {
-                        var exlReact = reacts[reac].datas[dataPos].hasOwnProperty("excl")
-                        var colo = "#000000"
-                        if (window.colorStyle == "type") {
-                            var samType = window.samToType[reacts[reac].sample]
-                            if (samType =="unkn") {
-                                colo = "#000000"
-                            }
-                            if (samType =="std") {
-                                colo = "#a9a9a9"
-                            }
-                            if (samType =="ntc") {
-                                colo = "#ff0000"
-                            }
-                            if (samType =="nac") {
-                                colo = "#ff0000"
-                            }
-                            if (samType =="ntp") {
-                                colo = "#ff0000"
-                            }
-                            if (samType =="nrt") {
-                                colo = "#ff0000"
-                            }
-                            if (samType =="pos") {
-                                colo = "#006400"
-                            }
-                            if (samType =="opt") {
-                                colo = "#8b008b"
-                            }
-                            if (exlReact) {
-                                colo = "#ffff00"
-                            }
-                        }
-                        if (window.colorStyle == "tar") {
-                            var tarNr = window.tarToNr[reacts[reac].datas[dataPos].tar]
-                            if (exlReact) {
-                                colo = "#ff0000"
-                            } else {
-                                colo = colorByNr(tarNr)
-                            }
-                        }
-                        if (window.colorStyle == "sam") {
-                            var samNr = window.samToNr[reacts[reac].sample]
-                            if (exlReact) {
-                                colo = "#ff0000"
-                            } else {
-                                colo = colorByNr(samNr)
-                            }
-                        }
-                        if (window.colorStyle == "tarsam") {
-                            var samNr = window.samToNr[reacts[reac].sample]
-                            var tarNr = window.tarToNr[reacts[reac].datas[dataPos].tar]
-                            var samCount = window.rdmlData.rdml.samples.length
-                            var samTarNr = tarNr * samCount + samNr
-                            if (exlReact) {
-                                colo = "#ff0000"
-                            } else {
-                                colo = colorByNr(samTarNr)
-                            }
-                        }
-                        if (window.curveSource == "adp") {
-                            retVal += createOneCurve(parseInt(reacts[reac].id), dataPos, "1.2",
-                                                     reacts[reac].datas[dataPos].adps, colo);
-                        } else if (window.curveSource == "bas") {
-                            retVal += createOneCurve(parseInt(reacts[reac].id), dataPos, "1.2",
-                                                     baseReact[reac].datas[dataPos].bass, colo);
-                            retVal += createOneDots(reac, parseInt(reacts[reac].id), dataPos, "1.2",
-                                                    baseReact[reac].datas[dataPos].bass, colo);
-                        } else if (window.curveSource == "smo") {
-                            retVal += createOneCurve(parseInt(reacts[reac].id), dataPos, "1.2",
-                                                     meltReact[reac].datas[dataPos].smo, colo);
-                        } else if (window.curveSource == "nrm") {
-                            retVal += createOneCurve(parseInt(reacts[reac].id), dataPos, "1.2",
-                                                     meltReact[reac].datas[dataPos].nrm, colo);
-                        } else if (window.curveSource == "fdm") {
-                            retVal += createOneCurve(parseInt(reacts[reac].id), dataPos, "1.2",
-                                                     meltReact[reac].datas[dataPos].fdm, colo);
-                        } else {
-                            retVal += createOneCurve(parseInt(reacts[reac].id), dataPos, "1.2",
-                                                     reacts[reac].datas[dataPos].mdps, colo);
-                        }
-                    }
-                }
-            }
-        }
-    }
-    return retVal;
-}
-
-function createOneHighCurve(id, dataPos) {
-    var theSvg = document.getElementById('svgHighCurve')
-    if (id == "") {
-        theSvg.innerHTML = ""
-        return
-    }
-    var retVal = ""
-    var reacts = window.reactData.reacts
-    var baseReact = window.reactData.reacts
-    var meltReact = window.reactData.reacts
-    if (window.curveSource == "bas") {
-        baseReact = window.baselineData.reacts
-    } else if (["smo", "nrm", "fdm"].includes(window.curveSource)) {
-        meltReact =  window.meltcurveData.reacts;
-    }
-
-    for (var reac = 0; reac < reacts.length; reac++) {
-        if (parseInt(reacts[reac].id) == parseInt(id)) {
-            var exlReact = reacts[reac].datas[dataPos].hasOwnProperty("excl")
-            var colo = "#000000"
-            if(0) { // Selected black according to Maurice suggestion
-            if (window.colorStyle == "type") {
-                var samType = window.samToType[reacts[reac].sample]
-                if (samType =="unkn") {
-                    colo = "#000000"
-                }
-                if (samType =="std") {
-                    colo = "#a9a9a9"
-                }
-                if (samType =="ntc") {
-                    colo = "#ff0000"
-                }
-                if (samType =="nac") {
-                    colo = "#ff0000"
-                }
-                if (samType =="ntp") {
-                    colo = "#ff0000"
-                }
-                if (samType =="nrt") {
-                    colo = "#ff0000"
-                }
-                if (samType =="pos") {
-                    colo = "#006400"
-                }
-                if (samType =="opt") {
-                    colo = "#8b008b"
-                }
-                if (exlReact) {
-                    colo = "#ffff00"
-                }
-            }
-            if (window.colorStyle == "tar") {
-                var tarNr = window.tarToNr[reacts[reac].datas[dataPos].tar]
-                if (exlReact) {
-                    colo = "#ff0000"
-                } else {
-                    colo = colorByNr(tarNr)
-                }
-            }
-            if (window.colorStyle == "sam") {
-                var samNr = window.samToNr[reacts[reac].sample]
-                if (exlReact) {
-                    colo = "#ff0000"
-                } else {
-                    colo = colorByNr(samNr)
-                }
-            }
-            if (window.colorStyle == "tarsam") {
-                var samNr = window.samToNr[reacts[reac].sample]
-                var tarNr = window.tarToNr[reacts[reac].datas[dataPos].tar]
-                var samCount = window.rdmlData.rdml.samples.length
-                var samTarNr = tarNr * samCount + samNr
-                if (exlReact) {
-                    colo = "#ff0000"
-                } else {
-                    colo = colorByNr(samTarNr)
-                }
-            }
-            } // Selected black according to Maurice suggestion
-            if (window.curveSource == "adp") {
-                retVal += createOneCurve(parseInt(reacts[reac].id), dataPos, "3.0",
-                                         reacts[reac].datas[dataPos].adps, colo);
-            } else if (window.curveSource == "bas") {
-                retVal += createOneCurve(parseInt(reacts[reac].id), dataPos, "3.0",
-                                         baseReact[reac].datas[dataPos].bass, colo);
-                retVal += createOneDots(reac, parseInt(reacts[reac].id), dataPos, "3.0",
-                                        baseReact[reac].datas[dataPos].bass, colo);
-            } else if (window.curveSource == "smo") {
-                retVal += createOneCurve(parseInt(reacts[reac].id), dataPos, "3.0",
-                                         meltReact[reac].datas[dataPos].smo, colo);
-            } else if (window.curveSource == "nrm") {
-                retVal += createOneCurve(parseInt(reacts[reac].id), dataPos, "3.0",
-                                         meltReact[reac].datas[dataPos].nrm, colo);
-            } else if (window.curveSource == "fdm") {
-                retVal += createOneCurve(parseInt(reacts[reac].id), dataPos, "3.0",
-                                         meltReact[reac].datas[dataPos].fdm, colo);
-            } else {
-                retVal += createOneCurve(parseInt(reacts[reac].id), dataPos, "3.0",
-                                         reacts[reac].datas[dataPos].mdps, colo);
-            }
-        }
-    }
-    theSvg.innerHTML = retVal;
-}
-
-window.showReactSel = showReactSel;
-function showReactSel(react, dataPos) {
-    if (window.lastSelReact == react) {
-        if (window.lastSelReact != "") {
-            document.getElementById('plateTab_' + window.lastSelReact).style.border = "none";
-            createOneHighCurve("", "")
-            window.lastSelReact = ""
-        }
-    } else {
-        document.getElementById('plateTab_' + react).style.border = "thick solid #006400";
-        createOneHighCurve(react, dataPos)
-        if (window.lastSelReact != "") {
-            document.getElementById('plateTab_' + window.lastSelReact).style.border = "none";
-        }
-        window.lastSelReact = react
-    }
 }
 
 function colorByNr(number) {
@@ -3834,65 +1550,6 @@ function rdmlNumberInverter(number) {
         ret += 1
     }
     return ret;
-}
-
-function createOneCurve(id, dataPos, stroke_str, curveDots, col){
-    var retVal = "<polyline fill='none' stroke-linejoin='round' stroke='" + col;
-    retVal += "' stroke-width='" + stroke_str + "' points='";
-    for (var i = 0; i < curveDots.length; i++) {
-        var xPos = toSvgXScale(parseFloat(curveDots[i][0]));
-        var yPos = toSvgSaveYScale(parseFloat(curveDots[i][1]));
-        retVal += xPos + "," + yPos + " ";
-    }
-    retVal += "' onclick='showReactSel(" + id + ", " + dataPos + ")'/>";
-    return retVal;
-}
-
-function createOneDots(reac, id, dataPos, stroke_str, curveDots, col){
-    var retVal = ""
-    if ((window.linRegPCRTable.length > 0) &&
-        (window.sampSelFirst == "target") &&
-        ((window.sampSelSecond != "7s8e45-Show-All") ||
-         (window.sampSelThird != "7s8e45-Show-All"))) {
-
-        if (window.reactData.hasOwnProperty("reacts")) {
-            var reacts = window.reactData.reacts
-            var i = window.reactToLinRegTable[parseInt(id)]
-            var k = -1
-            var runOn = true
-            while ((runOn) && (parseInt(reacts[reac].id) == parseInt(window.linRegPCRTable[i][0]))) {  // "id"
-                if (reacts[reac].datas[dataPos].tar == window.linRegPCRTable[i][5]) {  // "target"
-                    k = i
-                    runOn = false
-                }
-                i++
-            }
-
-            if (k > -1) {
-                for (var i = 0; i < curveDots.length; i++) {
-                    var svgFill = "none"
-                    var svgRadius = "1.2"
-                    var xVal = parseInt(curveDots[i][0])
-                    var yVal = parseFloat(curveDots[i][1])
-                    if ((parseInt(window.linRegPCRTable[k][14]) > 0) &&  // "n in log phase"
-                        (xVal <= parseInt(window.linRegPCRTable[k][15])) &&  // "last log cycle"
-                        (xVal > parseInt(window.linRegPCRTable[k][15]) - parseInt(window.linRegPCRTable[k][14]))) {  // "last log cycle", "n in log phase"
-                        svgRadius = "2.4"
-                        if ((parseInt(window.linRegPCRTable[k][16]) > 0) &&  // "n included"
-                            (yVal > parseFloat(window.linRegPCRTable[k][10])) &&  // "lower limit"
-                            (yVal < parseFloat(window.linRegPCRTable[k][11]))) {  // "upper limit"
-                            svgFill = col
-                       }
-                    }
-                    var xPos = toSvgXScale(parseFloat(xVal));
-                    var yPos = toSvgSaveYScale(yVal);
-                    retVal += "<circle cx='" + xPos + "' cy='" + yPos + "' r='" + svgRadius + "' stroke='" + col
-                    retVal += "' stroke-width='0.9' fill='" + svgFill + "' />" + col;
-                }
-            }
-        }
-    }
-    return retVal;
 }
 
 function errorMessage(err) {

@@ -33,7 +33,8 @@ KILLTIME = 60 # time in seconds till a subprocess is killed!
 LOGRDMLRUNS = True  # log the rdml-tools runs
 LOGIPANONYM = True  # anonymize the ip address in log files
 
-SAMPLEFILES = ["sample.rdml", "error.rdml", "linregpcr.rdml", "meltingcurveanalysis.rdml", "merge-example"]
+SAMPLEFILES = ["sample.rdml", "error.rdml", "linregpcr.rdml", "meltingcurveanalysis.rdml",
+               "merge-example", "plate_correction.rdml"]
 
 
 def logData(pProg, pKey, pValue, uuid):
@@ -448,6 +449,9 @@ def handle_data():
         elif 'showMeltcurveExample' in request.form.keys():
             fexpname = os.path.join(RDMLWS, "meltingcurveanalysis.rdml")
             uuidstr = "meltingcurveanalysis.rdml"
+        elif 'showPlateCorrExample' in request.form.keys():
+            fexpname = os.path.join(RDMLWS, "plate_correction.rdml")
+            uuidstr = "plate_correction.rdml"
         elif 'createNew' in request.form.keys():
             logNote1 = "New"
             uuidstr = str(uuid.uuid4())
@@ -520,6 +524,8 @@ def handle_data():
                 fexpname = os.path.join(RDMLWS, "linregpcr.rdml")
             elif uuidstr == "meltingcurveanalysis.rdml":
                 fexpname = os.path.join(RDMLWS, "meltingcurveanalysis.rdml")
+            elif uuidstr == "plate_correction.rdml":
+                fexpname = os.path.join(RDMLWS, "plate_correction.rdml")
             else:
                 if not is_valid_uuid(uuidstr):
                     return jsonify(errors=[{"title": "Invalid UUID - UUID link outdated or invalid!"}]), 400
@@ -1708,6 +1714,22 @@ def handle_data():
                 data["error"] = str(err)
             # else:
             #     modified = True
+
+        if "mode" in reqdata and reqdata["mode"] in ["get-run-data-wo-curves"]:
+            if "sel-experiment" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - sel-experiment id missing!"}]), 400
+            if "sel-run" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - sel-run id missing!"}]), 400
+            try:
+                experiment = rd.get_experiment(byid=reqdata["sel-experiment"])
+                if experiment is None:
+                    return jsonify(errors=[{"title": "Invalid server request - experiment id not found!"}]), 400
+                s_run = experiment.get_run(byid=reqdata["sel-run"])
+                if s_run is None:
+                    return jsonify(errors=[{"title": "Invalid server request - run id not found!"}]), 400
+                data["reactsdata"] = s_run.getreactjson(curves=False)
+            except rdml.RdmlError as err:
+                data["error"] = str(err)
 
         if "mode" in reqdata and reqdata["mode"] in ["update-excl-notes"]:
             if "sel-experiment" not in reqdata:
