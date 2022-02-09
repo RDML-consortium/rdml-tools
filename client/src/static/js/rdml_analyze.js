@@ -26,27 +26,6 @@ linRegPCRRDMLButton.addEventListener('click', showRDMLSave)
 const meltcurveRDMLButton = document.getElementById('btn-rdml-meltcurve')
 meltcurveRDMLButton.addEventListener('click', showRDMLSave)
 
-const linRegPCRSaveButton = document.getElementById('btn-save-linregpcr')
-linRegPCRSaveButton.addEventListener('click', saveTabLinRegPCR)
-
-const meltcurveSaveButton = document.getElementById('btn-save-meltcurve')
-meltcurveSaveButton.addEventListener('click', saveTabMeltcurve)
-
-const correctionSaveButton = document.getElementById('btn-save-correction')
-correctionSaveButton.addEventListener('click', saveTabCorrection)
-
-const linRegPCRCopyButton = document.getElementById('btn-copy-linregpcr')
-linRegPCRCopyButton.addEventListener('click', copyTabLinRegPCR)
-
-const meltcurveCopyButton = document.getElementById('btn-copy-meltcurve')
-meltcurveCopyButton.addEventListener('click', copyTabMeltcurve)
-
-const correctionCopyButton = document.getElementById('btn-copy-correction')
-correctionCopyButton.addEventListener('click', copyCorrection)
-
-const choiceExclMeanEff = document.getElementById('text-exl-men-eff')
-choiceExclMeanEff.addEventListener('change', resetLinRegPCRdata)
-
 const choiceSaveRDML = document.getElementById('updateRDMLData')
 choiceSaveRDML.addEventListener('change', updateRDMLCheck)
 
@@ -131,12 +110,13 @@ window.tarToDye = {}
 window.tarToNr = {}
 window.samToNr = {}
 window.samToType = {}
+window.samAnnotations = {}
+window.samToAnnotations = {}
 
 window.usedSamples = {}
 window.usedTargets = {}
 window.usedDyeIds = {}
 window.usedDyeMaxPos = 0
-window.usedExcluded = {}
 
 window.reactToLinRegTable = {}
 window.reactToMeltcurveTable = {}
@@ -146,8 +126,6 @@ window.meltcurveTable = []
 
 function resetAllGlobalVal() {
     hideElement(resultError)
-    resetLinRegPCRdata()
-    resetMeltcurveData()
     updateClientData()
 }
 
@@ -162,6 +140,22 @@ function updatePlateDeciSep() {
     updateClientData()
 }
 
+window.updateAnnotation = updateAnnotation
+function updateAnnotation() {
+    window.selAnnotation = getSaveHtmlData("dropSelAnnotation")
+    window.samToAnnotations = {}
+    var exp = window.rdmlData.rdml.samples
+    for (var i = 0; i < exp.length; i++) {
+        if (exp[i].hasOwnProperty("annotations")) {
+            for (var j = 0; j < exp[i].annotations.length; j++) {
+                if (window.selAnnotation == exp[i].annotations[j].property) {
+                    window.samToAnnotations[exp[i].id] = exp[i].annotations[j].value
+                }
+            }
+        }
+    }
+    updateClientData()
+}
 
 window.resetLinRegPCRdata = resetLinRegPCRdata
 function resetLinRegPCRdata() {
@@ -474,6 +468,7 @@ function fillLookupDics() {
     window.tarToNr = {}
     window.samToNr = {}
     window.samToType = {}
+    window.samAnnotations = {}
     window.usedSamples = {}
     window.usedTargets = {}
     window.usedDyeIds = {}
@@ -488,6 +483,11 @@ function fillLookupDics() {
     for (var i = 0; i < exp.length; i++) {
         window.samToNr[exp[i].id] = i
         window.samToType[exp[i].id] = exp[i].type
+        if (exp[i].hasOwnProperty("annotations")) {
+            for (var j = 0; j < exp[i].annotations.length; j++) {
+                window.samAnnotations[exp[i].annotations[j].property] = 1
+            }
+        }
     }
 
     // Add the selected bool
@@ -601,7 +601,7 @@ function updateClientData() {
     if (!(window.rdmlData.hasOwnProperty("rdml"))) {
         return
     }
-    var ret = ''
+    ret = ''
     var exp = window.rdmlData.rdml.experiments;
 
     ret = '<table style="width:100%;background-color: #e6e6e6;">'
@@ -679,174 +679,188 @@ function updateClientData() {
     ret += '</td>\n</tr>\n'
     ret += '</table>\n'
 
-    if (window.selPCRStyle == "classic") {
+    ret += '<table style="width:100%;">'
+    ret += '  <tr>\n    <td style="width:8%;">Data View:</td>\n<td style="width:10%;">'
+    ret += '  <select class="form-control" id="dropSelPlateView" onchange="updatePlateView()">'
+    ret += '        <option value="plate"'
+    if (window.plateView == "plate") {
+        ret += ' selected'
+    }
+    ret += '>Plate</option>\n'
+    ret += '        <option value="list"'
+    if (window.plateView == "list") {
+        ret += ' selected'
+    }
+    ret += '>List</option>\n'
+    ret += '  </select>\n'
+    ret += '</td>\n'
+    ret += '  <td style="width:4%;"></td>\n'
+    ret += '  <td style="width:9%;">Color Coding:</td>\n<td style="width:12%;">'
+    ret += '  <select class="form-control" id="dropSelColorStyle" onchange="updateColorStyle()">'
+    ret += '        <option value="tarsam"'
+    if (window.colorStyle == "tarsam") {
+        ret += ' selected'
+    }
+    ret += '>Target & Sample</option>\n'
+    ret += '        <option value="type"'
+    if (window.colorStyle == "type") {
+        ret += ' selected'
+    }
+    ret += '>Sample Type</option>\n'
+    ret += '        <option value="tar"'
+    if (window.colorStyle == "tar") {
+        ret += ' selected'
+    }
+    ret += '>Target</option>\n'
+    ret += '        <option value="sam"'
+    if (window.colorStyle == "sam") {
+        ret += ' selected'
+    }
+    ret += '>Sample</option>\n'
+    ret += '  </select>\n'
+    ret += '</td>\n<td style="width:4%;"></td>\n'
+    ret += '  <td style="width:9%;">Decimal Separator:</td>\n<td style="width:12%;">'
+    ret += '  <select class="form-control" id="dropSelPlateDeciSep" onchange="updatePlateDeciSep()">'
+    ret += '        <option value="point"'
+    if (window.decimalSepPoint == true) {
+        ret += ' selected'
+    }
+    ret += '>Point</option>\n'
+    ret += '        <option value="comma"'
+    if (window.decimalSepPoint == false) {
+        ret += ' selected'
+    }
+    ret += '>Comma</option>\n'
+    ret += '  </select>\n'
+    ret += '</td>\n<td style="width:4%;"></td>\n'
+    ret += '  <td style="width:9%;">Select Annotation:</td>\n<td style="width:12%;">'
+    ret += '  <select class="form-control" id="dropSelAnnotation" onchange="updateAnnotation()">'
+    ret += '        <option value=""'
+    if (window.selAnnotation == "") {
+        ret += ' selected'
+    }
+    ret += '>Not Selected</option>\n'
+    var allAnnotations = Object.keys(window.samAnnotations)
+    for (var i = 0; i < allAnnotations.length; i++) {
+        ret += '        <option value="' + allAnnotations[i] + '"'
+        if (window.selAnnotation == allAnnotations[i]) {
+            ret += ' selected'
+        }
+        ret += '>' + allAnnotations[i] + '</option>\n'
+    }
+    ret += '  </select>\n'
+    ret += '</td>\n<td style="width:7%;"></td>\n</tr>\n'
+    ret += '</table>\n'
+    if (window.plateView == "plate") {
         ret += '<table style="width:100%;">'
-        ret += '  <tr>\n    <td style="width:8%;">Data View:</td>\n<td style="width:10%;">'
-        ret += '  <select class="form-control" id="dropSelPlateView" onchange="updatePlateView()">'
-        ret += '        <option value="plate"'
-        if (window.plateView == "plate") {
-            ret += ' selected'
+        ret += '  <tr>\n    <td style="width:4%;"></td>\n'
+        ret += '  <td style="width:8%;">'
+        ret += '  <div class="form-check">\n'
+        ret += '    <input type="checkbox" class="form-check-input" id="checkAnnota"'
+        if (window.selAnnota == true) {
+          ret += ' checked="checked"'
         }
-        ret += '>Plate</option>\n'
-        ret += '        <option value="list"'
-        if (window.plateView == "list") {
-            ret += ' selected'
+        ret += ' onchange="updateCheckboxes()">\n'
+        ret += '    <label class="form-check-label" for="checkAnnota">Annotation</label>\n'
+        ret += '  </div>\n</td>\n<td style="width:8%;">'
+        ret += '  <div class="form-check">\n'
+        ret += '    <input type="checkbox" class="form-check-input" id="checkPCREff"'
+        if (window.selPCREff == true) {
+          ret += ' checked="checked"'
         }
-        ret += '>List</option>\n'
-        ret += '  </select>\n'
-        ret += '</td>\n'
-        ret += '  <td style="width:4%;"></td>\n'
-        if (window.plateView == "plate") {
-            ret += '  <td style="width:9%;">Color Coding:</td>\n<td style="width:12%;">'
-            ret += '  <select class="form-control" id="dropSelColorStyle" onchange="updateColorStyle()">'
-            ret += '        <option value="tarsam"'
-            if (window.colorStyle == "tarsam") {
-                ret += ' selected'
-            }
-            ret += '>Target & Sample</option>\n'
-            ret += '        <option value="type"'
-            if (window.colorStyle == "type") {
-                ret += ' selected'
-            }
-            ret += '>Sample Type</option>\n'
-            ret += '        <option value="tar"'
-            if (window.colorStyle == "tar") {
-                ret += ' selected'
-            }
-            ret += '>Target</option>\n'
-            ret += '        <option value="sam"'
-            if (window.colorStyle == "sam") {
-                ret += ' selected'
-            }
-            ret += '>Sample</option>\n'
-            ret += '  </select>\n'
-            ret += '</td>\n<td style="width:4%;"></td>\n'
-            ret += '  <td style="width:9%;">Decimal Separator:</td>\n<td style="width:12%;">'
-            ret += '  <select class="form-control" id="dropSelPlateDeciSep" onchange="updatePlateDeciSep()">'
-            ret += '        <option value="point"'
-            if (window.decimalSepPoint == true) {
-                ret += ' selected'
-            }
-            ret += '>Point</option>\n'
-            ret += '        <option value="comma"'
-            if (window.decimalSepPoint == false) {
-                ret += ' selected'
-            }
-            ret += '>Comma</option>\n'
-            ret += '  </select>\n'
-            ret += '</td>\n<td style="width:4%;"></td>\n'
-            ret += '  <td style="width:9%;">Select Annotation:</td>\n<td style="width:12%;">'
-            ret += '  <select class="form-control" id="dropSelColorStyle" onchange="updateAnnotation()">'
-            ret += '        <option value="tarsam"'
-            if (window.selAnnotation == "") {
-                ret += ' selected'
-            }
-            ret += '>Not Selected</option>\n'
-            ret += '        <option value="type"'
-            if (window.selAnnotation == "type") {
-                ret += ' selected'
-            }
-            ret += '>Sample Type</option>\n'
-            ret += '  </select>\n'
-            ret += '</td>\n<td style="width:7%;">'
-        } else {
-            ret += '  <td style="width:9%;"></td>\n<td style="width:28%;">'
-            ret += '</td>\n<td style="width:4%;"></td>\n'
-            ret += '  <td style="width:37%;">'
+        ret += ' onchange="updateCheckboxes()">\n'
+        ret += '    <label class="form-check-label" for="checkPCREff">PCR Eff</label>\n'
+        ret += '  </div>\n</td>\n<td style="width:8%;">'
+        ret += '  <div class="form-check">\n'
+        ret += '    <input type="checkbox" class="form-check-input" id="checkRawCq"'
+        if (window.selRawCq == true) {
+          ret += ' checked="checked"'
         }
+        ret += ' onchange="updateCheckboxes()">\n'
+        ret += '    <label class="form-check-label" for="checkRawCq">raw Cq</label>\n'
+        ret += '  </div>\n</td>\n<td style="width:8%;">'
+        ret += '  <div class="form-check">\n'
+        ret += '    <input type="checkbox" class="form-check-input" id="checkRawN0"'
+        if (window.selRawN0 == true) {
+          ret += ' checked="checked"'
+        }
+        ret += ' onchange="updateCheckboxes()">\n'
+        ret += '    <label class="form-check-label" for="checkRawN0">raw N0</label>\n'
+        ret += '  </div>\n</td>\n<td style="width:8%;">'
+        ret += '  <div class="form-check">\n'
+        ret += '    <input type="checkbox" class="form-check-input" id="checkCorCq"'
+        if (window.selCorCq == true) {
+          ret += ' checked="checked"'
+        }
+        ret += ' onchange="updateCheckboxes()">\n'
+        ret += '    <label class="form-check-label" for="checkCorCq">corr Cq</label>\n'
+        ret += '  </div>\n</td>\n<td style="width:8%;">'
+        ret += '  <div class="form-check">\n'
+        ret += '    <input type="checkbox" class="form-check-input" id="checkCorN0"'
+        if (window.selCorN0 == true) {
+          ret += ' checked="checked"'
+        }
+        ret += ' onchange="updateCheckboxes()">\n'
+        ret += '    <label class="form-check-label" for="checkCorN0">corr N0</label>\n'
+        ret += '  </div>\n</td>\n<td style="width:8%;">'
+        ret += '  <div class="form-check">\n'
+        ret += '    <input type="checkbox" class="form-check-input" id="checkCorF"'
+        if (window.selCorF == true) {
+          ret += ' checked="checked"'
+        }
+        ret += ' onchange="updateCheckboxes()">\n'
+        ret += '    <label class="form-check-label" for="checkCorF">corr Factor</label>\n'
+        ret += '  </div>\n</td>\n<td style="width:8%;">'
+        ret += '  <div class="form-check">\n'
+        ret += '    <input type="checkbox" class="form-check-input" id="checkCorP"'
+        if (window.selCorP == true) {
+          ret += ' checked="checked"'
+        }
+        ret += ' onchange="updateCheckboxes()">\n'
+        ret += '    <label class="form-check-label" for="checkCorP">corr Plate</label>\n'
+        ret += '  </div>\n</td>\n<td style="width:8%;">'
+        ret += '  <div class="form-check">\n'
+        ret += '    <input type="checkbox" class="form-check-input" id="checkNote"'
+        if (window.selNote == true) {
+          ret += ' checked="checked"'
+        }
+        ret += ' onchange="updateCheckboxes()">\n'
+        ret += '    <label class="form-check-label" for="checkNote">Note</label>\n'
+        ret += '  </div>\n</td>\n<td style="width:8%;">'
+        ret += '  <div class="form-check">\n'
+        ret += '    <input type="checkbox" class="form-check-input" id="checkExcl"'
+        if (window.selExcl == true) {
+          ret += ' checked="checked"'
+        }
+        ret += ' onchange="updateCheckboxes()">\n'
+        ret += '    <label class="form-check-label" for="checkExcl">Excluded</label>\n'
+        ret += '  </div>\n</td>\n<td style="width:16%;">'
         ret += '</td>\n</tr>\n'
         ret += '</table>\n'
-        if (window.plateView == "plate") {
-            ret += '<table style="width:100%;">'
-            ret += '  <tr>\n    <td style="width:4%;"></td>\n'
-            ret += '  <td style="width:8%;">'
-            ret += '  <div class="form-check">\n'
-            ret += '    <input type="checkbox" class="form-check-input" id="checkAnnota"'
-            if (window.selAnnota == true) {
-              ret += ' checked="checked"'
-            }
-            ret += ' onchange="updateCheckboxes()">\n'
-            ret += '    <label class="form-check-label" for="checkAnnota">Annotation</label>\n'
-            ret += '  </div>\n</td>\n<td style="width:8%;">'
-            ret += '  <div class="form-check">\n'
-            ret += '    <input type="checkbox" class="form-check-input" id="checkPCREff"'
-            if (window.selPCREff == true) {
-              ret += ' checked="checked"'
-            }
-            ret += ' onchange="updateCheckboxes()">\n'
-            ret += '    <label class="form-check-label" for="checkPCREff">PCR Eff</label>\n'
-            ret += '  </div>\n</td>\n<td style="width:8%;">'
-            ret += '  <div class="form-check">\n'
-            ret += '    <input type="checkbox" class="form-check-input" id="checkRawCq"'
-            if (window.selRawCq == true) {
-              ret += ' checked="checked"'
-            }
-            ret += ' onchange="updateCheckboxes()">\n'
-            ret += '    <label class="form-check-label" for="checkRawCq">raw Cq</label>\n'
-            ret += '  </div>\n</td>\n<td style="width:8%;">'
-            ret += '  <div class="form-check">\n'
-            ret += '    <input type="checkbox" class="form-check-input" id="checkRawN0"'
-            if (window.selRawN0 == true) {
-              ret += ' checked="checked"'
-            }
-            ret += ' onchange="updateCheckboxes()">\n'
-            ret += '    <label class="form-check-label" for="checkRawN0">raw N0</label>\n'
-            ret += '  </div>\n</td>\n<td style="width:8%;">'
-            ret += '  <div class="form-check">\n'
-            ret += '    <input type="checkbox" class="form-check-input" id="checkCorCq"'
-            if (window.selCorCq == true) {
-              ret += ' checked="checked"'
-            }
-            ret += ' onchange="updateCheckboxes()">\n'
-            ret += '    <label class="form-check-label" for="checkCorCq">corr Cq</label>\n'
-            ret += '  </div>\n</td>\n<td style="width:8%;">'
-            ret += '  <div class="form-check">\n'
-            ret += '    <input type="checkbox" class="form-check-input" id="checkCorN0"'
-            if (window.selCorN0 == true) {
-              ret += ' checked="checked"'
-            }
-            ret += ' onchange="updateCheckboxes()">\n'
-            ret += '    <label class="form-check-label" for="checkCorN0">corr N0</label>\n'
-            ret += '  </div>\n</td>\n<td style="width:8%;">'
-            ret += '  <div class="form-check">\n'
-            ret += '    <input type="checkbox" class="form-check-input" id="checkCorF"'
-            if (window.selCorF == true) {
-              ret += ' checked="checked"'
-            }
-            ret += ' onchange="updateCheckboxes()">\n'
-            ret += '    <label class="form-check-label" for="checkCorF">corr Factor</label>\n'
-            ret += '  </div>\n</td>\n<td style="width:8%;">'
-            ret += '  <div class="form-check">\n'
-            ret += '    <input type="checkbox" class="form-check-input" id="checkCorP"'
-            if (window.selCorP == true) {
-              ret += ' checked="checked"'
-            }
-            ret += ' onchange="updateCheckboxes()">\n'
-            ret += '    <label class="form-check-label" for="checkCorP">corr Plate</label>\n'
-            ret += '  </div>\n</td>\n<td style="width:8%;">'
-            ret += '  <div class="form-check">\n'
-            ret += '    <input type="checkbox" class="form-check-input" id="checkNote"'
-            if (window.selNote == true) {
-              ret += ' checked="checked"'
-            }
-            ret += ' onchange="updateCheckboxes()">\n'
-            ret += '    <label class="form-check-label" for="checkNote">Note</label>\n'
-            ret += '  </div>\n</td>\n<td style="width:8%;">'
-            ret += '  <div class="form-check">\n'
-            ret += '    <input type="checkbox" class="form-check-input" id="checkExcl"'
-            if (window.selExcl == true) {
-              ret += ' checked="checked"'
-            }
-            ret += ' onchange="updateCheckboxes()">\n'
-            ret += '    <label class="form-check-label" for="checkExcl">Excluded</label>\n'
-            ret += '  </div>\n</td>\n<td style="width:16%;">'
-            ret += '</td>\n</tr>\n'
-            ret += '</table>\n'
-        } else {
-        }
+    } else {
     }
+    ret += '<table style="width:100%;">\n'
+    ret += '  <tr>\n'
+    ret += '    <td style="width:61%;"></td>\n'
+    ret += '    <td style="width:38%;text-align: right;">\n'
+    ret += '      <button type="submit" class="btn btn-outline-primary" onclick="copyPlateTable()">\n'
+    ret += '        <i class="fas fa-paste" style="margin-right: 5px;"></i>\n'
+    ret += '        Copy table to clipboard\n'
+    ret += '      </button>&nbsp;&nbsp;\n'
+    if (window.plateView == "list") {
+        ret += '      <button type="submit" class="btn btn-outline-primary" onclick="savePlateTable()">\n'
+        ret += '        <i class="far fa-save" style="margin-right: 5px;"></i>\n'
+        ret += '        Save table as CSV\n'
+        ret += '      </button>\n'
+    }
+    ret += '    </td>\n'
+    ret += '    <td style="width:1%;"></td>\n'
+    ret += '  </tr>\n'
+    ret += '</table>\n'
+
     selectorsData.innerHTML = ret
     ret = ""
+    var csv = ""
 
     if ((window.experimentPos > -1) && (window.runPos > -1) && (window.reactData.hasOwnProperty("reacts"))) {
         var reacts = window.reactData.reacts
@@ -855,265 +869,489 @@ function updateClientData() {
         var columns = parseInt(the_run.pcrFormat.columns)
         var rowLabel = the_run.pcrFormat.rowLabel
         var columnLabel = the_run.pcrFormat.columnLabel
+        window.plateSaveTable = ""
         if (window.selPCRStyle != "classic") {
             ret += '<a href="#" onclick="getDigitalOverviewFile()">Overview as table data (.tsv)</a><br /><br />'
         }
-        ret += '<table id="rdmlPlateVTab" style="width:100%;">'
-        ret += '<tr><td></td>'
-        for (var h = 0; h < columns; h++) {
-            if (columnLabel == "123") {
-                ret += '  <td>' + (h + 1) + '</td>'
-            } else if (columnLabel == "ABC") {
-                ret += '  <td>' + String.fromCharCode('A'.charCodeAt(0) + h) + '</td>'
+        if (window.plateView == "plate") {
+            ret += '<table id="rdmlPlateVTab" style="width:100%;">'
+            ret += '<tr><td></td>'
+            for (var h = 0; h < columns; h++) {
+                if (columnLabel == "123") {
+                    ret += '  <td>' + (h + 1) + '</td>'
+                } else if (columnLabel == "ABC") {
+                    ret += '  <td>' + String.fromCharCode('A'.charCodeAt(0) + h) + '</td>'
+                }
             }
-        }
-        ret += '</tr>\n'
-        var exRowCount = 0
-        var exRowUsed = false
-        var rowCont = ""
-        for (var r = 0; r < rows; r++) {
-            rowCont += '  <tr>'
-            if (rowLabel == "123") {
-                rowCont += '  <td>' + (r + 1) + '</td>'
-            } else if (rowLabel == "ABC") {
-                rowCont += '  <td>' + String.fromCharCode('A'.charCodeAt(0) + r) + '</td>'
-            }
-            for (var c = 0; c < columns; c++) {
-                var id = r * columns + c + 1
-                var cell = '  <td></td>'
-                for (var reac = 0; reac < reacts.length; reac++) {
-                    if (parseInt(reacts[reac].id) == id) {
-                        if (window.selPCRStyle == "classic") {
-                            var dataPos = exRowCount
-                            if (dataPos < reacts[reac].datas.length) {
-                                var exlReact = false;
-                                var colo = "#000000"
-                                if ((reacts[reac].hasOwnProperty("datas")) && (window.reactData.max_data_len > 0)) {
-                                    exlReact = reacts[reac].datas[dataPos].hasOwnProperty("excl")
-                                }
-                                if ((reacts[reac].datas[dataPos].hasOwnProperty("runview_show")) &&
-                                    (reacts[reac].datas[dataPos].runview_show == true)) {
-                                    if (window.colorStyle == "type") {
-                                        var samType = window.samToType[reacts[reac].sample]
-                                        if (samType =="unkn") {
-                                            colo = "#000000"
-                                        }
-                                        if (samType =="std") {
-                                            colo = "#a9a9a9"
-                                        }
-                                        if (samType =="ntc") {
-                                            colo = "#ff0000"
-                                        }
-                                        if (samType =="nac") {
-                                            colo = "#ff0000"
-                                        }
-                                        if (samType =="ntp") {
-                                            colo = "#ff0000"
-                                        }
-                                        if (samType =="nrt") {
-                                            colo = "#ff0000"
-                                        }
-                                        if (samType =="pos") {
-                                            colo = "#006400"
-                                        }
-                                        if (samType =="opt") {
-                                            colo = "#8b008b"
-                                        }
-                                        if (exlReact) {
-                                            colo = "#ffff00"
-                                        }
+            ret += '</tr>\n'
+            var exRowCount = 0
+            var exRowUsed = false
+            var rowCont = ""
+            for (var r = 0; r < rows; r++) {
+                rowCont += '  <tr>'
+                if (rowLabel == "123") {
+                    rowCont += '  <td>' + (r + 1) + '</td>'
+                } else if (rowLabel == "ABC") {
+                    rowCont += '  <td>' + String.fromCharCode('A'.charCodeAt(0) + r) + '</td>'
+                }
+                for (var c = 0; c < columns; c++) {
+                    var id = r * columns + c + 1
+                    var cell = '  <td></td>'
+                    for (var reac = 0; reac < reacts.length; reac++) {
+                        if (parseInt(reacts[reac].id) == id) {
+                            if (window.selPCRStyle == "classic") {
+                                var dataPos = exRowCount
+                                if (dataPos < reacts[reac].datas.length) {
+                                    var exlReact = false;
+                                    var colo = "#000000"
+                                    if ((reacts[reac].hasOwnProperty("datas")) && (window.reactData.max_data_len > 0)) {
+                                        exlReact = reacts[reac].datas[dataPos].hasOwnProperty("excl")
                                     }
-                                    if (window.colorStyle == "tar") {
-                                        var tarNr = 0
-                                        if ((reacts[reac].hasOwnProperty("datas")) &&
-                                            (window.reactData.max_data_len > 0)) {
-                                            tarNr = window.tarToNr[reacts[reac].datas[dataPos].tar]
+                                    if ((reacts[reac].datas[dataPos].hasOwnProperty("runview_show")) &&
+                                        (reacts[reac].datas[dataPos].runview_show == true)) {
+                                        if (window.colorStyle == "type") {
+                                            var samType = window.samToType[reacts[reac].sample]
+                                            if (samType =="unkn") {
+                                                colo = "#000000"
+                                            }
+                                            if (samType =="std") {
+                                                colo = "#a9a9a9"
+                                            }
+                                            if (samType =="ntc") {
+                                                colo = "#ff0000"
+                                            }
+                                            if (samType =="nac") {
+                                                colo = "#ff0000"
+                                            }
+                                            if (samType =="ntp") {
+                                                colo = "#ff0000"
+                                            }
+                                            if (samType =="nrt") {
+                                                colo = "#ff0000"
+                                            }
+                                            if (samType =="pos") {
+                                                colo = "#006400"
+                                            }
+                                            if (samType =="opt") {
+                                                colo = "#8b008b"
+                                            }
+                                            if (exlReact) {
+                                                colo = "#ffff00"
+                                            }
                                         }
-                                        if (exlReact) {
-                                            colo = "#ff0000"
-                                        } else {
-                                            colo = colorByNr(tarNr)
+                                        if (window.colorStyle == "tar") {
+                                            var tarNr = 0
+                                            if ((reacts[reac].hasOwnProperty("datas")) &&
+                                                (window.reactData.max_data_len > 0)) {
+                                                tarNr = window.tarToNr[reacts[reac].datas[dataPos].tar]
+                                            }
+                                            if (exlReact) {
+                                                colo = "#ff0000"
+                                            } else {
+                                                colo = colorByNr(tarNr)
+                                            }
                                         }
-                                    }
-                                    if (window.colorStyle == "sam") {
-                                        var samNr = window.samToNr[reacts[reac].sample]
-                                        if (exlReact) {
-                                            colo = "#ff0000"
-                                        } else {
-                                            colo = colorByNr(samNr)
+                                        if (window.colorStyle == "sam") {
+                                            var samNr = window.samToNr[reacts[reac].sample]
+                                            if (exlReact) {
+                                                colo = "#ff0000"
+                                            } else {
+                                                colo = colorByNr(samNr)
+                                            }
                                         }
-                                    }
-                                    if (window.colorStyle == "tarsam") {
-                                        var samNr = window.samToNr[reacts[reac].sample]
-                                        var tarNr = 0
-                                        if ((reacts[reac].hasOwnProperty("datas")) &&
-                                            (window.reactData.max_data_len > 0)) {
-                                            tarNr = window.tarToNr[reacts[reac].datas[dataPos].tar]
+                                        if (window.colorStyle == "tarsam") {
+                                            var samNr = window.samToNr[reacts[reac].sample]
+                                            var tarNr = 0
+                                            if ((reacts[reac].hasOwnProperty("datas")) &&
+                                                (window.reactData.max_data_len > 0)) {
+                                                tarNr = window.tarToNr[reacts[reac].datas[dataPos].tar]
+                                            }
+                                            var samCount = window.rdmlData.rdml.samples.length
+                                            var samTarNr = tarNr * samCount + samNr
+                                            if (exlReact) {
+                                                colo = "#ff0000"
+                                            } else {
+                                                colo = colorByNr(samTarNr)
+                                            }
                                         }
-                                        var samCount = window.rdmlData.rdml.samples.length
-                                        var samTarNr = tarNr * samCount + samNr
-                                        if (exlReact) {
-                                            colo = "#ff0000"
-                                        } else {
-                                            colo = colorByNr(samTarNr)
-                                        }
-                                    }
-                                } else {
-                                    colo = "#ffffff"
-                                }
-                                // colo = colorByNr(id)
-                                var fon_col = "#000000"
-                                if (hexToGrey(colo) < 128) {
-                                    fon_col = "#ffffff"
-                                }
-                                cell = '  <td id="plateTab_' + id + '" style="font-size:0.7em;background-color:' + colo
-                                cell += ';color:' + fon_col + ';" >'
-                                cell += reacts[reac].sample + '<br />'
-                                if ((reacts[reac].hasOwnProperty("datas")) &&
-                                    (window.reactData.max_data_len > 0)) {
-                                    cell += reacts[reac].datas[dataPos].tar + '<br />'
-                                    if (window.selPCREff == true) {
-                                        cell += 'Eff: '
-                                        if (reacts[reac].datas[dataPos].hasOwnProperty("ampEff")) {
-                                            cell += floatWithPrec(reacts[reac].datas[dataPos].ampEff, 1000)
-                                        }
-                                        cell += '<br />'
-                                    }
-                                     if (window.selRawCq == true) {
-                                        cell += 'raw Cq: '
-                                        if (reacts[reac].datas[dataPos].hasOwnProperty("cq")) {
-                                            cell += floatWithPrec(reacts[reac].datas[dataPos].cq, 100)
-                                        }
-                                        cell += '<br />'
-                                    }
-                                     if (window.selRawN0 == true) {
-                                        cell += 'raw N0: '
-                                        if (reacts[reac].datas[dataPos].hasOwnProperty("N0")) {
-                                            cell += floatWithExPrec(reacts[reac].datas[dataPos].N0, 2)
-                                        }
-                                        cell += '<br />'
-                                    }
-                                     if (window.selCorCq == true) {
-                                        cell += 'Cq: '
-                                        if (reacts[reac].datas[dataPos].hasOwnProperty("corrCq")) {
-                                            cell += floatWithPrec(reacts[reac].datas[dataPos].corrCq, 100)
-                                        }
-                                        cell += '<br />'
-                                    }
-                                     if (window.selCorN0 == true) {
-                                        cell += 'N0: '
-                                        if (reacts[reac].datas[dataPos].hasOwnProperty("corrN0")) {
-                                            cell += floatWithExPrec(reacts[reac].datas[dataPos].corrN0, 2)
-                                        }
-                                        cell += '<br />'
-                                    }
-                                    if (window.selCorF == true) {
-                                        cell += 'Corr F: '
-                                        if (reacts[reac].datas[dataPos].hasOwnProperty("corrF")) {
-                                            cell += floatWithPrec(reacts[reac].datas[dataPos].corrF, 100)
-                                        } else {
-                                            cell += floatWithPrec('1.0', 100)
-                                        }
-                                        cell += '<br />'
-                                    }
-                                    if (window.selCorP == true) {
-                                        cell += 'Corr P: '
-                                        if (reacts[reac].datas[dataPos].hasOwnProperty("corrP")) {
-                                            cell += floatWithPrec(reacts[reac].datas[dataPos].corrP, 100)
-                                        } else {
-                                            cell += floatWithPrec('1.0', 100)
-                                        }
-                                        cell += '<br />'
-                                    }
-                                    if (window.selNote == true) {
-                                        cell += 'Note:<br />'
-                                        if (reacts[reac].datas[dataPos].hasOwnProperty("note")) {
-                                            cell += reacts[reac].datas[dataPos].note
-                                        }
-                                        cell += '<br />'
-                                    }
-                                    if (window.selExcl == true) {
-                                        cell += 'Excluded:<br />'
-                                        if (reacts[reac].datas[dataPos].hasOwnProperty("excl")) {
-                                            cell += reacts[reac].datas[dataPos].excl
-                                        }
-                                        cell += '<br />'
-                                    }
-                                    cell += '</td>'
-                                } else {
-                                    cell += '---<br />---</td>'
-                                }
-                                exRowUsed = true
-                            }
-                        } else {
-                            if ((reacts[reac].hasOwnProperty("partitions")) &&
-                                (reacts[reac].partitions.hasOwnProperty("datas")) &&
-                                (window.reactData.max_partition_data_len > 0)) {
-                                var samNr = window.samToNr[reacts[reac].sample]
-                                var colo = colorByNr(samNr)
-                                var fon_col = "#000000"
-                                if (hexToGrey(colo) < 128) {
-                                    fon_col = "#ffffff"
-                                }
-                                if (exRowCount == 0) {
-                                    cell = '  <td id="plateTab_' + id + '" style="font-size:0.8em;background-color:'
-                                    cell += colo + ';color:' + fon_col + ';vertical-align:top;">'
-                                    cell += '<b><u>' + reacts[reac].sample + '</u></b><br />'
-                                    if (reacts[reac].partitions.hasOwnProperty("endPtTable")) {
-                                        cell += '<a href="#" onclick="getDigitalFile(\'' + id + '\',\''
-                                        cell += reacts[reac].partitions.endPtTable + '\')">Raw data (.tsv)</a><br />'
                                     } else {
-                                        cell += 'No raw data<br />'
+                                        colo = "#ffffff"
                                     }
-                                    cell += '</td>'
+                                    // colo = colorByNr(id)
+                                    var fon_col = "#000000"
+                                    if (hexToGrey(colo) < 128) {
+                                        fon_col = "#ffffff"
+                                    }
+                                    cell = '  <td style="font-size:0.7em;background-color:' + colo
+                                    cell += ';color:' + fon_col + ';" >'
+                                    cell += reacts[reac].sample + '<br />'
+                                    if ((reacts[reac].hasOwnProperty("datas")) &&
+                                        (window.reactData.max_data_len > 0)) {
+                                        cell += reacts[reac].datas[dataPos].tar + '<br />'
+                                        if (window.selAnnota == true) {
+                                            cell += 'Anno: '
+                                            if (window.samToAnnotations.hasOwnProperty(reacts[reac].sample)) {
+                                                cell += window.samToAnnotations[reacts[reac].sample]
+                                            }
+                                            cell += '<br />'
+                                        }
+                                        if (window.selPCREff == true) {
+                                            cell += 'Eff: '
+                                            if (reacts[reac].datas[dataPos].hasOwnProperty("ampEff")) {
+                                                cell += floatWithPrec(reacts[reac].datas[dataPos].ampEff, 1000)
+                                            }
+                                            cell += '<br />'
+                                        }
+                                        if (window.selRawCq == true) {
+                                            cell += 'raw Cq: '
+                                            if (reacts[reac].datas[dataPos].hasOwnProperty("cq")) {
+                                                cell += floatWithPrec(reacts[reac].datas[dataPos].cq, 100)
+                                            }
+                                            cell += '<br />'
+                                        }
+                                        if (window.selRawN0 == true) {
+                                            cell += 'raw N0: '
+                                            if (reacts[reac].datas[dataPos].hasOwnProperty("N0")) {
+                                                cell += floatWithExPrec(reacts[reac].datas[dataPos].N0, 2)
+                                            }
+                                            cell += '<br />'
+                                        }
+                                        if (window.selCorCq == true) {
+                                            cell += 'Cq: '
+                                            if (reacts[reac].datas[dataPos].hasOwnProperty("corrCq")) {
+                                                cell += floatWithPrec(reacts[reac].datas[dataPos].corrCq, 100)
+                                            }
+                                            cell += '<br />'
+                                        }
+                                        if (window.selCorN0 == true) {
+                                            cell += 'N0: '
+                                            if (reacts[reac].datas[dataPos].hasOwnProperty("corrN0")) {
+                                                cell += floatWithExPrec(reacts[reac].datas[dataPos].corrN0, 2)
+                                            }
+                                            cell += '<br />'
+                                        }
+                                        if (window.selCorF == true) {
+                                            cell += 'Corr F: '
+                                            if (reacts[reac].datas[dataPos].hasOwnProperty("corrF")) {
+                                                cell += floatWithPrec(reacts[reac].datas[dataPos].corrF, 100)
+                                            } else {
+                                                cell += floatWithPrec('1.0', 100)
+                                            }
+                                            cell += '<br />'
+                                        }
+                                        if (window.selCorP == true) {
+                                            cell += 'Corr P: '
+                                            if (reacts[reac].datas[dataPos].hasOwnProperty("corrP")) {
+                                                cell += floatWithPrec(reacts[reac].datas[dataPos].corrP, 100)
+                                            } else {
+                                                cell += floatWithPrec('1.0', 100)
+                                            }
+                                            cell += '<br />'
+                                        }
+                                        if (window.selNote == true) {
+                                            cell += 'Note:<br />'
+                                            if (reacts[reac].datas[dataPos].hasOwnProperty("note")) {
+                                                cell += reacts[reac].datas[dataPos].note
+                                            }
+                                            cell += '<br />'
+                                        }
+                                        if (window.selExcl == true) {
+                                            cell += 'Excluded:<br />'
+                                            if (reacts[reac].datas[dataPos].hasOwnProperty("excl")) {
+                                                cell += reacts[reac].datas[dataPos].excl
+                                            }
+                                            cell += '<br />'
+                                        }
+                                        cell += '</td>'
+                                    } else {
+                                        cell += '---<br />---</td>'
+                                    }
                                     exRowUsed = true
-                                } else {
-                                    if (exRowCount - 1 < reacts[reac].partitions.datas.length) {
-                                        var dData = exRowCount - 1
-                                        cell = '  <td style="font-size:0.8em;background-color:' + colo
-                                        cell += ';color:' + fon_col + ';vertical-align:top;">'
+                                }
+                            } else {
+                                if ((reacts[reac].hasOwnProperty("partitions")) &&
+                                    (reacts[reac].partitions.hasOwnProperty("datas")) &&
+                                    (window.reactData.max_partition_data_len > 0)) {
+                                    var samNr = window.samToNr[reacts[reac].sample]
+                                    var colo = colorByNr(samNr)
+                                    var fon_col = "#000000"
+                                    if (hexToGrey(colo) < 128) {
+                                        fon_col = "#ffffff"
+                                    }
+                                    if (exRowCount == 0) {
+                                        cell = '  <td style="font-size:0.8em;background-color:'
+                                        cell += colo + ';color:' + fon_col + ';vertical-align:top;">'
                                         cell += '<b><u>' + reacts[reac].sample + '</u></b><br />'
-                                        cell += '<b>' + reacts[reac].partitions.datas[dData].tar + '</b><br />'
-                                        cell += "Pos: " + reacts[reac].partitions.datas[dData].pos + '<br />'
-                                        cell += "Neg: " + reacts[reac].partitions.datas[dData].neg + '<br />'
-                                        if (reacts[reac].partitions.datas[dData].hasOwnProperty("undef")) {
-                                            cell += "Undef: " + reacts[reac].partitions.datas[dData].undef + '<br />'
-
-                                        }
-                                        if (reacts[reac].partitions.datas[dData].hasOwnProperty("excl")) {
-                                            cell += "Excl: " + reacts[reac].partitions.datas[dData].excl + '<br />'
-
-                                        }
-                                        if (reacts[reac].partitions.datas[dData].hasOwnProperty("conc")) {
-                                            cell += reacts[reac].partitions.datas[dData].conc + ' cop/&micro;l<br />'
-
+                                        if (reacts[reac].partitions.hasOwnProperty("endPtTable")) {
+                                            cell += '<a href="#" onclick="getDigitalFile(\'' + id + '\',\''
+                                            cell += reacts[reac].partitions.endPtTable + '\')">Raw data (.tsv)</a><br />'
+                                        } else {
+                                            cell += 'No raw data<br />'
                                         }
                                         cell += '</td>'
                                         exRowUsed = true
                                     } else {
-                                        cell = '  <td style="font-size:0.8em;background-color:' + colo + ';"></td>'
+                                        if (exRowCount - 1 < reacts[reac].partitions.datas.length) {
+                                            var dData = exRowCount - 1
+                                            cell = '  <td style="font-size:0.8em;background-color:' + colo
+                                            cell += ';color:' + fon_col + ';vertical-align:top;">'
+                                            cell += '<b><u>' + reacts[reac].sample + '</u></b><br />'
+                                            cell += '<b>' + reacts[reac].partitions.datas[dData].tar + '</b><br />'
+                                            cell += "Pos: " + reacts[reac].partitions.datas[dData].pos + '<br />'
+                                            cell += "Neg: " + reacts[reac].partitions.datas[dData].neg + '<br />'
+                                            if (reacts[reac].partitions.datas[dData].hasOwnProperty("undef")) {
+                                                cell += "Undef: " + reacts[reac].partitions.datas[dData].undef + '<br />'
+
+                                            }
+                                            if (reacts[reac].partitions.datas[dData].hasOwnProperty("excl")) {
+                                                cell += "Excl: " + reacts[reac].partitions.datas[dData].excl + '<br />'
+
+                                            }
+                                            if (reacts[reac].partitions.datas[dData].hasOwnProperty("conc")) {
+                                                cell += reacts[reac].partitions.datas[dData].conc + ' cop/&micro;l<br />'
+
+                                            }
+                                            cell += '</td>'
+                                            exRowUsed = true
+                                        } else {
+                                            cell = '  <td style="font-size:0.8em;background-color:' + colo + ';"></td>'
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    rowCont += cell
+                }
+                rowCont += '</tr>\n'
+                if (exRowUsed == true) {
+                    ret += rowCont
+                    exRowUsed = false
+                    r--
+                    exRowCount++
+                } else {
+                    exRowCount = 0
+                }
+                rowCont = ""
+            }
+            ret += '</table>'
+        } else {
+            ret += '<table id="rdmlPlateVTab" style="width:100%;">'
+            ret += '<tr>'
+            ret += '<td>Well</td>'
+            csv += 'Well\t'
+            ret += '<td>Pos</td>'
+            csv += 'Pos\t'
+            ret += '<td>Sample</td>'
+            csv += 'Sample\t'
+            ret += '<td>Target</td>'
+            csv += 'Target\t'
+            var annoDes = window.selAnnotation
+            if (annoDes == "") {
+                annoDes = "No Annotation"
+            }
+            ret += '<td>' + annoDes + '</td>'
+            csv += annoDes + '\t'
+            ret += '<td>Excluded</td>'
+            csv += 'Excluded\t'
+            ret += '<td>Note</td>'
+            csv += 'Note\t'
+            if (window.selPCRStyle == "classic") {
+                ret += '<td>PCR Eff</td>'
+                csv += 'PCR Eff\t'
+                ret += '<td>raw Cq</td>'
+                csv += 'raw Cq\t'
+                ret += '<td>raw N0</td>'
+                csv += 'raw N0\t'
+                ret += '<td>corr F</td>'
+                csv += 'corr F\t'
+                ret += '<td>corr P</td>'
+                csv += 'corr P\t'
+                ret += '<td>corr Cq</td>'
+                csv += 'corr Cq\t'
+                ret += '<td>corr N0</td>'
+                csv += 'corr N0\n'
+            } else {
+                ret += '<td>Concentration</td>'
+                csv += 'Concentration\t'
+                ret += '<td>Positive</td>'
+                csv += 'Positive\t'
+                ret += '<td>Negative</td>'
+                csv += 'Negative\t'
+                ret += '<td>Undefined</td>'
+                csv += 'Undefined\t'
+                ret += '<td>Excluded</td>'
+                csv += 'Excluded\n'
+            }
+            ret += '</tr>\n'
+            var exRowCount = 0
+            var exRowUsed = false
+            for (var r = 0; r < rows; r++) {
+                var rowCont = ''
+                if (rowLabel == "123") {
+                    rowCont += (r + 1)
+                } else if (rowLabel == "ABC") {
+                    rowCont += String.fromCharCode('A'.charCodeAt(0) + r)
+                }
+                if (rowLabel == columnLabel) {
+                    rowCont += ' '
+                }
+                for (var c = 0; c < columns; c++) {
+                    var combCol = rowCont
+                    if (columnLabel == "123") {
+                        combCol += (c + 1)
+                    } else if (columnLabel == "ABC") {
+                        combCol += String.fromCharCode('A'.charCodeAt(0) + c)
+                    }
+                    var id = r * columns + c + 1
+                    for (var reac = 0; reac < reacts.length; reac++) {
+                        if (parseInt(reacts[reac].id) == id) {
+                            if (window.selPCRStyle == "classic") {
+                                for (var dataPos = 0; dataPos < reacts[reac].datas.length; dataPos++) {
+                                    ret += '  <tr>\n  <td>' + combCol + '</td>'
+                                    csv += combCol + '\t'
+                                    ret += '<td>' + reac + '</td>'
+                                    csv += reac + '\t'
+                                    ret += '<td>' + reacts[reac].sample + '</td>'
+                                    csv += reacts[reac].sample + '\t'
+                                    ret += '<td>' + reacts[reac].datas[dataPos].tar + '</td>'
+                                    csv += reacts[reac].datas[dataPos].tar + '\t'
+                                    ret += '<td>'
+                                    if (window.samToAnnotations.hasOwnProperty(reacts[reac].sample)) {
+                                        ret += window.samToAnnotations[reacts[reac].sample]
+                                        csv += window.samToAnnotations[reacts[reac].sample]
+                                    }
+                                    ret += '</td>\n<td>'
+                                    csv += '\t'
+                                    if (reacts[reac].datas[dataPos].hasOwnProperty("excl")) {
+                                        ret += reacts[reac].datas[dataPos].excl
+                                        csv += reacts[reac].datas[dataPos].excl
+                                    }
+                                    ret += '</td>\n<td>'
+                                    csv += '\t'
+                                    if (reacts[reac].datas[dataPos].hasOwnProperty("note")) {
+                                        ret += reacts[reac].datas[dataPos].note
+                                        csv += reacts[reac].datas[dataPos].note
+                                    }
+                                    ret += '</td>\n<td>'
+                                    csv += '\t'
+                                    if (reacts[reac].datas[dataPos].hasOwnProperty("ampEff")) {
+                                        ret += floatWithPrec(reacts[reac].datas[dataPos].ampEff, 1000)
+                                        csv += floatWithPrec(reacts[reac].datas[dataPos].ampEff, 1000)
+                                    }
+                                    ret += '</td>\n<td>'
+                                    csv += '\t'
+                                    if (reacts[reac].datas[dataPos].hasOwnProperty("cq")) {
+                                        ret += floatWithPrec(reacts[reac].datas[dataPos].cq, 100)
+                                        csv += floatWithPrec(reacts[reac].datas[dataPos].cq, 100)
+                                    }
+                                    ret += '</td>\n<td>'
+                                    csv += '\t'
+                                    if (reacts[reac].datas[dataPos].hasOwnProperty("N0")) {
+                                        ret += floatWithExPrec(reacts[reac].datas[dataPos].N0, 2)
+                                        csv += floatWithExPrec(reacts[reac].datas[dataPos].N0, 2)
+                                    }
+                                    ret += '</td>\n<td>'
+                                    csv += '\t'
+                                    if (reacts[reac].datas[dataPos].hasOwnProperty("corrF")) {
+                                        ret += floatWithPrec(reacts[reac].datas[dataPos].corrF, 100)
+                                        csv += floatWithPrec(reacts[reac].datas[dataPos].corrF, 100)
+                                    } else {
+                                        ret += floatWithPrec('1.0', 100)
+                                        csv += floatWithPrec('1.0', 100)
+                                    }
+                                    ret += '</td>\n<td>'
+                                    csv += '\t'
+                                    if (reacts[reac].datas[dataPos].hasOwnProperty("corrP")) {
+                                        ret += floatWithPrec(reacts[reac].datas[dataPos].corrP, 100)
+                                        csv += floatWithPrec(reacts[reac].datas[dataPos].corrP, 100)
+                                    } else {
+                                        ret += floatWithPrec('1.0', 100)
+                                        csv += floatWithPrec('1.0', 100)
+                                    }
+                                    ret += '</td>\n<td>'
+                                    csv += '\t'
+                                    if (reacts[reac].datas[dataPos].hasOwnProperty("corrCq")) {
+                                        ret += floatWithPrec(reacts[reac].datas[dataPos].corrCq, 100)
+                                        csv += floatWithPrec(reacts[reac].datas[dataPos].corrCq, 100)
+                                    }
+                                    ret += '</td>\n<td>'
+                                    csv += '\t'
+                                    if (reacts[reac].datas[dataPos].hasOwnProperty("corrN0")) {
+                                        ret += floatWithExPrec(reacts[reac].datas[dataPos].corrN0, 2)
+                                        csv += floatWithExPrec(reacts[reac].datas[dataPos].corrN0, 2)
+                                    }
+                                    ret += '</td>\n</tr>\n'
+                                    csv += '\n'
+                                }
+                            } else {
+                                if ((reacts[reac].hasOwnProperty("partitions")) &&
+                                    (reacts[reac].partitions.hasOwnProperty("datas")) &&
+                                    (window.reactData.max_partition_data_len > 0)) {
+                                    for (var dataPos = 0; dataPos < reacts[reac].partitions.datas.length; dataPos++) {
+                                        ret += '  <tr>\n  <td>' + combCol + '</td>'
+                                        csv += combCol + '\t'
+                                        ret += '<td>' + reac + '</td>'
+                                        csv += reac + '\t'
+                                        ret += '<td>' + reacts[reac].sample + '</td>'
+                                        csv += reacts[reac].sample + '\t'
+                                        ret += '<td>' + reacts[reac].partitions.datas[dataPos].tar + '</td>'
+                                        csv += reacts[reac].partitions.datas[dataPos].tar + '\t'
+                                        ret += '<td>'
+                                        if (reacts[reac].partitions.datas[dataPos].hasOwnProperty("excluded")) {
+                                            ret += reacts[reac].partitions.datas[dataPos].excluded
+                                            csv += reacts[reac].partitions.datas[dataPos].excluded
+                                        }
+                                        ret += '</td>\n<td>'
+                                        csv += '\t'
+                                        if (reacts[reac].partitions.datas[dataPos].hasOwnProperty("note")) {
+                                            ret += reacts[reac].partitions.datas[dataPos].note
+                                            csv += reacts[reac].partitions.datas[dataPos].note
+                                        }
+                                        ret += '</td>\n<td>'
+                                        csv += '\t'
+                                        if (reacts[reac].partitions.datas[dataPos].hasOwnProperty("conc")) {
+                                            ret += reacts[reac].partitions.datas[dataPos].conc
+                                            csv += reacts[reac].partitions.datas[dataPos].conc
+                                        }
+                                        ret += '</td>\n<td>'
+                                        csv += '\t'
+                                        if (reacts[reac].partitions.datas[dataPos].hasOwnProperty("pos")) {
+                                            ret += reacts[reac].partitions.datas[dataPos].pos
+                                            csv += reacts[reac].partitions.datas[dataPos].pos
+                                        }
+                                        ret += '</td>\n<td>'
+                                        csv += '\t'
+                                        if (reacts[reac].partitions.datas[dataPos].hasOwnProperty("neg")) {
+                                            ret += reacts[reac].partitions.datas[dataPos].neg
+                                            csv += reacts[reac].partitions.datas[dataPos].neg
+                                        }
+                                        ret += '</td>\n<td>'
+                                        csv += '\t'
+                                        if (reacts[reac].partitions.datas[dataPos].hasOwnProperty("undef")) {
+                                            ret += reacts[reac].partitions.datas[dataPos].undef
+                                            csv += reacts[reac].partitions.datas[dataPos].undef
+                                        }
+                                        ret += '</td>\n<td>'
+                                        csv += '\t'
+                                        if (reacts[reac].partitions.datas[dataPos].hasOwnProperty("excl")) {
+                                            ret += reacts[reac].partitions.datas[dataPos].excl
+                                            csv += reacts[reac].partitions.datas[dataPos].excl
+                                        }
+                                        ret += '</td>\n</tr>\n'
+                                        csv += '\n'
                                     }
                                 }
                             }
                         }
                     }
                 }
-                rowCont += cell
             }
-            rowCont += '</tr>\n'
-            if (exRowUsed == true) {
-                ret += rowCont
-                exRowUsed = false
-                r--
-                exRowCount++
-            } else {
-                exRowCount = 0
-            }
-            rowCont = ""
+            ret += '</table>'
         }
-        ret += '</table>'
     }
     resultData.innerHTML = ret
+    window.plateSaveTable = csv
 }
 
 window.floatWithPrec = floatWithPrec
@@ -1158,111 +1396,38 @@ function NumPoint(val) {
     return ret;
 }
 
-window.saveTabLinRegPCR = saveTabLinRegPCR;
-function saveTabLinRegPCR() {
-    saveTabFile("LinRegPCR.tsv", window.linRegSaveTable)
+window.savePlateTable = savePlateTable;
+function savePlateTable() {
+    saveTabFile("Plate.tsv", window.plateSaveTable)
     return;
 };
 
-window.saveTabMeltcurve = saveTabMeltcurve;
-function saveTabMeltcurve() {
-    saveTabFile("Meltcurve.tsv", window.meltcurveSaveTable)
-    return;
-};
-
-window.saveTabCorrection = saveTabCorrection;
-function saveTabCorrection() {
-    saveTabFile("Corrections.tsv", window.correctionSaveTable)
-    return;
-};
-
-window.copyTabLinRegPCR = copyTabLinRegPCR;
-function copyTabLinRegPCR() {
-    if (window.linRegSaveTable == "") {
-        return
+window.copyPlateTable = copyPlateTable;
+function copyPlateTable() {
+    var el = document.getElementById("rdmlPlateVTab");
+    if (el) {
+        var body = document.body
+        var range
+        var sel
+        if (document.createRange && window.getSelection) {
+            range = document.createRange();
+            sel = window.getSelection();
+            sel.removeAllRanges();
+            try {
+                range.selectNodeContents(el);
+                sel.addRange(range);
+            } catch (e) {
+                range.selectNode(el);
+                sel.addRange(range);
+            }
+        } else if (body.createTextRange) {
+            range = body.createTextRange();
+            range.moveToElementText(el);
+            range.select();
+        }
+        document.execCommand("copy");
+        sel.removeAllRanges();
     }
-    var el = document.getElementById("LinRegPCR_Result_Table");
-	var body = document.body
-	var range
-	var sel
-	if (document.createRange && window.getSelection) {
-		range = document.createRange();
-		sel = window.getSelection();
-		sel.removeAllRanges();
-		try {
-			range.selectNodeContents(el);
-			sel.addRange(range);
-		} catch (e) {
-			range.selectNode(el);
-			sel.addRange(range);
-		}
-	} else if (body.createTextRange) {
-		range = body.createTextRange();
-		range.moveToElementText(el);
-		range.select();
-	}
-	document.execCommand("copy");
-	sel.removeAllRanges();
-    return;
-};
-
-window.copyTabMeltcurve = copyTabMeltcurve;
-function copyTabMeltcurve() {
-    if (window.meltcurveSaveTable == "") {
-        return
-    }
-    var el = document.getElementById("Meltcurve_Result_Table");
-	var body = document.body
-	var range
-	var sel
-	if (document.createRange && window.getSelection) {
-		range = document.createRange();
-		sel = window.getSelection();
-		sel.removeAllRanges();
-		try {
-			range.selectNodeContents(el);
-			sel.addRange(range);
-		} catch (e) {
-			range.selectNode(el);
-			sel.addRange(range);
-		}
-	} else if (body.createTextRange) {
-		range = body.createTextRange();
-		range.moveToElementText(el);
-		range.select();
-	}
-	document.execCommand("copy");
-	sel.removeAllRanges();
-    return;
-};
-
-window.copyCorrection = copyCorrection;
-function copyCorrection() {
-    if (window.correctionSaveTable == "") {
-        return
-    }
-    var el = document.getElementById("Correction_Result_Table");
-	var body = document.body
-	var range
-	var sel
-	if (document.createRange && window.getSelection) {
-		range = document.createRange();
-		sel = window.getSelection();
-		sel.removeAllRanges();
-		try {
-			range.selectNodeContents(el);
-			sel.addRange(range);
-		} catch (e) {
-			range.selectNode(el);
-			sel.addRange(range);
-		}
-	} else if (body.createTextRange) {
-		range = body.createTextRange();
-		range.moveToElementText(el);
-		range.select();
-	}
-	document.execCommand("copy");
-	sel.removeAllRanges();
     return;
 };
 
