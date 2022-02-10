@@ -46,7 +46,7 @@
         <a class="nav-link" href="#runs-tab" id="link-runs">RunView</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="#linregpcr-tab" id="link-linregpcr">LinRegPCR</a>
+        <a class="nav-link" href="#interrun-tab" id="link-interrun">InterRunCorrection</a>
       </li>
       <li class="nav-item">
         <a class="nav-link" href="#meltcurve-tab" id="link-meltcurve">Melting Curve Analysis</a>
@@ -89,13 +89,26 @@
         <div class="col" id="result-data"></div>
       </div>
 
-      <div class="tab-pane" id="linregpcr-tab">
+      <div class="tab-pane" id="interrun-tab">
         <table style="width:100%;background-color: #e6e6e6;">
           <tr>
             <td style="width:1%;"></td>
-            <td style="width:47%;">PCR efficiency range for excluding samples from mean efficiency calculation:</td>
-            <td style="width:7%;"><input type="text" class="form-control" value="0.05" id="text-exl-men-eff"></td>
-            <td style="width:2%;">%</td>
+            <td style="width:14%;">Overlap:</td>
+            <td style="width:14%;">
+              <select class="form-control" id="selOverlapType">
+                <option value="calibrator">Calibrator Samples</option>
+                <option value="samples" selected>All Samples</option>
+                <option value="annotation">By Annotation</option>
+              </select>
+            </td>
+            <td style="width:4%;"></td>
+            <td style="width:14%;">Correction Level:</td>
+            <td style="width:8%;">
+              <select class="form-control" id="selPlateFactor">
+                <option value="target">Target</option>
+                <option value="plate" selected>Plate</option>
+              </select>
+            </td>
             <td style="width:4%;"></td>
             <td style="width:14%;">Update RDML Data:</td>
             <td style="width:6%;">
@@ -104,59 +117,34 @@
                 <option value="n" selected>no</option>
               </select>
             </td>
-            <td style="width:4%;"></td>
-            <td style="width:14%;text-align: right;">
-              <button type="submit" class="btn btn-outline-primary" id="btn-linregpcr">
+            <td style="width:20%;text-align: right;">
+              <button type="submit" class="btn btn-outline-primary" id="btn-run-interruncorr">
                 <i class="fas fa-rocket" style="margin-right: 5px;"></i>
-                Run LinRegPCR
+                Run InterRunCorrection
               </button>
-            </td>
-            <td style="width:1%;"></td>
-          </tr>
-        </table>
-        <table style="width:100%;" id="tab-optional-grey">
-          <tr>
-            <td style="width:1%;"></td>
-            <td style="width:26%;">Exclude from mean efficiency calculation:</td>
-            <td style="width:21%;">Samples without plateau phase:</td>
-            <td style="width:6%;">
-              <select class="form-control" id="choiceExcludeNoPlateau">
-                <option value="y" selected>yes</option>
-                <option value="n">no</option>
-              </select>
-            </td>
-            <td style="width:7%;"></td>
-            <td style="width:18%;">Diverging individual PCR efficiency:</td>
-            <td style="width:20%;">
-              <select class="form-control" id="choiceExcludeEfficiency">
-                <option value="outlier" selected>exclude outliers (recommended)</option>
-                <option value="mean">exclude outside mean range (classic)</option>
-                <option value="include">include all</option>
-              </select>
             </td>
             <td style="width:1%;"></td>
           </tr>
         </table>
         <table style="width:100%;">
           <tr>
-            <td style="width:1%;"></td>
-            <td style="width:9%;">Table Format:</td>
-            <td style="width:14%;">
-              <select class="form-control" id="selTableStyle">
-                <option value="extended" selected>LinRegPCR - Extended</option>
-                <option value="classic-compact">LinRegPCR - Classic</option>
-                <option value="debug">Debug</option>
+            <td style="width:1%;background-color: #e6e6e6;"></td>
+            <td style="width:14%;background-color: #e6e6e6;">Sel. Annotation:</td>
+            <td style="width:14%;background-color: #e6e6e6;">
+              <select class="form-control" id="selInterAnnotation">
+                <option value="" selected>Not Selected</option>
               </select>
             </td>
+            <td style="width:1%;background-color: #e6e6e6;"></td>
             <td style="width:3%;"></td>
-            <td style="width:21%;">Decimal Separator:</td>
+            <td style="width:14%;">Decimal Separator:</td>
             <td style="width:8%;">
               <select class="form-control" id="selSeparator">
                 <option value="point" selected>Point</option>
                 <option value="comma">Comma</option>
               </select>
             </td>
-            <td style="width:5%;"></td>
+            <td style="width:4%;"></td>
             <td style="width:14%;">Include Annotations:</td>
             <td style="width:6%;">
               <select class="form-control" id="choiceIncludeAnnotations">
@@ -164,8 +152,8 @@
                 <option value="n" selected>no</option>
               </select>
             </td>
-            <td style="width:18%;text-align: right;">
-              <button type="submit" class="btn btn-outline-primary" id="btn-rdml-linregpcr">
+            <td style="width:20%;text-align: right;">
+              <button type="submit" class="btn btn-outline-primary" id="btn-rdml-interruncorr">
                 <i class="far fa-save" style="margin-right: 5px;"></i>
                 Save RDML
               </button>
@@ -191,7 +179,7 @@
         </table>
         <br />
         <br />
-        <div id="result-linregpcr"></div>
+        <div id="result-interruncorr"></div>
       </div>
 
       <div class="tab-pane" id="meltcurve-tab">

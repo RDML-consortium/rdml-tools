@@ -11,34 +11,14 @@ submitButton.addEventListener('click', showUpload)
 const examplePlateCorrButton = document.getElementById('btn-example-platecorr')
 examplePlateCorrButton.addEventListener('click', showPlateCorrExample)
 
+const interRunCorrButton = document.getElementById('btn-run-interruncorr')
+interRunCorrButton.addEventListener('click', runInterRunCorr)
 
+const interRunCorrRDMLButton = document.getElementById('btn-rdml-interruncorr')
+interRunCorrRDMLButton.addEventListener('click', showRDMLSave)
 
-
-
-
-
-const linRegPCRButton = document.getElementById('btn-linregpcr')
-linRegPCRButton.addEventListener('click', runLinRegPCR)
-
-const linRegPCRRDMLButton = document.getElementById('btn-rdml-linregpcr')
-linRegPCRRDMLButton.addEventListener('click', showRDMLSave)
-
-const meltcurveRDMLButton = document.getElementById('btn-rdml-meltcurve')
-meltcurveRDMLButton.addEventListener('click', showRDMLSave)
-
-const choiceSaveRDML = document.getElementById('updateRDMLData')
-choiceSaveRDML.addEventListener('change', updateRDMLCheck)
-
-const choiceExcludeNoPlat = document.getElementById('choiceExcludeNoPlateau')
-choiceExcludeNoPlat.addEventListener('change', updateRDMLCheck)
-
-const choiceExcludeEff = document.getElementById('choiceExcludeEfficiency')
-choiceExcludeEff.addEventListener('change', updateRDMLCheck)
-
-
-
-
-
+const choiceIntRunAnno = document.getElementById('selInterAnnotation')
+choiceIntRunAnno.addEventListener('change', updateIntRunAnno)
 
 const rdmlLibVersion = document.getElementById('rdml_lib_version')
 
@@ -59,7 +39,7 @@ const resultError = document.getElementById('result-error')
 
 const selectorsData = document.getElementById('selectors-data')
 const resultData = document.getElementById('result-data')
-const resultLinRegPCR = document.getElementById('result-linregpcr')
+const resultInterRunCorr = document.getElementById('result-interruncorr')
 const resultMeltcurve = document.getElementById('result-meltcurve')
 const resultCorrection = document.getElementById('result-correction')
 
@@ -143,6 +123,17 @@ function updatePlateDeciSep() {
 window.updateAnnotation = updateAnnotation
 function updateAnnotation() {
     window.selAnnotation = getSaveHtmlData("dropSelAnnotation")
+    updateAllAnnotations()
+}
+
+window.updateIntRunAnno = updateIntRunAnno
+function updateIntRunAnno() {
+    window.selAnnotation = getSaveHtmlData("selInterAnnotation")
+    updateAllAnnotations()
+}
+
+window.updateAllAnnotations = updateAllAnnotations
+function updateAllAnnotations() {
     window.samToAnnotations = {}
     var exp = window.rdmlData.rdml.samples
     for (var i = 0; i < exp.length; i++) {
@@ -157,12 +148,30 @@ function updateAnnotation() {
     updateClientData()
 }
 
+window.updateInterRunAnnotations = updateInterRunAnnotations
+function updateInterRunAnnotations() {
+    var selAn = document.getElementById("selInterAnnotation")
+    for (var i = selAn.length - 1; i > 0; i--) {
+        selAn.remove(i);
+    }
+    var allAnnotations = Object.keys(window.samAnnotations)
+    for (var i = 0; i < allAnnotations.length; i++) {
+        var opt = document.createElement('option');
+        opt.value = allAnnotations[i];
+        opt.innerHTML = allAnnotations[i];
+        if (window.selAnnotation == allAnnotations[i]) {
+            opt.selected = true;
+        }
+        selAn.appendChild(opt);
+    }
+}
+
 window.resetLinRegPCRdata = resetLinRegPCRdata
 function resetLinRegPCRdata() {
     window.linRegSaveTable = ""
     window.linRegPCRTable = []
     window.reactToLinRegTable = {}
-    resultLinRegPCR.innerHTML = ""
+    resultInterRunCorr.innerHTML = ""
 }
 
 window.resetMeltcurveData = resetMeltcurveData
@@ -173,17 +182,6 @@ function resetMeltcurveData() {
     resultMeltcurve.innerHTML = ""
 }
 
-window.updateRDMLCheck = updateRDMLCheck
-function updateRDMLCheck() {
-    var bbUpdateRDML = document.getElementById('updateRDMLData')
-    var optionalGreyTab = document.getElementById('tab-optional-grey')
-    if ((bbUpdateRDML) && (bbUpdateRDML.value == "y")) {
-        optionalGreyTab.style.backgroundColor = "#e6e6e6"
-        resetLinRegPCRdata()
-    } else {
-        optionalGreyTab.style.backgroundColor = "#ffffff"
-    }
-}
 
 document.addEventListener("DOMContentLoaded", function() {
     checkForUUID();
@@ -367,27 +365,30 @@ function showUpload() {
     $('[href="#runs-tab"]').tab('show')
 }
 
-function runLinRegPCR() {
-    if (window.selRun == "") {
-        alert("Select an experiment and run first!")
+function runInterRunCorr() {
+    if (window.selExperiment == "") {
+        alert("Select an experiment first!")
         return
     }
-    resultLinRegPCR.innerHTML = ""
-    var rPCREffRange = 0.05
-    var rUpdateRDML = true
+    var rUpdateRDML = false
+    var bbUpdateRDML = document.getElementById('updateRDMLData')
+    if ((bbUpdateRDML) && (bbUpdateRDML.value == "y")) {
+        rUpdateRDML = true
+    }
+    resultInterRunCorr.innerHTML = ""
     hideElement(resultError)
 
     var ret = {}
-    ret["mode"] = "run-linregpcr"
+    ret["mode"] = "run-interruncorr" //"run-linregpcr"
     ret["sel-experiment"] = window.selExperiment
     ret["sel-run"] = window.selRun
-    ret["pcr-eff-range"] = rPCREffRange
+    ret["overlap-type"] = getSaveHtmlData("selOverlapType")
+    ret["corr-level"] = getSaveHtmlData("selPlateFactor")
+    ret["sel-annotation"] = window.selAnnotation
     ret["update-RDML-data"] = rUpdateRDML
-    ret["exclude-no-plateau"] = window.exNoPlateau
-    ret["exclude-efficiency"] = window.exDiffMean
     updateServerData(uuid, JSON.stringify(ret))
 
-    $('[href="#linregpcr-tab"]').tab('show')
+    $('[href="#interrun-tab"]').tab('show')
 }
 
 // TODO client-side validation
@@ -733,7 +734,7 @@ function updateClientData() {
     ret += '>Comma</option>\n'
     ret += '  </select>\n'
     ret += '</td>\n<td style="width:4%;"></td>\n'
-    ret += '  <td style="width:9%;">Select Annotation:</td>\n<td style="width:12%;">'
+    ret += '  <td style="width:12%;">Selected Annotation:</td>\n<td style="width:14%;">'
     ret += '  <select class="form-control" id="dropSelAnnotation" onchange="updateAnnotation()">'
     ret += '        <option value=""'
     if (window.selAnnotation == "") {
@@ -749,7 +750,7 @@ function updateClientData() {
         ret += '>' + allAnnotations[i] + '</option>\n'
     }
     ret += '  </select>\n'
-    ret += '</td>\n<td style="width:7%;"></td>\n</tr>\n'
+    ret += '</td>\n<td style="width:2%;"></td>\n</tr>\n'
     ret += '</table>\n'
     if (window.plateView == "plate") {
         ret += '<table style="width:100%;">'
@@ -1352,6 +1353,7 @@ function updateClientData() {
     }
     resultData.innerHTML = ret
     window.plateSaveTable = csv
+    updateInterRunAnnotations()
 }
 
 window.floatWithPrec = floatWithPrec
