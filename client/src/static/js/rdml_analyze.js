@@ -502,16 +502,6 @@ function fillLookupDics() {
                 if (window.usedDyeMaxPos < k) {
                     window.usedDyeMaxPos = k
                 }
-                if (reacts[i].datas[k].hasOwnProperty("excl")) {
-                   if (reacts[i].datas[k].excl == "")  {
-                        window.usedExcluded["7s8e45-Empty-Val"] = 1
-                    } else {
-                        var splitExcl = reacts[i].datas[k].excl.split(";")
-                        for (var ex = 0; ex < splitExcl.length; ex++) {
-                            window.usedExcluded[splitExcl[ex]] = 1
-                        }
-                    }
-                }
                 reacts[i].datas[k]["runview_show"] = true
             }
         }
