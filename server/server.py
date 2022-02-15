@@ -2061,6 +2061,8 @@ def handle_data():
                                                                     updateRDML=reqdata["update-RDML-data"])
                 if "error" in data["reactsdata"]:
                     data["error"] = data["reactsdata"]["error"]
+                if "error" in data["interruncal"]:
+                    data["error"] = data["interruncal"]["error"]
                 if reqdata["update-RDML-data"]:
                     modified = True
             except rdml.RdmlError as err:

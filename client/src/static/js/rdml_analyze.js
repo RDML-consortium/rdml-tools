@@ -73,8 +73,8 @@ window.selExcl = false;
 
 window.plateSaveTable = "";
 
-
-
+window.interRunCal = {};
+window.interRunSaveTable = "";
 
 
 
@@ -106,6 +106,8 @@ window.meltcurveTable = []
 
 function resetAllGlobalVal() {
     hideElement(resultError)
+    window.interRunCal = {};
+    window.interRunSaveTable = "";
     updateClientData()
 }
 
@@ -424,6 +426,11 @@ function updateServerData(stat, reqData) {
                 }
                 if (res.data.data.hasOwnProperty("reactsdata")) {
                     window.reactData = res.data.data.reactsdata
+                    if (res.data.data.hasOwnProperty("interruncal")) {
+                        window.interRunCal = res.data.data.interruncal
+                        updatePlateTable()
+                    }
+
                     // For debugging
                     // document.getElementById('text-jsDebug').value = JSON.stringify(window.reactData, null, 2)
                 }
@@ -1345,6 +1352,49 @@ function updateClientData() {
     window.plateSaveTable = csv
     updateInterRunAnnotations()
 }
+
+window.updatePlateTable = updatePlateTable
+function updatePlateTable() {
+    if (!(window.interRunCal.hasOwnProperty("plate"))) {
+        return
+    }
+    var colNum = window.interRunCal.runs.length + 1
+    alert(colNum)
+    colNum = Math.max(colNum, 2)
+
+    var ret = '<table class="table table-bordered table-striped" id="Plate_Corr_Result_Table">\n'
+    var content = ""
+
+    ret += '<tr>\n'
+    for (var col = 0; col < colNum; col++) {
+        ret += '<th>'
+        if (col > 0) {
+            ret += window.interRunCal.runs[col - 1]
+        }
+        ret += '</th>'       
+    }
+    ret += '</tr>\n'
+    ret += '<tr>\n'
+
+    for (var tar in window.interRunCal["target"]) {
+        for (var col = 0; col < colNum; col++) {
+            ret += '<td>'
+            if (col > 0) {
+                ret += JSON.stringify(window.interRunCal["target"][tar])
+            } else { 
+                ret += tar
+            }
+            ret += '</td>'       
+        }
+        ret += '</tr>\n'
+    }
+
+   
+    ret += '</table>\n'
+    window.interRunSaveTable = content
+    resultInterRunCorr.innerHTML = ret
+}
+
 
 window.floatWithPrec = floatWithPrec
 function floatWithPrec(val, prec) {
