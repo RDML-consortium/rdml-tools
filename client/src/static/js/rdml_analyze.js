@@ -1031,14 +1031,7 @@ function updateClientData() {
                                         if (window.selPCREff == true) {
                                             cell += 'Eff: '
                                             if (reacts[reac].datas[dataPos].hasOwnProperty("ampEff")) {
-                                                cell += floatWithPrec(reacts[reac].datas[dataPos].ampEff, 1000)
-                                            }
-                                            cell += '<br />'
-                                        }
-                                        if (window.selRawCq == true) {
-                                            cell += 'raw Cq: '
-                                            if (reacts[reac].datas[dataPos].hasOwnProperty("cq")) {
-                                                cell += floatWithPrec(reacts[reac].datas[dataPos].cq, 100)
+                                                cell += floatWithFixPrec(reacts[reac].datas[dataPos].ampEff, 4)
                                             }
                                             cell += '<br />'
                                         }
@@ -1049,10 +1042,10 @@ function updateClientData() {
                                             }
                                             cell += '<br />'
                                         }
-                                        if (window.selCorCq == true) {
-                                            cell += 'Cq: '
-                                            if (reacts[reac].datas[dataPos].hasOwnProperty("corrCq")) {
-                                                cell += floatWithPrec(reacts[reac].datas[dataPos].corrCq, 100)
+                                        if (window.selRawCq == true) {
+                                            cell += 'raw Cq: '
+                                            if (reacts[reac].datas[dataPos].hasOwnProperty("cq")) {
+                                                cell += floatWithFixPrec(reacts[reac].datas[dataPos].cq, 2)
                                             }
                                             cell += '<br />'
                                         }
@@ -1063,21 +1056,28 @@ function updateClientData() {
                                             }
                                             cell += '<br />'
                                         }
+                                        if (window.selCorCq == true) {
+                                            cell += 'Cq: '
+                                            if (reacts[reac].datas[dataPos].hasOwnProperty("corrCq")) {
+                                                cell += floatWithFixPrec(reacts[reac].datas[dataPos].corrCq, 2)
+                                            }
+                                            cell += '<br />'
+                                        }
                                         if (window.selCorF == true) {
                                             cell += 'Corr F: '
                                             if (reacts[reac].datas[dataPos].hasOwnProperty("corrF")) {
-                                                cell += floatWithPrec(reacts[reac].datas[dataPos].corrF, 100)
+                                                cell += floatWithFixPrec(reacts[reac].datas[dataPos].corrF, 2)
                                             } else {
-                                                cell += floatWithPrec('1.0', 100)
+                                                cell += floatWithFixPrec('1.0', 2)
                                             }
                                             cell += '<br />'
                                         }
                                         if (window.selCorP == true) {
                                             cell += 'Corr P: '
                                             if (reacts[reac].datas[dataPos].hasOwnProperty("corrP")) {
-                                                cell += floatWithPrec(reacts[reac].datas[dataPos].corrP, 100)
+                                                cell += floatWithFixPrec(reacts[reac].datas[dataPos].corrP, 2)
                                             } else {
-                                                cell += floatWithPrec('1.0', 100)
+                                                cell += floatWithFixPrec('1.0', 2)
                                             }
                                             cell += '<br />'
                                         }
@@ -1194,18 +1194,18 @@ function updateClientData() {
             if (window.selPCRStyle == "classic") {
                 ret += '<td>PCR Eff</td>'
                 csv += 'PCR Eff\t'
-                ret += '<td>raw Cq</td>'
-                csv += 'raw Cq\t'
                 ret += '<td>raw N0</td>'
                 csv += 'raw N0\t'
+                ret += '<td>raw Cq</td>'
+                csv += 'raw Cq\t'
                 ret += '<td>corr F</td>'
                 csv += 'corr F\t'
                 ret += '<td>corr P</td>'
                 csv += 'corr P\t'
-                ret += '<td>corr Cq</td>'
-                csv += 'corr Cq\t'
                 ret += '<td>corr N0</td>'
-                csv += 'corr N0\n'
+                csv += 'corr N0\t'
+                ret += '<td>corr Cq</td>'
+                csv += 'corr Cq\n'
             } else {
                 ret += '<td>Concentration</td>'
                 csv += 'Concentration\t'
@@ -1275,14 +1275,8 @@ function updateClientData() {
                                         ret += '</td>\n<td>'
                                         csv += '\t'
                                         if (reacts[reac].datas[dataPos].hasOwnProperty("ampEff")) {
-                                            ret += floatWithPrec(reacts[reac].datas[dataPos].ampEff, 1000)
-                                            csv += floatWithPrec(reacts[reac].datas[dataPos].ampEff, 1000)
-                                        }
-                                        ret += '</td>\n<td>'
-                                        csv += '\t'
-                                        if (reacts[reac].datas[dataPos].hasOwnProperty("cq")) {
-                                            ret += floatWithPrec(reacts[reac].datas[dataPos].cq, 100)
-                                            csv += floatWithPrec(reacts[reac].datas[dataPos].cq, 100)
+                                            ret += floatWithFixPrec(reacts[reac].datas[dataPos].ampEff, 4)
+                                            csv += floatWithFixPrec(reacts[reac].datas[dataPos].ampEff, 4)
                                         }
                                         ret += '</td>\n<td>'
                                         csv += '\t'
@@ -1292,33 +1286,39 @@ function updateClientData() {
                                         }
                                         ret += '</td>\n<td>'
                                         csv += '\t'
+                                        if (reacts[reac].datas[dataPos].hasOwnProperty("cq")) {
+                                            ret += floatWithFixPrec(reacts[reac].datas[dataPos].cq, 2)
+                                            csv += floatWithFixPrec(reacts[reac].datas[dataPos].cq, 2)
+                                        }
+                                        ret += '</td>\n<td>'
+                                        csv += '\t'
                                         if (reacts[reac].datas[dataPos].hasOwnProperty("corrF")) {
-                                            ret += floatWithPrec(reacts[reac].datas[dataPos].corrF, 100)
-                                            csv += floatWithPrec(reacts[reac].datas[dataPos].corrF, 100)
+                                            ret += floatWithFixPrec(reacts[reac].datas[dataPos].corrF, 4)
+                                            csv += floatWithFixPrec(reacts[reac].datas[dataPos].corrF, 4)
                                         } else {
-                                            ret += floatWithPrec('1.0', 100)
-                                            csv += floatWithPrec('1.0', 100)
+                                            ret += floatWithFixPrec('1.0', 4)
+                                            csv += floatWithFixPrec('1.0', 4)
                                         }
                                         ret += '</td>\n<td>'
                                         csv += '\t'
                                         if (reacts[reac].datas[dataPos].hasOwnProperty("corrP")) {
-                                            ret += floatWithPrec(reacts[reac].datas[dataPos].corrP, 100)
-                                            csv += floatWithPrec(reacts[reac].datas[dataPos].corrP, 100)
+                                            ret += floatWithFixPrec(reacts[reac].datas[dataPos].corrP, 4)
+                                            csv += floatWithFixPrec(reacts[reac].datas[dataPos].corrP, 4)
                                         } else {
-                                            ret += floatWithPrec('1.0', 100)
-                                            csv += floatWithPrec('1.0', 100)
-                                        }
-                                        ret += '</td>\n<td>'
-                                        csv += '\t'
-                                        if (reacts[reac].datas[dataPos].hasOwnProperty("corrCq")) {
-                                            ret += floatWithPrec(reacts[reac].datas[dataPos].corrCq, 100)
-                                            csv += floatWithPrec(reacts[reac].datas[dataPos].corrCq, 100)
+                                            ret += floatWithFixPrec('1.0', 4)
+                                            csv += floatWithFixPrec('1.0', 4)
                                         }
                                         ret += '</td>\n<td>'
                                         csv += '\t'
                                         if (reacts[reac].datas[dataPos].hasOwnProperty("corrN0")) {
                                             ret += floatWithExPrec(reacts[reac].datas[dataPos].corrN0, 2)
                                             csv += floatWithExPrec(reacts[reac].datas[dataPos].corrN0, 2)
+                                        }
+                                        ret += '</td>\n<td>'
+                                        csv += '\t'
+                                        if (reacts[reac].datas[dataPos].hasOwnProperty("corrCq")) {
+                                            ret += floatWithFixPrec(reacts[reac].datas[dataPos].corrCq, 2)
+                                            csv += floatWithFixPrec(reacts[reac].datas[dataPos].corrCq, 2)
                                         }
                                         ret += '</td>\n</tr>\n'
                                         csv += '\n'
@@ -1431,8 +1431,8 @@ function updatePlateTable() {
         if (col > 0) {
             ret += '<td>'
             if (colNum > col) {
-                var corr = window.interRunCal["plate"]["corrF"][col - 1]
-                var corrOut = floatWithPrec(corr, 10000)
+                var corr = window.interRunCal["plate"]["corrP"][col - 1]
+                var corrOut = floatWithFixPrec(corr, 4)
                 if (corr < 0.0) {
                     corrOut = "not available"
                 }
@@ -1490,8 +1490,8 @@ function updatePlateTable() {
             if (col > 0) {
                 ret += '<td>'
                 if (colNum > col) {
-                    var corr = window.interRunCal["target"][tar]["corrF"][col - 1]
-                    var corrOut = floatWithPrec(corr, 10000)
+                    var corr = window.interRunCal["target"][tar]["corrP"][col - 1]
+                    var corrOut = floatWithFixPrec(corr, 4)
                     if (corr < 0.0) {
                         corrOut = "not available"
                     }
@@ -1540,7 +1540,7 @@ function updatePlateTable() {
             }
             if (col == 1) {
                 var corr = window.interRunCal["target"][tar]["ampEff"]
-                var corrOut = floatWithPrec(corr, 10000)
+                var corrOut = floatWithFixPrec(corr, 4)
                 if (corr < 0.0) {
                     corrOut = "not available"
                 }
@@ -1548,7 +1548,7 @@ function updatePlateTable() {
             }
             if (col == 2) {
                 var corr = window.interRunCal["target"][tar]["ampEffSE"]
-                var corrOut = floatWithPrec(corr, 10000)
+                var corrOut = floatWithFixPrec(corr, 4)
                 if (corr < 0.0) {
                     corrOut = "not available"
                 }
@@ -1565,7 +1565,7 @@ function updatePlateTable() {
     ret += '</th>\n</tr>\n'
     ret += '<tr>\n<th>\nThreshold</th>\n'
     ret += '<td colspan="' + colCount + '">\n'
-    ret += floatWithPrec(window.interRunCal["threshold"], 10000)
+    ret += floatWithFixPrec(window.interRunCal["threshold"], 4)
     ret += '</td>\n</tr>\n'
     ret += '<td colspan="' + (colCount - 2) + '">\n</td>\n</tr>\n'
 
@@ -1629,6 +1629,22 @@ function floatWithPrec(val, prec) {
         return "";
     }
     ret += String(Math.round(val * prec) / prec);
+    if (window.decimalSepPoint == false) {
+        ret = ret.replace(/\./g, ',');
+    }
+    return ret;
+}
+
+window.floatWithFixPrec = floatWithFixPrec
+function floatWithFixPrec(val, prec) {
+    var ret = "";
+    if (val == "") {
+        return "";
+    }
+    if (isNaN(parseFloat(val))) {
+        return "";
+    }
+    ret += String(parseFloat(val).toFixed(prec));
     if (window.decimalSepPoint == false) {
         ret = ret.replace(/\./g, ',');
     }
