@@ -20,6 +20,9 @@ interRunCorrRDMLButton.addEventListener('click', showRDMLSave)
 const choiceIntRunAnno = document.getElementById('selInterAnnotation')
 choiceIntRunAnno.addEventListener('change', updateIntRunAnno)
 
+const choicePlateSeparator = document.getElementById('selPlateSeparator')
+choicePlateSeparator.addEventListener('change', updatePlateResDeciSep)
+
 const rdmlLibVersion = document.getElementById('rdml_lib_version')
 
 // For debugging
@@ -28,7 +31,7 @@ const rdmlLibVersion = document.getElementById('rdml_lib_version')
 
 function jsDebugFunction() {
     alert("Ready to debug")
-    saveTabFile("debug.txt", JSON.stringify(window.reactData, null, 2))
+    saveTabFile("debug.txt", JSON.stringify(window.expData, null, 2))
     updateClientData()
 }
 
@@ -45,6 +48,7 @@ const resultCorrection = document.getElementById('result-correction')
 
 window.uuid = "";
 window.rdmlData = "";
+window.expData = "";
 window.reactData = "";
 window.isvalid = "untested";
 
@@ -119,8 +123,32 @@ function updatePlateDeciSep() {
     } else {
         window.decimalSepPoint = false;
     }
-    updateClientData()
+    updateAllDeciSep()
 }
+
+window.updatePlateResDeciSep = updatePlateResDeciSep
+function updatePlateResDeciSep() {
+    var data = getSaveHtmlData("selPlateSeparator")
+    if (data == "point") {
+        window.decimalSepPoint = true;
+    } else {
+        window.decimalSepPoint = false;
+    }
+    updateAllDeciSep()
+}
+
+window.updateAllDeciSep = updateAllDeciSep
+function updateAllDeciSep() {
+    if (window.decimalSepPoint == true) {
+        choicePlateSeparator.value = "point";
+    } else {
+        window.decimalSepPoint = false;
+        choicePlateSeparator.value = "comma";
+    }
+    updateClientData()
+    updatePlateTable()
+}
+
 
 window.updateAnnotation = updateAnnotation
 function updateAnnotation() {
@@ -379,11 +407,11 @@ function runInterRunCorr() {
     }
     resultInterRunCorr.innerHTML = ""
     hideElement(resultError)
+    window.plateView = "list";
 
     var ret = {}
     ret["mode"] = "run-interruncorr" //"run-linregpcr"
     ret["sel-experiment"] = window.selExperiment
-    ret["sel-run"] = window.selRun
     ret["overlap-type"] = getSaveHtmlData("selOverlapType")
     ret["corr-level"] = getSaveHtmlData("selPlateFactor")
     ret["sel-annotation"] = window.selAnnotation
@@ -425,7 +453,8 @@ function updateServerData(stat, reqData) {
                     }
                 }
                 if (res.data.data.hasOwnProperty("reactsdata")) {
-                    window.reactData = res.data.data.reactsdata
+                    window.expData = res.data.data.reactsdata
+                    window.reactData = "";
                     if (res.data.data.hasOwnProperty("interruncal")) {
                         window.interRunCal = res.data.data.interruncal
                         updatePlateTable()
@@ -471,6 +500,14 @@ function updateServerData(stat, reqData) {
 
 window.fillLookupDics = fillLookupDics
 function fillLookupDics() {
+    if (window.expData.hasOwnProperty("runs")) {
+        for (var run in window.expData.runs) {
+            if (window.selRun == window.expData.runs[run]["id"]) {
+                window.reactData = window.expData.runs[run]["AllData"]
+            }
+        }
+    }
+
     var exp = window.rdmlData.rdml.targets
     window.tarToDye = {}
     window.tarToNr = {}
@@ -533,9 +570,8 @@ function updateClientData() {
         window.selRun = window.selRunOnLoad
         if ((window.rdmlData.hasOwnProperty("rdml")) && (window.selExperiment != "") && (window.selRun != "")){
             var ret = {}
-            ret["mode"] = "get-run-data-wo-curves"
+            ret["mode"] = "get-exp-data-react"
             ret["sel-experiment"] = window.selExperiment
-            ret["sel-run"] = window.selRun
             window.selRunOnLoad = ""
             updateServerData(uuid, JSON.stringify(ret))
         }
@@ -543,9 +579,8 @@ function updateClientData() {
     }
     if (window.reloadRun == true) {
         var ret = {}
-        ret["mode"] = "get-run-data-wo-curves"
+        ret["mode"] = "get-exp-data-react"
         ret["sel-experiment"] = window.selExperiment
-        ret["sel-run"] = window.selRun
         window.reloadRun = false
         updateServerData(uuid, JSON.stringify(ret))
         return
@@ -684,7 +719,7 @@ function updateClientData() {
     if (window.plateView == "plate") {
         ret += ' selected'
     }
-    ret += '>Plate</option>\n'
+    ret += '>Run</option>\n'
     ret += '        <option value="list"'
     if (window.plateView == "list") {
         ret += ' selected'
@@ -1136,6 +1171,8 @@ function updateClientData() {
         } else {
             ret += '<table id="rdmlPlateVTab" style="width:100%;">'
             ret += '<tr>'
+            ret += '<td>Run</td>'
+            csv += 'Run\t'
             ret += '<td>Well</td>'
             csv += 'Well\t'
             ret += '<td>Pos</td>'
@@ -1182,162 +1219,169 @@ function updateClientData() {
                 csv += 'Excluded\n'
             }
             ret += '</tr>\n'
-            var exRowCount = 0
-            var exRowUsed = false
-            for (var r = 0; r < rows; r++) {
-                var rowCont = ''
-                if (rowLabel == "123") {
-                    rowCont += (r + 1)
-                } else if (rowLabel == "ABC") {
-                    rowCont += String.fromCharCode('A'.charCodeAt(0) + r)
-                }
-                if (rowLabel == columnLabel) {
-                    rowCont += ' '
-                }
-                for (var c = 0; c < columns; c++) {
-                    var combCol = rowCont
-                    if (columnLabel == "123") {
-                        combCol += (c + 1)
-                    } else if (columnLabel == "ABC") {
-                        combCol += String.fromCharCode('A'.charCodeAt(0) + c)
+            for (var plRun in window.expData.runs) {
+                reacts = window.expData.runs[plRun]["AllData"].reacts
+                var exRowCount = 0
+                var exRowUsed = false
+                for (var r = 0; r < rows; r++) {
+                    var rowCont = ''
+                    if (rowLabel == "123") {
+                        rowCont += (r + 1)
+                    } else if (rowLabel == "ABC") {
+                        rowCont += String.fromCharCode('A'.charCodeAt(0) + r)
                     }
-                    var id = r * columns + c + 1
-                    for (var reac = 0; reac < reacts.length; reac++) {
-                        if (parseInt(reacts[reac].id) == id) {
-                            if (window.selPCRStyle == "classic") {
-                                for (var dataPos = 0; dataPos < reacts[reac].datas.length; dataPos++) {
-                                    ret += '  <tr>\n  <td>' + combCol + '</td>'
-                                    csv += combCol + '\t'
-                                    ret += '<td>' + reac + '</td>'
-                                    csv += reac + '\t'
-                                    ret += '<td>' + reacts[reac].sample + '</td>'
-                                    csv += reacts[reac].sample + '\t'
-                                    ret += '<td>' + reacts[reac].datas[dataPos].tar + '</td>'
-                                    csv += reacts[reac].datas[dataPos].tar + '\t'
-                                    ret += '<td>'
-                                    if (window.samToAnnotations.hasOwnProperty(reacts[reac].sample)) {
-                                        ret += window.samToAnnotations[reacts[reac].sample]
-                                        csv += window.samToAnnotations[reacts[reac].sample]
-                                    }
-                                    ret += '</td>\n<td>'
-                                    csv += '\t'
-                                    if (reacts[reac].datas[dataPos].hasOwnProperty("excl")) {
-                                        ret += reacts[reac].datas[dataPos].excl
-                                        csv += reacts[reac].datas[dataPos].excl
-                                    }
-                                    ret += '</td>\n<td>'
-                                    csv += '\t'
-                                    if (reacts[reac].datas[dataPos].hasOwnProperty("note")) {
-                                        ret += reacts[reac].datas[dataPos].note
-                                        csv += reacts[reac].datas[dataPos].note
-                                    }
-                                    ret += '</td>\n<td>'
-                                    csv += '\t'
-                                    if (reacts[reac].datas[dataPos].hasOwnProperty("ampEff")) {
-                                        ret += floatWithPrec(reacts[reac].datas[dataPos].ampEff, 1000)
-                                        csv += floatWithPrec(reacts[reac].datas[dataPos].ampEff, 1000)
-                                    }
-                                    ret += '</td>\n<td>'
-                                    csv += '\t'
-                                    if (reacts[reac].datas[dataPos].hasOwnProperty("cq")) {
-                                        ret += floatWithPrec(reacts[reac].datas[dataPos].cq, 100)
-                                        csv += floatWithPrec(reacts[reac].datas[dataPos].cq, 100)
-                                    }
-                                    ret += '</td>\n<td>'
-                                    csv += '\t'
-                                    if (reacts[reac].datas[dataPos].hasOwnProperty("N0")) {
-                                        ret += floatWithExPrec(reacts[reac].datas[dataPos].N0, 2)
-                                        csv += floatWithExPrec(reacts[reac].datas[dataPos].N0, 2)
-                                    }
-                                    ret += '</td>\n<td>'
-                                    csv += '\t'
-                                    if (reacts[reac].datas[dataPos].hasOwnProperty("corrF")) {
-                                        ret += floatWithPrec(reacts[reac].datas[dataPos].corrF, 100)
-                                        csv += floatWithPrec(reacts[reac].datas[dataPos].corrF, 100)
-                                    } else {
-                                        ret += floatWithPrec('1.0', 100)
-                                        csv += floatWithPrec('1.0', 100)
-                                    }
-                                    ret += '</td>\n<td>'
-                                    csv += '\t'
-                                    if (reacts[reac].datas[dataPos].hasOwnProperty("corrP")) {
-                                        ret += floatWithPrec(reacts[reac].datas[dataPos].corrP, 100)
-                                        csv += floatWithPrec(reacts[reac].datas[dataPos].corrP, 100)
-                                    } else {
-                                        ret += floatWithPrec('1.0', 100)
-                                        csv += floatWithPrec('1.0', 100)
-                                    }
-                                    ret += '</td>\n<td>'
-                                    csv += '\t'
-                                    if (reacts[reac].datas[dataPos].hasOwnProperty("corrCq")) {
-                                        ret += floatWithPrec(reacts[reac].datas[dataPos].corrCq, 100)
-                                        csv += floatWithPrec(reacts[reac].datas[dataPos].corrCq, 100)
-                                    }
-                                    ret += '</td>\n<td>'
-                                    csv += '\t'
-                                    if (reacts[reac].datas[dataPos].hasOwnProperty("corrN0")) {
-                                        ret += floatWithExPrec(reacts[reac].datas[dataPos].corrN0, 2)
-                                        csv += floatWithExPrec(reacts[reac].datas[dataPos].corrN0, 2)
-                                    }
-                                    ret += '</td>\n</tr>\n'
-                                    csv += '\n'
-                                }
-                            } else {
-                                if ((reacts[reac].hasOwnProperty("partitions")) &&
-                                    (reacts[reac].partitions.hasOwnProperty("datas")) &&
-                                    (window.reactData.max_partition_data_len > 0)) {
-                                    for (var dataPos = 0; dataPos < reacts[reac].partitions.datas.length; dataPos++) {
-                                        ret += '  <tr>\n  <td>' + combCol + '</td>'
+                    if (rowLabel == columnLabel) {
+                        rowCont += ' '
+                    }
+                    for (var c = 0; c < columns; c++) {
+                        var combCol = rowCont
+                        if (columnLabel == "123") {
+                            combCol += (c + 1)
+                        } else if (columnLabel == "ABC") {
+                            combCol += String.fromCharCode('A'.charCodeAt(0) + c)
+                        }
+                        var id = r * columns + c + 1
+                        for (var reac = 0; reac < reacts.length; reac++) {
+                            if (parseInt(reacts[reac].id) == id) {
+                                if (window.selPCRStyle == "classic") {
+                                    for (var dataPos = 0; dataPos < reacts[reac].datas.length; dataPos++) {
+                                        ret += '  <tr>\n  <td>' + window.expData.runs[plRun]["id"] + '</td>'
+                                        csv += window.expData.runs[plRun]["id"] + '\t'
+                                        ret += '  <td>' + combCol + '</td>'
                                         csv += combCol + '\t'
-                                        ret += '<td>' + reac + '</td>'
-                                        csv += reac + '\t'
+                                        ret += '<td>' + (reac + 1) + '</td>'
+                                        csv += (reac + 1) + '\t'
                                         ret += '<td>' + reacts[reac].sample + '</td>'
                                         csv += reacts[reac].sample + '\t'
-                                        ret += '<td>' + reacts[reac].partitions.datas[dataPos].tar + '</td>'
-                                        csv += reacts[reac].partitions.datas[dataPos].tar + '\t'
+                                        ret += '<td>' + reacts[reac].datas[dataPos].tar + '</td>'
+                                        csv += reacts[reac].datas[dataPos].tar + '\t'
                                         ret += '<td>'
-                                        if (reacts[reac].partitions.datas[dataPos].hasOwnProperty("excluded")) {
-                                            ret += reacts[reac].partitions.datas[dataPos].excluded
-                                            csv += reacts[reac].partitions.datas[dataPos].excluded
+                                        if (window.samToAnnotations.hasOwnProperty(reacts[reac].sample)) {
+                                            ret += window.samToAnnotations[reacts[reac].sample]
+                                            csv += window.samToAnnotations[reacts[reac].sample]
                                         }
                                         ret += '</td>\n<td>'
                                         csv += '\t'
-                                        if (reacts[reac].partitions.datas[dataPos].hasOwnProperty("note")) {
-                                            ret += reacts[reac].partitions.datas[dataPos].note
-                                            csv += reacts[reac].partitions.datas[dataPos].note
+                                        if (reacts[reac].datas[dataPos].hasOwnProperty("excl")) {
+                                            ret += reacts[reac].datas[dataPos].excl
+                                            csv += reacts[reac].datas[dataPos].excl
                                         }
                                         ret += '</td>\n<td>'
                                         csv += '\t'
-                                        if (reacts[reac].partitions.datas[dataPos].hasOwnProperty("conc")) {
-                                            ret += reacts[reac].partitions.datas[dataPos].conc
-                                            csv += reacts[reac].partitions.datas[dataPos].conc
+                                        if (reacts[reac].datas[dataPos].hasOwnProperty("note")) {
+                                            ret += reacts[reac].datas[dataPos].note
+                                            csv += reacts[reac].datas[dataPos].note
                                         }
                                         ret += '</td>\n<td>'
                                         csv += '\t'
-                                        if (reacts[reac].partitions.datas[dataPos].hasOwnProperty("pos")) {
-                                            ret += reacts[reac].partitions.datas[dataPos].pos
-                                            csv += reacts[reac].partitions.datas[dataPos].pos
+                                        if (reacts[reac].datas[dataPos].hasOwnProperty("ampEff")) {
+                                            ret += floatWithPrec(reacts[reac].datas[dataPos].ampEff, 1000)
+                                            csv += floatWithPrec(reacts[reac].datas[dataPos].ampEff, 1000)
                                         }
                                         ret += '</td>\n<td>'
                                         csv += '\t'
-                                        if (reacts[reac].partitions.datas[dataPos].hasOwnProperty("neg")) {
-                                            ret += reacts[reac].partitions.datas[dataPos].neg
-                                            csv += reacts[reac].partitions.datas[dataPos].neg
+                                        if (reacts[reac].datas[dataPos].hasOwnProperty("cq")) {
+                                            ret += floatWithPrec(reacts[reac].datas[dataPos].cq, 100)
+                                            csv += floatWithPrec(reacts[reac].datas[dataPos].cq, 100)
                                         }
                                         ret += '</td>\n<td>'
                                         csv += '\t'
-                                        if (reacts[reac].partitions.datas[dataPos].hasOwnProperty("undef")) {
-                                            ret += reacts[reac].partitions.datas[dataPos].undef
-                                            csv += reacts[reac].partitions.datas[dataPos].undef
+                                        if (reacts[reac].datas[dataPos].hasOwnProperty("N0")) {
+                                            ret += floatWithExPrec(reacts[reac].datas[dataPos].N0, 2)
+                                            csv += floatWithExPrec(reacts[reac].datas[dataPos].N0, 2)
                                         }
                                         ret += '</td>\n<td>'
                                         csv += '\t'
-                                        if (reacts[reac].partitions.datas[dataPos].hasOwnProperty("excl")) {
-                                            ret += reacts[reac].partitions.datas[dataPos].excl
-                                            csv += reacts[reac].partitions.datas[dataPos].excl
+                                        if (reacts[reac].datas[dataPos].hasOwnProperty("corrF")) {
+                                            ret += floatWithPrec(reacts[reac].datas[dataPos].corrF, 100)
+                                            csv += floatWithPrec(reacts[reac].datas[dataPos].corrF, 100)
+                                        } else {
+                                            ret += floatWithPrec('1.0', 100)
+                                            csv += floatWithPrec('1.0', 100)
+                                        }
+                                        ret += '</td>\n<td>'
+                                        csv += '\t'
+                                        if (reacts[reac].datas[dataPos].hasOwnProperty("corrP")) {
+                                            ret += floatWithPrec(reacts[reac].datas[dataPos].corrP, 100)
+                                            csv += floatWithPrec(reacts[reac].datas[dataPos].corrP, 100)
+                                        } else {
+                                            ret += floatWithPrec('1.0', 100)
+                                            csv += floatWithPrec('1.0', 100)
+                                        }
+                                        ret += '</td>\n<td>'
+                                        csv += '\t'
+                                        if (reacts[reac].datas[dataPos].hasOwnProperty("corrCq")) {
+                                            ret += floatWithPrec(reacts[reac].datas[dataPos].corrCq, 100)
+                                            csv += floatWithPrec(reacts[reac].datas[dataPos].corrCq, 100)
+                                        }
+                                        ret += '</td>\n<td>'
+                                        csv += '\t'
+                                        if (reacts[reac].datas[dataPos].hasOwnProperty("corrN0")) {
+                                            ret += floatWithExPrec(reacts[reac].datas[dataPos].corrN0, 2)
+                                            csv += floatWithExPrec(reacts[reac].datas[dataPos].corrN0, 2)
                                         }
                                         ret += '</td>\n</tr>\n'
                                         csv += '\n'
+                                    }
+                                } else {
+                                    if ((reacts[reac].hasOwnProperty("partitions")) &&
+                                        (reacts[reac].partitions.hasOwnProperty("datas")) &&
+                                        (window.reactData.max_partition_data_len > 0)) {
+                                        for (var dataPos = 0; dataPos < reacts[reac].partitions.datas.length; dataPos++) {
+                                            ret += '  <tr>\n  <td>' + window.expData.runs[plRun]["id"] + '</td>'
+                                            csv += window.expData.runs[plRun]["id"] + '\t'
+                                            ret += '  <td>' + combCol + '</td>'
+                                            csv += combCol + '\t'
+                                            ret += '<td>' + (reac + 1) + '</td>'
+                                            csv += (reac + 1) + '\t'
+                                            ret += '<td>' + reacts[reac].sample + '</td>'
+                                            csv += reacts[reac].sample + '\t'
+                                            ret += '<td>' + reacts[reac].partitions.datas[dataPos].tar + '</td>'
+                                            csv += reacts[reac].partitions.datas[dataPos].tar + '\t'
+                                            ret += '<td>'
+                                            if (reacts[reac].partitions.datas[dataPos].hasOwnProperty("excluded")) {
+                                                ret += reacts[reac].partitions.datas[dataPos].excluded
+                                                csv += reacts[reac].partitions.datas[dataPos].excluded
+                                            }
+                                            ret += '</td>\n<td>'
+                                            csv += '\t'
+                                            if (reacts[reac].partitions.datas[dataPos].hasOwnProperty("note")) {
+                                                ret += reacts[reac].partitions.datas[dataPos].note
+                                                csv += reacts[reac].partitions.datas[dataPos].note
+                                            }
+                                            ret += '</td>\n<td>'
+                                            csv += '\t'
+                                            if (reacts[reac].partitions.datas[dataPos].hasOwnProperty("conc")) {
+                                                ret += reacts[reac].partitions.datas[dataPos].conc
+                                                csv += reacts[reac].partitions.datas[dataPos].conc
+                                            }
+                                            ret += '</td>\n<td>'
+                                            csv += '\t'
+                                            if (reacts[reac].partitions.datas[dataPos].hasOwnProperty("pos")) {
+                                                ret += reacts[reac].partitions.datas[dataPos].pos
+                                                csv += reacts[reac].partitions.datas[dataPos].pos
+                                            }
+                                            ret += '</td>\n<td>'
+                                            csv += '\t'
+                                            if (reacts[reac].partitions.datas[dataPos].hasOwnProperty("neg")) {
+                                                ret += reacts[reac].partitions.datas[dataPos].neg
+                                                csv += reacts[reac].partitions.datas[dataPos].neg
+                                            }
+                                            ret += '</td>\n<td>'
+                                            csv += '\t'
+                                            if (reacts[reac].partitions.datas[dataPos].hasOwnProperty("undef")) {
+                                                ret += reacts[reac].partitions.datas[dataPos].undef
+                                                csv += reacts[reac].partitions.datas[dataPos].undef
+                                            }
+                                            ret += '</td>\n<td>'
+                                            csv += '\t'
+                                            if (reacts[reac].partitions.datas[dataPos].hasOwnProperty("excl")) {
+                                                ret += reacts[reac].partitions.datas[dataPos].excl
+                                                csv += reacts[reac].partitions.datas[dataPos].excl
+                                            }
+                                            ret += '</td>\n</tr>\n'
+                                            csv += '\n'
+                                        }
                                     }
                                 }
                             }
@@ -1359,37 +1403,219 @@ function updatePlateTable() {
         return
     }
     var colNum = window.interRunCal.runs.length + 1
-    alert(colNum)
-    colNum = Math.max(colNum, 2)
+    var colCount = Math.max(colNum, 3)
 
     var ret = '<table class="table table-bordered table-striped" id="Plate_Corr_Result_Table">\n'
     var content = ""
 
+    ret += '<tr>\n<th colspan="' + colCount + '">\n'
+    ret += 'Correction Factors'
+    ret += '</th>\n</tr>\n'
+
     ret += '<tr>\n'
-    for (var col = 0; col < colNum; col++) {
+    for (var col = 0; col < colCount; col++) {
         ret += '<th>'
-        if (col > 0) {
-            ret += window.interRunCal.runs[col - 1]
+        if (colNum > col) {
+            if (col > 0) {
+                ret += window.interRunCal.runs[col - 1]
+            } else {
+                ret += "Run"
+            }
         }
-        ret += '</th>'       
+        ret += '</th>\n'
     }
     ret += '</tr>\n'
+
     ret += '<tr>\n'
+    for (var col = 0; col < colCount; col++) {
+        if (col > 0) {
+            ret += '<td>'
+            if (colNum > col) {
+                var corr = window.interRunCal["plate"]["corrF"][col - 1]
+                var corrOut = floatWithPrec(corr, 10000)
+                if (corr < 0.0) {
+                    corrOut = "not available"
+                }
+                if (corr < -9.0) {
+                    corrOut = "not present"
+                }
+                ret += corrOut
+                }
+            ret += '</td>\n'
+        } else {
+            ret += '<th>'
+            ret += "Corr"
+            ret += '</th>\n'
+        }
+    }
+    ret += '</tr>\n'
+    ret += '<tr>\n<th colspan="' + colCount + '"></th>\n</tr>\n'
+    ret += '<tr>\n'
+    for (var col = 0; col < colCount; col++) {
+        ret += '<th>'
+        if (colNum > col) {
+            if (col > 0) {
+                ret += window.interRunCal.runs[col - 1]
+            } else {
+                ret += "Target"
+            }
+        }
+        ret += '</th>\n'
+    }
+    ret += '</tr>\n'
 
     for (var tar in window.interRunCal["target"]) {
-        for (var col = 0; col < colNum; col++) {
-            ret += '<td>'
+        ret += '<tr>\n'
+        for (var col = 0; col < colCount; col++) {
             if (col > 0) {
-                ret += JSON.stringify(window.interRunCal["target"][tar])
-            } else { 
+                ret += '<td>'
+                if (colNum > col) {
+                    if ((window.interRunCal["target"][tar]["present"].hasOwnProperty(col - 1))
+                        && (window.interRunCal["target"][tar]["present"][col - 1] == true)) {
+                        ret += "+"
+                    } else {
+                        ret += "-"
+                    }
+                }
+                ret += '</td>\n'
+            } else {
+                ret += '<th>'
                 ret += tar
+                ret += '</th>\n'
             }
-            ret += '</td>'       
+        }
+        ret += '</tr>\n'
+        ret += '<tr>\n'
+        for (var col = 0; col < colCount; col++) {
+            if (col > 0) {
+                ret += '<td>'
+                if (colNum > col) {
+                    var corr = window.interRunCal["target"][tar]["corrF"][col - 1]
+                    var corrOut = floatWithPrec(corr, 10000)
+                    if (corr < 0.0) {
+                        corrOut = "not available"
+                    }
+                    if (corr < -9.0) {
+                        corrOut = "not present"
+                    }
+                    ret += corrOut
+                }
+                ret += '</td>\n'
+            } else {
+                ret += '<th>'
+                ret += "Corr"
+                ret += '</th>\n'
+            }
         }
         ret += '</tr>\n'
     }
 
-   
+    ret += '<tr>\n<th colspan="' + colCount + '"></th>\n</tr>\n'
+    ret += '<tr>\n<th colspan="' + colCount + '">\n'
+    ret += 'Combined PCR Efficiency'
+    ret += '</th>\n</tr>\n'
+
+    ret += '<tr>\n'
+    for (var col = 0; col < colCount; col++) {
+        ret += '<th>'
+        if (col == 0) {
+            ret += "Target"
+        }
+        if (col == 1) {
+            ret += "PCR Efficiency"
+        }
+        if (col == 2) {
+            ret += "PCR Efficiency SE"
+        }
+        ret += '</th>\n'
+    }
+    ret += '</tr>\n'
+
+    for (var tar in window.interRunCal["target"]) {
+        ret += '<tr>\n'
+        for (var col = 0; col < colCount; col++) {
+            ret += '<td>'
+            if (col == 0) {
+                ret += tar
+            }
+            if (col == 1) {
+                var corr = window.interRunCal["target"][tar]["ampEff"]
+                var corrOut = floatWithPrec(corr, 10000)
+                if (corr < 0.0) {
+                    corrOut = "not available"
+                }
+                ret += corrOut
+            }
+            if (col == 2) {
+                var corr = window.interRunCal["target"][tar]["ampEffSE"]
+                var corrOut = floatWithPrec(corr, 10000)
+                if (corr < 0.0) {
+                    corrOut = "not available"
+                }
+                ret += corrOut
+            }
+            ret += '</td>\n'
+        }
+        ret += '</tr>\n'
+    }
+
+    ret += '<tr>\n<th colspan="' + colCount + '"></th>\n</tr>\n'
+    ret += '<tr>\n<th colspan="' + colCount + '">\n'
+    ret += 'Combined Threshold'
+    ret += '</th>\n</tr>\n'
+    ret += '<tr>\n<th>\nThreshold</th>\n'
+    ret += '<td colspan="' + colCount + '">\n'
+    ret += floatWithPrec(window.interRunCal["threshold"], 10000)
+    ret += '</td>\n</tr>\n'
+    ret += '<td colspan="' + (colCount - 2) + '">\n</td>\n</tr>\n'
+
+
+
+    ret += '<tr>\n<th colspan="' + colCount + '"></th>\n</tr>\n'
+    ret += '<tr>\n<th colspan="' + colCount + '">\n'
+    ret += 'Overlapping Conditions'
+    ret += '</th>\n</tr>\n'
+
+
+    for (var tar in window.interRunCal["target"]) {
+        ret += '<tr>\n'
+        for (var col = 0; col < colCount; col++) {
+            ret += '<th>'
+            if (colNum > col) {
+                if (col > 0) {
+                    ret += window.interRunCal.runs[col - 1]
+                } else {
+                    ret += tar
+                }
+            }
+            ret += '</th>\n'
+        }
+        ret += '</tr>\n'
+        var maxRows = window.interRunCal["target"][tar]["overlap"].length
+        for (var row = 0; row < maxRows; row++) {
+            ret += '<tr>\n'
+            for (var col = 0; col < colCount; col++) {
+                if (col > 0) {
+                    ret += '<td>'
+                    if (colNum > col) {
+                        var corrOut = window.interRunCal["target"][tar]["overlap"][row][col - 1]
+                        if (corrOut < -9) {
+                            corrOut = "not present"
+                        }
+                        ret += corrOut
+                    }
+                    ret += '</td>\n'
+                } else {
+                    ret += '<th>'
+                    ret += window.interRunCal.runs[row]
+                    ret += '</th>\n'
+                }
+            }
+            ret += '</tr>\n'
+        }
+        ret += '<tr>\n<th colspan="' + colCount + '"></th>\n</tr>\n'
+    }
+
     ret += '</table>\n'
     window.interRunSaveTable = content
     resultInterRunCorr.innerHTML = ret
@@ -1440,7 +1666,7 @@ function NumPoint(val) {
 
 window.savePlateTable = savePlateTable;
 function savePlateTable() {
-    saveTabFile("Plate.tsv", window.plateSaveTable)
+    saveTabFile("Experiment.tsv", window.plateSaveTable)
     return;
 };
 
@@ -1483,7 +1709,10 @@ function updateExperiment() {
     resetMeltcurveData()
     window.selExperiment = newData
     window.selRun = ""
-    updateClientData()
+    var ret = {}
+    ret["mode"] = "get-exp-data-react"
+    ret["sel-experiment"] = window.selExperiment
+    updateServerData(uuid, JSON.stringify(ret))
 }
 
 window.updateRun = updateRun;
@@ -1499,13 +1728,8 @@ function updateRun() {
     if ((window.selExperiment == "") || (window.selRun == "")){
         return
     }
-    resetLinRegPCRdata()
-    resetMeltcurveData()
-    var ret = {}
-    ret["mode"] = "get-run-data-wo-curves"
-    ret["sel-experiment"] = window.selExperiment
-    ret["sel-run"] = window.selRun
-    updateServerData(uuid, JSON.stringify(ret))
+    fillLookupDics()
+    updateClientData()
 }
 
 window.getDigitalFile = getDigitalFile;

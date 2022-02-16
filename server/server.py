@@ -1715,6 +1715,17 @@ def handle_data():
             # else:
             #     modified = True
 
+        if "mode" in reqdata and reqdata["mode"] in ["get-exp-data-react"]:
+            if "sel-experiment" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - sel-experiment id missing!"}]), 400
+            try:
+                experiment = rd.get_experiment(byid=reqdata["sel-experiment"])
+                if experiment is None:
+                    return jsonify(errors=[{"title": "Invalid server request - experiment id not found!"}]), 400
+                data["reactsdata"] = experiment.getreactjson()
+            except rdml.RdmlError as err:
+                data["error"] = str(err)
+
         if "mode" in reqdata and reqdata["mode"] in ["get-run-data-wo-curves"]:
             if "sel-experiment" not in reqdata:
                 return jsonify(errors=[{"title": "Invalid server request - sel-experiment id missing!"}]), 400
@@ -2036,8 +2047,6 @@ def handle_data():
         if "mode" in reqdata and reqdata["mode"] in ["run-interruncorr"]:
             if "sel-experiment" not in reqdata:
                 return jsonify(errors=[{"title": "Invalid server request - sel-experiment id missing!"}]), 400
-            if "sel-run" not in reqdata:
-                return jsonify(errors=[{"title": "Invalid server request - sel-run id missing!"}]), 400
             if "overlap-type" not in reqdata:
                 return jsonify(errors=[{"title": "Invalid server request - overlap-type id missing!"}]), 400
             if "corr-level" not in reqdata:
@@ -2051,14 +2060,11 @@ def handle_data():
                 experiment = rd.get_experiment(byid=reqdata["sel-experiment"])
                 if experiment is None:
                     return jsonify(errors=[{"title": "Invalid server request - experiment id not found!"}]), 400
-                s_run = experiment.get_run(byid=reqdata["sel-run"])
-                if s_run is None:
-                    return jsonify(errors=[{"title": "Invalid server request - run id not found!"}]), 400
-                data["reactsdata"] = s_run.getreactjson(curves=False)
                 data["interruncal"] = experiment.webAppInterRunCorr(overlapType=reqdata["overlap-type"],
                                                                     corrLevel=reqdata["corr-level"],
                                                                     selAnnotation=reqdata["sel-annotation"],
                                                                     updateRDML=reqdata["update-RDML-data"])
+                data["reactsdata"] = experiment.getreactjson()
                 if "error" in data["reactsdata"]:
                     data["error"] = data["reactsdata"]["error"]
                 if "error" in data["interruncal"]:
