@@ -8,14 +8,23 @@ const resultLink = document.getElementById('uuid-link-box')
 const submitButton = document.getElementById('btn-submit')
 submitButton.addEventListener('click', showUpload)
 
-const examplePlateCorrButton = document.getElementById('btn-example-platecorr')
-examplePlateCorrButton.addEventListener('click', showPlateCorrExample)
+const examplePlateTwoCorrButton = document.getElementById('btn-example-platecorr-two')
+examplePlateTwoCorrButton.addEventListener('click', showPlateCorrTwoExample)
+
+const examplePlateSixCorrButton = document.getElementById('btn-example-platecorr-six')
+examplePlateSixCorrButton.addEventListener('click', showPlateCorrSixExample)
 
 const interRunCorrButton = document.getElementById('btn-run-interruncorr')
 interRunCorrButton.addEventListener('click', runInterRunCorr)
 
 const interRunCorrRDMLButton = document.getElementById('btn-rdml-interruncorr')
 interRunCorrRDMLButton.addEventListener('click', showRDMLSave)
+
+const interRunCorrCopyButton = document.getElementById('btn-copy-interruncorr')
+interRunCorrCopyButton.addEventListener('click', copyTabInterRunCorr)
+
+const interRunCorrSaveButton = document.getElementById('btn-save-interruncorr')
+interRunCorrSaveButton.addEventListener('click', saveTabInterRunCorr)
 
 const choiceIntRunAnno = document.getElementById('selInterAnnotation')
 choiceIntRunAnno.addEventListener('change', updateIntRunAnno)
@@ -360,36 +369,36 @@ $('#mainTab a').on('click', function(e) {
     $(this).tab('show')
 })
 
-function showPlateCorrExample() {
+function showPlateCorrTwoExample() {
+    resetAllGlobalVal()
     window.selRun = "";
     window.selPCRStyle = "classic";
     window.selExperiment = "Plate Correction";
     window.selRunOnLoad = "Plate 1";
     window.selDigitalOnLoad = "none";
-    resetAllGlobalVal()
 
-    updateServerData("platecorr", '{"mode": "upload", "validate": true}')
+    updateServerData("platecorrtwo", '{"mode": "upload", "validate": true}')
     $('[href="#runs-tab"]').tab('show')
 }
 
-function showMeltcurveExample() {
+function showPlateCorrSixExample() {
+    resetAllGlobalVal()
     window.selRun = "";
     window.selPCRStyle = "classic";
-    window.selExperiment = "Artifact Mix";
-    window.selRunOnLoad = "Artifact Mix with SYBR Green I";
+    window.selExperiment = "Inter Run Correction";
+    window.selRunOnLoad = "Run 1";
     window.selDigitalOnLoad = "none";
-    resetAllGlobalVal()
 
-    updateServerData("meltcurve", '{"mode": "upload", "validate": true}')
+    updateServerData("platecorrsix", '{"mode": "upload", "validate": true}')
     $('[href="#runs-tab"]').tab('show')
 }
 
 function showUpload() {
+    resetAllGlobalVal()
     window.selRun = "";
     window.selExperiment = "";
     window.selRunOnLoad = "";
     window.selDigitalOnLoad = "none";
-    resetAllGlobalVal()
 
     updateServerData("data", '{"mode": "upload", "validate": true}')
     $('[href="#runs-tab"]').tab('show')
@@ -424,10 +433,10 @@ function runInterRunCorr() {
 // TODO client-side validation
 function updateServerData(stat, reqData) {
     const formData = new FormData()
-    if (stat == "platecorr") {
-        formData.append('showPlateCorrExample', 'showPlateCorrExample')
-    } else if (stat == "linregpcr") {
-        formData.append('showLinRegPCRExample', 'showLinRegPCRExample')
+    if (stat == "platecorrtwo") {
+        formData.append('showPlateCorrTwoExample', 'showPlateCorrExample')
+    } else if (stat == "platecorrsix") {
+        formData.append('showPlateCorrSixExample', 'showPlateCorrSixExample')
     } else if (stat == "data") {
         formData.append('queryFile', inputFile.files[0])
     } else {
@@ -637,8 +646,9 @@ function updateClientData() {
     ret = ''
     var exp = window.rdmlData.rdml.experiments;
 
-    ret = '<table style="width:100%;background-color: #e6e6e6;">'
-    ret += '  <tr>\n    <td style="width:8%;">Experiment:</td>\n<td style="width:29%;">'
+    ret = '<table style="width:100%;">'
+    ret += '  <tr>\n    <td style="width:8%;background-color: #e6e6e6;">Experiment:</td>\n'
+    ret += '<td style="width:29%;background-color: #e6e6e6;">'
     ret += '  <select class="form-control" id="dropSelExperiment" onchange="updateExperiment()">'
     ret += '    <option value="">No experiment selected</option>\n'
     window.experimentPos = -1
@@ -652,7 +662,7 @@ function updateClientData() {
     }
     ret += '  </select>\n'
     ret += '</td>\n'
-    ret += '<td style="width:4%;"></td>'
+    ret += '<td style="width:2%;background-color: #e6e6e6;"></td><td style="width:2%;"></td>'
     ret += '    <td style="width:4%;">Run:</td>\n<td style="width:33%;">'
     ret += '  <select class="form-control" id="dropSelRun" onchange="updateRun()">'
     ret += '    <option value="">No run selected</option>\n'
@@ -669,8 +679,9 @@ function updateClientData() {
         }
     }
     ret += '</td>\n'
-    ret += '<td style="width:4%;"></td>'
-    ret += '    <td style="width:7%;">PCR type:</td>\n<td style="width:11%;">'
+    ret += '<td style="width:2%;"></td><td style="width:2%;background-color: #e6e6e6;"></td>'
+    ret += '    <td style="width:7%;background-color: #e6e6e6;">PCR type:</td>\n'
+    ret += '<td style="width:11%;background-color: #e6e6e6;">'
     ret += '  <select class="form-control" id="dropSelPCRStyle" onchange="updatePCRStyle()">'
 
     if (window.selDigitalOnLoad == "none") {
@@ -1405,12 +1416,18 @@ function updatePlateTable() {
     var colNum = window.interRunCal.runs.length + 1
     var colCount = Math.max(colNum, 3)
 
-    var ret = '<table class="table table-bordered table-striped" id="Plate_Corr_Result_Table">\n'
+    var ret = '<p>The calculated results are displayed in the RunView tab.</p>\n'
+    ret += '<table class="table table-bordered table-striped" id="plate-corr-result-table">\n'
     var content = ""
 
     ret += '<tr>\n<th colspan="' + colCount + '">\n'
     ret += 'Correction Factors'
     ret += '</th>\n</tr>\n'
+    content += 'Correction Factors'
+    for (var col = 0; col < colCount; col++) {
+        content += '\t'
+    }
+    content += '\n'
 
     ret += '<tr>\n'
     for (var col = 0; col < colCount; col++) {
@@ -1418,13 +1435,17 @@ function updatePlateTable() {
         if (colNum > col) {
             if (col > 0) {
                 ret += window.interRunCal.runs[col - 1]
+                content += window.interRunCal.runs[col - 1]
             } else {
                 ret += "Run"
+                content += "Run"
             }
         }
         ret += '</th>\n'
+        content += '\t'
     }
     ret += '</tr>\n'
+    content += '\n'
 
     ret += '<tr>\n'
     for (var col = 0; col < colCount; col++) {
@@ -1440,14 +1461,20 @@ function updatePlateTable() {
                     corrOut = "not present"
                 }
                 ret += corrOut
+                content += corrOut
                 }
             ret += '</td>\n'
+            content += '\t'
         } else {
-            ret += '<th>'
-            ret += "Corr"
-            ret += '</th>\n'
+            ret += '<th>Corr</th>\n'
+            content += 'corr\t'
         }
     }
+    content += '\n'
+    for (var col = 0; col < colCount; col++) {
+        content += '\t'
+    }
+    content += '\n'
     ret += '</tr>\n'
     ret += '<tr>\n<th colspan="' + colCount + '"></th>\n</tr>\n'
     ret += '<tr>\n'
@@ -1456,13 +1483,17 @@ function updatePlateTable() {
         if (colNum > col) {
             if (col > 0) {
                 ret += window.interRunCal.runs[col - 1]
+                content += window.interRunCal.runs[col - 1]
             } else {
                 ret += "Target"
+                content += "Target"
             }
         }
         ret += '</th>\n'
+        content += '\t'
     }
     ret += '</tr>\n'
+    content += '\n'
 
     for (var tar in window.interRunCal["target"]) {
         ret += '<tr>\n'
@@ -1473,18 +1504,23 @@ function updatePlateTable() {
                     if ((window.interRunCal["target"][tar]["present"].hasOwnProperty(col - 1))
                         && (window.interRunCal["target"][tar]["present"][col - 1] == true)) {
                         ret += "+"
+                        content += '+'
                     } else {
                         ret += "-"
+                        content += '-'
                     }
                 }
                 ret += '</td>\n'
+                content += '\t'
             } else {
                 ret += '<th>'
                 ret += tar
                 ret += '</th>\n'
+                content += tar + '\t'
             }
         }
         ret += '</tr>\n'
+        content += '\n'
         ret += '<tr>\n'
         for (var col = 0; col < colCount; col++) {
             if (col > 0) {
@@ -1499,37 +1535,55 @@ function updatePlateTable() {
                         corrOut = "not present"
                     }
                     ret += corrOut
+                    content += corrOut
                 }
                 ret += '</td>\n'
+                content += '\t'
             } else {
                 ret += '<th>'
                 ret += "Corr"
                 ret += '</th>\n'
+                content += 'Corr\t'
             }
         }
         ret += '</tr>\n'
+        content += '\n'
     }
 
     ret += '<tr>\n<th colspan="' + colCount + '"></th>\n</tr>\n'
+    for (var col = 0; col < colCount; col++) {
+        content += '\t'
+    }
+    content += '\n'
     ret += '<tr>\n<th colspan="' + colCount + '">\n'
     ret += 'Combined PCR Efficiency'
     ret += '</th>\n</tr>\n'
+    content += 'Combined PCR Efficiency'
+    for (var col = 0; col < colCount; col++) {
+        content += '\t'
+    }
+    content += '\n'
 
     ret += '<tr>\n'
     for (var col = 0; col < colCount; col++) {
         ret += '<th>'
         if (col == 0) {
             ret += "Target"
+            content += "Target"
         }
         if (col == 1) {
             ret += "PCR Efficiency"
+            content += "PCR Efficiency"
         }
         if (col == 2) {
             ret += "PCR Efficiency SE"
+            content += "PCR Efficiency SE"
         }
         ret += '</th>\n'
+        content += '\t'
     }
     ret += '</tr>\n'
+    content += '\n'
 
     for (var tar in window.interRunCal["target"]) {
         ret += '<tr>\n'
@@ -1537,6 +1591,7 @@ function updatePlateTable() {
             ret += '<td>'
             if (col == 0) {
                 ret += tar
+                content += tar
             }
             if (col == 1) {
                 var corr = window.interRunCal["target"][tar]["ampEff"]
@@ -1545,6 +1600,7 @@ function updatePlateTable() {
                     corrOut = "not available"
                 }
                 ret += corrOut
+                content += corrOut
             }
             if (col == 2) {
                 var corr = window.interRunCal["target"][tar]["ampEffSE"]
@@ -1553,29 +1609,53 @@ function updatePlateTable() {
                     corrOut = "not available"
                 }
                 ret += corrOut
+                content += corrOut
             }
             ret += '</td>\n'
+            content += '\t'
         }
         ret += '</tr>\n'
+        content += '\n'
     }
 
     ret += '<tr>\n<th colspan="' + colCount + '"></th>\n</tr>\n'
+    for (var col = 0; col < colCount; col++) {
+        content += '\t'
+    }
+    content += '\n'
     ret += '<tr>\n<th colspan="' + colCount + '">\n'
     ret += 'Combined Threshold'
     ret += '</th>\n</tr>\n'
+    content += 'Combined Threshold'
+    for (var col = 0; col < colCount; col++) {
+        content += '\t'
+    }
+    content += '\n'
     ret += '<tr>\n<th>\nThreshold</th>\n'
     ret += '<td colspan="' + colCount + '">\n'
     ret += floatWithFixPrec(window.interRunCal["threshold"], 4)
     ret += '</td>\n</tr>\n'
     ret += '<td colspan="' + (colCount - 2) + '">\n</td>\n</tr>\n'
-
-
+    content += 'Threshold\t'
+    content += floatWithFixPrec(window.interRunCal["threshold"], 4)
+    for (var col = 1; col < colCount; col++) {
+        content += '\t'
+    }
+    content += '\n'
 
     ret += '<tr>\n<th colspan="' + colCount + '"></th>\n</tr>\n'
+    for (var col = 0; col < colCount; col++) {
+        content += '\t'
+    }
+    content += '\n'
     ret += '<tr>\n<th colspan="' + colCount + '">\n'
     ret += 'Overlapping Conditions'
     ret += '</th>\n</tr>\n'
-
+    content += 'Overlapping Conditions'
+    for (var col = 0; col < colCount; col++) {
+        content += '\t'
+    }
+    content += '\n'
 
     for (var tar in window.interRunCal["target"]) {
         ret += '<tr>\n'
@@ -1584,13 +1664,17 @@ function updatePlateTable() {
             if (colNum > col) {
                 if (col > 0) {
                     ret += window.interRunCal.runs[col - 1]
+                    content += window.interRunCal.runs[col - 1]
                 } else {
                     ret += tar
+                    content += tar
                 }
             }
             ret += '</th>\n'
+            content += '\t'
         }
         ret += '</tr>\n'
+        content += '\n'
         var maxRows = window.interRunCal["target"][tar]["overlap"].length
         for (var row = 0; row < maxRows; row++) {
             ret += '<tr>\n'
@@ -1603,17 +1687,25 @@ function updatePlateTable() {
                             corrOut = "not present"
                         }
                         ret += corrOut
+                        content += corrOut
                     }
                     ret += '</td>\n'
+                    content += '\t'
                 } else {
                     ret += '<th>'
                     ret += window.interRunCal.runs[row]
                     ret += '</th>\n'
+                    content += window.interRunCal.runs[row] + '\t'
                 }
             }
             ret += '</tr>\n'
+            content += '\n'
         }
         ret += '<tr>\n<th colspan="' + colCount + '"></th>\n</tr>\n'
+        for (var col = 0; col < colCount; col++) {
+            content += '\t'
+        }
+        content += '\n'
     }
 
     ret += '</table>\n'
@@ -1682,13 +1774,32 @@ function NumPoint(val) {
 
 window.savePlateTable = savePlateTable;
 function savePlateTable() {
-    saveTabFile("Experiment.tsv", window.plateSaveTable)
+    saveTabFile("Experiment_Data.tsv", window.plateSaveTable)
+    return;
+};
+
+window.saveTabInterRunCorr = saveTabInterRunCorr;
+function saveTabInterRunCorr() {
+    saveTabFile("Experiment_Overview.tsv", window.interRunSaveTable)
     return;
 };
 
 window.copyPlateTable = copyPlateTable;
 function copyPlateTable() {
     var el = document.getElementById("rdmlPlateVTab");
+    copyTableById(el);
+    return;
+};
+
+window.copyTabInterRunCorr = copyTabInterRunCorr;
+function copyTabInterRunCorr() {
+    var el = document.getElementById("plate-corr-result-table");
+    copyTableById(el);
+    return;
+};
+
+window.copyTableById = copyTableById;
+function copyTableById(el) {
     if (el) {
         var body = document.body
         var range

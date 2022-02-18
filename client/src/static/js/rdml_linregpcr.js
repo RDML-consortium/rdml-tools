@@ -408,47 +408,47 @@ $('#mainTab a').on('click', function(e) {
 })
 
 function showExample() {
+    resetAllGlobalVal()
     window.selRun = "";
     window.selPCRStyle = "classic";
     window.selExperiment = "Experiment_1";
     window.selRunOnLoad = "Run_1";
     window.selDigitalOnLoad = "none";
-    resetAllGlobalVal()
 
     updateServerData("example", '{"mode": "upload", "validate": true}')
     $('[href="#runs-tab"]').tab('show')
 }
 
 function showLinRegPCRExample() {
+    resetAllGlobalVal()
     window.selRun = "";
     window.selPCRStyle = "classic";
     window.selExperiment = "Experiment_1";
     window.selRunOnLoad = "Run_1";
     window.selDigitalOnLoad = "none";
-    resetAllGlobalVal()
 
     updateServerData("linregpcr", '{"mode": "upload", "validate": true}')
     $('[href="#runs-tab"]').tab('show')
 }
 
 function showMeltcurveExample() {
+    resetAllGlobalVal()
     window.selRun = "";
     window.selPCRStyle = "classic";
     window.selExperiment = "Artifact Mix";
     window.selRunOnLoad = "Artifact Mix with SYBR Green I";
     window.selDigitalOnLoad = "none";
-    resetAllGlobalVal()
 
     updateServerData("meltcurve", '{"mode": "upload", "validate": true}')
     $('[href="#runs-tab"]').tab('show')
 }
 
 function showUpload() {
+    resetAllGlobalVal()
     window.selRun = "";
     window.selExperiment = "";
     window.selRunOnLoad = "";
     window.selDigitalOnLoad = "none";
-    resetAllGlobalVal()
 
     updateServerData("data", '{"mode": "upload", "validate": true}')
     $('[href="#runs-tab"]').tab('show')

@@ -93,6 +93,12 @@
           <li><a href="#LRP-Run">3.11. Run LinRegPCR</a></li>
         </ul>
       </li>
+      <li><a href="#RDML-Analyze">4. RDML-Analyze</a>
+        <ul>
+          <li><a href="#ANA-Introduction">4.1. Introduction</a></li>
+          <li><a href="#ANA-Plate-Correct">4.2. InterRunCorrection</a></li>
+        </ul>
+      </li>
     </ul>
 
     <h4 id="Introduction">1. Introduction</h4>
@@ -880,6 +886,76 @@
       results table can be saved with the button on the LinRegPCR tab and loaded into spreadsheet programs, like
       Excel or Calc. Do not forget to select the correct decimal separator for your region.
     </p>
+
+
+    <h4 id="RDML-Analyze">4. RDML-Analyze</h4>
+        <ul>
+          <li><a href="#ANA-Introduction">4.1. Introduction</a></li>
+          <li><a href="#ANA-Plate-Correct">4.2. InterRunCorrection</a></li>
+        </ul>
+    <h5 id="ANA-Introduction">4.1. Introduction</h5>
+    <p style="text-align: justify">
+      RDML-Analyze is a program for the analysis of an qPCR experiment after N0 values have been calculated within
+      the single runs using RDML-LinRegPCR.
+    </p>
+
+    <h5 id="ANA-Plate-Correct">4.2. InterRunCorrection</h5>
+    <p style="text-align: justify">
+      InterRunCorrection is based on the procedures described in the paper by
+      <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4822202/" target="_blank">Ruijter et al., Removal of
+      between-run variation in a multi-plate qPCR experiment. Biomol Detect Quantif. 2015 Jul 30;5:10-4. (doi:
+      10.1016/j.bdq.2015.07.001 or PMID: 27077038)</a>. The procedures in this program can to calculate a correction
+      factor for each run of an experiment and to use this factor to calculate corrected N0 and Cq values.
+      <br /><br />
+      The calculation of the correction factor is performed in several steps. First, the correction factors for all
+      possible combinations of runs are calculated, comparing two runs at a time. This comparison is based on
+      overlapping conditions which have to be present on both runs and may be modified with the selection "Overlap":
+    </p>
+    <ul style="list-style-type: circle">
+      <li>
+        If "Calibrator Samples" is selected, overlapping conditions have to have identical target id, sample id and
+        the flag "Inter Run Calibrator" in the sample conditions must be "Yes" (This flag can be edited using RDML-Edit
+        at the sample tab).
+      </li>
+      <li>
+        If "All Samples" is selected, overlapping conditions have to have identical target id and sample id. This is
+        the default choice and equivalent to select technical replicates.
+      </li>
+      <li>
+        If "By Annotation" is selected, overlapping conditions have to have identical target id and the sample has to
+        have an identical annotation key with an identical value. The annotation key to use can be selected with the
+        selection "Sel. Annotation". Annotations can be used to select biological replicates instead of technical
+        replicates (Annotations are set and edited using RDML-Edit at the sample tab).
+      </li>
+    </ul>
+    <p style="text-align: justify">
+      Identical overlapping conditions are used to calculate the difference between the runs comparing all possible
+      combinations. For example, if on run 1 three technical replicates (A, B and C) and on run 2 two technical
+      replicates (a, b) of the same reaction mix would be run, the possible differences A/a, A/b, B/a, B/b, C/a ans
+      C/b would be calculated. This is done for all overlapping conditions. The difference between the two runs
+      is the geometric mean of all the possible differences. The geometric mean is calculated separately for each
+      target and for each run (combining all targets). The individual correction factor from the two runs
+      are used to find the optimal correction factors for each run in the experiment.
+      <br /><br />
+      In the output the first table shows the run correction factors in the first rows and the individual correction
+      factors per target below. A plus (+) indicates the presence of the target in the run. In the next section the
+      combined PCR efficiencies and the combined threshold is given. The last section provides a matrix with the
+      number of overlapping conditions per target. This view could be helpful if an additional run must be planned
+      to improve the overlap between the runs.
+      <br /><br />
+      The corrected N0 and Cq values are available on the RunView tab and are ideally viewed as data view "list".
+      The table can be saved as tsv file. The RDML-File can be updated and save the calculation results for later
+      use.
+      <br /><br />
+      By using this program you acknowledge that you have read the above
+      paper, understand it, and agree with its conclusions. Therefore, you assume all responsibility and liability
+      for the selection of this program to achieve your intended goals, and for the conclusions you draw from the
+      analysis results. The developers of this application cannot be held responsible for any consequences of the
+      use of this program. Please read the
+      <a class="plain" target="_blank" href="https://www.gear-genomics.com/terms">Terms of Use</a>
+      before using RDML-Analyze and please obey to the requirements.
+    </p>
+
   </main>
 
   <footer>

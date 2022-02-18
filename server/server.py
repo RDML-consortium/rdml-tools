@@ -34,7 +34,7 @@ LOGRDMLRUNS = True  # log the rdml-tools runs
 LOGIPANONYM = True  # anonymize the ip address in log files
 
 SAMPLEFILES = ["sample.rdml", "error.rdml", "linregpcr.rdml", "meltingcurveanalysis.rdml",
-               "merge-example", "plate_correction.rdml"]
+               "merge-example", "two_plate_correction.rdml", "six_plate_correction.rdml"]
 
 
 def logData(pProg, pKey, pValue, uuid):
@@ -449,9 +449,12 @@ def handle_data():
         elif 'showMeltcurveExample' in request.form.keys():
             fexpname = os.path.join(RDMLWS, "meltingcurveanalysis.rdml")
             uuidstr = "meltingcurveanalysis.rdml"
-        elif 'showPlateCorrExample' in request.form.keys():
-            fexpname = os.path.join(RDMLWS, "plate_correction.rdml")
-            uuidstr = "plate_correction.rdml"
+        elif 'showPlateCorrTwoExample' in request.form.keys():
+            fexpname = os.path.join(RDMLWS, "two_plate_correction.rdml")
+            uuidstr = "two_plate_correction.rdml"
+        elif 'showPlateCorrSixExample' in request.form.keys():
+            fexpname = os.path.join(RDMLWS, "six_plate_correction.rdml")
+            uuidstr = "six_plate_correction.rdml"
         elif 'createNew' in request.form.keys():
             logNote1 = "New"
             uuidstr = str(uuid.uuid4())
@@ -524,8 +527,10 @@ def handle_data():
                 fexpname = os.path.join(RDMLWS, "linregpcr.rdml")
             elif uuidstr == "meltingcurveanalysis.rdml":
                 fexpname = os.path.join(RDMLWS, "meltingcurveanalysis.rdml")
-            elif uuidstr == "plate_correction.rdml":
-                fexpname = os.path.join(RDMLWS, "plate_correction.rdml")
+            elif uuidstr == "two_plate_correction.rdml":
+                fexpname = os.path.join(RDMLWS, "two_plate_correction.rdml")
+            elif uuidstr == "six_plate_correction.rdml":
+                fexpname = os.path.join(RDMLWS, "six_plate_correction.rdml")
             else:
                 if not is_valid_uuid(uuidstr):
                     return jsonify(errors=[{"title": "Invalid UUID - UUID link outdated or invalid!"}]), 400
