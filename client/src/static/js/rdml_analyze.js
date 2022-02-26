@@ -119,9 +119,14 @@ window.meltcurveTable = []
 
 function resetAllGlobalVal() {
     hideElement(resultError)
+    resetAllInterRun()
+    updateClientData()
+}
+
+function resetAllInterRun() {
     window.interRunCal = {};
     window.interRunSaveTable = "";
-    updateClientData()
+    resultInterRunCorr.innerHTML = "";
 }
 
 window.updatePlateDeciSep = updatePlateDeciSep
@@ -204,23 +209,6 @@ function updateInterRunAnnotations() {
         selAn.appendChild(opt);
     }
 }
-
-window.resetLinRegPCRdata = resetLinRegPCRdata
-function resetLinRegPCRdata() {
-    window.linRegSaveTable = ""
-    window.linRegPCRTable = []
-    window.reactToLinRegTable = {}
-    resultInterRunCorr.innerHTML = ""
-}
-
-window.resetMeltcurveData = resetMeltcurveData
-function resetMeltcurveData() {
-    window.meltcurveSaveTable = ""
-    window.meltcurveTable = []
-    window.reactToMeltcurveTable = {}
-    resultMeltcurve.innerHTML = ""
-}
-
 
 document.addEventListener("DOMContentLoaded", function() {
     checkForUUID();
@@ -422,7 +410,6 @@ function runInterRunCorr() {
     ret["mode"] = "run-interruncorr" //"run-linregpcr"
     ret["sel-experiment"] = window.selExperiment
     ret["overlap-type"] = getSaveHtmlData("selOverlapType")
-    ret["corr-level"] = getSaveHtmlData("selPlateFactor")
     ret["sel-annotation"] = window.selAnnotation
     ret["update-RDML-data"] = rUpdateRDML
     updateServerData(uuid, JSON.stringify(ret))
@@ -1471,84 +1458,7 @@ function updatePlateTable() {
         }
     }
     content += '\n'
-    for (var col = 0; col < colCount; col++) {
-        content += '\t'
-    }
-    content += '\n'
     ret += '</tr>\n'
-    ret += '<tr>\n<th colspan="' + colCount + '"></th>\n</tr>\n'
-    ret += '<tr>\n'
-    for (var col = 0; col < colCount; col++) {
-        ret += '<th>'
-        if (colNum > col) {
-            if (col > 0) {
-                ret += window.interRunCal.runs[col - 1]
-                content += window.interRunCal.runs[col - 1]
-            } else {
-                ret += "Target"
-                content += "Target"
-            }
-        }
-        ret += '</th>\n'
-        content += '\t'
-    }
-    ret += '</tr>\n'
-    content += '\n'
-
-    for (var tar in window.interRunCal["target"]) {
-        ret += '<tr>\n'
-        for (var col = 0; col < colCount; col++) {
-            if (col > 0) {
-                ret += '<td>'
-                if (colNum > col) {
-                    if ((window.interRunCal["target"][tar]["present"].hasOwnProperty(col - 1))
-                        && (window.interRunCal["target"][tar]["present"][col - 1] == true)) {
-                        ret += "+"
-                        content += '+'
-                    } else {
-                        ret += "-"
-                        content += '-'
-                    }
-                }
-                ret += '</td>\n'
-                content += '\t'
-            } else {
-                ret += '<th>'
-                ret += tar
-                ret += '</th>\n'
-                content += tar + '\t'
-            }
-        }
-        ret += '</tr>\n'
-        content += '\n'
-        ret += '<tr>\n'
-        for (var col = 0; col < colCount; col++) {
-            if (col > 0) {
-                ret += '<td>'
-                if (colNum > col) {
-                    var corr = window.interRunCal["target"][tar]["corrP"][col - 1]
-                    var corrOut = floatWithFixPrec(corr, 4)
-                    if (corr < 0.0) {
-                        corrOut = "not available"
-                    }
-                    if (corr < -9.0) {
-                        corrOut = "not present"
-                    }
-                    ret += corrOut
-                    content += corrOut
-                }
-                ret += '</td>\n'
-                content += '\t'
-            } else {
-                ret += '<th>'
-                ret += "Corr"
-                ret += '</th>\n'
-                content += 'Corr\t'
-            }
-        }
-        ret += '</tr>\n'
-        content += '\n'
-    }
 
     ret += '<tr>\n<th colspan="' + colCount + '"></th>\n</tr>\n'
     for (var col = 0; col < colCount; col++) {
@@ -1632,10 +1542,9 @@ function updatePlateTable() {
     }
     content += '\n'
     ret += '<tr>\n<th>\nThreshold</th>\n'
-    ret += '<td colspan="' + colCount + '">\n'
+    ret += '<td colspan="' + (colCount - 1) + '">\n'
     ret += floatWithFixPrec(window.interRunCal["threshold"], 4)
     ret += '</td>\n</tr>\n'
-    ret += '<td colspan="' + (colCount - 2) + '">\n</td>\n</tr>\n'
     content += 'Threshold\t'
     content += floatWithFixPrec(window.interRunCal["threshold"], 4)
     for (var col = 1; col < colCount; col++) {
@@ -1832,8 +1741,7 @@ function updateExperiment() {
     if (window.selExperiment == newData) {
         return
     }
-    resetLinRegPCRdata()
-    resetMeltcurveData()
+    resetAllInterRun()
     window.selExperiment = newData
     window.selRun = ""
     var ret = {}

@@ -2054,8 +2054,6 @@ def handle_data():
                 return jsonify(errors=[{"title": "Invalid server request - sel-experiment id missing!"}]), 400
             if "overlap-type" not in reqdata:
                 return jsonify(errors=[{"title": "Invalid server request - overlap-type id missing!"}]), 400
-            if "corr-level" not in reqdata:
-                return jsonify(errors=[{"title": "Invalid server request - corr-level missing!"}]), 400
             if "sel-annotation" not in reqdata:
                 return jsonify(errors=[{"title": "Invalid server request - sel-annotation missing!"}]), 400
             if "update-RDML-data" not in reqdata:
@@ -2066,7 +2064,6 @@ def handle_data():
                 if experiment is None:
                     return jsonify(errors=[{"title": "Invalid server request - experiment id not found!"}]), 400
                 data["interruncal"] = experiment.webAppInterRunCorr(overlapType=reqdata["overlap-type"],
-                                                                    corrLevel=reqdata["corr-level"],
                                                                     selAnnotation=reqdata["sel-annotation"],
                                                                     updateRDML=reqdata["update-RDML-data"])
                 data["reactsdata"] = experiment.getreactjson()
