@@ -2063,14 +2063,45 @@ def handle_data():
                 experiment = rd.get_experiment(byid=reqdata["sel-experiment"])
                 if experiment is None:
                     return jsonify(errors=[{"title": "Invalid server request - experiment id not found!"}]), 400
-                data["interruncal"] = experiment.webAppInterRunCorr(overlapType=reqdata["overlap-type"],
-                                                                    selAnnotation=reqdata["sel-annotation"],
-                                                                    updateRDML=reqdata["update-RDML-data"])
+                data["interruncal"] = experiment.interRunCorr(overlapType=reqdata["overlap-type"],
+                                                              selAnnotation=reqdata["sel-annotation"],
+                                                              updateRDML=reqdata["update-RDML-data"])
                 data["reactsdata"] = experiment.getreactjson()
                 if "error" in data["reactsdata"]:
                     data["error"] = data["reactsdata"]["error"]
                 if "error" in data["interruncal"]:
                     data["error"] = data["interruncal"]["error"]
+                if reqdata["update-RDML-data"]:
+                    modified = True
+            except rdml.RdmlError as err:
+                data["error"] = str(err)
+                modified = False
+
+        if "mode" in reqdata and reqdata["mode"] in ["run-absolute-quantification"]:
+            if "sel-experiment" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - sel-experiment id missing!"}]), 400
+            if "absolute-method" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - absolute-method id missing!"}]), 400
+            if "estimate-missing" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - estimate-missing id missing!"}]), 400
+            if "update-RDML-data" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - update-RDML-data missing!"}]), 400
+            try:
+                logNote1 = "run-absolute"
+                experiment = rd.get_experiment(byid=reqdata["sel-experiment"])
+                if experiment is None:
+                    return jsonify(errors=[{"title": "Invalid server request - experiment id not found!"}]), 400
+                estimateTar = True
+                if reqdata["estimate-missing"] == "n":
+                    estimateTar = False
+                data["absolutequan"] = experiment.absoluteQuantification(method=reqdata["absolute-method"],
+                                                                         estimate=estimateTar,
+                                                                         updateRDML=reqdata["update-RDML-data"])
+                data["reactsdata"] = experiment.getreactjson()
+                if "error" in data["reactsdata"]:
+                    data["error"] = data["reactsdata"]["error"]
+                if "error" in data["absolutequan"]:
+                    data["error"] = data["absolutequan"]["error"]
                 if reqdata["update-RDML-data"]:
                     modified = True
             except rdml.RdmlError as err:

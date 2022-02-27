@@ -17,20 +17,35 @@ examplePlateSixCorrButton.addEventListener('click', showPlateCorrSixExample)
 const interRunCorrButton = document.getElementById('btn-run-interruncorr')
 interRunCorrButton.addEventListener('click', runInterRunCorr)
 
+const absoluteQuanButton = document.getElementById('btn-run-absolute')
+absoluteQuanButton.addEventListener('click', runAbsoluteQuan)
+
 const interRunCorrRDMLButton = document.getElementById('btn-rdml-interruncorr')
 interRunCorrRDMLButton.addEventListener('click', showRDMLSave)
+
+const absoluteQuanRDMLButton = document.getElementById('btn-rdml-absolute')
+absoluteQuanRDMLButton.addEventListener('click', showRDMLSave)
 
 const interRunCorrCopyButton = document.getElementById('btn-copy-interruncorr')
 interRunCorrCopyButton.addEventListener('click', copyTabInterRunCorr)
 
+const absoluteQuanCopyButton = document.getElementById('btn-copy-absolute')
+absoluteQuanCopyButton.addEventListener('click', copyTabAbsoluteQuan)
+
 const interRunCorrSaveButton = document.getElementById('btn-save-interruncorr')
 interRunCorrSaveButton.addEventListener('click', saveTabInterRunCorr)
+
+const absoluteQuanSaveButton = document.getElementById('btn-save-absolute')
+absoluteQuanSaveButton.addEventListener('click', saveTabAbsoluteQuan)
 
 const choiceIntRunAnno = document.getElementById('selInterAnnotation')
 choiceIntRunAnno.addEventListener('change', updateIntRunAnno)
 
 const choicePlateSeparator = document.getElementById('selPlateSeparator')
 choicePlateSeparator.addEventListener('change', updatePlateResDeciSep)
+
+const choiceAbsQuanSeparator = document.getElementById('selAbsoluteSeparator')
+choiceAbsQuanSeparator.addEventListener('change', updateAbsQuanResDeciSep)
 
 const rdmlLibVersion = document.getElementById('rdml_lib_version')
 
@@ -52,8 +67,7 @@ const resultError = document.getElementById('result-error')
 const selectorsData = document.getElementById('selectors-data')
 const resultData = document.getElementById('result-data')
 const resultInterRunCorr = document.getElementById('result-interruncorr')
-const resultMeltcurve = document.getElementById('result-meltcurve')
-const resultCorrection = document.getElementById('result-correction')
+const resultAbsoluteQant = document.getElementById('result-absolute')
 
 window.uuid = "";
 window.rdmlData = "";
@@ -89,15 +103,8 @@ window.plateSaveTable = "";
 window.interRunCal = {};
 window.interRunSaveTable = "";
 
-
-
-window.exNoPlateau = true;
-window.exDiffMean = "outlier";
-
-
-window.linRegSaveTable = ""
-window.meltcurveSaveTable = ""
-window.correctionSaveTable = ""
+window.absoluteQant = {};
+window.absoluteQantSaveTable = "";
 
 window.tarToDye = {}
 window.tarToNr = {}
@@ -111,15 +118,12 @@ window.usedTargets = {}
 window.usedDyeIds = {}
 window.usedDyeMaxPos = 0
 
-window.reactToLinRegTable = {}
-window.reactToMeltcurveTable = {}
-window.linRegPCRTable = []
-window.meltcurveTable = []
-
-
 function resetAllGlobalVal() {
+    window.plateView = "plate";
+    window.selAnnotation = "";
     hideElement(resultError)
     resetAllInterRun()
+    resetAbsoluteQant()
     updateClientData()
 }
 
@@ -127,6 +131,12 @@ function resetAllInterRun() {
     window.interRunCal = {};
     window.interRunSaveTable = "";
     resultInterRunCorr.innerHTML = "";
+}
+
+function resetAbsoluteQant() {
+    window.absoluteQant = {};
+    window.absoluteQantTable = "";
+    resultAbsoluteQant.innerHTML = "";
 }
 
 window.updatePlateDeciSep = updatePlateDeciSep
@@ -151,13 +161,27 @@ function updatePlateResDeciSep() {
     updateAllDeciSep()
 }
 
+window.updateAbsQuanResDeciSep = updateAbsQuanResDeciSep
+function updateAbsQuanResDeciSep() {
+    var data = getSaveHtmlData("selAbsoluteSeparator")
+    if (data == "point") {
+        window.decimalSepPoint = true;
+    } else {
+        window.decimalSepPoint = false;
+    }
+    updateAllDeciSep()
+}
+
+
 window.updateAllDeciSep = updateAllDeciSep
 function updateAllDeciSep() {
     if (window.decimalSepPoint == true) {
         choicePlateSeparator.value = "point";
+        choiceAbsQuanSeparator.value = "point";
     } else {
         window.decimalSepPoint = false;
         choicePlateSeparator.value = "comma";
+        choiceAbsQuanSeparator.value = "comma";
     }
     updateClientData()
     updatePlateTable()
@@ -407,7 +431,7 @@ function runInterRunCorr() {
     window.plateView = "list";
 
     var ret = {}
-    ret["mode"] = "run-interruncorr" //"run-linregpcr"
+    ret["mode"] = "run-interruncorr"
     ret["sel-experiment"] = window.selExperiment
     ret["overlap-type"] = getSaveHtmlData("selOverlapType")
     ret["sel-annotation"] = window.selAnnotation
@@ -415,6 +439,30 @@ function runInterRunCorr() {
     updateServerData(uuid, JSON.stringify(ret))
 
     $('[href="#interrun-tab"]').tab('show')
+}
+
+function runAbsoluteQuan() {
+    if (window.selExperiment == "") {
+        alert("Select an experiment first!")
+        return
+    }
+    var rUpdateRDML = false
+    var bbUpdateRDML = document.getElementById('updateAbsoluteRDMLData')
+    if ((bbUpdateRDML) && (bbUpdateRDML.value == "y")) {
+        rUpdateRDML = true
+    }
+    resultAbsoluteQant.innerHTML = ""
+    hideElement(resultError)
+
+    var ret = {}
+    ret["mode"] = "run-absolute-quantification"
+    ret["sel-experiment"] = window.selExperiment
+    ret["absolute-method"] = getSaveHtmlData("selAbsoluteMethod")
+    ret["estimate-missing"] = getSaveHtmlData("selAbsoluteMissTar")
+    ret["update-RDML-data"] = rUpdateRDML
+    updateServerData(uuid, JSON.stringify(ret))
+
+    $('[href="#absolute-tab"]').tab('show')
 }
 
 // TODO client-side validation
@@ -454,6 +502,10 @@ function updateServerData(stat, reqData) {
                     if (res.data.data.hasOwnProperty("interruncal")) {
                         window.interRunCal = res.data.data.interruncal
                         updatePlateTable()
+                    }
+                    if (res.data.data.hasOwnProperty("absolutequan")) {
+                        window.absoluteQant = res.data.data.absolutequan
+                        updateAbsoluteTable()
                     }
 
                     // For debugging
@@ -1622,6 +1674,27 @@ function updatePlateTable() {
     resultInterRunCorr.innerHTML = ret
 }
 
+window.updateAbsoluteTable = updateAbsoluteTable
+function updateAbsoluteTable() {
+    if (!(window.absoluteQant.hasOwnProperty("plate"))) {
+        return
+    }
+    var colNum = window.absoluteQant.runs.length + 1
+    var colCount = Math.max(colNum, 3)
+
+    var ret = '<p>The calculated results are displayed in the RunView tab.</p>\n'
+    ret += '<table class="table table-bordered table-striped" id="absolute-quan-result-table">\n'
+    var content = ""
+
+    ret += '<tr>\n<th colspan="' + colCount + '">\n'
+    ret += 'Correction Factors'
+    ret += '</th>\n</tr>\n'
+    content += 'Correction Factors'
+
+    ret += '</table>\n'
+    window.absoluteQantTable = content
+    resultAbsoluteQant.innerHTML = ret
+}
 
 window.floatWithPrec = floatWithPrec
 function floatWithPrec(val, prec) {
@@ -1693,6 +1766,12 @@ function saveTabInterRunCorr() {
     return;
 };
 
+window.saveTabAbsoluteQuan = saveTabAbsoluteQuan;
+function saveTabAbsoluteQuan() {
+    saveTabFile("Absolute_Quantification.tsv", window.absoluteQantSaveTable)
+    return;
+};
+
 window.copyPlateTable = copyPlateTable;
 function copyPlateTable() {
     var el = document.getElementById("rdmlPlateVTab");
@@ -1703,6 +1782,13 @@ function copyPlateTable() {
 window.copyTabInterRunCorr = copyTabInterRunCorr;
 function copyTabInterRunCorr() {
     var el = document.getElementById("plate-corr-result-table");
+    copyTableById(el);
+    return;
+};
+
+window.copyTabAbsoluteQuan = copyTabAbsoluteQuan;
+function copyTabAbsoluteQuan() {
+    var el = document.getElementById("absolute-quan-result-table");
     copyTableById(el);
     return;
 };

@@ -52,7 +52,7 @@
         <a class="nav-link" href="#absolute-tab" id="link-absolute">AbsoluteQuantification</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="#genorm-tab" id="link-genorm">Genorm</a>
+        <a class="nav-link" href="#genorm-tab" id="link-genorm">geNorm+</a>
       </li>
       <li class="nav-item">
         <a class="nav-link" href="#relative-tab" id="link-relative">RelativeQuantification</a>
@@ -103,8 +103,8 @@
             <td style="width:14%;">Overlap:</td>
             <td style="width:14%;">
               <select class="form-control" id="selOverlapType">
-                <option value="samples" selected>All Samples</option>
-                <option value="annotation">By Annotation</option>
+                <option value="samples" selected>Technical Replicates</option>
+                <option value="annotation">Same Annotation</option>
               </select>
             </td>
             <td style="width:4%;"></td>
@@ -184,7 +184,93 @@
       </div>
 
       <div class="tab-pane" id="absolute-tab">
-        <p>Absolute Quantification is coming soon...</p>
+       <table style="width:100%;background-color: #e6e6e6;">
+          <tr>
+            <td style="width:1%;"></td>
+            <td style="width:14%;">Method:</td>
+            <td style="width:14%;">
+              <select class="form-control" id="selAbsoluteMethod">
+                <option value="reference" selected>Reference Sample</option>
+                <option value="cq-guess">Rule of Thumb (Cq 35 == 10 copies)</option>
+                <option value="optical">Optical Calibrator (Experimental!)</option>
+                <option value="standard-curve">Standard Curve (Not Recommended!)</option>
+              </select>
+            </td>
+            <td style="width:4%;"></td>
+            <td style="width:14%;">Estimate Missing Tar.</td>
+            <td style="width:8%;">
+              <select class="form-control" id="selAbsoluteMissTar">
+                <option value="y">yes</option>
+                <option value="n" selected>no</option>
+              </select>
+            </td>
+            <td style="width:4%;"></td>
+            <td style="width:14%;">Update RDML Data:</td>
+            <td style="width:6%;">
+              <select class="form-control" id="updateAbsoluteRDMLData">
+                <option value="y">yes</option>
+                <option value="n" selected>no</option>
+              </select>
+            </td>
+            <td style="width:20%;text-align: right;">
+              <button type="submit" class="btn btn-outline-primary" id="btn-run-absolute">
+                <i class="fas fa-rocket" style="margin-right: 5px;"></i>
+                Run AbsoluteQuantification
+              </button>
+            </td>
+            <td style="width:1%;"></td>
+          </tr>
+        </table>
+        <table style="width:100%;">
+          <tr>
+            <td style="width:1%;background-color: #e6e6e6;"></td>
+            <td style="width:14%;background-color: #e6e6e6;"></td>
+            <td style="width:14%;background-color: #e6e6e6;"></td>
+            <td style="width:1%;background-color: #e6e6e6;"></td>
+            <td style="width:3%;"></td>
+            <td style="width:14%;">Decimal Separator:</td>
+            <td style="width:8%;">
+              <select class="form-control" id="selAbsoluteSeparator">
+                <option value="point" selected>Point</option>
+                <option value="comma">Comma</option>
+              </select>
+            </td>
+            <td style="width:4%;"></td>
+            <td style="width:14%;">Include Annotations:</td>
+            <td style="width:6%;">
+              <select class="form-control" id="choiceIncludeAnnotationsAbs">
+                <option value="y">yes</option>
+                <option value="n" selected>no</option>
+              </select>
+            </td>
+            <td style="width:20%;text-align: right;">
+              <button type="submit" class="btn btn-outline-primary" id="btn-rdml-absolute">
+                <i class="far fa-save" style="margin-right: 5px;"></i>
+                Save RDML
+              </button>
+            </td>
+            <td style="width:1%;"></td>
+          </tr>
+        </table>
+        <table style="width:100%;">
+          <tr>
+            <td style="width:61%;"></td>
+            <td style="width:38%;text-align: right;">
+              <button type="submit" class="btn btn-outline-primary" id="btn-copy-absolute">
+                <i class="fas fa-paste" style="margin-right: 5px;"></i>
+                Copy table to clipboard
+              </button>&nbsp;&nbsp;
+              <button type="submit" class="btn btn-outline-primary" id="btn-save-absolute">
+                <i class="far fa-save" style="margin-right: 5px;"></i>
+                Save table as CSV
+              </button>
+            </td>
+            <td style="width:1%;"></td>
+          </tr>
+        </table>
+        <br />
+        <br />
+        <div id="result-absolute"></div>
       </div>
 
       <div class="tab-pane" id="genorm-tab">
