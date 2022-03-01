@@ -105,6 +105,8 @@ window.interRunSaveTable = "";
 
 window.absoluteQant = {};
 window.absoluteQantSaveTable = "";
+window.absoluteN0Corr = -1.0;
+window.absoluteN0Unit = "";
 
 window.tarToDye = {}
 window.tarToNr = {}
@@ -135,6 +137,8 @@ function resetAllInterRun() {
 
 function resetAbsoluteQant() {
     window.absoluteQant = {};
+    window.absoluteN0Corr = -1.0;
+    window.absoluteN0Unit = "";
     window.absoluteQantTable = "";
     resultAbsoluteQant.innerHTML = "";
 }
@@ -453,6 +457,7 @@ function runAbsoluteQuan() {
     }
     resultAbsoluteQant.innerHTML = ""
     hideElement(resultError)
+    window.plateView = "list";
 
     var ret = {}
     ret["mode"] = "run-absolute-quantification"
@@ -505,6 +510,8 @@ function updateServerData(stat, reqData) {
                     }
                     if (res.data.data.hasOwnProperty("absolutequan")) {
                         window.absoluteQant = res.data.data.absolutequan
+                        window.absoluteN0Corr = res.data.data.absolutequan.fluorCorr
+                        window.absoluteN0Unit = res.data.data.absolutequan.absUnit
                         updateAbsoluteTable()
                     }
 
@@ -1255,7 +1262,16 @@ function updateClientData() {
                 ret += '<td>corr N0</td>'
                 csv += 'corr N0\t'
                 ret += '<td>corr Cq</td>'
-                csv += 'corr Cq\n'
+                csv += 'corr Cq'
+                if (window.absoluteN0Corr > 0) {
+                    if (window.absoluteN0Unit == "cop") {
+                        ret += '<td>copies / microliter</td>'
+                        csv += '\tcopies / microliter'
+                    } else {
+                        ret += '<td>Absolute</td>'
+                        csv += '\tAbsolute'
+                    }
+                }
             } else {
                 ret += '<td>Concentration</td>'
                 csv += 'Concentration\t'
@@ -1266,8 +1282,9 @@ function updateClientData() {
                 ret += '<td>Undefined</td>'
                 csv += 'Undefined\t'
                 ret += '<td>Excluded</td>'
-                csv += 'Excluded\n'
+                csv += 'Excluded'
             }
+            csv += '\n'
             ret += '</tr>\n'
             for (var plRun in window.expData.runs) {
                 reacts = window.expData.runs[plRun]["AllData"].reacts
@@ -1369,6 +1386,17 @@ function updateClientData() {
                                         if (reacts[reac].datas[dataPos].hasOwnProperty("corrCq")) {
                                             ret += floatWithFixPrec(reacts[reac].datas[dataPos].corrCq, 2)
                                             csv += floatWithFixPrec(reacts[reac].datas[dataPos].corrCq, 2)
+                                        }
+                                        if (window.absoluteN0Corr > 0) {
+                                            ret += '</td>\n<td style="text-align: right;">'
+                                            csv += '\t'
+                                            if (reacts[reac].datas[dataPos].hasOwnProperty("corrN0")) {
+                                                if (parseFloat(reacts[reac].datas[dataPos].corrN0) > 0.0) {
+                                                    var absNum = parseFloat(reacts[reac].datas[dataPos].corrN0) / parseFloat(window.absoluteN0Corr);
+                                                    ret += floatWithFixPrec(absNum, 2)
+                                                    csv += floatWithFixPrec(absNum, 2)
+                                                }
+                                            }
                                         }
                                         ret += '</td>\n</tr>\n'
                                         csv += '\n'
