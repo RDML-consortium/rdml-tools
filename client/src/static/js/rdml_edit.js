@@ -910,6 +910,8 @@ function updateClientData() {
             ret += '">        </td>\n<td style="width:50%">'
             if (exp[i].quantitys.length > 0) {
                 ret += htmlUnitSelector("inExpQuantity_Unit", exp[i].quantitys[0])
+            } else {
+                ret += htmlUnitSelector("inExpQuantity_Unit", "")
             }
             ret += '</td>\n</tr>\n</table>  </tr>'
             if (window.rdmlData.rdml.version == "1.3") {
@@ -2370,7 +2372,7 @@ function createNewElement(typ){
         var nex = {}
         nex["id"] = "New Sample"
         nex["types"] = [{"type" : "unkn"}]
-        nex["quantitys"] = []
+        nex["quantitys"] = [{"value" : "", "unit" : ""}]
         window.rdmlData.rdml.samples.unshift(nex)
         window.editType = "sample";
         window.editNumber = 0;
