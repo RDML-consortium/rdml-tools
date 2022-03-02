@@ -362,6 +362,8 @@ def merge_data():
             rdAdd.migrate_version_1_0_to_1_1()
             rdAdd.save(faddname)
             rdAdd = rdml.Rdml(faddname)
+        if rdAdd.version() != rd.version():
+            return jsonify(errors=[{"title": "Files with different RDML versions can not be merged!"}]), 400
         modified = False
 
         data["adddata"] = rdAdd.tojson()
@@ -702,6 +704,8 @@ def handle_data():
                         return jsonify(errors=[{"title": "Invalid server request - sample primary-position not found!"}]), 400
                     if reqdata["id-source"] == "type":
                         elem.delete_type(byposition=int(reqdata["old-position"]))
+                    if reqdata["id-source"] == "quantity":
+                        elem.delete_quantity(byposition=int(reqdata["old-position"]))
                     if reqdata["id-source"] == "xRef":
                         elem.delete_xref(byposition=int(reqdata["old-position"]))
                     if reqdata["id-source"] == "annotation":
@@ -783,6 +787,40 @@ def handle_data():
                                    oldposition=reqdata["sampleType-position"],
                                    newposition=reqdata["new-position"],
                                    targetId=reqdata["data"]["sampTypeTarget"])
+                except rdml.RdmlError as err:
+                    data["error"] = str(err)
+                else:
+                    modified = True
+
+        if "mode" in reqdata and reqdata["mode"] in ["create-sampleQuantity", "edit-sampleQuantity"]:
+            if "sampleQuant-position" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - sampleQuantity-position missing!"}]), 400
+            if "new-position" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - new-position missing!"}]), 400
+            if "data" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - data missing!"}]), 400
+            elem = rd.get_sample(byposition=reqdata["primary-position"])
+            if elem is None:
+                return jsonify(errors=[{"title": "Invalid server request - sample at position not found!"}]), 400
+            print(reqdata["sampleQuant-position"])
+            print(reqdata["new-position"])
+            if reqdata["mode"] == "create-sampleQuantity":
+                try:
+                    elem.new_quantity(value=reqdata["data"]["sampValue"],
+                                      unit=reqdata["data"]["sampUnit"],
+                                      targetId=reqdata["data"]["sampQuantTarget"],
+                                      newposition=reqdata["new-position"])
+                except rdml.RdmlError as err:
+                    data["error"] = str(err)
+                else:
+                    modified = True
+            if reqdata["mode"] == "edit-sampleQuantity":
+                try:
+                    elem.edit_quantity(value=reqdata["data"]["sampValue"],
+                                       unit=reqdata["data"]["sampUnit"],
+                                       oldposition=reqdata["sampleQuant-position"],
+                                       newposition=reqdata["new-position"],
+                                       targetId=reqdata["data"]["sampQuantTarget"])
                 except rdml.RdmlError as err:
                     data["error"] = str(err)
                 else:
@@ -1377,28 +1415,57 @@ def handle_data():
                     try:
                         elem = None
                         if reqdata["mode"] == "create":
-                            if "typeTargetId" in reqdata["data"]:
-                                rd.new_sample(id=reqdata["data"]["id"],
-                                              type=reqdata["data"]["type"],
-                                              targetId=reqdata["data"]["typeTargetId"],
-                                              newposition=int(reqdata["new-position"]))
-                            else:
-                                rd.new_sample(id=reqdata["data"]["id"],
-                                              type=reqdata["data"]["type"],
-                                              newposition=int(reqdata["new-position"]))
+                            rd.new_sample(id=reqdata["data"]["id"], newposition=int(reqdata["new-position"]))
                             elem = rd.get_sample(byid=reqdata["data"]["id"])
+                            if reqdata["data"]["type"] != "":
+                                if "typeTargetId" in reqdata["data"]:
+                                    elem.new_type(reqdata["data"]["type"], targetId=reqdata["data"]["typeTargetId"])
+                                else:
+                                    elem.new_type(reqdata["data"]["type"], targetId=None)
                         if reqdata["mode"] == "edit":
                             elem = rd.get_sample(byid=reqdata["old-id"])
                             if elem is None:
                                 return jsonify(errors=[{"title": "Invalid server request - sample id not found!"}]), 400
                             elem.change_id(reqdata["data"]["id"], merge_with_id=reqdata["data"]["idUnique"])
-                            if "typeTargetId" in reqdata["data"]:
-                                elem.edit_type(reqdata["data"]["type"], 0, 0, reqdata["data"]["typeTargetId"])
-                            else:
-                                elem.edit_type(reqdata["data"]["type"], 0, 0)
+                            if reqdata["data"]["type"] != "":
+                                typeCount = elem.types()
+                                if len(typeCount) == 0:
+                                    if "typeTargetId" in reqdata["data"]:
+                                        elem.new_type(reqdata["data"]["type"], targetId=reqdata["data"]["typeTargetId"])
+                                    else:
+                                        elem.new_type(reqdata["data"]["type"], targetId=None)
+                                else:
+                                    if "typeTargetId" in reqdata["data"]:
+                                        elem.edit_type(reqdata["data"]["type"], 0, 0, reqdata["data"]["typeTargetId"])
+                                    else:
+                                        elem.edit_type(reqdata["data"]["type"], 0, 0)
                         elem["description"] = reqdata["data"]["description"]
                         elem["interRunCalibrator"] = reqdata["data"]["interRunCalibrator"]
-                        elem["quantity"] = reqdata["data"]["quantity"]
+                        if "value" in reqdata["data"]["quantity"]:
+                            if reqdata["data"]["quantity"]["value"] != "":
+                                if "unit" in reqdata["data"]["quantity"]:
+                                    quantCount = elem.quantitys()
+                                    if len(quantCount) == 0:
+                                        if "quantTargetId" in reqdata["data"]:
+                                            elem.new_quantity(reqdata["data"]["quantity"]["value"],
+                                                              reqdata["data"]["quantity"]["unit"],
+                                                              targetId=reqdata["data"]["quantTargetId"])
+                                        else:
+                                            elem.new_quantity(reqdata["data"]["quantity"]["value"],
+                                                              reqdata["data"]["quantity"]["unit"],
+                                                              targetId=None)
+                                    else:
+                                        if "typeTargetId" in reqdata["data"]:
+                                            elem.edit_quantity(reqdata["data"]["quantity"]["value"],
+                                                               reqdata["data"]["quantity"]["unit"],
+                                                               0,
+                                                               newposition=0,
+                                                               targetId=reqdata["data"]["quantTargetId"])
+                                        else:
+                                            elem.edit_quantity(reqdata["data"]["quantity"]["value"],
+                                                               reqdata["data"]["quantity"]["unit"],
+                                                               0,
+                                                               newposition=0)
                         elem["calibratorSample"] = reqdata["data"]["calibratorSample"]
                         elem["cdnaSynthesisMethod_enzyme"] = reqdata["data"]["cdnaSynthesisMethod_enzyme"]
                         elem["cdnaSynthesisMethod_primingMethod"] = reqdata["data"]["cdnaSynthesisMethod_primingMethod"]
@@ -1621,6 +1688,9 @@ def handle_data():
                 if reqdata["id-source"] == "type":
                     elem.move_type(oldposition=int(reqdata["old-position"]),
                                    newposition=int(reqdata["new-position"]))
+                if reqdata["id-source"] == "quantity":
+                    elem.move_quantity(oldposition=int(reqdata["old-position"]),
+                                       newposition=int(reqdata["new-position"]))
                 if reqdata["id-source"] == "documentation":
                     elem.move_documentation(oldposition=int(reqdata["old-position"]),
                                             newposition=int(reqdata["new-position"]))

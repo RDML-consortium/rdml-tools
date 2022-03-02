@@ -177,6 +177,9 @@ function niceTargetType(txt) {
 }
 
 function niceSampleType(txt) {
+    if (txt == "") {
+        return "not set - unknown sample"
+    }
     if (txt == "unkn") {
         return "unkn - unknown sample"
     }
@@ -821,7 +824,7 @@ function updateClientData() {
             ret += '    <td style="width:75%"><input type="text" class="form-control" '
             ret += 'id="inPos" value="' + (i + 1) + '"></td>\n'
             ret += '  </tr>'
-            ret += '  <tr>\n    <td style="width:25%;background-color:#cc7a00;">Type:</td>\n'
+            ret += '  <tr>\n    <td style="width:25%;">Type:</td>\n'
             ret += '    <td style="width:75%"><select class="form-control" id="inSampType">\n'
             ret += '        <option value="unkn"'
             if (exp[i].types[0].type == "unkn") {
@@ -901,10 +904,40 @@ function updateClientData() {
             ret += '    <td style="width:75%"><table style="width:100%;">'
             ret += '      <tr><td style="width:50%;">'
             ret += '        <input type="text" class="form-control" id="inExpQuantity_Value" value="'
-            ret += saveUndefKey(exp[i].quantity, "value") + '">'
-            ret += '        </td>\n<td style="width:50%">'
-            ret += htmlUnitSelector("inExpQuantity_Unit", exp[i].quantity) + '</td>\n</tr>\n</table>'
-            ret += '  </tr>'
+            if (exp[i].quantitys.length > 0) {
+                ret += saveUndefKey(exp[i].quantitys[0], "value")
+            }
+            ret += '">        </td>\n<td style="width:50%">'
+            if (exp[i].quantitys.length > 0) {
+                ret += htmlUnitSelector("inExpQuantity_Unit", exp[i].quantitys[0])
+            }
+            ret += '</td>\n</tr>\n</table>  </tr>'
+            if (window.rdmlData.rdml.version == "1.3") {
+                ret += '  <tr>\n    <td style="width:25%;">Target for Quantity:</td>\n'
+                ret += '    <td style="width:75%">'
+                var selQuantTarget = ""
+                if ((exp[i].quantitys.length > 0) &&
+                    (exp[i].quantitys[0].hasOwnProperty("targetId")) &&
+                    (exp[i].quantitys[0].targetId != "")) {
+                    selQuantTarget = exp[i].quantitys[0].targetId
+                }
+                ret += '<select class="form-control" id="inSampQuantTarget">\n'
+                var allTargets = window.rdmlData.rdml.targets;
+                ret += '        <option value=""'
+                if (selQuantTarget == "") {
+                    ret += ' selected'
+                }
+                ret += '>not set</option>\n'
+                for (var cc = 0; cc < allTargets.length; cc++) {
+                    ret += '        <option value="' + allTargets[cc].id + '"'
+                    if (selQuantTarget == allTargets[cc].id) {
+                        ret += ' selected'
+                    }
+                    ret += '>' + allTargets[cc].id + '</option>\n'
+                }
+                ret += '</select>\n</td>\n'
+                ret += '  </tr>'
+            }
             ret += '  <tr>\n    <td style="width:25%;">cDNA - Enzyme:</td>\n'
             ret += '    <td style="width:75%"><input type="text" class="form-control" '
             ret += 'id="inExpCdnaSynthesisMethod_enzyme" value="'
@@ -1089,50 +1122,79 @@ function updateClientData() {
             if (exp[i].hasOwnProperty("calibratorSample")) {
               ret += '  <tr>\n    <td style="width:25%;">Calibrator Sample:</td>\n'
               if (exp[i].calibratorSample == "true") {
-                  ret += '    <td colspan="0" style="width:75%">Yes, used as Calibrator</td>\n'
+                  ret += '    <td colspan="2">Yes, used as Calibrator</td>\n'
               } else {
-                  ret += '    <td colspan="0" style="width:75%">No</td>\n'
+                  ret += '    <td colspan="2">No</td>\n'
               }
               ret += '  </tr>'
             }
             if (exp[i].hasOwnProperty("interRunCalibrator")) {
               ret += '  <tr>\n    <td style="width:25%;">Inter Run Calibrator:</td>\n'
               if (exp[i].interRunCalibrator == "true") {
-                  ret += '    <td colspan="0" style="width:75%">Yes, used as Inter Run Calibrator</td>\n'
+                  ret += '    <td colspan="2">Yes, used as Inter Run Calibrator</td>\n'
               } else {
-                  ret += '    <td colspan="0" style="width:75%">No</td>\n'
+                  ret += '    <td colspan="2">No</td>\n'
               }
               ret += '  </tr>'
             }
-            if (exp[i].hasOwnProperty("quantity")) {
-              ret += '  <tr>\n    <td style="width:25%;">Quantity:</td>\n'
-              ret += '    <td colspan="0" style="width:75%">\n'+ exp[i].quantity.value
-              ret += ' ' + niceUnitType(exp[i].quantity.unit) + '</td>\n'
-              ret += '  </tr>'
+            var quantitysLen = exp[i].quantitys.length
+            for (var j = 0; j < quantitysLen; j++) {
+                ret += '  <tr>\n    <td style="width:25%;">Quantity:</td>\n'
+                if ((exp[i].quantitys[j].hasOwnProperty("targetId")) && (exp[i].quantitys[j].targetId != "")) {
+                    ret += '    <td style="width:45%">\nFor Target "' + exp[i].quantitys[j].targetId + '" the quantity is "'
+                    ret += exp[i].quantitys[j].value + ' ' + niceUnitType(exp[i].quantitys[j].unit) + '"</td>\n'
+                } else {
+                    ret += '    <td style="width:45%">\n'+ exp[i].quantitys[j].value
+                    ret += ' ' + niceUnitType(exp[i].quantitys[j].unit) + '</td>\n'
+                }
+                if (window.rdmlData.rdml.version == "1.3") {
+                    ret += '<td style="width:30%">\n<button type="button" class="btn btn-success rdml-btn-edit btn-sm" '
+                    ret += 'onclick="editQunatType(' + i + ', ' + j + ');">Edit</button>&nbsp;&nbsp;'
+                    if (j == 0) {
+                        ret += '<button type="button" class="btn btn-success rdml-btn-edit btn-sm disabled">Move Up</button>&nbsp;&nbsp;'
+                    } else {
+                        ret += '<button type="button" class="btn btn-success rdml-btn-edit btn-sm" '
+                        ret += 'onclick="moveSecElement(\'sample\', ' + i + ', \'\', 0, \'quantity\', ' + j
+                        ret += ', ' + (j - 1) + ');">Move Up</button>&nbsp;&nbsp;'
+                    }
+                    if (j == quantitysLen - 1) {
+                        ret += '<button type="button" class="btn btn-success rdml-btn-edit btn-sm disabled">Move Down</button>&nbsp;&nbsp;&nbsp;'
+                    } else {
+                        ret += '<button type="button" class="btn btn-success rdml-btn-edit btn-sm" '
+                        ret += 'onclick="moveSecElement(\'sample\', ' + i + ', \'\', 0, \'quantity\', ' + j
+                        ret += ', ' + (j + 2) + ');">Move Down</button>&nbsp;&nbsp;&nbsp;'
+                    }
+                    ret += '<button type="button" class="btn btn-success rdml-btn-edit btn-sm" '
+                    ret += 'onclick="deleteSecElement(\'sample\', ' + i + ', \'\', 0, \'quantity\', ' + j
+                    ret += ');">Delete</button>'
+                } else {
+                    ret += '<td style="width:30%">'
+                }
+                ret += '</td>\n  </tr>'
             }
             if (exp[i].hasOwnProperty("cdnaSynthesisMethod")) {
                 if (exp[i].cdnaSynthesisMethod.hasOwnProperty("enzyme")) {
                   ret += '  <tr>\n    <td style="width:25%;">cDNA - Enzyme:</td>\n'
-                  ret += '    <td colspan="0" style="width:75%">\n'+ exp[i].cdnaSynthesisMethod.enzyme + '</td>\n'
+                  ret += '    <td colspan="2">\n'+ exp[i].cdnaSynthesisMethod.enzyme + '</td>\n'
                   ret += '  </tr>'
                 }
                 if (exp[i].cdnaSynthesisMethod.hasOwnProperty("primingMethod")) {
                   ret += '  <tr>\n    <td style="width:25%;">cDNA - Priming Method:</td>\n'
-                  ret += '    <td colspan="0" style="width:75%">\n'+ exp[i].cdnaSynthesisMethod.primingMethod + '</td>\n'
+                  ret += '    <td colspan="2">\n'+ exp[i].cdnaSynthesisMethod.primingMethod + '</td>\n'
                   ret += '  </tr>'
                 }
                 if (exp[i].cdnaSynthesisMethod.hasOwnProperty("dnaseTreatment")) {
                   ret += '  <tr>\n    <td style="width:25%;">cDNA - DNase Treatment:</td>\n'
                   if (exp[i].cdnaSynthesisMethod.dnaseTreatment == "true") {
-                      ret += '    <td colspan="0" style="width:75%">Yes, treated with DNase</td>\n'
+                      ret += '    <td colspan="2">Yes, treated with DNase</td>\n'
                   } else {
-                      ret += '    <td colspan="0" style="width:75%">No</td>\n'
+                      ret += '    <td colspan="2">No</td>\n'
                   }
                   ret += '  </tr>'
                 }
                 if (exp[i].cdnaSynthesisMethod.hasOwnProperty("thermalCyclingConditions")) {
                   ret += '  <tr>\n    <td style="width:25%;">cDNA - Thermal Cycling Conditions:</td>\n'
-                  ret += '    <td colspan="0" style="width:75%">\n'+ exp[i].cdnaSynthesisMethod.thermalCyclingConditions + '</td>\n'
+                  ret += '    <td colspan="2">\n'+ exp[i].cdnaSynthesisMethod.thermalCyclingConditions + '</td>\n'
                   ret += '  </tr>'
                   // Todo: add link
                 }
@@ -1141,34 +1203,34 @@ function updateClientData() {
 
             if (exp[i].hasOwnProperty("templateRNAQuantity")) {
               ret += '  <tr>\n    <td style="width:25%;">Template RNA Quantity:</td>\n'
-              ret += '    <td colspan="0" style="width:75%">\n'+ exp[i].templateRNAQuantity.value
+              ret += '    <td colspan="2">\n'+ exp[i].templateRNAQuantity.value
               ret += ' ' + niceUnitType(exp[i].templateRNAQuantity.unit) + '</td>\n'
               ret += '  </tr>'
             }
             if (exp[i].hasOwnProperty("templateRNAQuality")) {
               ret += '  <tr>\n    <td style="width:25%;">Template RNA Quality:</td>\n'
-              ret += '    <td colspan="0" style="width:75%">\n'+ exp[i].templateRNAQuality.method
+              ret += '    <td colspan="2">\n'+ exp[i].templateRNAQuality.method
               ret += ' is ' + niceUnitType(exp[i].templateRNAQuality.result) + '</td>\n'
               ret += '  </tr>'
             }
             if (exp[i].hasOwnProperty("templateDNAQuantity")) {
               ret += '  <tr>\n    <td style="width:25%;">Template DNA Quantity:</td>\n'
-              ret += '    <td colspan="0" style="width:75%">\n'+ exp[i].templateDNAQuantity.value
+              ret += '    <td colspan="2">\n'+ exp[i].templateDNAQuantity.value
               ret += ' ' + niceUnitType(exp[i].templateDNAQuantity.unit) + '</td>\n'
               ret += '  </tr>'
             }
             if (exp[i].hasOwnProperty("templateDNAQuality")) {
               ret += '  <tr>\n    <td style="width:25%;">Template DNA Quality:</td>\n'
-              ret += '    <td colspan="0" style="width:75%">\n'+ exp[i].templateDNAQuality.method
+              ret += '    <td colspan="2">\n'+ exp[i].templateDNAQuality.method
               ret += ' is ' + niceUnitType(exp[i].templateDNAQuality.result) + '</td>\n'
               ret += '  </tr>'
             }
             if (exp[i].hasOwnProperty("templateQuantity")) {
               ret += '  <tr>\n    <td style="width:25%;">Template Nucleotide Type:</td>\n'
-              ret += '    <td colspan="0" style="width:75%">\n'+ exp[i].templateQuantity.nucleotide + '</td>\n'
+              ret += '    <td colspan="2">\n'+ exp[i].templateQuantity.nucleotide + '</td>\n'
               ret += '  </tr>'
               ret += '  <tr>\n    <td style="width:25%;">Template Quantity:</td>\n'
-              ret += '    <td colspan="0" style="width:75%">\n'+ exp[i].templateQuantity.conc + ' ng/&micro;l</td>\n'
+              ret += '    <td colspan="2">\n'+ exp[i].templateQuantity.conc + ' ng/&micro;l</td>\n'
               ret += '  </tr>'
             }
             ret += '</table></p>\n'
@@ -1280,6 +1342,8 @@ function updateClientData() {
             if (window.rdmlData.rdml.version == "1.3") {
                 ret += '<button type="button" class="btn btn-success rdml-btn-edit" '
                 ret += 'onclick="editSamType(' + i + ', -1);">Add Type</button>&nbsp;&nbsp;&nbsp;&nbsp;'
+                ret += '<button type="button" class="btn btn-success rdml-btn-edit" '
+                ret += 'onclick="editQunatType(' + i + ', -1);">Add Quantity</button>&nbsp;&nbsp;&nbsp;&nbsp;'
             }
             if (window.rdmlData.rdml.version != "1.1") {
                 ret += '<button type="button" class="btn btn-success rdml-btn-edit" '
@@ -2306,6 +2370,7 @@ function createNewElement(typ){
         var nex = {}
         nex["id"] = "New Sample"
         nex["types"] = [{"type" : "unkn"}]
+        nex["quantitys"] = []
         window.rdmlData.rdml.samples.unshift(nex)
         window.editType = "sample";
         window.editNumber = 0;
@@ -2551,6 +2616,7 @@ function saveEditElement(typ, pos, oldId){
         el["type"] = getSaveHtmlData("inSampType")
         if (window.rdmlData.rdml.version == "1.3") {
             el["typeTargetId"] = getSaveHtmlData("inSampTypeTarget")
+            el["quantTargetId"] = getSaveHtmlData("inSampQuantTarget")
         }
         el["calibratorSample"] = readTriState("inExpCalibratorSample")
         el["interRunCalibrator"] = readTriState("inExpInterRunCalibrator")
@@ -2664,6 +2730,31 @@ function saveSamType(prim_pos, samType_pos, edit){
     var el = {}
     el["sampType"] = getSaveHtmlData("inSampTypeSel")
     el["sampTypeTarget"] = getSaveHtmlData("inSampTypeTargetSel")
+    ret["data"] = el
+    updateServerData(uuid, JSON.stringify(ret))
+}
+
+window.saveSamQuant = saveSamQuant;
+function saveSamQuant(prim_pos, samQuant_pos, edit){
+    if (!(window.rdmlData.hasOwnProperty("rdml"))) {
+        return
+    }
+    if (window.editMode == true) {
+        return
+    }
+    var ret = {}
+    if (edit == false) {
+        ret["mode"] = "create-sampleQuantity"
+    } else {
+        ret["mode"] = "edit-sampleQuantity"
+    }
+    ret["primary-position"] = prim_pos
+    ret["sampleQuant-position"] = samQuant_pos
+    ret["new-position"] = getSaveHtmlData("inPos") - 1
+    var el = {}
+    el["sampValue"] = getSaveHtmlData("inExpQuantity_Value")
+    el["sampUnit"] = getSaveHtmlData("inExpQuantity_Unit")
+    el["sampQuantTarget"] = getSaveHtmlData("inSampQuantTargetSel")
     ret["data"] = el
     updateServerData(uuid, JSON.stringify(ret))
 }
@@ -2881,6 +2972,10 @@ function editSamType(prim_pos, samType_pos) {
     }
     ret += '</select>\n</td>\n'
     ret += '  </tr>'
+    ret += '  <tr>\n    <td style="width:25%;">Place at Position:</td>\n'
+    ret += '    <td style="width:75%"><input type="text" class="form-control" '
+    ret += 'id="inPos" value="' + (samType_pos + 1) + '"></td>\n'
+    ret += '  </tr>'
     ret += '</table></p>\n'
     ret += '<button type="button" class="btn btn-success btn-sm" '
     ret += 'onclick="saveSamType(' + prim_pos + ', ' + samType_pos + ', ' + edit + ');">Save Changes</button>'
@@ -2891,7 +2986,77 @@ function editSamType(prim_pos, samType_pos) {
     ele.innerHTML = ret
 }
 
+// Edit or create an sample quantity
+window.editQunatType = editQunatType;
+function editQunatType(prim_pos, samQuant_pos) {
+    if (!(window.rdmlData.hasOwnProperty("rdml"))) {
+        return
+    }
+    if (window.editMode == true) {
+        return
+    }
+    var exp = window.rdmlData.rdml.samples
+    var eValue = ""
+    var eUnit = ""
+    var eTarget = ""
+    var edit = true
+    if (samQuant_pos == -1) {
+        samQuant_pos = 0
+        edit = false
+    }
+    if ((edit == true) && (exp != null) && (prim_pos < exp.length) && (samQuant_pos < exp[prim_pos].quantitys.length)) {
+        if ((exp[prim_pos].quantitys[samQuant_pos]) && (exp[prim_pos].quantitys[samQuant_pos].hasOwnProperty("value"))){
+            eValue = exp[prim_pos].quantitys[samQuant_pos].value
+        }
+        if ((exp[prim_pos].quantitys[samQuant_pos]) && (exp[prim_pos].quantitys[samQuant_pos].hasOwnProperty("targetId"))){
+            eTarget = exp[prim_pos].quantitys[samQuant_pos].targetId
+        }
+    }
+    var ret = '<div class="card">\n<div class="card-body">\n'
+    ret += '<h5 class="card-title">New Sample Quantity:</h5>\n'
+    ret += '<p><table style="width:100%;">'
+    ret += '  <tr>\n    <td style="width:25%;background-color:#cc7a00;">Value:</td>\n'
+    ret += '    <td style="width:75%">'
+    ret += '<input type="text" class="form-control" id="inExpQuantity_Value" value="'
+    ret += eValue + '"></td>\n'
+    ret += '  </tr>'
 
+    ret += '  <tr>\n    <td style="width:25%;background-color:#cc7a00;">Unit:</td>\n'
+    ret += '    <td style="width:75%">\n'
+    ret += htmlUnitSelector("inExpQuantity_Unit", exp[prim_pos].quantitys[samQuant_pos])
+    ret += '</td>\n'
+    ret += '  </tr>'
+    ret += '  <tr>\n    <td style="width:25%;">Target for Quantity:</td>\n'
+    ret += '    <td style="width:75%">'
+    ret += '<select class="form-control" id="inSampQuantTargetSel">\n'
+    var allTargets = window.rdmlData.rdml.targets;
+    ret += '        <option value=""'
+    if (eTarget == "") {
+        ret += ' selected'
+    }
+    ret += '>not set</option>\n'
+    for (var cc = 0; cc < allTargets.length; cc++) {
+        ret += '        <option value="' + allTargets[cc].id + '"'
+        if (eTarget == allTargets[cc].id) {
+            ret += ' selected'
+        }
+        ret += '>' + allTargets[cc].id + '</option>\n'
+    }
+    ret += '</select>\n</td>\n'
+    ret += '  </tr>'
+    ret += '  <tr>\n    <td style="width:25%;">Place at Position:</td>\n'
+    ret += '    <td style="width:75%"><input type="text" class="form-control" '
+    ret += 'id="inPos" value="' + (samQuant_pos + 1) + '"></td>\n'
+    ret += '  </tr>'
+    ret += '</table></p>\n'
+    ret += '<button type="button" class="btn btn-success btn-sm" '
+    ret += 'onclick="saveSamQuant(' + prim_pos + ', ' + samQuant_pos + ', ' + edit + ');">Save Changes</button>'
+    ret += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button type="button" class="btn btn-success btn-sm" '
+    ret += 'onclick="disChangesSecElement(\'pType-sample-' + prim_pos + '\');">Discard Changes</button>'
+    ret += '</div>\n</div><br />\n'
+    var ele = document.getElementById('pType-sample-' + prim_pos)
+    ele.innerHTML = ret
+}
 
 
 // Edit or create an xRef
