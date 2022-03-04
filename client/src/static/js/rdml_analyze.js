@@ -1475,228 +1475,133 @@ function updateClientData() {
     updateInterRunAnnotations()
 }
 
+function tsvGetMaxColumns(tsvString, maxColumns) {
+    maxColumns = parseInt(maxColumns)
+    var tsvLines = tsvString.split("\n")
+    for (var row = 0 ; row < tsvLines.length ; row++) {
+        var tsvCells = tsvLines[row].split("\t")
+        if (tsvCells.length > maxColumns) {
+            maxColumns = tsvCells.length
+        }
+    }
+    return maxColumns
+}
+
+function tsvToTableSection(tsvString, maxColumns) {
+    maxColumns = parseInt(maxColumns)
+    var ret = ''
+    var tsvLines = tsvString.split("\n")
+    for (var row = 0 ; row < tsvLines.length - 1 ; row++) {
+        ret += '<tr>\n'
+        var tsvCells = tsvLines[row].split("\t")
+        for (var col = 0 ; col < maxColumns ; col++) {
+            if (col < tsvCells.length) {
+                if ((row == 0) || (col == 0)) {
+                    ret += '<th>'
+                } else {
+                    ret += '<td>'
+                }
+                if ((window.decimalSepPoint == false) && (row != 0) && (col != 0)) {
+                    ret += tsvCells[col].replace(/\./g, ',');
+                } else {
+                    ret += tsvCells[col]
+                }
+                if ((row == 0) || (col == 0)) {
+                    ret += '</th>'
+                } else {
+                    ret += '</td>'
+                }
+            } else {
+                ret += '<td></td>'
+            }
+        }
+        ret += '</tr>\n'
+    }
+    return ret
+}
+
+function tsvToTsvSection(tsvString, maxColumns) {
+    maxColumns = parseInt(maxColumns)
+    var ret = ''
+    var tsvLines = tsvString.split("\n")
+    for (var row = 0 ; row < tsvLines.length - 1 ; row++) {
+        var tsvCells = tsvLines[row].split("\t")
+        for (var col = 0 ; col < maxColumns ; col++) {
+            if (col < tsvCells.length) {
+                if ((window.decimalSepPoint == false) && (row != 0) && (col != 0)) {
+                    ret += tsvCells[col].replace(/\./g, ',');
+                } else {
+                    ret += tsvCells[col]
+                }
+            }
+            if (col + 1 != maxColumns) {
+                ret += '\t'
+            }
+        }
+        ret += '\n'
+    }
+    return ret
+}
+
+function tsvToTableHeadline(note, maxColumns) {
+    return '<tr>\n<th colspan="' + maxColumns + '">' + note + '</th></tr>\n'
+}
+
+function tsvToTsvHeadline(note, maxColumns) {
+    maxColumns = parseInt(maxColumns)
+    var ret = ''
+    for (var col = 0 ; col < maxColumns ; col++) {
+        if (col == 0) {
+            ret += note
+        }
+        if (col + 1 != maxColumns) {
+            ret += '\t'
+        }
+    }
+    ret += '\n'
+    return ret
+}
+
+
 window.updatePlateTable = updatePlateTable
 function updatePlateTable() {
     if (!(window.interRunCal.hasOwnProperty("plate"))) {
         return
     }
+    var maxCols = 0
+    maxCols = tsvGetMaxColumns(window.interRunCal.tsv.run_correction_factors, maxCols)
+    maxCols = tsvGetMaxColumns(window.interRunCal.tsv.pcr_efficiency, maxCols)
+    maxCols = tsvGetMaxColumns(window.interRunCal.tsv.threshold, maxCols)
+    maxCols = tsvGetMaxColumns(window.interRunCal.tsv.overlapping_conditions, maxCols)
+
     var colNum = window.interRunCal.runs.length + 1
     var colCount = Math.max(colNum, 3)
 
     var ret = '<p>The calculated results are displayed in the RunView tab.</p>\n'
     ret += '<table class="table table-bordered table-striped" id="plate-corr-result-table">\n'
     var content = ""
-
-    ret += '<tr>\n<th colspan="' + colCount + '">\n'
-    ret += 'Correction Factors'
-    ret += '</th>\n</tr>\n'
-    content += 'Correction Factors'
-    for (var col = 0; col < colCount; col++) {
-        content += '\t'
-    }
-    content += '\n'
-
-    ret += '<tr>\n'
-    for (var col = 0; col < colCount; col++) {
-        ret += '<th>'
-        if (colNum > col) {
-            if (col > 0) {
-                ret += window.interRunCal.runs[col - 1]
-                content += window.interRunCal.runs[col - 1]
-            } else {
-                ret += "Run"
-                content += "Run"
-            }
-        }
-        ret += '</th>\n'
-        content += '\t'
-    }
-    ret += '</tr>\n'
-    content += '\n'
-
-    ret += '<tr>\n'
-    for (var col = 0; col < colCount; col++) {
-        if (col > 0) {
-            ret += '<td>'
-            if (colNum > col) {
-                var corr = window.interRunCal["plate"]["corrP"][col - 1]
-                var corrOut = floatWithFixPrec(corr, 4)
-                if (corr < 0.0) {
-                    corrOut = "not available"
-                }
-                if (corr < -9.0) {
-                    corrOut = "not present"
-                }
-                ret += corrOut
-                content += corrOut
-                }
-            ret += '</td>\n'
-            content += '\t'
-        } else {
-            ret += '<th>Corr</th>\n'
-            content += 'corr\t'
-        }
-    }
-    content += '\n'
-    ret += '</tr>\n'
-
-    ret += '<tr>\n<th colspan="' + colCount + '"></th>\n</tr>\n'
-    for (var col = 0; col < colCount; col++) {
-        content += '\t'
-    }
-    content += '\n'
-    ret += '<tr>\n<th colspan="' + colCount + '">\n'
-    ret += 'Combined PCR Efficiency'
-    ret += '</th>\n</tr>\n'
-    content += 'Combined PCR Efficiency'
-    for (var col = 0; col < colCount; col++) {
-        content += '\t'
-    }
-    content += '\n'
-
-    ret += '<tr>\n'
-    for (var col = 0; col < colCount; col++) {
-        ret += '<th>'
-        if (col == 0) {
-            ret += "Target"
-            content += "Target"
-        }
-        if (col == 1) {
-            ret += "PCR Efficiency"
-            content += "PCR Efficiency"
-        }
-        if (col == 2) {
-            ret += "PCR Efficiency SE"
-            content += "PCR Efficiency SE"
-        }
-        ret += '</th>\n'
-        content += '\t'
-    }
-    ret += '</tr>\n'
-    content += '\n'
-
-    for (var tar in window.interRunCal["target"]) {
-        ret += '<tr>\n'
-        for (var col = 0; col < colCount; col++) {
-            ret += '<td>'
-            if (col == 0) {
-                ret += tar
-                content += tar
-            }
-            if (col == 1) {
-                var corr = window.interRunCal["target"][tar]["ampEff"]
-                var corrOut = floatWithFixPrec(corr, 4)
-                if (corr < 0.0) {
-                    corrOut = "not available"
-                }
-                ret += corrOut
-                content += corrOut
-            }
-            if (col == 2) {
-                var corr = window.interRunCal["target"][tar]["ampEffSE"]
-                var corrOut = floatWithFixPrec(corr, 4)
-                if (corr < 0.0) {
-                    corrOut = "not available"
-                }
-                ret += corrOut
-                content += corrOut
-            }
-            ret += '</td>\n'
-            content += '\t'
-        }
-        ret += '</tr>\n'
-        content += '\n'
-    }
-
-    ret += '<tr>\n<th colspan="' + colCount + '"></th>\n</tr>\n'
-    for (var col = 0; col < colCount; col++) {
-        content += '\t'
-    }
-    content += '\n'
-    ret += '<tr>\n<th colspan="' + colCount + '">\n'
-    ret += 'Combined Threshold'
-    ret += '</th>\n</tr>\n'
-    content += 'Combined Threshold'
-    for (var col = 0; col < colCount; col++) {
-        content += '\t'
-    }
-    content += '\n'
-    ret += '<tr>\n<th>\nThreshold</th>\n'
-    ret += '<td colspan="' + (colCount - 1) + '">\n'
-    ret += floatWithFixPrec(window.interRunCal["threshold"], 4)
-    ret += '</td>\n</tr>\n'
-    content += 'Threshold\t'
-    content += floatWithFixPrec(window.interRunCal["threshold"], 4)
-    for (var col = 1; col < colCount; col++) {
-        content += '\t'
-    }
-    content += '\n'
-
-    ret += '<tr>\n<th colspan="' + colCount + '"></th>\n</tr>\n'
-    for (var col = 0; col < colCount; col++) {
-        content += '\t'
-    }
-    content += '\n'
-    ret += '<tr>\n<th colspan="' + colCount + '">\n'
-    ret += 'Overlapping Conditions'
-    ret += '</th>\n</tr>\n'
-    content += 'Overlapping Conditions'
-    for (var col = 0; col < colCount; col++) {
-        content += '\t'
-    }
-    content += '\n'
-
-    for (var tar in window.interRunCal["target"]) {
-        ret += '<tr>\n'
-        for (var col = 0; col < colCount; col++) {
-            ret += '<th>'
-            if (colNum > col) {
-                if (col > 0) {
-                    ret += window.interRunCal.runs[col - 1]
-                    content += window.interRunCal.runs[col - 1]
-                } else {
-                    ret += tar
-                    content += tar
-                }
-            }
-            ret += '</th>\n'
-            content += '\t'
-        }
-        ret += '</tr>\n'
-        content += '\n'
-        var maxRows = window.interRunCal["target"][tar]["overlap"].length
-        for (var row = 0; row < maxRows; row++) {
-            ret += '<tr>\n'
-            for (var col = 0; col < colCount; col++) {
-                if (col > 0) {
-                    ret += '<td>'
-                    if (colNum > col) {
-                        var corrOut = window.interRunCal["target"][tar]["overlap"][row][col - 1]
-                        if (corrOut < -9) {
-                            corrOut = "not present"
-                        }
-                        ret += corrOut
-                        content += corrOut
-                    }
-                    ret += '</td>\n'
-                    content += '\t'
-                } else {
-                    ret += '<th>'
-                    ret += window.interRunCal.runs[row]
-                    ret += '</th>\n'
-                    content += window.interRunCal.runs[row] + '\t'
-                }
-            }
-            ret += '</tr>\n'
-            content += '\n'
-        }
-        ret += '<tr>\n<th colspan="' + colCount + '"></th>\n</tr>\n'
-        for (var col = 0; col < colCount; col++) {
-            content += '\t'
-        }
-        content += '\n'
-    }
-
+    ret += tsvToTableHeadline("Correction Factors", maxCols)
+    content += tsvToTsvHeadline("Correction Factors", maxCols)
+    ret += tsvToTableSection(window.interRunCal.tsv.run_correction_factors, maxCols)
+    content += tsvToTsvSection(window.interRunCal.tsv.run_correction_factors, maxCols)
+    ret += tsvToTableHeadline("", maxCols)
+    content += tsvToTsvHeadline("", maxCols)
+    ret += tsvToTableHeadline("PCR Efficiency", maxCols)
+    content += tsvToTsvHeadline("PCR Efficiency", maxCols)
+    ret += tsvToTableSection(window.interRunCal.tsv.pcr_efficiency, maxCols)
+    content += tsvToTsvSection(window.interRunCal.tsv.pcr_efficiency, maxCols)
+    ret += tsvToTableHeadline("", maxCols)
+    content += tsvToTsvHeadline("", maxCols)
+    ret += tsvToTableHeadline("Threshold", maxCols)
+    content += tsvToTsvHeadline("Threshold", maxCols)
+    ret += tsvToTableSection(window.interRunCal.tsv.threshold, maxCols)
+    content += tsvToTsvSection(window.interRunCal.tsv.threshold, maxCols)
+    ret += tsvToTableHeadline("", maxCols)
+    content += tsvToTsvHeadline("", maxCols)
+    ret += tsvToTableHeadline("Overlapping Conditions", maxCols)
+    content += tsvToTsvHeadline("Overlapping Conditions", maxCols)
+    ret += tsvToTableSection(window.interRunCal.tsv.overlapping_conditions, maxCols)
+    content += tsvToTsvSection(window.interRunCal.tsv.overlapping_conditions, maxCols)
     ret += '</table>\n'
     window.interRunSaveTable = content
     resultInterRunCorr.innerHTML = ret

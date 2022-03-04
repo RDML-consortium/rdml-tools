@@ -913,16 +913,11 @@
     </p>
     <ul style="list-style-type: circle">
       <li>
-        If "Calibrator Samples" is selected, overlapping conditions have to have identical target id, sample id and
-        the flag "Inter Run Calibrator" in the sample conditions must be "Yes" (This flag can be edited using RDML-Edit
-        at the sample tab).
+        If "Technical Replicates" is selected, overlapping conditions have to have identical target id and sample id.
+        This is the default choice and equivalent to select technical replicates.
       </li>
       <li>
-        If "All Samples" is selected, overlapping conditions have to have identical target id and sample id. This is
-        the default choice and equivalent to select technical replicates.
-      </li>
-      <li>
-        If "By Annotation" is selected, overlapping conditions have to have identical target id and the sample has to
+        If "Same Annotation" is selected, overlapping conditions have to have identical target id and the sample has to
         have an identical annotation key with an identical value. The annotation key to use can be selected with the
         selection "Sel. Annotation". Annotations can be used to select biological replicates instead of technical
         replicates (Annotations are set and edited using RDML-Edit at the sample tab).
@@ -938,11 +933,12 @@
       are used to find the optimal correction factors for each run in the experiment. The selection "Correction Level"
       chooses if one combined factor is used per run ("run") or individual factors per target ("target").
       <br /><br />
-      In the output the first table shows the run correction factors in the first rows and the individual correction
-      factors per target below. A plus (+) indicates the presence of the target in the run. In the next section the
-      combined PCR efficiencies and the combined threshold is given. The last section provides a matrix with the
-      number of overlapping conditions per target. This view could be helpful if an additional run must be planned
-      to improve the overlap between the runs.
+      In the output the first table shows the run correction factors for each run.
+      The second table shows for each target the combined PCR efficiency and combined PCR efficiency standard error
+      followed by the combined PCR efficiencies per run.
+      The third table shows the combined threshold followed by the threshold per run.
+      The last table provides a matrix with the number of overlapping conditions per target. This view could be
+      helpful if an additional run must be planned to improve the overlap between the runs.
       <br /><br />
       The corrected N0 and Cq values are available on the RunView tab and are ideally viewed as data view "list".
       The table can be saved as tsv file. The RDML-File can be updated and save the calculation results for later
