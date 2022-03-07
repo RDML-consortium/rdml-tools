@@ -281,6 +281,28 @@ function htmllize(tst) {
     return tst
 }
 
+function niceQuantityType(txt) {
+    if (txt == "cop") {
+        return "copies per microliter"
+    }
+    if (txt == "fold") {
+        return "fold change"
+    }
+    if (txt == "dil") {
+        return "dilution"
+    }
+    if (txt == "nMol") {
+        return "nanomol per microliter"
+    }
+    if (txt == "ng") {
+        return "nanogram per microliter"
+    }
+    if (txt == "other") {
+        return "other unit"
+    }
+    return txt
+}
+
 function niceSampleType(txt) {
     if (txt == "ref") {
         return "ref - reference target"
@@ -510,7 +532,7 @@ function updateServerData(stat, reqData) {
                     }
                     if (res.data.data.hasOwnProperty("absolutequan")) {
                         window.absoluteQant = res.data.data.absolutequan
-                        window.absoluteN0Corr = res.data.data.absolutequan.fluorCorr
+                        window.absoluteN0Corr = res.data.data.absolutequan.fluorN0Fact
                         window.absoluteN0Unit = res.data.data.absolutequan.absUnit
                         updateAbsoluteTable()
                     }
@@ -1264,13 +1286,8 @@ function updateClientData() {
                 ret += '<td>corr Cq</td>'
                 csv += 'corr Cq'
                 if (window.absoluteN0Corr > 0) {
-                    if (window.absoluteN0Unit == "cop") {
-                        ret += '<td>copies / microliter</td>'
-                        csv += '\tcopies / microliter'
-                    } else {
-                        ret += '<td>Absolute</td>'
-                        csv += '\tAbsolute'
-                    }
+                    ret += '<td>' + niceQuantityType(window.absoluteN0Unit) + '</td>'
+                    csv += '\t' +  niceQuantityType(window.absoluteN0Unit)
                 }
             } else {
                 ret += '<td>Concentration</td>'
@@ -1574,9 +1591,6 @@ function updatePlateTable() {
     maxCols = tsvGetMaxColumns(window.interRunCal.tsv.threshold, maxCols)
     maxCols = tsvGetMaxColumns(window.interRunCal.tsv.overlapping_conditions, maxCols)
 
-    var colNum = window.interRunCal.runs.length + 1
-    var colCount = Math.max(colNum, 3)
-
     var ret = '<p>The calculated results are displayed in the RunView tab.</p>\n'
     ret += '<table class="table table-bordered table-striped" id="plate-corr-result-table">\n'
     var content = ""
@@ -1609,22 +1623,35 @@ function updatePlateTable() {
 
 window.updateAbsoluteTable = updateAbsoluteTable
 function updateAbsoluteTable() {
-    if (!(window.absoluteQant.hasOwnProperty("plate"))) {
+    if (!(window.absoluteQant.hasOwnProperty("fluorN0Fact"))) {
         return
     }
-    var colNum = window.absoluteQant.runs.length + 1
-    var colCount = Math.max(colNum, 3)
+    var maxCols = 0
+    maxCols = tsvGetMaxColumns(window.absoluteQant.tsv.fluorN0Fact, maxCols)
+    maxCols = tsvGetMaxColumns(window.absoluteQant.tsv.threshold, maxCols)
+    maxCols = tsvGetMaxColumns(window.absoluteQant.tsv.pcr_efficiency, maxCols)
 
     var ret = '<p>The calculated results are displayed in the RunView tab.</p>\n'
-    ret += '<table class="table table-bordered table-striped" id="absolute-quan-result-table">\n'
+    ret += '<table class="table table-bordered table-striped" id="plate-corr-result-table">\n'
     var content = ""
-
-    ret += '<tr>\n<th colspan="' + colCount + '">\n'
-    ret += 'Correction Factors'
-    ret += '</th>\n</tr>\n'
-    content += 'Correction Factors'
-
-    ret += '</table>\n'
+    ret += tsvToTableHeadline("Quantification Factor", maxCols)
+    content += tsvToTsvHeadline("Quantification Factor", maxCols)
+    ret += tsvToTableSection(window.absoluteQant.tsv.fluorN0Fact, maxCols)
+    content += tsvToTsvSection(window.absoluteQant.tsv.fluorN0Fact, maxCols)
+    ret += tsvToTableHeadline("", maxCols)
+    content += tsvToTsvHeadline("", maxCols)
+    ret += tsvToTableHeadline("Threshold", maxCols)
+    content += tsvToTsvHeadline("Threshold", maxCols)
+    ret += tsvToTableSection(window.absoluteQant.tsv.threshold, maxCols)
+    content += tsvToTsvSection(window.absoluteQant.tsv.threshold, maxCols)
+    ret += tsvToTableHeadline("", maxCols)
+    content += tsvToTsvHeadline("", maxCols)
+    ret += tsvToTableHeadline("PCR Efficiency", maxCols)
+    content += tsvToTsvHeadline("PCR Efficiency", maxCols)
+    ret += tsvToTableSection(window.absoluteQant.tsv.pcr_efficiency, maxCols)
+    content += tsvToTsvSection(window.absoluteQant.tsv.pcr_efficiency, maxCols)
+    ret += tsvToTableHeadline("", maxCols)
+    content += tsvToTsvHeadline("", maxCols)
     window.absoluteQantTable = content
     resultAbsoluteQant.innerHTML = ret
 }
