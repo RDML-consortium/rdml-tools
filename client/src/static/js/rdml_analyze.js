@@ -1285,7 +1285,7 @@ function updateClientData() {
                 csv += 'corr N0\t'
                 ret += '<td>corr Cq</td>'
                 csv += 'corr Cq'
-                if (window.absoluteN0Corr > 0) {
+                if (window.absoluteN0Unit > 0) {
                     ret += '<td>' + niceQuantityType(window.absoluteN0Unit) + '</td>'
                     csv += '\t' +  niceQuantityType(window.absoluteN0Unit)
                 }
@@ -1404,15 +1404,17 @@ function updateClientData() {
                                             ret += floatWithFixPrec(reacts[reac].datas[dataPos].corrCq, 2)
                                             csv += floatWithFixPrec(reacts[reac].datas[dataPos].corrCq, 2)
                                         }
-                                        if (window.absoluteN0Corr > 0) {
+                                        if (window.absoluteN0Unit > 0) {
                                             ret += '</td>\n<td style="text-align: right;">'
                                             csv += '\t'
-                                            if (reacts[reac].datas[dataPos].hasOwnProperty("corrN0")) {
-                                                if (parseFloat(reacts[reac].datas[dataPos].corrN0) > 0.0) {
-                                                    var absNum = parseFloat(reacts[reac].datas[dataPos].corrN0) / parseFloat(window.absoluteN0Corr);
-                                                    ret += floatWithFixPrec(absNum, 2)
-                                                    csv += floatWithFixPrec(absNum, 2)
-                                                }
+                                            if ((reacts[reac].datas[dataPos].hasOwnProperty("corrN0")) &&
+                                                (parseFloat(reacts[reac].datas[dataPos].corrN0) > 0.0) &&
+                                                (window.absoluteN0Corr.hasOwnProperty(reacts[reac].datas[dataPos].tar)) &&
+                                                (parseFloat(window.absoluteN0Corr[reacts[reac].datas[dataPos].tar]) > 0.0)) {
+                                                var fN0 = parseFloat(reacts[reac].datas[dataPos].corrN0)
+                                                var cN0 = parseFloat(window.absoluteN0Corr[reacts[reac].datas[dataPos].tar]);
+                                                ret += floatWithFixPrec(fN0 / cN0, 2)
+                                                csv += floatWithFixPrec(fN0 / cN0, 2)
                                             }
                                         }
                                         ret += '</td>\n</tr>\n'
@@ -1630,6 +1632,9 @@ function updateAbsoluteTable() {
     maxCols = tsvGetMaxColumns(window.absoluteQant.tsv.fluorN0Fact, maxCols)
     maxCols = tsvGetMaxColumns(window.absoluteQant.tsv.threshold, maxCols)
     maxCols = tsvGetMaxColumns(window.absoluteQant.tsv.pcr_efficiency, maxCols)
+    if (window.absoluteQant.tsv.hasOwnProperty("standard")) {
+        maxCols = tsvGetMaxColumns(window.absoluteQant.tsv.standard, maxCols)
+    }
 
     var ret = '<p>The calculated results are displayed in the RunView tab.</p>\n'
     ret += '<table class="table table-bordered table-striped" id="plate-corr-result-table">\n'
@@ -1652,6 +1657,14 @@ function updateAbsoluteTable() {
     content += tsvToTsvSection(window.absoluteQant.tsv.pcr_efficiency, maxCols)
     ret += tsvToTableHeadline("", maxCols)
     content += tsvToTsvHeadline("", maxCols)
+    if (window.absoluteQant.tsv.hasOwnProperty("standard")) {
+        ret += tsvToTableHeadline("Samples with Concentrations", maxCols)
+        content += tsvToTsvHeadline("Samples with Concentrations", maxCols)
+        ret += tsvToTableSection(window.absoluteQant.tsv.standard, maxCols)
+        content += tsvToTsvSection(window.absoluteQant.tsv.standard, maxCols)
+        ret += tsvToTableHeadline("", maxCols)
+        content += tsvToTsvHeadline("", maxCols)
+    }
     window.absoluteQantTable = content
     resultAbsoluteQant.innerHTML = ret
 }
