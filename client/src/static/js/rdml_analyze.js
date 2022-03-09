@@ -485,6 +485,7 @@ function runAbsoluteQuan() {
     ret["mode"] = "run-absolute-quantification"
     ret["sel-experiment"] = window.selExperiment
     ret["absolute-method"] = getSaveHtmlData("selAbsoluteMethod")
+    ret["absolute-unit"] = getSaveHtmlData("selAbsoluteUnit")
     ret["estimate-missing"] = getSaveHtmlData("selAbsoluteMissTar")
     ret["update-RDML-data"] = rUpdateRDML
     updateServerData(uuid, JSON.stringify(ret))
@@ -1285,7 +1286,7 @@ function updateClientData() {
                 csv += 'corr N0\t'
                 ret += '<td>corr Cq</td>'
                 csv += 'corr Cq'
-                if (window.absoluteN0Unit > 0) {
+                if (window.absoluteN0Unit != "") {
                     ret += '<td>' + niceQuantityType(window.absoluteN0Unit) + '</td>'
                     csv += '\t' +  niceQuantityType(window.absoluteN0Unit)
                 }
@@ -1404,7 +1405,7 @@ function updateClientData() {
                                             ret += floatWithFixPrec(reacts[reac].datas[dataPos].corrCq, 2)
                                             csv += floatWithFixPrec(reacts[reac].datas[dataPos].corrCq, 2)
                                         }
-                                        if (window.absoluteN0Unit > 0) {
+                                        if (window.absoluteN0Unit  != "") {
                                             ret += '</td>\n<td style="text-align: right;">'
                                             csv += '\t'
                                             if ((reacts[reac].datas[dataPos].hasOwnProperty("corrN0")) &&
@@ -1413,8 +1414,13 @@ function updateClientData() {
                                                 (parseFloat(window.absoluteN0Corr[reacts[reac].datas[dataPos].tar]) > 0.0)) {
                                                 var fN0 = parseFloat(reacts[reac].datas[dataPos].corrN0)
                                                 var cN0 = parseFloat(window.absoluteN0Corr[reacts[reac].datas[dataPos].tar]);
-                                                ret += floatWithFixPrec(fN0 / cN0, 2)
-                                                csv += floatWithFixPrec(fN0 / cN0, 2)
+                                                if (window.absoluteN0Unit == "cop") {
+                                                    ret += floatWithFixPrec(fN0 / cN0, 2)
+                                                    csv += floatWithFixPrec(fN0 / cN0, 2)
+                                                } else {
+                                                    ret += floatWithExPrec(fN0 / cN0, 2)
+                                                    csv += floatWithExPrec(fN0 / cN0, 2)
+                                                }
                                             }
                                         }
                                         ret += '</td>\n</tr>\n'

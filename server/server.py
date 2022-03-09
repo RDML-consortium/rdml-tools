@@ -2152,6 +2152,8 @@ def handle_data():
                 return jsonify(errors=[{"title": "Invalid server request - sel-experiment id missing!"}]), 400
             if "absolute-method" not in reqdata:
                 return jsonify(errors=[{"title": "Invalid server request - absolute-method id missing!"}]), 400
+            if "absolute-unit" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - absolute-unit id missing!"}]), 400
             if "estimate-missing" not in reqdata:
                 return jsonify(errors=[{"title": "Invalid server request - estimate-missing id missing!"}]), 400
             if "update-RDML-data" not in reqdata:
@@ -2165,6 +2167,7 @@ def handle_data():
                 if reqdata["estimate-missing"] == "n":
                     estimateTar = False
                 data["absolutequan"] = experiment.absoluteQuantification(method=reqdata["absolute-method"],
+                                                                         quantUnit=reqdata["absolute-unit"],
                                                                          estimate=estimateTar,
                                                                          updateRDML=reqdata["update-RDML-data"])
                 data["reactsdata"] = experiment.getreactjson()
