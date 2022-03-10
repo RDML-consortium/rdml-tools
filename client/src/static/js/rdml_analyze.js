@@ -189,6 +189,7 @@ function updateAllDeciSep() {
     }
     updateClientData()
     updatePlateTable()
+    updateAbsoluteTable()
 }
 
 
@@ -1643,7 +1644,7 @@ function updateAbsoluteTable() {
     }
 
     var ret = '<p>The calculated results are displayed in the RunView tab.</p>\n'
-    ret += '<table class="table table-bordered table-striped" id="plate-corr-result-table">\n'
+    ret += '<table class="table table-bordered table-striped" id="absolute-quan-result-table">\n'
     var content = ""
     ret += tsvToTableHeadline("Quantification Factor", maxCols)
     content += tsvToTsvHeadline("Quantification Factor", maxCols)
@@ -1671,7 +1672,7 @@ function updateAbsoluteTable() {
         ret += tsvToTableHeadline("", maxCols)
         content += tsvToTsvHeadline("", maxCols)
     }
-    window.absoluteQantTable = content
+    window.absoluteQantSaveTable = content
     resultAbsoluteQant.innerHTML = ret
 }
 
