@@ -97,6 +97,7 @@
         <ul>
           <li><a href="#ANA-Introduction">4.1. Introduction</a></li>
           <li><a href="#ANA-Plate-Correct">4.2. InterRunCorrection</a></li>
+          <li><a href="#ANA-Absolute-Quan">4.3. AbsoluteQuantification</a></li>
         </ul>
       </li>
     </ul>
@@ -892,11 +893,12 @@
         <ul>
           <li><a href="#ANA-Introduction">4.1. Introduction</a></li>
           <li><a href="#ANA-Plate-Correct">4.2. InterRunCorrection</a></li>
+          <li><a href="#ANA-Absolute-Quan">4.3. AbsoluteQuantification</a></li>
         </ul>
     <h5 id="ANA-Introduction">4.1. Introduction</h5>
     <p style="text-align: justify">
-      RDML-Analyze is a program for the analysis of an qPCR experiment after N0 values have been calculated within
-      the single runs using RDML-LinRegPCR.
+      RDML-Analyze is a program for the analysis of an qPCR experiment after N0 values have been calculated. The N0
+      values can be calculated for each run using RDML-LinRegPCR.
     </p>
 
     <h5 id="ANA-Plate-Correct">4.2. InterRunCorrection</h5>
@@ -934,8 +936,8 @@
       chooses if one combined factor is used per run ("run") or individual factors per target ("target").
       <br /><br />
       In the output the first table shows the run correction factors for each run.
-      The second table shows for each target the combined PCR efficiency and combined PCR efficiency standard error
-      followed by the combined PCR efficiencies per run.
+      The second table shows for each target the individual and combined PCR efficiency and combined PCR
+      efficiency standard error.
       The third table shows the combined threshold followed by the threshold per run.
       The last table provides a matrix with the number of overlapping conditions per target. This view could be
       helpful if an additional run must be planned to improve the overlap between the runs.
@@ -946,6 +948,80 @@
       <br /><br />
       By using this program you acknowledge that you have read the above
       paper, understand it, and agree with its conclusions. Therefore, you assume all responsibility and liability
+      for the selection of this program to achieve your intended goals, and for the conclusions you draw from the
+      analysis results. The developers of this application cannot be held responsible for any consequences of the
+      use of this program. Please read the
+      <a class="plain" target="_blank" href="https://www.gear-genomics.com/terms">Terms of Use</a>
+      before using RDML-Analyze and please obey to the requirements.
+    </p>
+
+    <h5 id="ANA-Absolute-Quan">4.3. AbsoluteQuantification</h5>
+    <p style="text-align: justify">
+      The calculated N0 values are absolute values and can be used in calculations like concentrations. N0 gives the
+      calculated fluorescence at the start of the qPCR run and depends therefore on the fluorescence values measured
+      by the machine. The AbsoluteQuantification tools can convert the N0 values in more intuitive units like copies
+      per microliter.
+      <br /><br />
+      The algorithm for this conversion can be chosen with the selection "Method":
+    </p>
+    <ul style="list-style-type: circle">
+      <li>
+        The "reference" approach requires samples with known concentration. The samples must be of the type "std"
+        (standard sample) and must have the expected quantity like 1000 cop (copies per microliter).
+        AbsoluteQuantification searches for the highest concentration to avoid dilution errors. If more than one
+        sample of the highest concentration are present, the geometric mean of these samples is calculated and used
+        to convert the N0 values.<br />
+        Be aware, that one sample with a high concentration is sufficient, dilutions are not required for the
+        calculation. If provided, the dilution error is calculated and the additional dilutions are ignored.
+        This algorithm may be used provide the concentration relative to a reference sample which should be set to
+        one. The reference sample is set in RDML-Edit to the type "std" and the quantity 1 fold.
+      </li>
+      <li>
+        The "Rule of Thumb (Cq 35 == 10 copies)" approach is based on the common word of mouth saying 10 copies at
+        start result in a Cq of 35. It was extended by an PCR efficiency of 1.9, a reaction volume of 20 &micro;l
+        and a amplicon length of 100 bp. With the threshold and N0 as only input the copy number can be estimated.
+        <br />
+        Be aware, that this is a rough estimation ignoring different machine noise, differences between chemistries
+        and contaminations. This rule would expect for the same sample the same Cq with any chemicals and on any
+        machine. The approach is nice as it works on all qPCR data, but ist should only be used to get a rough
+        estimation at which range the copy number is.
+      </li>
+      <li>
+        The "Optical Calibrator" approach is experimental and works by providing a qPCR reaction with a final
+        concentration of 10 ng/&micro;l PCR product and without primers and a second qPCR reaction without product
+        and without primers. Both samples need to be of the type "opt" (optical calibrator) and must have the
+        expected quantity like 10 ng. In the first five cycles the fluorescence of this product is used to measure
+        DNA concentration without any PCR amplification, only based on binding of the fluorochrome. The fluorescence
+        a concentration of 10 ng/&micro;l provides is used to calculate the concentration at a given N0.<br />
+        copies = [conc in ng] * Mol / ([amplicon length in bp] * 660 * 1e9)<br />
+        Be aware, that this is an experimental feature. It requires that qPCR machines do not measure the starting
+        fluorescence and use it to correct the raw values per reaction. First experiments have an error by the
+        factor 10.
+      </li>
+      <li>
+        The "Standard Curve" approach mimics the classic calibration curve approach and should be only used to
+        visualize the effect of dilution errors on the PCR efficiency. In this approach the PCR efficiency is
+        calculated from the standard curve and used to calculate concentrations using this efficiency. It requires
+        samples with known concentration. The samples must be of the type "std" (standard sample) and must have
+        the expected quantity like 1000 cop (copies per microliter).
+        <br />
+        This approach should only be used in education as dilution errors result in an overestimation of the
+        qPCR efficiency and false concentrations. Use the "reference" approach instead.
+      </li>
+    </ul>
+    <p style="text-align: justify">
+      The first table provides an overview of the parameters at threshold for each target.
+      The second table shows for each target the individual and combined PCR efficiency and combined PCR
+      efficiency standard error.
+      The third table shows the combined threshold followed by the threshold per run.
+      The last table shows the standard samples with the expected and calculated concentrations for comparison.
+      <br /><br />
+      The final concentrations are available on the RunView tab and are ideally viewed as data view "list".
+      The table can be saved as tsv file. The RDML-File can be updated and save the calculation results for later
+      use.
+      <br /><br />
+      By using this program you acknowledge that you have read the above
+      text, understand it, and agree with its conclusions. Therefore, you assume all responsibility and liability
       for the selection of this program to achieve your intended goals, and for the conclusions you draw from the
       analysis results. The developers of this application cannot be held responsible for any consequences of the
       use of this program. Please read the
