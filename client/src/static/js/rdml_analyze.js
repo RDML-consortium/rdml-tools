@@ -1639,6 +1639,9 @@ function updateAbsoluteTable() {
     maxCols = tsvGetMaxColumns(window.absoluteQant.tsv.fluorN0Fact, maxCols)
     maxCols = tsvGetMaxColumns(window.absoluteQant.tsv.threshold, maxCols)
     maxCols = tsvGetMaxColumns(window.absoluteQant.tsv.pcr_efficiency, maxCols)
+    if (window.absoluteQant.tsv.hasOwnProperty("dilStandard")) {
+        maxCols = tsvGetMaxColumns(window.absoluteQant.tsv.dilStandard, maxCols)
+    }
     if (window.absoluteQant.tsv.hasOwnProperty("standard")) {
         maxCols = tsvGetMaxColumns(window.absoluteQant.tsv.standard, maxCols)
     }
@@ -1664,6 +1667,14 @@ function updateAbsoluteTable() {
     content += tsvToTsvSection(window.absoluteQant.tsv.pcr_efficiency, maxCols)
     ret += tsvToTableHeadline("", maxCols)
     content += tsvToTsvHeadline("", maxCols)
+    if (window.absoluteQant.tsv.hasOwnProperty("dilStandard")) {
+        ret += tsvToTableHeadline("Dilution Curves", maxCols)
+        content += tsvToTsvHeadline("Dilution Curves", maxCols)
+        ret += tsvToTableSection(window.absoluteQant.tsv.dilStandard, maxCols)
+        content += tsvToTsvSection(window.absoluteQant.tsv.dilStandard, maxCols)
+        ret += tsvToTableHeadline("", maxCols)
+        content += tsvToTsvHeadline("", maxCols)
+    }
     if (window.absoluteQant.tsv.hasOwnProperty("standard")) {
         ret += tsvToTableHeadline("Samples with Concentrations", maxCols)
         content += tsvToTsvHeadline("Samples with Concentrations", maxCols)
