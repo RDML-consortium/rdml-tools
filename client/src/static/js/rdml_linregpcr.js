@@ -56,6 +56,9 @@ choiceExcludeNoPlat.addEventListener('change', updateRDMLCheck)
 const choiceExcludeEff = document.getElementById('choiceExcludeEfficiency')
 choiceExcludeEff.addEventListener('change', updateRDMLCheck)
 
+const choiceExcludeUnstBase = document.getElementById('choiceExcludeUnstableBaseline')
+choiceExcludeUnstBase.addEventListener('change', updateRDMLCheck)
+
 const meltcurveButton = document.getElementById('btn-meltcurve')
 meltcurveButton.addEventListener('click', runMeltcurve)
 
@@ -120,6 +123,7 @@ window.selDigitalOnLoad = "none";
 window.maxLogRange = 10000;
 
 window.exNoPlateau = true;
+window.exUnstBase  = true;
 window.exDiffMean = "outlier";
 window.decimalSepPoint = true;
 
@@ -463,6 +467,7 @@ function runLinRegPCR() {
     var rPCREffRange = 0.05
     var rUpdateRDML = true
     window.exNoPlateau = true
+    window.exUnstBase = true
     window.exDiffMean = "outlier"
     hideElement(resultError)
 
@@ -487,6 +492,10 @@ function runLinRegPCR() {
     if (bbExcludeEfficiency) {
         window.exDiffMean = bbExcludeEfficiency.value
     }
+    var bbExcludeUnstBase = document.getElementById('choiceExcludeUnstableBaseline')
+    if ((bbExcludeUnstBase) && (bbExcludeUnstBase.value == "n")) {
+        window.exUnstBase = false
+    }
 
     window.yScale = "log"
     window.curveSource = "bas"
@@ -499,6 +508,7 @@ function runLinRegPCR() {
     ret["update-RDML-data"] = rUpdateRDML
     ret["exclude-no-plateau"] = window.exNoPlateau
     ret["exclude-efficiency"] = window.exDiffMean
+    ret["exclude-unstable-base"] = window.exUnstBase
     updateServerData(uuid, JSON.stringify(ret))
 
     $('[href="#linregpcr-tab"]').tab('show')
@@ -1436,7 +1446,7 @@ function updateLinRegPCRTable() {
         }
     } else if (choiceTable.value == "classic-compact") {
         var meanCol = 24;  // "mean PCR eff"
-        var effErrCol = 54;  // "PCR efficiency outlier"
+        var effErrCol = 55;  // "PCR efficiency outlier"
         if (choiceExcludeNoPlat.value == "y") {
             meanCol += 4;
             effErrCol += 1;
@@ -1546,10 +1556,10 @@ function updateLinRegPCRTable() {
                 }
             }
             if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][50] + '</td>\n'  // "plateau"
-                content += window.linRegPCRTable[row][50] + "\t"  // "plateau"
+                ret += '<td>' + window.linRegPCRTable[row][50] + '</td>\n'  // "instable baseline"
+                content += window.linRegPCRTable[row][50] + "\t"  // "instable baseline"
             } else {
-                if (window.linRegPCRTable[row][50] == true) {  // "plateau"
+                if (window.linRegPCRTable[row][50] == true) {  // "instable baseline"
                     ret += '<td>Yes</td>\n'
                     content += "Yes\t"
                 } else {
@@ -1558,10 +1568,22 @@ function updateLinRegPCRTable() {
                 }
             }
             if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][51] + '</td>\n'  // "noisy sample"
-                content += window.linRegPCRTable[row][51] + "\t"  // "noisy sample"
+                ret += '<td>' + window.linRegPCRTable[row][51] + '</td>\n'  // "plateau"
+                content += window.linRegPCRTable[row][51] + "\t"  // "plateau"
             } else {
-                if (window.linRegPCRTable[row][51] == true) {  // "noisy sample"
+                if (window.linRegPCRTable[row][51] == true) {  // "plateau"
+                    ret += '<td>Yes</td>\n'
+                    content += "Yes\t"
+                } else {
+                    ret += '<td style="background-color: #ffc266;">No</td>\n'
+                    content += "No\t"
+                }
+            }
+            if (row == 0) {
+                ret += '<td>' + window.linRegPCRTable[row][52] + '</td>\n'  // "noisy sample"
+                content += window.linRegPCRTable[row][52] + "\t"  // "noisy sample"
+            } else {
+                if (window.linRegPCRTable[row][52] == true) {  // "noisy sample"
                     ret += '<td style="background-color: #ffc266;">Yes</td>\n'
                     content += "Yes\t"
                 } else {
@@ -1582,10 +1604,10 @@ function updateLinRegPCRTable() {
                 }
             }
             if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][60] + '</td>\n'  // "used for W-o-L setting"
-                content += window.linRegPCRTable[row][60] + "\t"  // "used for W-o-L setting"
+                ret += '<td>' + window.linRegPCRTable[row][61] + '</td>\n'  // "used for W-o-L setting"
+                content += window.linRegPCRTable[row][61] + "\t"  // "used for W-o-L setting"
             } else {
-                if (window.linRegPCRTable[row][60] == true) {  // "used for W-o-L setting"
+                if (window.linRegPCRTable[row][61] == true) {  // "used for W-o-L setting"
                     ret += '<td>Yes</td>\n'
                     content += "Yes\t"
                 } else {
@@ -1602,7 +1624,7 @@ function updateLinRegPCRTable() {
         var colorNotes = ' style="background-color: #cccccc"'
 
         var meanCol = 24;  // "mean PCR eff"
-        var effErrCol = 54;  // "PCR efficiency outlier"
+        var effErrCol = 55;  // "PCR efficiency outlier"
         if (choiceExcludeNoPlat.value == "y") {
             meanCol += 4;
             effErrCol += 1;
@@ -1637,6 +1659,7 @@ function updateLinRegPCRTable() {
             var highlight_meanN0 = ""
             var highlight_ErrAmp = ""
             var highlight_ErrBase = ""
+            var highlight_ErrInstab = ""
             var highlight_ErrPlat = ""
             var highlight_ErrNoisy = ""
             var highlight_ErrEffOutside = ""
@@ -1657,7 +1680,7 @@ function updateLinRegPCRTable() {
                     if (window.linRegPCRTable[row][48] == true) {  // "amplification"
                         highlight_ErrAmp = colErr
                     }
-                    if (window.linRegPCRTable[row][50] == true) {  // "plateau"
+                    if (window.linRegPCRTable[row][51] == true) {  // "plateau"
                         highlight_ErrPlat = colErr
                     }
                     if (window.linRegPCRTable[row][effErrCol] == false) {
@@ -1669,7 +1692,7 @@ function updateLinRegPCRTable() {
                     if (window.linRegPCRTable[row][48] == true) {  // "amplification"
                         highlight_ErrAmp = colWarn
                     }
-                    if (window.linRegPCRTable[row][50] == true) {  // "plateau"
+                    if (window.linRegPCRTable[row][51] == true) {  // "plateau"
                         highlight_ErrPlat = colWarn
                     }
                     if (window.linRegPCRTable[row][effErrCol] == false) {
@@ -1704,10 +1727,13 @@ function updateLinRegPCRTable() {
                     if (window.linRegPCRTable[row][49] == true) {  // "baseline error"
                         highlight_ErrBase = colErr
                     }
-                    if (window.linRegPCRTable[row][50] == false) {  // "plateau"
+                    if (window.linRegPCRTable[row][50] == true) {  // "instable baseline"
+                        highlight_ErrInstab = colErr
+                    }
+                    if (window.linRegPCRTable[row][51] == false) {  // "plateau"
                         highlight_ErrPlat = colErr
                     }
-                    if (window.linRegPCRTable[row][51] == true) {  // "noisy sample"
+                    if (window.linRegPCRTable[row][52] == true) {  // "noisy sample"
                         highlight_ErrNoisy = colErr
                     }
                     if (window.linRegPCRTable[row][effErrCol] == true) {
@@ -1722,10 +1748,13 @@ function updateLinRegPCRTable() {
                     if (window.linRegPCRTable[row][49] == true) {  // "baseline error"
                         highlight_ErrBase = colWarn
                     }
-                    if (window.linRegPCRTable[row][50] == false) {  // "plateau"
+                    if (window.linRegPCRTable[row][50] == true) {  // "instable baseline"
+                        highlight_ErrInstab = colWarn
+                    }
+                    if (window.linRegPCRTable[row][51] == false) {  // "plateau"
                         highlight_ErrPlat = colWarn
                     }
-                    if (window.linRegPCRTable[row][51] == true) {  // "noisy sample"
+                    if (window.linRegPCRTable[row][52] == true) {  // "noisy sample"
                         highlight_ErrNoisy = colWarn
                     }
                     if (window.linRegPCRTable[row][effErrCol] == true) {
@@ -1756,10 +1785,13 @@ function updateLinRegPCRTable() {
                 if (window.linRegPCRTable[row][49] == true) {  // "baseline error"
                     highlight_ErrBase = colWarn
                 }
-                if (window.linRegPCRTable[row][50] == false) {  // "plateau"
+                if (window.linRegPCRTable[row][50] == true) {  // "instable baseline"
+                    highlight_ErrInstab = colWarn
+                }
+                if (window.linRegPCRTable[row][51] == false) {  // "plateau"
                     highlight_ErrPlat = colWarn
                 }
-                if (window.linRegPCRTable[row][51] == true) {  // "noisy sample"
+                if (window.linRegPCRTable[row][52] == true) {  // "noisy sample"
                     highlight_ErrNoisy = colWarn
                 }
                 if (window.linRegPCRTable[row][effErrCol] == true) {
@@ -1875,11 +1907,11 @@ function updateLinRegPCRTable() {
                 }
             }
             if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][50] + '</td>\n'  // "plateau"
-                content += window.linRegPCRTable[row][50] + "\t"  // "plateau"
+                ret += '<td>' + window.linRegPCRTable[row][50] + '</td>\n'  // "instable baseline"
+                content += window.linRegPCRTable[row][50] + "\t"  // "instable baseline"
             } else {
-                ret += '<td' + highlight_ErrPlat + '>'
-                if (window.linRegPCRTable[row][50] == true) {  // "plateau"
+                ret += '<td' + highlight_ErrInstab + '>'
+                if (window.linRegPCRTable[row][50] == true) {  // "instable baseline"
                     ret += 'Yes</td>\n'
                     content += "Yes\t"
                 } else {
@@ -1888,11 +1920,24 @@ function updateLinRegPCRTable() {
                 }
             }
             if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][51] + '</td>\n'  // "noisy sample"
-                content += window.linRegPCRTable[row][51] + "\t"  // "noisy sample"
+                ret += '<td>' + window.linRegPCRTable[row][51] + '</td>\n'  // "plateau"
+                content += window.linRegPCRTable[row][51] + "\t"  // "plateau"
+            } else {
+                ret += '<td' + highlight_ErrPlat + '>'
+                if (window.linRegPCRTable[row][51] == true) {  // "plateau"
+                    ret += 'Yes</td>\n'
+                    content += "Yes\t"
+                } else {
+                    ret += 'No</td>\n'
+                    content += "No\t"
+                }
+            }
+            if (row == 0) {
+                ret += '<td>' + window.linRegPCRTable[row][52] + '</td>\n'  // "noisy sample"
+                content += window.linRegPCRTable[row][52] + "\t"  // "noisy sample"
             } else {
                 ret += '<td' + highlight_ErrNoisy + '>'
-                if (window.linRegPCRTable[row][51] == true) {  // "noisy sample"
+                if (window.linRegPCRTable[row][52] == true) {  // "noisy sample"
                     ret += 'Yes</td>\n'
                     content += "Yes\t"
                 } else {
@@ -1914,10 +1959,10 @@ function updateLinRegPCRTable() {
                 }
             }
             if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][60] + '</td>\n'  // "used for W-o-L setting"
-                content += window.linRegPCRTable[row][60] + "\t"  // "used for W-o-L setting"
+                ret += '<td>' + window.linRegPCRTable[row][61] + '</td>\n'  // "used for W-o-L setting"
+                content += window.linRegPCRTable[row][61] + "\t"  // "used for W-o-L setting"
             } else {
-                if (window.linRegPCRTable[row][60] == true) {  // "used for W-o-L setting"
+                if (window.linRegPCRTable[row][61] == true) {  // "used for W-o-L setting"
                     ret += '<td>Yes</td>\n'
                     content += "Yes\t"
                 } else {

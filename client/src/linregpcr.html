@@ -147,24 +147,17 @@
         </table>
         <table style="width:100%;">
           <tr>
-            <td style="width:1%;"></td>
-            <td style="width:9%;">Table Format:</td>
-            <td style="width:14%;">
-              <select class="form-control" id="selTableStyle">
-                <option value="extended" selected>LinRegPCR - Extended</option>
-                <option value="classic-compact">LinRegPCR - Classic</option>
-                <option value="debug">Debug</option>
+            <td style="width:1%;background-color: #e6e6e6;"></td>
+            <td style="width:26%;background-color: #e6e6e6;">Exclude from calculations:</td>
+            <td style="width:21%;background-color: #e6e6e6;">Samples with unstable baseline:</td>
+            <td style="width:6%;background-color: #e6e6e6;">
+              <select class="form-control" id="choiceExcludeUnstableBaseline">
+                <option value="y" selected>yes</option>
+                <option value="n">no</option>
               </select>
             </td>
-            <td style="width:3%;"></td>
-            <td style="width:21%;">Decimal Separator:</td>
-            <td style="width:8%;">
-              <select class="form-control" id="selSeparator">
-                <option value="point" selected>Point</option>
-                <option value="comma">Comma</option>
-              </select>
-            </td>
-            <td style="width:5%;"></td>
+            <td style="width:3%;background-color: #e6e6e6;"></td>
+            <td style="width:4%;"></td>
             <td style="width:14%;">Include Annotations:</td>
             <td style="width:6%;">
               <select class="form-control" id="choiceIncludeAnnotations">
@@ -183,7 +176,24 @@
         </table>
         <table style="width:100%;">
           <tr>
-            <td style="width:61%;"></td>
+            <td style="width:1%;"></td>
+            <td style="width:9%;">Table Format:</td>
+            <td style="width:14%;">
+              <select class="form-control" id="selTableStyle">
+                <option value="extended" selected>LinRegPCR - Extended</option>
+                <option value="classic-compact">LinRegPCR - Classic</option>
+                <option value="debug">Debug</option>
+              </select>
+            </td>
+            <td style="width:3%;"></td>
+            <td style="width:21%;">Decimal Separator:</td>
+            <td style="width:8%;">
+              <select class="form-control" id="selSeparator">
+                <option value="point" selected>Point</option>
+                <option value="comma">Comma</option>
+              </select>
+            </td>
+            <td style="width:5%;"></td>
             <td style="width:38%;text-align: right;">
               <button type="submit" class="btn btn-outline-primary" id="btn-copy-linregpcr">
                 <i class="fas fa-paste" style="margin-right: 5px;"></i>
