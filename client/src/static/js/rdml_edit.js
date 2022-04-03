@@ -827,42 +827,42 @@ function updateClientData() {
             ret += '  <tr>\n    <td style="width:25%;">Type:</td>\n'
             ret += '    <td style="width:75%"><select class="form-control" id="inSampType">\n'
             ret += '        <option value="unkn"'
-            if (exp[i].types[0].type == "unkn") {
+            if (exp[i].types.length == 0 || exp[i].types[0].type == "unkn") {
                 ret += ' selected'
             }
             ret += '>unkn - unknown sample</option>\n'
             ret += '        <option value="ntc"'
-            if (exp[i].types[0].type == "ntc") {
+            if (exp[i].types.length > 0 && exp[i].types[0].type == "ntc") {
                 ret += ' selected'
             }
             ret += '>ntc  - non template control</option>\n'
             ret += '        <option value="nac"'
-            if (exp[i].types[0].type == "nac") {
+            if (exp[i].types.length > 0 && exp[i].types[0].type == "nac") {
                 ret += ' selected'
             }
             ret += '>nac  - no amplification control</option>\n'
             ret += '        <option value="std"'
-            if (exp[i].types[0].type == "std") {
+            if (exp[i].types.length > 0 && exp[i].types[0].type == "std") {
                 ret += ' selected'
             }
             ret += '>std  - standard sample</option>\n'
             ret += '        <option value="ntp"'
-            if (exp[i].types[0].type == "ntp") {
+            if (exp[i].types.length > 0 && exp[i].types[0].type == "ntp") {
                 ret += ' selected'
             }
             ret += '>ntp  - no target present</option>\n'
             ret += '        <option value="nrt"'
-            if (exp[i].types[0].type == "nrt") {
+            if (exp[i].types.length > 0 && exp[i].types[0].type == "nrt") {
                 ret += ' selected'
             }
             ret += '>nrt  - minusRT</option>\n'
             ret += '        <option value="pos"'
-            if (exp[i].types[0].type == "pos") {
+            if (exp[i].types.length > 0 && exp[i].types[0].type == "pos") {
                 ret += ' selected'
             }
             ret += '>pos  - positive control</option>\n'
             ret += '        <option value="opt"'
-            if (exp[i].types[0].type == "opt") {
+            if (exp[i].types.length > 0 && exp[i].types[0].type == "opt") {
                 ret += ' selected'
             }
             ret += '>opt  - optical calibrator sample</option>\n'
@@ -872,7 +872,7 @@ function updateClientData() {
                 ret += '  <tr>\n    <td style="width:25%;">Target for Type:</td>\n'
                 ret += '    <td style="width:75%">'
                 var selTypeTarget = ""
-                if ((exp[i].types[0].hasOwnProperty("targetId")) && (exp[i].types[0].targetId != "")) {
+                if (exp[i].types.length > 0 && (exp[i].types[0].hasOwnProperty("targetId")) && (exp[i].types[0].targetId != "")) {
                     selTypeTarget = exp[i].types[0].targetId
                 }
                 ret += '<select class="form-control" id="inSampTypeTarget">\n'
