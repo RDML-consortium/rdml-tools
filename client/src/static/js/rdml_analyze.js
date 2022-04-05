@@ -23,6 +23,9 @@ absoluteQuanButton.addEventListener('click', runAbsoluteQuan)
 const genormButton = document.getElementById('btn-run-genorm')
 genormButton.addEventListener('click', runGenorm)
 
+const relativeButton = document.getElementById('btn-run-relative')
+relativeButton.addEventListener('click', runRelative)
+
 const interRunCorrRDMLButton = document.getElementById('btn-rdml-interruncorr')
 interRunCorrRDMLButton.addEventListener('click', showRDMLSave)
 
@@ -31,6 +34,9 @@ absoluteQuanRDMLButton.addEventListener('click', showRDMLSave)
 
 const genormRDMLButton = document.getElementById('btn-rdml-genorm')
 genormRDMLButton.addEventListener('click', showRDMLSave)
+
+const relativeRDMLButton = document.getElementById('btn-rdml-relative')
+relativeRDMLButton.addEventListener('click', showRDMLSave)
 
 const interRunCorrCopyButton = document.getElementById('btn-copy-interruncorr')
 interRunCorrCopyButton.addEventListener('click', copyTabInterRunCorr)
@@ -41,6 +47,12 @@ absoluteQuanCopyButton.addEventListener('click', copyTabAbsoluteQuan)
 const genormCopyButton = document.getElementById('btn-copy-genorm')
 genormCopyButton.addEventListener('click', copyTabGenorm)
 
+const relativeCopyButton = document.getElementById('btn-copy-relative')
+relativeCopyButton.addEventListener('click', copyTabRelative)
+
+const resCopyButton = document.getElementById('btn-copy-genorm')
+resCopyButton.addEventListener('click', copyTabRes)
+
 const interRunCorrSaveButton = document.getElementById('btn-save-interruncorr')
 interRunCorrSaveButton.addEventListener('click', saveTabInterRunCorr)
 
@@ -50,11 +62,20 @@ absoluteQuanSaveButton.addEventListener('click', saveTabAbsoluteQuan)
 const genormSaveButton = document.getElementById('btn-save-genorm')
 genormSaveButton.addEventListener('click', saveTabGenorm)
 
+const relativeSaveButton = document.getElementById('btn-copy-res')
+relativeSaveButton.addEventListener('click', saveTabRelative)
+
+const resSaveButton = document.getElementById('btn-save-res')
+resSaveButton.addEventListener('click', saveTabRes)
+
 const choiceIntRunAnno = document.getElementById('selInterAnnotation')
 choiceIntRunAnno.addEventListener('change', updateIntRunAnno)
 
 const choiceGenormAnno = document.getElementById('selGenormAnnotation')
 choiceGenormAnno.addEventListener('change', updateGenormAnno)
+
+const choiceRelativeAnno = document.getElementById('selRelativeAnnotation')
+choiceRelativeAnno.addEventListener('change', updateRelativeAnno)
 
 const choicePlateSeparator = document.getElementById('selPlateSeparator')
 choicePlateSeparator.addEventListener('change', updatePlateResDeciSep)
@@ -64,6 +85,12 @@ choiceAbsQuanSeparator.addEventListener('change', updateAbsQuanResDeciSep)
 
 const choiceGenormSeparator = document.getElementById('selGenormSeparator')
 choiceGenormSeparator.addEventListener('change', updateGenormResDeciSep)
+
+const choiceRelativeSeparator = document.getElementById('selRelativeSeparator')
+choiceRelativeSeparator.addEventListener('change', updateRelativeResDeciSep)
+
+const choiceResSeparator = document.getElementById('selResSeparator')
+choiceResSeparator.addEventListener('change', updateResResDeciSep)
 
 const rdmlLibVersion = document.getElementById('rdml_lib_version')
 
@@ -87,6 +114,8 @@ const resultData = document.getElementById('result-data')
 const resultInterRunCorr = document.getElementById('result-interruncorr')
 const resultAbsoluteQant = document.getElementById('result-absolute')
 const resultGenorm = document.getElementById('result-genorm')
+const resultRelative = document.getElementById('result-relative')
+const resultRes = document.getElementById('result-results')
 
 window.uuid = "";
 window.rdmlData = "";
@@ -130,6 +159,12 @@ window.absoluteN0Unit = "";
 window.genorm = {};
 window.genormSaveTable = "";
 
+window.relative = {};
+window.relativeSaveTable = "";
+
+window.res = {};
+window.resSaveTable = "";
+
 window.tarToDye = {}
 window.tarToNr = {}
 window.samToNr = {}
@@ -149,6 +184,8 @@ function resetAllGlobalVal() {
     resetAllInterRun()
     resetAbsoluteQant()
     resetGenorm()
+    resetRelative()
+    resetRes()
     updateClientData()
 }
 
@@ -170,6 +207,18 @@ function resetGenorm() {
     window.genorm = {};
     window.genormSaveTable = "";
     resultGenorm.innerHTML = "";
+}
+
+function resetRelative() {
+    window.relative = {};
+    window.relativeSaveTable = "";
+    resultRelative.innerHTML = "";
+}
+
+function resetRes() {
+    window.res = {};
+    window.resSaveTable = "";
+    resultRes.innerHTML = "";
 }
 
 window.updatePlateDeciSep = updatePlateDeciSep
@@ -216,17 +265,43 @@ function updateGenormResDeciSep() {
     updateAllDeciSep()
 }
 
+window.updateRelativeResDeciSep = updateRelativeResDeciSep
+function updateRelativeResDeciSep() {
+    var data = getSaveHtmlData("selRelativeSeparator")
+    if (data == "point") {
+        window.decimalSepPoint = true;
+    } else {
+        window.decimalSepPoint = false;
+    }
+    updateAllDeciSep()
+}
+
+window.updateResResDeciSep = updateResResDeciSep
+function updateResResDeciSep() {
+    var data = getSaveHtmlData("selResSeparator")
+    if (data == "point") {
+        window.decimalSepPoint = true;
+    } else {
+        window.decimalSepPoint = false;
+    }
+    updateAllDeciSep()
+}
+
 window.updateAllDeciSep = updateAllDeciSep
 function updateAllDeciSep() {
     if (window.decimalSepPoint == true) {
         choicePlateSeparator.value = "point";
         choiceAbsQuanSeparator.value = "point";
         choiceGenormSeparator.value = "point";
+        choiceRelativeSeparator.value = "point";
+        choiceResSeparator.value = "point";
     } else {
         window.decimalSepPoint = false;
         choicePlateSeparator.value = "comma";
         choiceAbsQuanSeparator.value = "comma";
         choiceGenormSeparator.value = "comma";
+        choiceRelativeSeparator.value = "comma";
+        choiceResSeparator.value = "comma";
     }
     updateClientData()
     updatePlateTable()
@@ -249,6 +324,12 @@ function updateIntRunAnno() {
 window.updateGenormAnno = updateGenormAnno
 function updateGenormAnno() {
     window.selAnnotation = getSaveHtmlData("selGenormAnnotation")
+    updateAllAnnotations()
+}
+
+window.updateRelativeAnno = updateRelativeAnno
+function updateRelativeAnno() {
+    window.selAnnotation = getSaveHtmlData("selRelativeAnnotation")
     updateAllAnnotations()
 }
 
@@ -289,6 +370,24 @@ function updateInterRunAnnotations() {
 window.updateGenormAnnotations = updateGenormAnnotations
 function updateGenormAnnotations() {
     var selAn = document.getElementById("selGenormAnnotation")
+    for (var i = selAn.length - 1; i > 0; i--) {
+        selAn.remove(i);
+    }
+    var allAnnotations = Object.keys(window.samAnnotations)
+    for (var i = 0; i < allAnnotations.length; i++) {
+        var opt = document.createElement('option');
+        opt.value = allAnnotations[i];
+        opt.innerHTML = allAnnotations[i];
+        if (window.selAnnotation == allAnnotations[i]) {
+            opt.selected = true;
+        }
+        selAn.appendChild(opt);
+    }
+}
+
+window.updateRelativeAnnotations = updateRelativeAnnotations
+function updateRelativeAnnotations() {
+    var selAn = document.getElementById("selRelativeAnnotation")
     for (var i = selAn.length - 1; i > 0; i--) {
         selAn.remove(i);
     }
@@ -566,8 +665,7 @@ function runGenorm() {
     }
     resultGenorm.innerHTML = ""
     hideElement(resultError)
-    window.plateView = "list";
-
+    
     var ret = {}
     ret["mode"] = "run-genorm"
     ret["sel-experiment"] = window.selExperiment
@@ -576,6 +674,24 @@ function runGenorm() {
     updateServerData(uuid, JSON.stringify(ret))
 
     $('[href="#genorm-tab"]').tab('show')
+}
+
+function runRelative() {
+    if (window.selExperiment == "") {
+        alert("Select an experiment first!")
+        return
+    }
+    resultRelative.innerHTML = ""
+    hideElement(resultError)
+    
+    var ret = {}
+    ret["mode"] = "run-relative"
+    ret["sel-experiment"] = window.selExperiment
+    ret["overlap-type"] = getSaveHtmlData("selOverlapRelative")
+    ret["sel-annotation"] = window.selAnnotation
+    updateServerData(uuid, JSON.stringify(ret))
+
+    $('[href="#relative-tab"]').tab('show')
 }
 
 // TODO client-side validation
@@ -625,6 +741,10 @@ function updateServerData(stat, reqData) {
                     if (res.data.data.hasOwnProperty("genorm")) {
                         window.genorm = res.data.data.genorm
                         updateGenormTable()
+                    }
+                    if (res.data.data.hasOwnProperty("relative")) {
+                        window.relative = res.data.data.relative
+                        updateRelativeTable()
                     }
 
                     // For debugging
@@ -1588,6 +1708,7 @@ function updateClientData() {
     window.plateSaveTable = csv
     updateInterRunAnnotations()
     updateGenormAnnotations()
+    updateRelativeAnnotations()
 }
 
 function tsvGetMaxColumns(tsvString, maxColumns) {
@@ -1789,6 +1910,19 @@ function updateGenormTable() {
     resultGenorm.innerHTML = ret
 }
 
+window.updateRelativeTable = updateRelativeTable
+function updateRelativeTable() {
+    if (!(window.absoluteQant.hasOwnProperty("xxxxx"))) {
+        return
+    }
+    var ret = ""
+    var content = ""
+    var maxCols = 0
+
+    window.relativeSaveTable = content
+    resultRelative.innerHTML = ret
+}
+
 window.floatWithPrec = floatWithPrec
 function floatWithPrec(val, prec) {
     var ret = "";
@@ -1871,6 +2005,18 @@ function saveTabGenorm() {
     return;
 };
 
+window.saveTabRelative = saveTabRelative;
+function saveTabRelative() {
+    saveTabFile("Relative.tsv", window.relativeSaveTable)
+    return;
+};
+
+window.saveTabRes = saveTabRes;
+function saveTabRes() {
+    saveTabFile("Results.tsv", window.resSaveTable)
+    return;
+};
+
 window.copyPlateTable = copyPlateTable;
 function copyPlateTable() {
     var el = document.getElementById("rdmlPlateVTab");
@@ -1894,6 +2040,20 @@ function copyTabAbsoluteQuan() {
 
 window.copyTabGenorm = copyTabGenorm;
 function copyTabGenorm() {
+    var el = document.getElementById("genorm-result-table");
+    copyTableById(el);
+    return;
+};
+
+window.copyTabRelative = copyTabRelative;
+function copyTabRelative() {
+    var el = document.getElementById("genorm-result-table");
+    copyTableById(el);
+    return;
+};
+
+window.copyTabRes = copyTabRes;
+function copyTabRes() {
     var el = document.getElementById("genorm-result-table");
     copyTableById(el);
     return;
