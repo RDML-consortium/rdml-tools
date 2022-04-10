@@ -2198,7 +2198,9 @@ def handle_data():
                     return jsonify(errors=[{"title": "Invalid server request - experiment id not found!"}]), 400
                 estimateTar = True
                 data["genorm"] = experiment.genorm(overlapType=reqdata["overlap-type"],
-                                                   selAnnotation=reqdata["sel-annotation"])
+                                                   selAnnotation=reqdata["sel-annotation"],
+                                                   saveResultsCSV=True,
+                                                   saveResultsSVG=True)
                 data["reactsdata"] = experiment.getreactjson()
                 if "error" in data["reactsdata"]:
                     data["error"] = data["reactsdata"]["error"]

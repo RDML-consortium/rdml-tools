@@ -50,7 +50,7 @@ genormCopyButton.addEventListener('click', copyTabGenorm)
 const relativeCopyButton = document.getElementById('btn-copy-relative')
 relativeCopyButton.addEventListener('click', copyTabRelative)
 
-const resCopyButton = document.getElementById('btn-copy-genorm')
+const resCopyButton = document.getElementById('btn-copy-res')
 resCopyButton.addEventListener('click', copyTabRes)
 
 const interRunCorrSaveButton = document.getElementById('btn-save-interruncorr')
@@ -62,11 +62,17 @@ absoluteQuanSaveButton.addEventListener('click', saveTabAbsoluteQuan)
 const genormSaveButton = document.getElementById('btn-save-genorm')
 genormSaveButton.addEventListener('click', saveTabGenorm)
 
-const relativeSaveButton = document.getElementById('btn-copy-res')
+const relativeSaveButton = document.getElementById('btn-save-relative')
 relativeSaveButton.addEventListener('click', saveTabRelative)
 
 const resSaveButton = document.getElementById('btn-save-res')
 resSaveButton.addEventListener('click', saveTabRes)
+
+const resSaveSVGMValButton = document.getElementById('btn-svg-mvalues')
+resSaveSVGMValButton.addEventListener('click', saveMValsSVG)
+
+const resSaveSVGVValButton = document.getElementById('btn-svg-vvalues')
+resSaveSVGVValButton.addEventListener('click', saveVValsSVG)
 
 const choiceIntRunAnno = document.getElementById('selInterAnnotation')
 choiceIntRunAnno.addEventListener('change', updateIntRunAnno)
@@ -158,6 +164,8 @@ window.absoluteN0Unit = "";
 
 window.genorm = {};
 window.genormSaveTable = "";
+window.genormSaveSVGMval = "";
+window.genormSaveSVGVval = "";
 
 window.relative = {};
 window.relativeSaveTable = "";
@@ -206,6 +214,8 @@ function resetAbsoluteQant() {
 function resetGenorm() {
     window.genorm = {};
     window.genormSaveTable = "";
+    window.genormSaveSVGMval = "";
+    window.genormSaveSVGVval = "";
     resultGenorm.innerHTML = "";
 }
 
@@ -306,6 +316,8 @@ function updateAllDeciSep() {
     updateClientData()
     updatePlateTable()
     updateAbsoluteTable()
+    updateGenormTable()
+    updateRelativeTable()
 }
 
 
@@ -740,6 +752,8 @@ function updateServerData(stat, reqData) {
                     }
                     if (res.data.data.hasOwnProperty("genorm")) {
                         window.genorm = res.data.data.genorm
+                        window.genormSaveSVGMval = window.genorm.svg.m_values;
+                        window.genormSaveSVGVval = window.genorm.svg.v_values;
                         updateGenormTable()
                     }
                     if (res.data.data.hasOwnProperty("relative")) {
@@ -1899,12 +1913,50 @@ function updateAbsoluteTable() {
 
 window.updateGenormTable = updateGenormTable
 function updateGenormTable() {
-    if (!(window.absoluteQant.hasOwnProperty("xxxxx"))) {
+    if (!(window.genorm.hasOwnProperty("tsv"))) {
         return
     }
+    if (!(window.genorm.tsv.hasOwnProperty("m_values"))) {
+        return
+    }
+    var maxCols = 0
+    maxCols = tsvGetMaxColumns(window.genorm.tsv.m_values, maxCols)
+    maxCols = tsvGetMaxColumns(window.genorm.tsv.v_values, maxCols)
+    maxCols = tsvGetMaxColumns(window.genorm.tsv.n0_count, maxCols)
+    maxCols = tsvGetMaxColumns(window.genorm.tsv.n0_values, maxCols)
+
     var ret = ""
     var content = ""
-    var maxCols = 0
+
+    ret += '<img src="data:image/svg+xml,' +  encodeURIComponent(window.genormSaveSVGMval) + '" alt="M-values-SVG" width="500px">'
+    ret += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
+    ret += '<img src="data:image/svg+xml,' +  encodeURIComponent(window.genormSaveSVGVval) + '" alt="V-values-SVG" width="500px">'
+
+    ret += '<br /><br />\n'
+    ret += '<table class="table table-bordered table-striped" id="genorm-result-table">\n'
+    ret += tsvToTableHeadline("M-values", maxCols)
+    content += tsvToTsvHeadline("M-values", maxCols)
+    ret += tsvToTableSection(window.genorm.tsv.m_values, maxCols)
+    content += tsvToTsvSection(window.genorm.tsv.m_values, maxCols)
+    ret += tsvToTableHeadline("", maxCols)
+    content += tsvToTsvHeadline("", maxCols)
+    ret += tsvToTableHeadline("V-values", maxCols)
+    content += tsvToTsvHeadline("V-values", maxCols)
+    ret += tsvToTableSection(window.genorm.tsv.v_values, maxCols)
+    content += tsvToTsvSection(window.genorm.tsv.v_values, maxCols)
+    ret += tsvToTableHeadline("", maxCols)
+    content += tsvToTsvHeadline("", maxCols)
+    ret += tsvToTableHeadline("Found Conditions", maxCols)
+    content += tsvToTsvHeadline("Found Conditions", maxCols)
+    ret += tsvToTableSection(window.genorm.tsv.n0_count, maxCols)
+    content += tsvToTsvSection(window.genorm.tsv.n0_count, maxCols)
+    ret += tsvToTableHeadline("", maxCols)
+    content += tsvToTsvHeadline("", maxCols)
+    ret += tsvToTableHeadline("Gemetric Mean of N0", maxCols)
+    content += tsvToTsvHeadline("Gemetric Mean of N0", maxCols)
+    ret += tsvToTableSection(window.genorm.tsv.n0_values, maxCols)
+    content += tsvToTsvSection(window.genorm.tsv.n0_values, maxCols)
+    ret += '</table>\n'
 
     window.genormSaveTable = content
     resultGenorm.innerHTML = ret
@@ -2235,6 +2287,39 @@ function saveTabFile(fileName, content) {
     }
     return;
 };
+
+window.saveSVGFile = saveSVGFile;
+function saveSVGFile(content, fileName) {
+    var a = document.createElement("a");
+    document.body.appendChild(a);
+    a.style.display = "none";
+    var blob = new Blob([content], {type: "image/svg+xml"});
+    var browser = detectBrowser();
+    if (browser != "edge") {
+	    var url = window.URL.createObjectURL(blob);
+	    a.href = url;
+	    a.download = fileName;
+	    a.click();
+	    window.URL.revokeObjectURL(url);
+    } else {
+        window.navigator.msSaveBlob(blob, fileName);
+    }
+    return;
+}
+
+window.saveMValsSVG = saveMValsSVG;
+function saveMValsSVG() {
+    saveSVGFile(window.genormSaveSVGMval, "geNorm_M_values.svg")
+    return;
+}
+
+window.saveVValsSVG = saveVValsSVG;
+function saveVValsSVG() {
+    saveSVGFile(window.genormSaveSVGVval, "geNorm_V_values.svg")
+    return;
+}
+
+saveSVGFile(content, fileName)
 
 window.updatePCRStyle = updatePCRStyle;
 function updatePCRStyle() {

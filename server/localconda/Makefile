@@ -13,7 +13,7 @@ all:   	$(TARGETS)
 	export PATH=${PBASE}/conda/bin:${PATH} && conda config --add channels defaults && conda config --add channels conda-forge && conda config --add channels bioconda && touch .channels
 
 .install: .conda .channels
-	export PATH=${PBASE}/conda/bin:${PATH} && conda install -y gunicorn lxml flask flask_cors numpy scipy samtools && touch .install
+	export PATH=${PBASE}/conda/bin:${PATH} && conda install -y gunicorn lxml matplotlib flask flask_cors numpy scipy samtools && touch .install
 
 clean:
 	rm -rf $(TARGETS) $(TARGETS:=.o) conda/
