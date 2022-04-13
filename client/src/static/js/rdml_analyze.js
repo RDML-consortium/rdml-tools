@@ -2034,6 +2034,10 @@ function updateRelativeTable() {
 
     maxCols = tsvGetMaxColumns(window.relative.tsv.technical_data, maxCols)
     maxCols = tsvGetMaxColumns(window.relative.tsv.reference_data, maxCols)
+    maxCols = tsvGetMaxColumns(window.relative.tsv.relative_data, maxCols)
+    if (window.relative.tsv.hasOwnProperty("technical_data")) {
+        maxCols = tsvGetMaxColumns(window.relative.tsv.annotation_data, maxCols)
+    }
 
     ret += '<br /><br />\n'
     ret += '<table class="table table-bordered table-striped" id="relative-result-table">\n'
@@ -2047,6 +2051,20 @@ function updateRelativeTable() {
     content += tsvToTsvHeadline("Reference Genes", maxCols)
     ret += tsvToTableSection(window.relative.tsv.reference_data, maxCols)
     content += tsvToTsvSection(window.relative.tsv.reference_data, maxCols)
+    ret += tsvToTableHeadline("", maxCols)
+    content += tsvToTsvHeadline("", maxCols)
+    ret += tsvToTableHeadline("Relative Expression", maxCols)
+    content += tsvToTsvHeadline("Relative Expression", maxCols)
+    ret += tsvToTableSection(window.relative.tsv.relative_data, maxCols)
+    content += tsvToTsvSection(window.relative.tsv.relative_data, maxCols)
+    if (window.relative.tsv.hasOwnProperty("technical_data")) {
+        ret += tsvToTableHeadline("", maxCols)
+        content += tsvToTsvHeadline("", maxCols)
+        ret += tsvToTableHeadline("Expression by Annotation", maxCols)
+        content += tsvToTsvHeadline("Expression by Annotation", maxCols)
+        ret += tsvToTableSection(window.relative.tsv.annotation_data, maxCols)
+        content += tsvToTsvSection(window.relative.tsv.annotation_data, maxCols)
+    }
     ret += '</table>\n'
 
 
