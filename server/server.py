@@ -2196,7 +2196,6 @@ def handle_data():
                 experiment = rd.get_experiment(byid=reqdata["sel-experiment"])
                 if experiment is None:
                     return jsonify(errors=[{"title": "Invalid server request - experiment id not found!"}]), 400
-                estimateTar = True
                 data["genorm"] = experiment.genorm(overlapType=reqdata["overlap-type"],
                                                    selAnnotation=reqdata["sel-annotation"],
                                                    saveResultsCSV=True,
@@ -2217,14 +2216,17 @@ def handle_data():
                 return jsonify(errors=[{"title": "Invalid server request - overlap-type id missing!"}]), 400
             if "sel-annotation" not in reqdata:
                 return jsonify(errors=[{"title": "Invalid server request - sel-annotation missing!"}]), 400
+            if "sel-references" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - sel-references missing!"}]), 400
             try:
                 logNote1 = "run-relative"
                 experiment = rd.get_experiment(byid=reqdata["sel-experiment"])
                 if experiment is None:
                     return jsonify(errors=[{"title": "Invalid server request - experiment id not found!"}]), 400
-                estimateTar = True
                 data["relative"] = experiment.relative(overlapType=reqdata["overlap-type"],
-                                                       selAnnotation=reqdata["sel-annotation"])
+                                                       selAnnotation=reqdata["sel-annotation"],
+                                                       selReferences=reqdata["sel-references"],
+                                                       saveResultsCSV=True)
                 data["reactsdata"] = experiment.getreactjson()
                 if "error" in data["reactsdata"]:
                     data["error"] = data["reactsdata"]["error"]

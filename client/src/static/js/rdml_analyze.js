@@ -5,6 +5,8 @@ const API_LINK = process.env.API_LINK
 
 const resultLink = document.getElementById('uuid-link-box')
 
+const resultSelReferences = document.getElementById('result-sel-references')
+
 const submitButton = document.getElementById('btn-submit')
 submitButton.addEventListener('click', showUpload)
 
@@ -168,6 +170,7 @@ window.genormSaveSVGMval = "";
 window.genormSaveSVGVval = "";
 
 window.relative = {};
+window.selRefGenes = {};
 window.relativeSaveTable = "";
 
 window.res = {};
@@ -193,6 +196,7 @@ function resetAllGlobalVal() {
     resetAbsoluteQant()
     resetGenorm()
     resetRelative()
+    window.selRefGenes = {};
     resetRes()
     updateClientData()
 }
@@ -695,12 +699,29 @@ function runRelative() {
     }
     resultRelative.innerHTML = ""
     hideElement(resultError)
-    
+
+    var selRefs = []
+    var allRefList = getSaveHtmlData('all-used-references')
+    if (allRefList != "") {
+        var allRefIds = allRefList.split(";")
+        for (var refPos = 0; refPos < allRefIds.length; refPos++) {
+            if (allRefIds[refPos].length > 0) {
+                var el = document.getElementById(allRefIds[refPos]);
+                if (el) {
+                    if (el.checked) {
+                        selRefs.push(el.value);
+                    }
+                }
+            }
+        }
+    }
+
     var ret = {}
     ret["mode"] = "run-relative"
     ret["sel-experiment"] = window.selExperiment
     ret["overlap-type"] = getSaveHtmlData("selOverlapRelative")
     ret["sel-annotation"] = window.selAnnotation
+    ret["sel-references"] = selRefs
     updateServerData(uuid, JSON.stringify(ret))
 
     $('[href="#relative-tab"]').tab('show')
@@ -1720,9 +1741,46 @@ function updateClientData() {
     }
     resultData.innerHTML = ret
     window.plateSaveTable = csv
+
+    if ((window.expData.hasOwnProperty("used_references")) && (window.expData.used_references.length != 0)) {
+        var refs = window.expData.used_references;
+        var refList = '<input type="hidden" id="all-used-references" value="';
+        var refBox = "<h4>Selected Reference Genes for Correction:</h4>";
+        for (var refPos = 0; refPos < refs.length; refPos++) {
+            var refId = "reference-sel-" + refs[refPos].replace(/[^A-Za-z0-9_]/g, "");
+            refList += refId + ";"
+            refBox += '<div class="form-check form-check-inline">'
+            refBox += '  <label class="form-check-label">'
+            refBox += '    <input type="checkbox" class="form-check-input" id="' + refId + '"'
+            refBox += ' value="' + refs[refPos] +'"'
+            refBox += ' onchange="window.selRefGene(\'' + refId + '\')"'
+            if (!(window.selRefGenes.hasOwnProperty(refId))) {
+                window.selRefGenes[refId] = true;
+            }
+            if (window.selRefGenes[refId] == true) {
+                refBox += ' checked'
+            }
+            refBox += '>' + refs[refPos]
+            refBox += '  </label>'
+            refBox += '</div>'
+
+        }
+        refList = refList.replace(/;$/g, "") + '">\n'
+        resultSelReferences.innerHTML = refBox + "\n" + refList;
+    }
     updateInterRunAnnotations()
     updateGenormAnnotations()
     updateRelativeAnnotations()
+}
+
+window.selRefGene = selRefGene
+function selRefGene(selId) {
+    var el = document.getElementById(selId);
+    if (el) {
+        if (window.selRefGenes.hasOwnProperty(selId)) {
+            window.selRefGenes[selId] = el.checked;
+        }
+    }
 }
 
 function tsvGetMaxColumns(tsvString, maxColumns) {
@@ -1964,12 +2022,33 @@ function updateGenormTable() {
 
 window.updateRelativeTable = updateRelativeTable
 function updateRelativeTable() {
-    if (!(window.absoluteQant.hasOwnProperty("xxxxx"))) {
+    if (!(window.relative.hasOwnProperty("tsv"))) {
+        return
+    }
+    if (!(window.relative.tsv.hasOwnProperty("technical_data"))) {
         return
     }
     var ret = ""
     var content = ""
     var maxCols = 0
+
+    maxCols = tsvGetMaxColumns(window.relative.tsv.technical_data, maxCols)
+    maxCols = tsvGetMaxColumns(window.relative.tsv.reference_data, maxCols)
+
+    ret += '<br /><br />\n'
+    ret += '<table class="table table-bordered table-striped" id="relative-result-table">\n'
+    ret += tsvToTableHeadline("Technical Replicates", maxCols)
+    content += tsvToTsvHeadline("Technical Replicates", maxCols)
+    ret += tsvToTableSection(window.relative.tsv.technical_data, maxCols)
+    content += tsvToTsvSection(window.relative.tsv.technical_data, maxCols)
+    ret += tsvToTableHeadline("", maxCols)
+    content += tsvToTsvHeadline("", maxCols)
+    ret += tsvToTableHeadline("Reference Genes", maxCols)
+    content += tsvToTsvHeadline("Reference Genes", maxCols)
+    ret += tsvToTableSection(window.relative.tsv.reference_data, maxCols)
+    content += tsvToTsvSection(window.relative.tsv.reference_data, maxCols)
+    ret += '</table>\n'
+
 
     window.relativeSaveTable = content
     resultRelative.innerHTML = ret
@@ -2099,14 +2178,14 @@ function copyTabGenorm() {
 
 window.copyTabRelative = copyTabRelative;
 function copyTabRelative() {
-    var el = document.getElementById("genorm-result-table");
+    var el = document.getElementById("relative-result-table");
     copyTableById(el);
     return;
 };
 
 window.copyTabRes = copyTabRes;
 function copyTabRes() {
-    var el = document.getElementById("genorm-result-table");
+    var el = document.getElementById("res-result-table");
     copyTableById(el);
     return;
 };
@@ -2318,8 +2397,6 @@ function saveVValsSVG() {
     saveSVGFile(window.genormSaveSVGVval, "geNorm_V_values.svg")
     return;
 }
-
-saveSVGFile(content, fileName)
 
 window.updatePCRStyle = updatePCRStyle;
 function updatePCRStyle() {
