@@ -1828,6 +1828,99 @@ function tsvToTableSection(tsvString, maxColumns) {
     return ret
 }
 
+function tsvToTableSectionHead(tsvString, maxColumns) {
+    maxColumns = parseInt(maxColumns)
+    var ret = ''
+    var tsvLines = tsvString.split("\n")
+    for (var row = 0 ; row < tsvLines.length - 1 ; row++) {
+        ret += '<tr>\n'
+        var tsvCells = tsvLines[row].split("\t")
+        for (var col = 0 ; col < maxColumns ; col++) {
+            if (col < tsvCells.length) {
+                if (row == 0) {
+                    ret += '<th>'
+                } else {
+                    ret += '<td>'
+                }
+                if ((window.decimalSepPoint == false) && (row != 0)) {
+                    ret += tsvCells[col].replace(/\./g, ',');
+                } else {
+                    ret += tsvCells[col]
+                }
+                if (row == 0) {
+                    ret += '</th>'
+                } else {
+                    ret += '</td>'
+                }
+            } else {
+                ret += '<td></td>'
+            }
+        }
+        ret += '</tr>\n'
+    }
+    return ret
+}
+
+function tsvToTableSectionNoRaw(tsvString, maxColumns) {
+    maxColumns = parseInt(maxColumns)
+    var ret = ''
+    var rawCol = -1
+    var tsvLines = tsvString.split("\n")
+    for (var row = 0 ; row < tsvLines.length - 1 ; row++) {
+        ret += '<tr>\n'
+        var tsvCells = tsvLines[row].split("\t")
+        var rawVals = ""
+        for (var col = 0 ; col < maxColumns ; col++) {
+            if (col < tsvCells.length) {
+                if (row == 0) {
+                    if (col != maxColumns - 1) {
+                        if (tsvCells[col] == "Raw Values") {
+                            rawCol = col
+                        }
+                    }
+                    ret += '<th>'
+                } else {
+                    ret += '<td>'
+                }
+
+                if (rawCol == col ) {
+                    rawVals = tsvCells[col]
+                } else if ((window.decimalSepPoint == false) && (row != 0)) {
+                    ret += tsvCells[col].replace(/\./g, ',');
+                } else  {
+                    ret += tsvCells[col]
+                }
+
+                if (row == 0) {
+                    ret += '</th>'
+                } else {
+                    ret += '</td>'
+                }
+            } else {
+                if (row == 0) {
+                     ret += '<th>'
+                } else {
+                    ret += '<td>'
+                }
+                if (col == maxColumns - 1) {
+                    if ((window.decimalSepPoint == false) && (row != 0)) {
+                        ret += rawVals.replace(/\./g, ',');
+                    } else {
+                        ret += rawVals
+                    }
+                }
+
+                if (row == 0) {
+                    ret += '</th>'
+                } else {
+                    ret += '</td>'
+                }
+            }
+        }
+        ret += '</tr>\n'
+    }
+    return ret
+}
 function tsvToTsvSection(tsvString, maxColumns) {
     maxColumns = parseInt(maxColumns)
     var ret = ''
@@ -1850,6 +1943,48 @@ function tsvToTsvSection(tsvString, maxColumns) {
     }
     return ret
 }
+
+function tsvToTsvSectionNoRaw(tsvString, maxColumns) {
+    maxColumns = parseInt(maxColumns)
+    var ret = ''
+    var rawCol = -1
+    var tsvLines = tsvString.split("\n")
+    for (var row = 0 ; row < tsvLines.length - 1 ; row++) {
+        var tsvCells = tsvLines[row].split("\t")
+        var rawVals = ""
+        for (var col = 0 ; col < maxColumns ; col++) {
+            if (col < tsvCells.length) {
+                if (row == 0) {
+                    if (col != maxColumns - 1) {
+                        if (tsvCells[col] == "Raw Values") {
+                            rawCol = col
+                        }
+                    }
+                }
+
+                if (rawCol == col ) {
+                    rawVals = tsvCells[col]
+                } else if ((window.decimalSepPoint == false) && (row != 0)) {
+                    ret += tsvCells[col].replace(/\./g, ',');
+                } else {
+                    ret += tsvCells[col]
+                }
+            }
+            if (col + 1 != maxColumns) {
+                ret += '\t'
+            } else {
+                if ((window.decimalSepPoint == false) && (row != 0)) {
+                    ret += rawVals.replace(/\./g, ',');
+                } else {
+                    ret += rawVals
+                }
+            }
+        }
+        ret += '\n'
+    }
+    return ret
+}
+
 
 function tsvToTableHeadline(note, maxColumns) {
     return '<tr>\n<th colspan="' + maxColumns + '">' + note + '</th></tr>\n'
@@ -2035,7 +2170,7 @@ function updateRelativeTable() {
     maxCols = tsvGetMaxColumns(window.relative.tsv.technical_data, maxCols)
     maxCols = tsvGetMaxColumns(window.relative.tsv.reference_data, maxCols)
     maxCols = tsvGetMaxColumns(window.relative.tsv.relative_data, maxCols)
-    if (window.relative.tsv.hasOwnProperty("technical_data")) {
+    if (window.relative.tsv.hasOwnProperty("annotation_data")) {
         maxCols = tsvGetMaxColumns(window.relative.tsv.annotation_data, maxCols)
     }
 
@@ -2043,27 +2178,27 @@ function updateRelativeTable() {
     ret += '<table class="table table-bordered table-striped" id="relative-result-table">\n'
     ret += tsvToTableHeadline("Technical Replicates", maxCols)
     content += tsvToTsvHeadline("Technical Replicates", maxCols)
-    ret += tsvToTableSection(window.relative.tsv.technical_data, maxCols)
-    content += tsvToTsvSection(window.relative.tsv.technical_data, maxCols)
+    ret += tsvToTableSectionNoRaw(window.relative.tsv.technical_data, maxCols)
+    content += tsvToTsvSectionNoRaw(window.relative.tsv.technical_data, maxCols)
     ret += tsvToTableHeadline("", maxCols)
     content += tsvToTsvHeadline("", maxCols)
     ret += tsvToTableHeadline("Reference Genes", maxCols)
     content += tsvToTsvHeadline("Reference Genes", maxCols)
-    ret += tsvToTableSection(window.relative.tsv.reference_data, maxCols)
-    content += tsvToTsvSection(window.relative.tsv.reference_data, maxCols)
+    ret += tsvToTableSectionNoRaw(window.relative.tsv.reference_data, maxCols)
+    content += tsvToTsvSectionNoRaw(window.relative.tsv.reference_data, maxCols)
     ret += tsvToTableHeadline("", maxCols)
     content += tsvToTsvHeadline("", maxCols)
     ret += tsvToTableHeadline("Relative Expression", maxCols)
     content += tsvToTsvHeadline("Relative Expression", maxCols)
-    ret += tsvToTableSection(window.relative.tsv.relative_data, maxCols)
-    content += tsvToTsvSection(window.relative.tsv.relative_data, maxCols)
-    if (window.relative.tsv.hasOwnProperty("technical_data")) {
+    ret += tsvToTableSectionNoRaw(window.relative.tsv.relative_data, maxCols)
+    content += tsvToTsvSectionNoRaw(window.relative.tsv.relative_data, maxCols)
+    if (window.relative.tsv.hasOwnProperty("annotation_data")) {
         ret += tsvToTableHeadline("", maxCols)
         content += tsvToTsvHeadline("", maxCols)
         ret += tsvToTableHeadline("Expression by Annotation", maxCols)
         content += tsvToTsvHeadline("Expression by Annotation", maxCols)
-        ret += tsvToTableSection(window.relative.tsv.annotation_data, maxCols)
-        content += tsvToTsvSection(window.relative.tsv.annotation_data, maxCols)
+        ret += tsvToTableSectionNoRaw(window.relative.tsv.annotation_data, maxCols)
+        content += tsvToTsvSectionNoRaw(window.relative.tsv.annotation_data, maxCols)
     }
     ret += '</table>\n'
 
