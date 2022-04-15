@@ -58,9 +58,6 @@
         <a class="nav-link" href="#relative-tab" id="link-relative">RelativeQuantification</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="#results-tab" id="link-results">Results</a>
-      </li>
-      <li class="nav-item">
         <a class="nav-link" href="#help-tab" id="link-help">Help</a>
       </li>
     </ul>
@@ -111,8 +108,12 @@
               </select>
             </td>
             <td style="width:4%;"></td>
-            <td style="width:14%;"></td>
-            <td style="width:8%;"></td>
+            <td style="width:14%;">Sel. Annotation:</td>
+            <td style="width:8%;">
+              <select class="form-control" id="selInterAnnotation">
+                <option value="" selected>Not Selected</option>
+              </select>
+            </td>
             <td style="width:4%;"></td>
             <td style="width:14%;">Update RDML Data:</td>
             <td style="width:6%;">
@@ -132,28 +133,19 @@
         </table>
         <table style="width:100%;">
           <tr>
-            <td style="width:1%;background-color: #e6e6e6;"></td>
-            <td style="width:14%;background-color: #e6e6e6;">Sel. Annotation:</td>
-            <td style="width:14%;background-color: #e6e6e6;">
-              <select class="form-control" id="selInterAnnotation">
-                <option value="" selected>Not Selected</option>
-              </select>
-            </td>
-            <td style="width:1%;background-color: #e6e6e6;"></td>
+            <td style="width:1%;"></td>
+            <td style="width:14%;"></td>
+            <td style="width:14%;"></td>
+            <td style="width:1%;"></td>
             <td style="width:3%;"></td>
+            <td style="width:14%;"></td>
+            <td style="width:8%;"></td>
+            <td style="width:4%;"></td>
             <td style="width:14%;">Decimal Separator:</td>
-            <td style="width:8%;">
+            <td style="width:6%;">
               <select class="form-control" id="selPlateSeparator">
                 <option value="point" selected>Point</option>
                 <option value="comma">Comma</option>
-              </select>
-            </td>
-            <td style="width:4%;"></td>
-            <td style="width:14%;">Include Annotations:</td>
-            <td style="width:6%;">
-              <select class="form-control" id="choiceIncludeAnnotations">
-                <option value="y">yes</option>
-                <option value="n" selected>no</option>
               </select>
             </td>
             <td style="width:20%;text-align: right;">
@@ -227,18 +219,21 @@
             <td style="width:1%;"></td>
           </tr>
         </table>
-        <table style="width:100%;">
+        <table style="width:100%;background-color: #e6e6e6;">
           <tr>
-            <td style="width:1%;background-color: #e6e6e6;"></td>
-            <td style="width:14%;background-color: #e6e6e6;"></td>
-            <td style="width:14%;background-color: #e6e6e6;"></td>
-            <td style="width:1%;background-color: #e6e6e6;"></td>
-            <td style="width:3%;"></td>
-            <td style="width:14%;">Decimal Separator:</td>
-            <td style="width:8%;">
-              <select class="form-control" id="selAbsoluteSeparator">
-                <option value="point" selected>Point</option>
-                <option value="comma">Comma</option>
+            <td style="width:1%;"></td>
+            <td style="width:14%;">Overlap:</td>
+            <td style="width:14%;">
+              <select class="form-control" id="selOverlapAbsolute">
+                <option value="samples" selected>Technical Replicates</option>
+                <option value="annotation">Same Annotation</option>
+              </select>
+            </td>
+            <td style="width:4%;"></td>
+            <td style="width:14%;background-color: #e6e6e6;">Sel. Annotation:</td>
+            <td style="width:8%;background-color: #e6e6e6;">
+              <select class="form-control" id="selAbsoluteAnnotation">
+                <option value="" selected>Not Selected</option>
               </select>
             </td>
             <td style="width:4%;"></td>
@@ -247,6 +242,27 @@
               <select class="form-control" id="choiceIncludeAnnotationsAbs">
                 <option value="y">yes</option>
                 <option value="n" selected>no</option>
+              </select>
+            </td>
+            <td style="width:20%;text-align: right;"></td>
+            <td style="width:1%;"></td>
+          </tr>
+        </table>
+        <table style="width:100%;">
+          <tr>
+            <td style="width:1%;background-color: #e6e6e6;"></td>
+            <td style="width:14%;background-color: #e6e6e6;"></td>
+            <td style="width:14%;background-color: #e6e6e6;"></td>
+            <td style="width:1%;background-color: #e6e6e6;"></td>
+            <td style="width:3%;"></td>
+            <td style="width:14%;"></td>
+            <td style="width:8%;"></td>
+            <td style="width:4%;"></td>
+            <td style="width:14%;">Decimal Separator:</td>
+            <td style="width:6%;">
+              <select class="form-control" id="selAbsoluteSeparator">
+                <option value="point" selected>Point</option>
+                <option value="comma">Comma</option>
               </select>
             </td>
             <td style="width:20%;text-align: right;">
@@ -292,12 +308,19 @@
             </td>
             <td style="width:4%;"></td>
             <td style="width:14%;background-color: #e6e6e6;">Sel. Annotation:</td>
-            <td style="width:14%;background-color: #e6e6e6;">
+            <td style="width:8%;background-color: #e6e6e6;">
               <select class="form-control" id="selGenormAnnotation">
                 <option value="" selected>Not Selected</option>
               </select>
             </td>
-            <td style="width:18%;"></td>
+            <td style="width:4%;"></td>
+            <td style="width:14%;">Decimal Separator:</td>
+            <td style="width:6%;">
+              <select class="form-control" id="selGenormSeparator">
+                <option value="point" selected>Point</option>
+                <option value="comma">Comma</option>
+              </select>
+            </td>
             <td style="width:20%;text-align: right;">
               <button type="submit" class="btn btn-outline-primary" id="btn-run-genorm">
                 <i class="fas fa-rocket" style="margin-right: 5px;"></i>
@@ -307,41 +330,11 @@
             <td style="width:1%;"></td>
           </tr>
         </table>
+        <br />
         <table style="width:100%;">
           <tr>
-            <td style="width:1%;"></td>
-            <td style="width:14%;"></td>
-            <td style="width:14%;"></td>
-            <td style="width:1%;"></td>
-            <td style="width:3%;"></td>
-            <td style="width:14%;">Decimal Separator:</td>
-            <td style="width:8%;">
-              <select class="form-control" id="selGenormSeparator">
-                <option value="point" selected>Point</option>
-                <option value="comma">Comma</option>
-              </select>
-            </td>
-            <td style="width:4%;"></td>
-            <td style="width:14%;">Include Annotations:</td>
-            <td style="width:6%;">
-              <select class="form-control" id="choiceGenormAnnotationsAbs">
-                <option value="y">yes</option>
-                <option value="n" selected>no</option>
-              </select>
-            </td>
-            <td style="width:20%;text-align: right;">
-              <button type="submit" class="btn btn-outline-primary" id="btn-rdml-genorm">
-                <i class="far fa-save" style="margin-right: 5px;"></i>
-                Save RDML
-              </button>
-            </td>
-            <td style="width:1%;"></td>
-          </tr>
-        </table>
-        <table style="width:100%;">
-          <tr>
-            <td style="width:30%;"></td>
-            <td style="width:69%;text-align: right;">
+            <td style="width:10%;"></td>
+            <td style="width:89%;text-align: right;">
               <button type="submit" class="btn btn-outline-primary" id="btn-svg-mvalues">
                 <i class="fas fa-save" style="margin-right: 5px;"></i>
                 Save M-values figure as SVG
@@ -357,6 +350,10 @@
               <button type="submit" class="btn btn-outline-primary" id="btn-save-genorm">
                 <i class="far fa-save" style="margin-right: 5px;"></i>
                 Save table as CSV
+              </button>
+              <button type="submit" class="btn btn-outline-primary" id="btn-rdml-genorm">
+                <i class="far fa-save" style="margin-right: 5px;"></i>
+                Save RDML
               </button>
             </td>
             <td style="width:1%;"></td>
@@ -381,12 +378,19 @@
             </td>
             <td style="width:4%;"></td>
             <td style="width:14%;background-color: #e6e6e6;">Sel. Annotation:</td>
-            <td style="width:14%;background-color: #e6e6e6;">
+            <td style="width:8%;background-color: #e6e6e6;">
               <select class="form-control" id="selRelativeAnnotation">
                 <option value="" selected>Not Selected</option>
               </select>
             </td>
-            <td style="width:18%;"></td>
+            <td style="width:4%;"></td>
+            <td style="width:14%;">Include Annotations:</td>
+            <td style="width:6%;">
+              <select class="form-control" id="choiceIncludeAnnotationsRel">
+                <option value="y">yes</option>
+                <option value="n" selected>no</option>
+              </select>
+            </td>
             <td style="width:20%;text-align: right;">
               <button type="submit" class="btn btn-outline-primary" id="btn-run-relative">
                 <i class="fas fa-rocket" style="margin-right: 5px;"></i>
@@ -403,19 +407,14 @@
             <td style="width:14%;"></td>
             <td style="width:1%;"></td>
             <td style="width:3%;"></td>
+            <td style="width:14%;"></td>
+            <td style="width:8%;"></td>
+            <td style="width:4%;"></td>
             <td style="width:14%;">Decimal Separator:</td>
-            <td style="width:8%;">
+            <td style="width:6%;">
               <select class="form-control" id="selRelativeSeparator">
                 <option value="point" selected>Point</option>
                 <option value="comma">Comma</option>
-              </select>
-            </td>
-            <td style="width:4%;"></td>
-            <td style="width:14%;">Include Annotations:</td>
-            <td style="width:6%;">
-              <select class="form-control" id="choiceRelativeAnnotationsAbs">
-                <option value="y">yes</option>
-                <option value="n" selected>no</option>
               </select>
             </td>
             <td style="width:20%;text-align: right;">
@@ -447,43 +446,6 @@
         <br />
         <br />
         <div id="result-relative"></div>
-      </div>
-
-      <div class="tab-pane" id="results-tab">
-        <table style="width:100%;">
-          <tr>
-            <td style="width:1%;"></td>
-            <td style="width:14%;">Decimal Separator:</td>
-            <td style="width:14%;">
-              <select class="form-control" id="selResSeparator">
-                <option value="point" selected>Point</option>
-                <option value="comma">Comma</option>
-              </select>
-            </td>
-            <td style="width:4%;"></td>
-            <td style="width:14%;">Include Annotations:</td>
-            <td style="width:14%;">
-              <select class="form-control" id="choiceResAnnotationsAbs">
-                <option value="y">yes</option>
-                <option value="n" selected>no</option>
-              </select>
-            </td>
-            <td style="width:38%;text-align: right;">
-              <button type="submit" class="btn btn-outline-primary" id="btn-copy-res">
-                <i class="fas fa-paste" style="margin-right: 5px;"></i>
-                Copy table to clipboard
-              </button>&nbsp;&nbsp;
-              <button type="submit" class="btn btn-outline-primary" id="btn-save-res">
-                <i class="far fa-save" style="margin-right: 5px;"></i>
-                Save table as CSV
-              </button>
-            </td>
-            <td style="width:1%;"></td>
-          </tr>
-        </table>
-        <br />
-        <br />
-        <div id="result-results"></div>
       </div>
 
       <div class="tab-pane" id="help-tab">

@@ -2159,8 +2159,12 @@ def handle_data():
                 return jsonify(errors=[{"title": "Invalid server request - absolute-unit id missing!"}]), 400
             if "estimate-missing" not in reqdata:
                 return jsonify(errors=[{"title": "Invalid server request - estimate-missing id missing!"}]), 400
-            if "update-RDML-data" not in reqdata:
-                return jsonify(errors=[{"title": "Invalid server request - update-RDML-data missing!"}]), 400
+            if "overlap-type" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - overlap-type id missing!"}]), 400
+            if "sel-annotation" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - sel-annotation missing!"}]), 400
+            if "incl-annotation" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - incl-annotation missing!"}]), 400
             try:
                 logNote1 = "run-absolute"
                 experiment = rd.get_experiment(byid=reqdata["sel-experiment"])
@@ -2172,17 +2176,16 @@ def handle_data():
                 data["absolutequan"] = experiment.absoluteQuantification(method=reqdata["absolute-method"],
                                                                          quantUnit=reqdata["absolute-unit"],
                                                                          estimate=estimateTar,
-                                                                         updateRDML=reqdata["update-RDML-data"])
+                                                                         overlapType=reqdata["overlap-type"],
+                                                                         selAnnotation=reqdata["sel-annotation"],
+                                                                         inclAnnotation=reqdata["incl-annotation"])
                 data["reactsdata"] = experiment.getreactjson()
                 if "error" in data["reactsdata"]:
                     data["error"] = data["reactsdata"]["error"]
                 if "error" in data["absolutequan"]:
                     data["error"] = data["absolutequan"]["error"]
-                if reqdata["update-RDML-data"]:
-                    modified = True
             except rdml.RdmlError as err:
                 data["error"] = str(err)
-                modified = False
 
         if "mode" in reqdata and reqdata["mode"] in ["run-genorm"]:
             if "sel-experiment" not in reqdata:
@@ -2216,6 +2219,8 @@ def handle_data():
                 return jsonify(errors=[{"title": "Invalid server request - overlap-type id missing!"}]), 400
             if "sel-annotation" not in reqdata:
                 return jsonify(errors=[{"title": "Invalid server request - sel-annotation missing!"}]), 400
+            if "incl-annotation" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - incl-annotation missing!"}]), 400
             if "sel-references" not in reqdata:
                 return jsonify(errors=[{"title": "Invalid server request - sel-references missing!"}]), 400
             try:
@@ -2225,6 +2230,7 @@ def handle_data():
                     return jsonify(errors=[{"title": "Invalid server request - experiment id not found!"}]), 400
                 data["relative"] = experiment.relative(overlapType=reqdata["overlap-type"],
                                                        selAnnotation=reqdata["sel-annotation"],
+                                                       inclAnnotation=reqdata["incl-annotation"],
                                                        selReferences=reqdata["sel-references"],
                                                        saveResultsCSV=True)
                 data["reactsdata"] = experiment.getreactjson()

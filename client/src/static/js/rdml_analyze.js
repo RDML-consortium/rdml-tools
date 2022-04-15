@@ -52,9 +52,6 @@ genormCopyButton.addEventListener('click', copyTabGenorm)
 const relativeCopyButton = document.getElementById('btn-copy-relative')
 relativeCopyButton.addEventListener('click', copyTabRelative)
 
-const resCopyButton = document.getElementById('btn-copy-res')
-resCopyButton.addEventListener('click', copyTabRes)
-
 const interRunCorrSaveButton = document.getElementById('btn-save-interruncorr')
 interRunCorrSaveButton.addEventListener('click', saveTabInterRunCorr)
 
@@ -67,9 +64,6 @@ genormSaveButton.addEventListener('click', saveTabGenorm)
 const relativeSaveButton = document.getElementById('btn-save-relative')
 relativeSaveButton.addEventListener('click', saveTabRelative)
 
-const resSaveButton = document.getElementById('btn-save-res')
-resSaveButton.addEventListener('click', saveTabRes)
-
 const resSaveSVGMValButton = document.getElementById('btn-svg-mvalues')
 resSaveSVGMValButton.addEventListener('click', saveMValsSVG)
 
@@ -78,6 +72,9 @@ resSaveSVGVValButton.addEventListener('click', saveVValsSVG)
 
 const choiceIntRunAnno = document.getElementById('selInterAnnotation')
 choiceIntRunAnno.addEventListener('change', updateIntRunAnno)
+
+const choiceAbsoluteAnno = document.getElementById('selAbsoluteAnnotation')
+choiceAbsoluteAnno.addEventListener('change', updateAbsoluteAnno)
 
 const choiceGenormAnno = document.getElementById('selGenormAnnotation')
 choiceGenormAnno.addEventListener('change', updateGenormAnno)
@@ -96,9 +93,6 @@ choiceGenormSeparator.addEventListener('change', updateGenormResDeciSep)
 
 const choiceRelativeSeparator = document.getElementById('selRelativeSeparator')
 choiceRelativeSeparator.addEventListener('change', updateRelativeResDeciSep)
-
-const choiceResSeparator = document.getElementById('selResSeparator')
-choiceResSeparator.addEventListener('change', updateResResDeciSep)
 
 const rdmlLibVersion = document.getElementById('rdml_lib_version')
 
@@ -123,7 +117,6 @@ const resultInterRunCorr = document.getElementById('result-interruncorr')
 const resultAbsoluteQant = document.getElementById('result-absolute')
 const resultGenorm = document.getElementById('result-genorm')
 const resultRelative = document.getElementById('result-relative')
-const resultRes = document.getElementById('result-results')
 
 window.uuid = "";
 window.rdmlData = "";
@@ -173,9 +166,6 @@ window.relative = {};
 window.selRefGenes = {};
 window.relativeSaveTable = "";
 
-window.res = {};
-window.resSaveTable = "";
-
 window.tarToDye = {}
 window.tarToNr = {}
 window.samToNr = {}
@@ -197,7 +187,6 @@ function resetAllGlobalVal() {
     resetGenorm()
     resetRelative()
     window.selRefGenes = {};
-    resetRes()
     updateClientData()
 }
 
@@ -227,12 +216,6 @@ function resetRelative() {
     window.relative = {};
     window.relativeSaveTable = "";
     resultRelative.innerHTML = "";
-}
-
-function resetRes() {
-    window.res = {};
-    window.resSaveTable = "";
-    resultRes.innerHTML = "";
 }
 
 window.updatePlateDeciSep = updatePlateDeciSep
@@ -290,17 +273,6 @@ function updateRelativeResDeciSep() {
     updateAllDeciSep()
 }
 
-window.updateResResDeciSep = updateResResDeciSep
-function updateResResDeciSep() {
-    var data = getSaveHtmlData("selResSeparator")
-    if (data == "point") {
-        window.decimalSepPoint = true;
-    } else {
-        window.decimalSepPoint = false;
-    }
-    updateAllDeciSep()
-}
-
 window.updateAllDeciSep = updateAllDeciSep
 function updateAllDeciSep() {
     if (window.decimalSepPoint == true) {
@@ -308,14 +280,12 @@ function updateAllDeciSep() {
         choiceAbsQuanSeparator.value = "point";
         choiceGenormSeparator.value = "point";
         choiceRelativeSeparator.value = "point";
-        choiceResSeparator.value = "point";
     } else {
         window.decimalSepPoint = false;
         choicePlateSeparator.value = "comma";
         choiceAbsQuanSeparator.value = "comma";
         choiceGenormSeparator.value = "comma";
         choiceRelativeSeparator.value = "comma";
-        choiceResSeparator.value = "comma";
     }
     updateClientData()
     updatePlateTable()
@@ -334,6 +304,12 @@ function updateAnnotation() {
 window.updateIntRunAnno = updateIntRunAnno
 function updateIntRunAnno() {
     window.selAnnotation = getSaveHtmlData("selInterAnnotation")
+    updateAllAnnotations()
+}
+
+window.updateAbsoluteAnno = updateAbsoluteAnno
+function updateAbsoluteAnno() {
+    window.selAnnotation = getSaveHtmlData("selAbsoluteAnnotation")
     updateAllAnnotations()
 }
 
@@ -368,6 +344,24 @@ function updateAllAnnotations() {
 window.updateInterRunAnnotations = updateInterRunAnnotations
 function updateInterRunAnnotations() {
     var selAn = document.getElementById("selInterAnnotation")
+    for (var i = selAn.length - 1; i > 0; i--) {
+        selAn.remove(i);
+    }
+    var allAnnotations = Object.keys(window.samAnnotations)
+    for (var i = 0; i < allAnnotations.length; i++) {
+        var opt = document.createElement('option');
+        opt.value = allAnnotations[i];
+        opt.innerHTML = allAnnotations[i];
+        if (window.selAnnotation == allAnnotations[i]) {
+            opt.selected = true;
+        }
+        selAn.appendChild(opt);
+    }
+}
+
+window.updateAbsoluteAnnotations = updateAbsoluteAnnotations
+function updateAbsoluteAnnotations() {
+    var selAn = document.getElementById("selAbsoluteAnnotation")
     for (var i = selAn.length - 1; i > 0; i--) {
         selAn.remove(i);
     }
@@ -653,10 +647,10 @@ function runAbsoluteQuan() {
         alert("Select an experiment first!")
         return
     }
-    var rUpdateRDML = false
-    var bbUpdateRDML = document.getElementById('updateAbsoluteRDMLData')
-    if ((bbUpdateRDML) && (bbUpdateRDML.value == "y")) {
-        rUpdateRDML = true
+    var inclAnno = false
+    var inclAnno = document.getElementById('choiceIncludeAnnotationsAbs')
+    if ((inclAnno) && (inclAnno.value == "y")) {
+        inclAnno = true
     }
     resultAbsoluteQant.innerHTML = ""
     hideElement(resultError)
@@ -668,7 +662,9 @@ function runAbsoluteQuan() {
     ret["absolute-method"] = getSaveHtmlData("selAbsoluteMethod")
     ret["absolute-unit"] = getSaveHtmlData("selAbsoluteUnit")
     ret["estimate-missing"] = getSaveHtmlData("selAbsoluteMissTar")
-    ret["update-RDML-data"] = rUpdateRDML
+    ret["overlap-type"] = getSaveHtmlData("selOverlapAbsolute")
+    ret["sel-annotation"] = window.selAnnotation
+    ret["incl-annotation"] = inclAnno
     updateServerData(uuid, JSON.stringify(ret))
 
     $('[href="#absolute-tab"]').tab('show')
@@ -716,11 +712,18 @@ function runRelative() {
         }
     }
 
+    var inclAnno = false
+    var inclAnno = document.getElementById('choiceIncludeAnnotationsRel')
+    if ((inclAnno) && (inclAnno.value == "y")) {
+        inclAnno = true
+    }
+
     var ret = {}
     ret["mode"] = "run-relative"
     ret["sel-experiment"] = window.selExperiment
     ret["overlap-type"] = getSaveHtmlData("selOverlapRelative")
     ret["sel-annotation"] = window.selAnnotation
+    ret["incl-annotation"] = inclAnno
     ret["sel-references"] = selRefs
     updateServerData(uuid, JSON.stringify(ret))
 
@@ -774,7 +777,11 @@ function updateServerData(stat, reqData) {
                     if (res.data.data.hasOwnProperty("genorm")) {
                         window.genorm = res.data.data.genorm
                         window.genormSaveSVGMval = window.genorm.svg.m_values;
-                        window.genormSaveSVGVval = window.genorm.svg.v_values;
+                        if (window.genorm.svg.hasOwnProperty("v_values")) {
+                                window.genormSaveSVGVval = window.genorm.svg.v_values;
+                            } else {
+                                window.genormSaveSVGVval = "";
+                            }
                         updateGenormTable()
                     }
                     if (res.data.data.hasOwnProperty("relative")) {
@@ -1769,6 +1776,7 @@ function updateClientData() {
         resultSelReferences.innerHTML = refBox + "\n" + refList;
     }
     updateInterRunAnnotations()
+    updateAbsoluteAnnotations()
     updateGenormAnnotations()
     updateRelativeAnnotations()
 }
@@ -2114,16 +2122,19 @@ function updateGenormTable() {
     }
     var maxCols = 0
     maxCols = tsvGetMaxColumns(window.genorm.tsv.m_values, maxCols)
-    maxCols = tsvGetMaxColumns(window.genorm.tsv.v_values, maxCols)
+    if (window.genorm.tsv.hasOwnProperty("v_values")) {
+        maxCols = tsvGetMaxColumns(window.genorm.tsv.v_values, maxCols)
+    }
     maxCols = tsvGetMaxColumns(window.genorm.tsv.n0_count, maxCols)
     maxCols = tsvGetMaxColumns(window.genorm.tsv.n0_values, maxCols)
-
     var ret = ""
     var content = ""
 
     ret += '<img src="data:image/svg+xml,' +  encodeURIComponent(window.genormSaveSVGMval) + '" alt="M-values-SVG" width="500px">'
     ret += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
-    ret += '<img src="data:image/svg+xml,' +  encodeURIComponent(window.genormSaveSVGVval) + '" alt="V-values-SVG" width="500px">'
+    if (window.genorm.tsv.hasOwnProperty("v_values")) {
+        ret += '<img src="data:image/svg+xml,' +  encodeURIComponent(window.genormSaveSVGVval) + '" alt="V-values-SVG" width="500px">'
+    }
 
     ret += '<br /><br />\n'
     ret += '<table class="table table-bordered table-striped" id="genorm-result-table">\n'
@@ -2133,12 +2144,14 @@ function updateGenormTable() {
     content += tsvToTsvSection(window.genorm.tsv.m_values, maxCols)
     ret += tsvToTableHeadline("", maxCols)
     content += tsvToTsvHeadline("", maxCols)
-    ret += tsvToTableHeadline("V-values", maxCols)
-    content += tsvToTsvHeadline("V-values", maxCols)
-    ret += tsvToTableSection(window.genorm.tsv.v_values, maxCols)
-    content += tsvToTsvSection(window.genorm.tsv.v_values, maxCols)
-    ret += tsvToTableHeadline("", maxCols)
-    content += tsvToTsvHeadline("", maxCols)
+    if (window.genorm.tsv.hasOwnProperty("v_values")) {
+        ret += tsvToTableHeadline("V-values", maxCols)
+        content += tsvToTsvHeadline("V-values", maxCols)
+        ret += tsvToTableSection(window.genorm.tsv.v_values, maxCols)
+        content += tsvToTsvSection(window.genorm.tsv.v_values, maxCols)
+        ret += tsvToTableHeadline("", maxCols)
+        content += tsvToTsvHeadline("", maxCols)
+    }
     ret += tsvToTableHeadline("Found Conditions", maxCols)
     content += tsvToTsvHeadline("Found Conditions", maxCols)
     ret += tsvToTableSection(window.genorm.tsv.n0_count, maxCols)
@@ -2295,12 +2308,6 @@ function saveTabRelative() {
     return;
 };
 
-window.saveTabRes = saveTabRes;
-function saveTabRes() {
-    saveTabFile("Results.tsv", window.resSaveTable)
-    return;
-};
-
 window.copyPlateTable = copyPlateTable;
 function copyPlateTable() {
     var el = document.getElementById("rdmlPlateVTab");
@@ -2332,13 +2339,6 @@ function copyTabGenorm() {
 window.copyTabRelative = copyTabRelative;
 function copyTabRelative() {
     var el = document.getElementById("relative-result-table");
-    copyTableById(el);
-    return;
-};
-
-window.copyTabRes = copyTabRes;
-function copyTabRes() {
-    var el = document.getElementById("res-result-table");
     copyTableById(el);
     return;
 };
