@@ -2070,6 +2070,10 @@ function updateAbsoluteTable() {
     if (window.absoluteQant.tsv.hasOwnProperty("standard")) {
         maxCols = tsvGetMaxColumns(window.absoluteQant.tsv.standard, maxCols)
     }
+    maxCols = tsvGetMaxColumns(window.absoluteQant.tsv.technical_data, maxCols)
+    if (window.absoluteQant.tsv.hasOwnProperty("annotation_data")) {
+        maxCols = tsvGetMaxColumns(window.absoluteQant.tsv.annotation_data, maxCols)
+    }
 
     var ret = '<p>The calculated results are displayed in the RunView tab.</p>\n'
     ret += '<table class="table table-bordered table-striped" id="absolute-quan-result-table">\n'
@@ -2105,6 +2109,20 @@ function updateAbsoluteTable() {
         content += tsvToTsvHeadline("Samples with Concentrations", maxCols)
         ret += tsvToTableSection(window.absoluteQant.tsv.standard, maxCols)
         content += tsvToTsvSection(window.absoluteQant.tsv.standard, maxCols)
+        ret += tsvToTableHeadline("", maxCols)
+        content += tsvToTsvHeadline("", maxCols)
+    }
+    ret += tsvToTableHeadline("Technical Replicates", maxCols)
+    content += tsvToTsvHeadline("Technical Replicates", maxCols)
+    ret += tsvToTableSectionNoRaw(window.absoluteQant.tsv.technical_data, maxCols)
+    content += tsvToTsvSectionNoRaw(window.absoluteQant.tsv.technical_data, maxCols)
+    ret += tsvToTableHeadline("", maxCols)
+    content += tsvToTsvHeadline("", maxCols)
+    if (window.absoluteQant.tsv.hasOwnProperty("annotation_data")) {
+        ret += tsvToTableHeadline("Expression by Annotation", maxCols)
+        content += tsvToTsvHeadline("Expression by Annotation", maxCols)
+        ret += tsvToTableSectionNoRaw(window.absoluteQant.tsv.annotation_data, maxCols)
+        content += tsvToTsvSectionNoRaw(window.absoluteQant.tsv.annotation_data, maxCols)
         ret += tsvToTableHeadline("", maxCols)
         content += tsvToTsvHeadline("", maxCols)
     }
