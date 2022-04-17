@@ -16,6 +16,15 @@ examplePlateTwoCorrButton.addEventListener('click', showPlateCorrTwoExample)
 const examplePlateSixCorrButton = document.getElementById('btn-example-platecorr-six')
 examplePlateSixCorrButton.addEventListener('click', showPlateCorrSixExample)
 
+const exampleAbsolute = document.getElementById('btn-example-absolute')
+exampleAbsolute.addEventListener('click', showAbsolute)
+
+const exampleGenorm = document.getElementById('btn-example-genorm')
+exampleGenorm.addEventListener('click', showGenorm)
+
+const exampleRelative = document.getElementById('btn-example-relative')
+exampleRelative.addEventListener('click', showRelative)
+
 const interRunCorrButton = document.getElementById('btn-run-interruncorr')
 interRunCorrButton.addEventListener('click', runInterRunCorr)
 
@@ -606,6 +615,42 @@ function showPlateCorrSixExample() {
     $('[href="#runs-tab"]').tab('show')
 }
 
+function showAbsolute() {
+    resetAllGlobalVal()
+    window.selRun = "";
+    window.selPCRStyle = "classic";
+    window.selExperiment = "Reference Sample";
+    window.selRunOnLoad = "Vermeulen Merge";
+    window.selDigitalOnLoad = "none";
+
+    updateServerData("absolute", '{"mode": "upload", "validate": true}')
+    $('[href="#runs-tab"]').tab('show')
+}
+
+function showGenorm() {
+    resetAllGlobalVal()
+    window.selRun = "";
+    window.selPCRStyle = "classic";
+    window.selExperiment = "geNorm";
+    window.selRunOnLoad = "Run geNorm";
+    window.selDigitalOnLoad = "none";
+
+    updateServerData("genorm", '{"mode": "upload", "validate": true}')
+    $('[href="#runs-tab"]').tab('show')
+}
+
+function showRelative() {
+    resetAllGlobalVal()
+    window.selRun = "";
+    window.selPCRStyle = "classic";
+    window.selExperiment = "Relative Quantification";
+    window.selRunOnLoad = "Run Relative Quantification";
+    window.selDigitalOnLoad = "none";
+
+    updateServerData("relative", '{"mode": "upload", "validate": true}')
+    $('[href="#runs-tab"]').tab('show')
+}
+
 function showUpload() {
     resetAllGlobalVal()
     window.selRun = "";
@@ -737,6 +782,12 @@ function updateServerData(stat, reqData) {
         formData.append('showPlateCorrTwoExample', 'showPlateCorrExample')
     } else if (stat == "platecorrsix") {
         formData.append('showPlateCorrSixExample', 'showPlateCorrSixExample')
+    } else if (stat == "absolute") {
+        formData.append('showAbsolute', 'showAbsolute')
+    } else if (stat == "genorm") {
+        formData.append('showGenorm', 'showGenorm')
+    } else if (stat == "relative") {
+        formData.append('showRelative', 'showRelative')
     } else if (stat == "data") {
         formData.append('queryFile', inputFile.files[0])
     } else {

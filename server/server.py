@@ -34,7 +34,8 @@ LOGRDMLRUNS = True  # log the rdml-tools runs
 LOGIPANONYM = True  # anonymize the ip address in log files
 
 SAMPLEFILES = ["sample.rdml", "error.rdml", "linregpcr.rdml", "meltingcurveanalysis.rdml",
-               "merge-example", "two_plate_correction.rdml", "six_plate_correction.rdml"]
+               "merge-example", "two_plate_correction.rdml", "six_plate_correction.rdml",
+               "absolute.rdml", "genorm.rdml", "relative.rdml"]
 
 
 def logData(pProg, pKey, pValue, uuid):
@@ -186,6 +187,16 @@ def download(uuidstr):
         return send_file("linregpcr.rdml", mimetype="application/x-rdml", as_attachment=True, download_name="linregpcr.rdml")
     if uuidstr == "meltingcurveanalysis.rdml":
         return send_file("meltingcurveanalysis.rdml", mimetype="application/x-rdml", as_attachment=True, download_name="meltingcurveanalysis.rdml")
+    if uuidstr == "two_plate_correction.rdml":
+        return send_file("two_plate_correction.rdml", mimetype="application/x-rdml", as_attachment=True, download_name="two_plate_correction.rdml")
+    if uuidstr == "six_plate_correction.rdml":
+        return send_file("six_plate_correction.rdml", mimetype="application/x-rdml", as_attachment=True, download_name="six_plate_correction.rdml")
+    if uuidstr == "absolute.rdml":
+        return send_file("absolute.rdml", mimetype="application/x-rdml", as_attachment=True, download_name="absolute.rdml")
+    if uuidstr == "genorm.rdml":
+        return send_file("genorm.rdml", mimetype="application/x-rdml", as_attachment=True, download_name="genorm.rdml")
+    if uuidstr == "relative.rdml":
+        return send_file("relative.rdml", mimetype="application/x-rdml", as_attachment=True, download_name="relative.rdml")
     return "File does not exist!"
 
 
@@ -235,6 +246,16 @@ def validate_file():
                 fexpname = os.path.join(RDMLWS, "linregpcr.rdml")
             elif uuidstr == "meltingcurveanalysis.rdml":
                 fexpname = os.path.join(RDMLWS, "meltingcurveanalysis.rdml")
+            elif uuidstr == "two_plate_correction.rdml":
+                fexpname = os.path.join(RDMLWS, "two_plate_correction.rdml")
+            elif uuidstr == "six_plate_correction.rdml":
+                fexpname = os.path.join(RDMLWS, "six_plate_correction.rdml")
+            elif uuidstr == "absolute.rdml":
+                fexpname = os.path.join(RDMLWS, "absolute.rdml")
+            elif uuidstr == "genorm.rdml":
+                fexpname = os.path.join(RDMLWS, "genorm.rdml")
+            elif uuidstr == "relative.rdml":
+                fexpname = os.path.join(RDMLWS, "relative.rdml")
             else:
                 if not is_valid_uuid(uuidstr):
                     return jsonify(errors=[{"title": "Invalid UUID - UUID link outdated or invalid!"}]), 400
@@ -457,6 +478,15 @@ def handle_data():
         elif 'showPlateCorrSixExample' in request.form.keys():
             fexpname = os.path.join(RDMLWS, "six_plate_correction.rdml")
             uuidstr = "six_plate_correction.rdml"
+        elif 'showAbsolute' in request.form.keys():
+            fexpname = os.path.join(RDMLWS, "absolute.rdml")
+            uuidstr = "absolute.rdml"
+        elif 'showGenorm' in request.form.keys():
+            fexpname = os.path.join(RDMLWS, "genorm.rdml")
+            uuidstr = "genorm.rdml"
+        elif 'showRelative' in request.form.keys():
+            fexpname = os.path.join(RDMLWS, "relative.rdml")
+            uuidstr = "relative.rdml"
         elif 'createNew' in request.form.keys():
             logNote1 = "New"
             uuidstr = str(uuid.uuid4())
@@ -533,6 +563,12 @@ def handle_data():
                 fexpname = os.path.join(RDMLWS, "two_plate_correction.rdml")
             elif uuidstr == "six_plate_correction.rdml":
                 fexpname = os.path.join(RDMLWS, "six_plate_correction.rdml")
+            elif uuidstr == "absolute.rdml":
+                fexpname = os.path.join(RDMLWS, "absolute.rdml")
+            elif uuidstr == "genorm.rdml":
+                fexpname = os.path.join(RDMLWS, "genorm.rdml")
+            elif uuidstr == "relative.rdml":
+                fexpname = os.path.join(RDMLWS, "relative.rdml")
             else:
                 if not is_valid_uuid(uuidstr):
                     return jsonify(errors=[{"title": "Invalid UUID - UUID link outdated or invalid!"}]), 400
