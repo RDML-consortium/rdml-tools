@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>RDML-AnnotationEdit | GEAR</title>
+  <meta name="description" content="Edit errors and notes of a single run.">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.0/css/all.css">
+  <link rel="stylesheet" href="static/css/gear.css">
+</head>
+
+<body>
+  <header class="px-0 py-4">
+    <div class="container">
+      <h1 class="display-4 app-name">RDML-AnnotationEdit</h1>
+        <p class="lead">Edit the annotations of the samples.</p>
+        <a class="plain" href="help.html" target="_blank">
+          <i class="fas fa-question"></i> Get help
+        </a>
+        ·
+        <a class="plain" href="index.html" target="_blank">
+          <i class="fas fa-landmark"></i> RDML-Tools
+        </a>
+        ·
+        <a class="plain" target="_blank" href="https://github.com/RDML-consortium/rdml-tools">
+          <i class="fab fa-github-alt"></i> Source
+        </a>
+    </div>
+  </header>
+
+  <main class="container-fluid">
+    <div id="result-error" class="alert alert-danger d-none" role="alert">
+    </div>
+    <div id="result-info" class="alert alert-info d-none" role="alert">
+      <i class="fas fa-spinner spinner"></i>
+      Analysis is running, please be patient.
+    </div>
+    <ul class="nav nav-fill mb-4" id="mainTab">
+      <li class="nav-item">
+        <a class="nav-link active" href="#main-tab" id="link-main">Main</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#runs-tab" id="link-runs">AnnotationEdit</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#help-tab" id="link-help">Help</a>
+      </li>
+    </ul>
+    <div class="tab-content" id="main-tabs">
+      <div class="tab-pane show active" id="main-tab">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Load RDML file</h5>
+            <div class="form-group">
+              <label for="inputFile">
+                RDML file (<code>.rdml</code>, <code>.rdm</code> or <code>.xml</code>)
+              </label>
+              <input type="file" class="form-control-file" id="inputFile">
+            </div>
+            <button type="submit" class="btn btn-outline-primary" id="btn-submit">
+              <i class="fas fa-rocket" style="margin-right: 5px;"></i>
+              Upload File
+            </button>
+            <button type="submit" class="btn btn-outline-primary" id="btn-example">
+              <i class="fas fa-eye" style="margin-right: 5px;"></i>
+              Load Example
+            </button>
+          </div>
+        </div>
+        <div id="uuid-link-box"></div>
+      </div>
+
+      <div class="tab-pane" id="runs-tab">
+     <!--   <button type="button" class="btn btn-outline-primary" id="btn-jsDebug">Debug JS</button>
+        <textarea rows="4" cols="50" id="text-jsDebug"></textarea> -->
+        <div id="selectors-data"></div><br />
+        <div class="col" id="result-data"></div>
+      </div>
+
+      <div class="tab-pane" id="help-tab">
+        <h4>Application Description</h4>
+        <p> RDML-AnnotationEdit is a tool to edit the annotations of the samples in a RDML files.
+        </p>
+        <h4>Accepted Input</h4>
+        <p> The RDML files can be provided in rdml or xml format (*.rdml, *.rdm,
+            and *.xml).</p>
+        <h4>Sample Data</h4>
+        <p> The "Show Example" button loads an example trace file
+            <a href="static/bin/sample.rdml">(click to download file)</a>.
+        </p>
+        <h4>Version</h4>
+        <p id="rdml_lib_version">rdmlpython version: updated on server interaction
+        </p>
+        <h4>More Help</h4>
+        <p> A general help file is available as
+            <a href="help.html#RDML-AnnotationEdit" target="_blank">RDML-Tools Help</a>.
+        </p>
+      </div>
+
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="float-left">
+        <a class="plain" target="_blank" href="https://www.gear-genomics.com">
+          GEAR + RDML Consortium &#126;
+          <i class="fas fa-home"></i>
+        </a>
+        ·
+        <a class="plain" target="_blank" href="https://github.com/gear-genomics">
+          <i class="fab fa-github-alt"></i>
+        </a>
+        ·
+        <a class="plain" target="_blank" href="http://rdml.org">
+          RDML Consortium 
+        </a>
+        ·
+        <a class="plain" target="_blank" href="https://www.gear-genomics.com/terms">
+          Terms of Use
+        </a>
+        ·
+        <a class="plain" target="_blank" href="https://www.gear-genomics.com/contact">
+          Contact Us
+        </a>
+      </div>
+      <div class="float-right">
+        Supported by
+        <a class="plain" target="_blank" href="https://www.embl.de/">
+          <img class="footer-logo" alt="EMBL logo" src="static/img/embl.svg">
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script src="static/js/rdml_annotationedit.js"></script>
+
+</body>
+
+</html>

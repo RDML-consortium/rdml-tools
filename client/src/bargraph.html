@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>RDML-BarGraph | GEAR</title>
+  <meta name="description" content="Create bar graphs for publication.">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.0/css/all.css">
+  <link rel="stylesheet" href="static/css/gear.css">
+</head>
+
+<body>
+
+  <header class="px-0 py-4">
+    <div class="container">
+      <h1 class="display-4 app-name">RDML-BarGraph</h1>
+        <p class="lead">Create bar graphs for publication.</p>
+        <a class="plain" href="help.html" target="_blank">
+          <i class="fas fa-question"></i> Get help
+        </a>
+        ·
+        <a class="plain" href="index.html" target="_blank">
+          <i class="fas fa-landmark"></i> RDML-Tools
+        </a>
+        ·
+        <a class="plain" target="_blank" href="https://github.com/RDML-consortium/rdml-tools">
+          <i class="fab fa-github-alt"></i> Source
+        </a>
+    </div>
+  </header>
+
+  <main class="container-fluid">
+    <div id="result-error" class="alert alert-danger d-none" role="alert">
+    </div>
+    <div id="result-info" class="alert alert-info d-none" role="alert">
+      <i class="fas fa-spinner spinner"></i>
+      Analysis is running, please be patient.
+    </div>
+    <ul class="nav nav-fill mb-4" id="mainTab">
+      <li class="nav-item">
+        <a class="nav-link active" href="#main-tab" id="link-main">Load</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#modify-tab" id="link-modify">Data</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#save-tab" id="link-save">BarGraph</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#help-tab" id="link-help">Help</a>
+      </li>
+    </ul>
+    <div class="tab-content" id="main-tabs">
+      <div class="tab-pane show active" id="main-tab">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Load table file</h5>
+            <div class="form-group">
+              <label for="inputFile">
+                Table file (<code>.tsv</code>, <code>.csv</code> or <code>.txt</code>)
+              </label>
+              <input type="file" class="form-control-file" id="inputFile">
+            </div>
+            <button type="submit" class="btn btn-outline-primary" id="btn-submit">
+              <i class="fas fa-rocket" style="margin-right: 5px;"></i>
+              Upload File
+            </button>
+            <button type="submit" class="btn btn-outline-primary" id="btn-example">
+              <i class="fas fa-eye" style="margin-right: 5px;"></i>
+              Load Example
+            </button>
+          </div>
+        </div>
+        <br />
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Select column separator for import</h5>
+            <div class="form-check-inline">
+              <label class="form-check-label">
+                <input type="radio" class="form-check-input" name="radio-column-sep"
+                       onclick="updateSepManual(this);" id="sep-radio-tab" value="\t">
+                <a id="sep-opt-tab">Tab (\t - Found: -)</a>
+              </label>
+            </div>
+            <div class="form-check-inline">
+              <label class="form-check-label">
+                <input type="radio" class="form-check-input" name="radio-column-sep"
+                       onclick="updateSepManual(this);" id="sep-radio-comma" value=",">
+                <a id="sep-opt-comma">Comma (, - Found: -)</a>
+              </label>
+            </div>
+            <div class="form-check-inline">
+              <label class="form-check-label">
+                <input type="radio" class="form-check-input" name="radio-column-sep"
+                       onclick="updateSepManual(this);" id="sep-radio-semicolon" value=";">
+                <a id="sep-opt-semicolon">Semicolon (; - Found: -)</a>
+              </label>
+            </div>
+            <div class="form-check-inline">
+              <label class="form-check-label">
+                <input type="radio" class="form-check-input" name="radio-column-sep"
+                       onclick="updateSepManual(this);" id="sep-radio-colon" value=":">
+                <a id="sep-opt-colon">Colon (: - Found: -)</a>
+              </label>
+            </div>
+          </div>
+        </div>
+        <br />
+        <div class="card">
+          <div class="card-body">
+            <div class="form-check">
+              <label class="form-check-label">
+                <input type="checkbox" class="form-check-input" id="modCommaDot"
+                       value="" onchange="updateCommaManual()" checked>Replace all commas by dots
+              </label>
+            </div>
+          </div>
+        </div>
+        <br />
+        <div class="card tableCard">
+          <div class="card-body">
+            <h5 class="card-title">Table after import</h5>
+            <div id="import-table-view"></div>
+          </div>
+        </div>
+        <br />
+      </div>
+
+      <div class="tab-pane" id="modify-tab">
+        <div class="card">
+          <div class="card-body">
+            <div class="form-group">
+              <label for="table-data-points">Data Points:</label>
+              <textarea class="form-control" rows="10" id="table-data-points"></textarea>
+            </div> 
+          </div>
+        </div>
+        <br />
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Combine Raw Data</h5>
+            <select id="selDataCombiMeth" onchange="selectDataCombiMeth()">
+              <option value="mean_sem" selected="true" selected>Mean - SEM</option>
+            </select>
+          </div>
+        </div>
+        <br />
+        <div class="card">
+          <div class="card-body">
+            <div class="form-group">
+              <label for="table-combined-data">Combined Data:</label>
+              <textarea class="form-control" rows="10" id="table-combined-data"></textarea>
+            </div> 
+          </div>
+        </div>
+
+
+
+
+
+
+
+
+        <div class="row">
+          <div class="col">
+            <div class="form-group">
+              <label for="inputJsonFile">
+                Load settings JSON file (<code>.json</code>)
+              </label>
+              <input type="file" class="form-control-file" id="inputJsonFile">
+            </div>
+          </div>
+          <div class="col">
+            <div class="form-group">
+              <button type="submit" class="btn btn-outline-primary" id="btn-save-Json">
+                <i class="far fa-save" style="margin-right: 5px;"></i>
+                Save settings JSON file
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Load predefined settings</h5>
+            <select id="selMachineSettings" onchange="selectMachineSettings()">
+              <option value="-1" selected="true">Default Settings</option>
+            </select>
+          </div>
+        </div>
+        <br />
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Settings to reshape the table</h5>
+            <div class="form-group">
+            <label for="modReformatAmpMelt">Select PCR type:</label>
+            <select id="modReformatAmpMelt" onchange="updateModification()">
+              <option value="amp" selected="true">Amplification</option>
+              <option value="melt">Meltcurve</option>
+            </select>
+            </div>
+            <div class="form-group">
+              <label for="modSetName">Settings identifier:</label>
+              <input type="text" class="form-control" id="modSetName" value="User Settings" onchange="updateModification()">
+            </div>
+            <select id="modReformatTableShape" onchange="updateModification()">
+              <option value="keep" selected="true">Keep table shape</option>
+              <option value="flip">Flip columns and rows</option>
+              <option value="create">Create table from list</option>
+            </select>
+          </div>
+        </div>
+        <br />
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Settings to extract the fluorescence data block</h5>
+            <div class="form-row">
+              <label class="col-sm-4 col-form-label" for="modDelRowStart">Number of heading rows to delete:</label>
+              <input type="text" class="form-control col-sm-8" id="modDelRowStart" value="1" onchange="updateModification()">
+            </div>
+            <div class="table-table-only">
+              <div class="form-row">
+                <label class="col-sm-4 col-form-label" for="modDelOtherRow">Number of rows to delete between values:</label>
+                <input type="text" class="form-control col-sm-8" id="modDelOtherRow" value="0" onchange="updateModification()">
+              </div>
+            </div>
+            <div class="form-row">
+              <label class="col-sm-4 col-form-label" for="modDelRowEnd">Number of rows to keep (maximal):</label>
+              <input type="text" class="form-control col-sm-8" id="modDelRowEnd" value="" onchange="updateModification()">
+            </div>
+            <div class="table-list-only">
+              <div class="form-row">
+                <label class="col-sm-4 col-form-label" for="modExFluorCol">Extract fluorescence information from column:</label>
+                <input type="text" class="form-control col-sm-8" id="modExFluorCol" value="4" onchange="updateModification()">
+              </div>
+            </div>
+            <div class="table-table-only">
+              <div class="form-row">
+                <label class="col-sm-4 col-form-label" for="modDelColStart">Number of heading columns to delete:</label>
+                <input type="text" class="form-control col-sm-8" id="modDelColStart" value="1" onchange="updateModification()">
+              </div>
+            </div>
+            <div class="table-table-only">
+              <div class="form-row">
+                <label class="col-sm-4 col-form-label" for="modDelColEnd">Number of colums to keep (maximal):</label>
+                <input type="text" class="form-control col-sm-8" id="modDelColEnd" value="" onchange="updateModification()">
+              </div>
+            </div>
+          </div>
+        </div>
+        <br />
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Settings to extract data</h5>
+            <div class="table-table-only">
+              <div class="row">
+                <div class="col">
+                  <div class="form-row">
+                    <label class="col-sm-8 col-form-label" for="modExCycRow">Extract cycle (Amp) or temp. (Melt) data from row:</label>
+                    <input type="text" class="form-control col-sm-4" id="modExCycRow" value="1" onchange="updateModification()">
+                  </div>
+                </div>
+                <div class="col">
+                  <div class="form-row">
+                    <label class="col-sm-8 col-form-label" for="modExCycRowRegEx">Apply regex (use "([0-9\.]+)" for Meltcurve):</label>
+                    <input type="text" class="form-control col-sm-4" id="modExCycRowRegEx" value="([0-9]+)" onchange="updateModification()">
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="table-list-only">
+              <div class="row">
+                <div class="col">
+                  <div class="form-row">
+                    <label class="col-sm-8 col-form-label" for="modExCycCol">Extract cycle (Amplification) or temperature (Meltcurve) information from column:</label>
+                    <input type="text" class="form-control col-sm-4" id="modExCycCol" value="1" onchange="updateModification()">
+                  </div>
+                </div>
+                <div class="col">
+                  <div class="form-row">
+                    <label class="col-sm-8 col-form-label" for="modExCycColRegEx">Apply regex (use "([0-9\.]+)" for Meltcurve):</label>
+                    <input type="text" class="form-control col-sm-4" id="modExCycColRegEx" value="([0-9]+)" onchange="updateModification()">
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col">
+                <div class="form-row">
+                  <label class="col-sm-8 col-form-label" for="modExWellCol">Extract well information from column:</label>
+                  <input type="text" class="form-control col-sm-4" id="modExWellCol" value="1" onchange="updateModification()">
+                </div>
+              </div>
+              <div class="col">
+                <div class="form-row">
+                   <label class="col-sm-8 col-form-label" for="modExWellRegEx">Apply regex:</label>
+                   <input type="text" class="form-control col-sm-4" id="modExWellRegEx" value="(^[A-Za-z]+[0-9]+)" onchange="updateModification()">
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col">
+                <div class="form-row">
+                  <label class="col-sm-8 col-form-label" for="modExSamCol">Extract sample information from column:</label>
+                  <input type="text" class="form-control col-sm-4" id="modExSamCol" value="" onchange="updateModification()">
+                </div>
+              </div>
+              <div class="col">
+                <div class="form-row">
+                  <label class="col-sm-8 col-form-label" for="modExSamRegEx">Apply regex:</label>
+                  <input type="text" class="form-control col-sm-4" id="modExSamRegEx" value="(.*)" onchange="updateModification()">
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col">
+                <div class="form-row">
+                  <label class="col-sm-8 col-form-label" for="modExSamTypeCol">Extract sample type information from column:</label>
+                  <input type="text" class="form-control col-sm-4" id="modExSamTypeCol" value="" onchange="updateModification()">
+                </div>
+              </div>
+              <div class="col">
+                <div class="form-row">
+                  <label class="col-sm-8 col-form-label" for="modExSamTypeRegEx">Apply regex:</label>
+                  <input type="text" class="form-control col-sm-4" id="modExSamTypeRegEx" value="(.*)" onchange="updateModification()">
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col">
+                <div class="form-row">
+                  <label class="col-sm-8 col-form-label" for="modExTarCol">Extract target information from column:</label>
+                  <input type="text" class="form-control col-sm-4" id="modExTarCol" value="" onchange="updateModification()">
+                </div>
+              </div>
+              <div class="col">
+                <div class="form-row">
+                  <label class="col-sm-8 col-form-label" for="modExTarRegEx">Apply regex:</label>
+                  <input type="text" class="form-control col-sm-4" id="modExTarRegEx" value="(.*)" onchange="updateModification()">
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col">
+                <div class="form-row">
+                  <label class="col-sm-8 col-form-label" for="modExTarTypeCol">Extract target type information from column:</label>
+                  <input type="text" class="form-control col-sm-4" id="modExTarTypeCol" value="" onchange="updateModification()">
+                </div>
+              </div>
+              <div class="col">
+                <div class="form-row">
+                  <label class="col-sm-8 col-form-label" for="modExTarTypeRegEx">Apply regex:</label>
+                  <input type="text" class="form-control col-sm-4" id="modExTarTypeRegEx" value="(.*)" onchange="updateModification()">
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col">
+                <div class="form-row">
+                  <label class="col-sm-8 col-form-label" for="modExDyeCol">Extract dye information from column:</label>
+                  <input type="text" class="form-control col-sm-4" id="modExDyeCol" value="" onchange="updateModification()">
+                </div>
+              </div>
+              <div class="col">
+                <div class="form-row">
+                  <label class="col-sm-8 col-form-label" for="modExDyeRegEx">Apply regex:</label>
+                  <input type="text" class="form-control col-sm-4" id="modExDyeRegEx" value="(.*)" onchange="updateModification()">
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col">
+                <div class="form-row">
+                  <label class="col-sm-8 col-form-label" for="modExDyeCol">Select columns on col values (-1 selects all):</label>
+                  <input type="text" class="form-control col-sm-4" id="modExTrueCol" value="-1" onchange="updateModification()">
+                </div>
+              </div>
+              <div class="col">
+                <div class="form-row">
+                  <label class="col-sm-8 col-form-label" for="modExDyeRegEx">Apply regex (must be true to be removed):</label>
+                  <input type="text" class="form-control col-sm-4" id="modExTrueRegEx" value="2" onchange="updateModification()">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <br />
+        <div class="card tableCard">
+          <div class="card-body">
+            <h5 class="card-title">Table after reshaping</h5>
+            <div id="reshape-table-view"></div>
+          </div>
+        </div>
+        <br />
+      </div>
+
+      <div class="tab-pane" id="save-tab">
+        <div class="form-group">
+          <button type="submit" class="btn btn-outline-primary" id="btn-save-Tsv">
+            <i class="far fa-save" style="margin-right: 5px;"></i>
+            Save table file (.tsv)
+          </button>
+        </div>
+        <br />
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Create RDML file</h5>
+            <table style="width:100%;">
+              <tr>
+                <td style="width:25%;">Experiment ID:</td>
+                <td style="width:75%">
+                  <input type="text" class="form-control" id="inExperimentID" value="Experiment 1">
+                </td>
+              </tr>
+              <tr>
+                <td style="width:25%;">Run ID:</td>
+                <td style="width:75%">
+                  <input type="text" class="form-control" id="inRunID" value="Run 1">
+                </td>
+              </tr>
+              <tr>
+                <td style="width:25%;">PCR Format - Columns:</td>
+                <td style="width:75%">
+                  <input type="text" class="form-control" id="inRunPcrFormat_columns" value="12">
+                </td>
+              </tr>
+              <tr>
+                <td style="width:25%;">PCR Format - Column Label:</td>
+                <td style="width:75%">
+                  <select class="form-control" id="inRunPcrFormat_columnLabel">
+                    <option value="ABC">ABC</option>
+                    <option value="123" selected>123</option>
+                    <option value="A1a1">A1a1</option>
+                  </select>
+                </td>
+              </tr>
+              <tr>
+                <td style="width:25%;">PCR Format - Rows:</td>
+                <td style="width:75%">
+                  <input type="text" class="form-control" id="inRunPcrFormat_rows" value="8">
+                </td>
+              </tr>
+              <tr>
+                <td style="width:25%;">PCR Format - Row Label:</td>
+                <td style="width:75%">
+                  <select class="form-control" id="inRunPcrFormat_rowLabel">
+                    <option value="ABC" selected>ABC</option>
+                    <option value="123">123</option>
+                    <option value="A1a1">A1a1</option>
+                  </select>
+                </td>
+              </tr>
+              <tr>
+                <td style="width:25%;">PCR Format - Predefined:</td>
+                <td style="width:75%">
+                  <button type="button" onclick="selPlate_Rotor();">Rotor</button>&nbsp;&nbsp;
+                  <button type="button" onclick="selPlate_96_Well();">96 Well Plate</button>&nbsp;&nbsp;
+                  <button type="button" onclick="selPlate_384_Well();">384 Well Plate</button>
+                </td>
+              </tr>
+            </table>
+            <br />
+            <button type="submit" class="btn btn-outline-primary" id="btn-save-RDML">
+              <i class="far fa-save" style="margin-right: 5px;"></i>
+              Create RDML
+            </button>
+            <div id="download-section"></div>
+          </div>
+        </div>
+        <br />
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Complement columns 1 to 5 (required)</h5>
+            <select id="inCompSelection" onchange="selCompSelection()">
+              <option value="1" selected="true">Sample</option>
+              <option value="2">Sample Type</option>
+              <option value="3">Target</option>
+              <option value="4">Target Type</option>
+              <option value="5">Dye</option>
+            </select>
+            <br />
+            <br />
+            <div class="form-group">
+              <label for="inCompStart">Start at well (leave empty for all):</label>
+              <input type="text" class="form-control" id="inCompStart" value="A1">
+            </div>
+            <div class="form-group">
+              <label for="inCompEnd">Stop at well (leave empty for only start well):</label>
+              <input type="text" class="form-control" id="inCompEnd" value="">
+            </div>
+            <div class="form-group" id="idCompText">
+              <label for="inCompText">Text to enter (leave empty for unique id):</label>
+              <input type="text" class="form-control" id="inCompText" value="">
+            </div>
+            <div id="idCompSamType" style="display: None;">
+              <select id="inCompSamType">
+                <option value="unkn" selected="true">unkn - unknown sample</option>
+                <option value="ntc">ntc - non template control</option>
+                <option value="nac">nac - no amplification control</option>
+                <option value="std">std - standard sample</option>
+                <option value="ntp">ntp - no target present</option>
+                <option value="nrt">nrt - minusRT</option>
+                <option value="pos">pos - positive control</option>
+                <option value="opt">opt - optical calibrator sample</option>
+              </select>
+              <br />
+            </div>
+            <div id="idCompTarType" style="display: None;">
+              <select id="inCompTarType">
+                <option value="ref">ref - reference target</option>
+                <option value="toi" selected="true">toi - target of interest</option>
+              </select>
+              <br />
+            </div>
+            <br />
+            <div class="form-group">
+              <button type="submit" class="btn btn-outline-primary" id="btn-apply-comp">
+                <i class="far fa-edit" style="margin-right: 5px;"></i>
+                Complement table
+              </button>
+            </div>
+          </div>
+        </div>
+        <br />
+        <div class="card tableCard">
+          <div class="card-body">
+            <h5 class="card-title">Table for export</h5>
+            <p> The columns 1-6 must be filled for successfull import into RDML. Leave 
+                them free for empty wells.<br /> White rows indicate missing information,
+                only green rows are complete for import.</p>
+            <div id="export-table-view"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-pane" id="help-tab">
+        <h4>Application Description</h4>
+        <p> RDML-TableShaper is a tool to shape tables with amplification data for
+            the import with RDML-tools. This is error-prone and second best to
+            original RDML export by the machine. As some machines do not offer RDML
+            export, TableShaper might help. Most qPCR machines export Excel files. Please
+            convert them by opening in Excel (Microsoft) or Calc (Libre Office),
+            selecting the table with the amplification data and save as tab separated
+            text file. The tab separated text file can be modified using TableShaper.
+        </p>
+        <h4>The use of TableShaper</h4>
+        <p>
+             TableShaper follows three consecutive steps:
+        </p>
+        <p>
+            1. The table separators have to be identified on the first tab. If it does
+            not work out automatically, the separator has to be selected manually. The
+            table columns need to be recognized in the table below.
+        </p>
+        <p>
+            2. The content need to be recognized in the second tab. If your table
+            format is not found in the predefined settings, you may iteratively select
+            the parameters and load / save them for later use. Adapt the "Number of
+            columns to keep" and "Number of rows to keep" to match the experiments
+            cycle and well numbers and avoid cutoff. "Settings to reshape
+            the table" is the most dramatic shaping option. You can opt to flip the
+            table or to build a table from value list. The result is drawn below and
+            can be used to select the columns for data extraction.
+        </p>
+        <p>
+            3. Fill the missing content in the third tab. To be able to import the
+            table into RDML, the first six columns have to be filled. Using the fields
+            on the third tab eases this step as squares B2-D7 can be used. Take care in
+            this step as errors in the target id and sample id can not be fixed in RDML
+            later. Save the result as .tsv file.
+        </p>
+        <p>
+            4. To create an RDML file fill the information on the "Create RDML file"
+            card and hit the button. RDML-Edit will open with the created RDML file
+            and allow to save or view the RDML file.<br/>
+            Alternatively the data can be imported int existing RDML files. Open the
+            RDML file in RDML-Edit (or create new) and enable editing with the "enable
+            edit mode" button. Now change to the experiments tab and open an experiment
+            or create a new experiment. In the experiment, create a new run. Take care to
+            set the ID and PCR-Format fields correctly. Now select the exported .tsv
+            file in "Import Amplification Data". Once saved you can inspect the result
+            using RunView or save it as RDML file on the first tab.
+        </p>
+        <h4>Accepted Input</h4>
+        <p> The table files can be provided in text format with tab, comma or semicolon
+            as separator(*.txt, *.tsv, and *.csv).</p>
+        <h4>Sample Data</h4>
+        <p> The "Show Example" button loads an example table file
+            <a href="static/bin/sample.tsv">(click to download file)</a> from a BioRad
+            iCycler v9.35.
+        </p>
+        <h4>More Help</h4>
+        <p> A general help file is available as
+            <a href="help.html#RDML-TableShaper" target="_blank">RDML-Tools Help</a>.
+        </p>
+      </div>
+
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="float-left">
+        <a class="plain" target="_blank" href="https://www.gear-genomics.com">
+          GEAR + RDML Consortium &#126;
+          <i class="fas fa-home"></i>
+        </a>
+        ·
+        <a class="plain" target="_blank" href="https://github.com/gear-genomics">
+          <i class="fab fa-github-alt"></i>
+        </a>
+        ·
+        <a class="plain" target="_blank" href="http://rdml.org">
+          RDML Consortium 
+        </a>
+        ·
+        <a class="plain" target="_blank" href="https://www.gear-genomics.com/terms">
+          Terms of Use
+        </a>
+        ·
+        <a class="plain" target="_blank" href="https://www.gear-genomics.com/contact">
+          Contact Us
+        </a>
+      </div>
+      <div class="float-right">
+        Supported by
+        <a class="plain" target="_blank" href="https://www.embl.de/">
+          <img class="footer-logo" alt="EMBL logo" src="static/img/embl.svg">
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script src="static/js/rdml_bargraph.js"></script>
+
+</body>
+
+</html>
