@@ -665,6 +665,39 @@ def handle_data():
             except rdml.RdmlError as err:
                 data["error"] = str(err)
 
+        if "mode" in reqdata and reqdata["mode"] == "export-annotations":
+            try:
+                data["exporttable"] = rd.export_annotations()
+            except rdml.RdmlError as err:
+                data["error"] = str(err)
+
+        if "mode" in reqdata and reqdata["mode"] == "import-annotations":
+            try:
+                if "tableUploadAnnotation" in request.files:
+                    logNote1 = "tableUploadAnnotation"
+                    errRec = ""
+                    tabAnnoUpload = request.files['tableUploadAnnotation']
+                    if uuidstr in SAMPLEFILES:
+                        uuidstr = str(uuid.uuid4())
+                        data["uuid"] = uuidstr
+                        # Get subfolder
+                        sf = os.path.join(app.config['UPLOAD_FOLDER'], uuidstr[0:2])
+                        if not os.path.exists(sf):
+                            os.makedirs(sf)
+                        fexpname = os.path.join(sf, "rdml_" + uuidstr + ".rdml")
+                    if tabAnnoUpload.filename != '':
+                        if not allowed_tab_file(tabAnnoUpload.filename):
+                            return jsonify(errors=[{"title": "Tab annotation file has incorrect file type!"}]), 400
+                        tabAnnoFilename = os.path.join(sf, "rdml_" + uuidstr + "_annotation_upload.tsv")
+                        tabAnnoUpload.save(tabAnnoFilename)
+                        errRec += rd.import_annotations(tabAnnoFilename)
+                        if errRec:
+                            data["error"] = errRec
+            except rdml.RdmlError as err:
+                data["error"] = str(err)
+            else:
+                modified = True
+
         if "mode" in reqdata and reqdata["mode"] == "migrate-version":
             if "new-version" not in reqdata:
                 return jsonify(errors=[{"title": "Invalid server request - new-version missing!"}]), 400

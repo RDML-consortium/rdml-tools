@@ -350,6 +350,9 @@ function updateServerData(stat, reqData) {
                 formData.append('tableUploadDigWell_' + i, inputFiles.files[i]);
             }
         }
+        if (checkReq.hasOwnProperty("tableUploadAnnotation") && (checkReq["tableUploadAnnotation"] == true)) {
+            formData.append('tableUploadAnnotation', document.getElementById("inSamUploadAnnotation").files[0])
+        }
     }
     formData.append('reqData', reqData)
 
@@ -3926,6 +3929,29 @@ function exportTable(sExp, sRun, sMode) {
     ret["run"] = sRun
     ret["export-mode"] = sMode
     updateServerData(uuid, JSON.stringify(ret))
+}
+
+window.exportAnnotations = exportAnnotations;
+function exportAnnotations() {
+    if (!(window.rdmlData.hasOwnProperty("rdml"))) {
+        return
+    }
+    var ret = {}
+    ret["mode"] = "export-annotations"
+    updateServerData(uuid, JSON.stringify(ret))
+}
+
+window.importAnnotations = importAnnotations;
+function importAnnotations() {
+    if (!(window.rdmlData.hasOwnProperty("rdml"))) {
+        return
+    }
+    var ret = {}
+    ret["mode"] = "import-annotations"
+    if (document.getElementById("inSamUploadAnnotation").value) {
+        ret["tableUploadAnnotation"] = true
+        updateServerData(uuid, JSON.stringify(ret))
+    }
 }
 
 // Create a selector for ids

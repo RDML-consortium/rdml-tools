@@ -133,12 +133,6 @@ function checkForUUID() {
     if (tab != "") {
         $('[href="#' + tab + '"]').tab('show')
     }
-    if (vExp != "") {
-        window.selExperiment = vExp
-        if (vRun != "") {
-            window.selRunOnLoad = vRun
-        }
-    }
     if (uuid != "") {
         resetSelection()
         updateServerData(uuid, '{"mode": "upload", "validate": true}')
@@ -170,88 +164,27 @@ function showUpload() {
     $('[href="#runs-tab"]').tab('show')
 }
 
-window.delReactData = delReactData;
-function delReactData() {
+window.exportAnnotations = exportAnnotations;
+function exportAnnotations() {
+    if (!(window.rdmlData.hasOwnProperty("rdml"))) {
+        return
+    }
     var ret = {}
-    ret["mode"] = "run-ed-del-react"
-    ret["sel-experiment"] = window.selExperiment
-    ret["sel-run"] = window.selRun
-    ret["sel-react"] = window.selReact
-    ret["sel-well"] = document.getElementById('runView-ele-react').value
-    updateServerData(window.uuid, JSON.stringify(ret))
+    ret["mode"] = "export-annotations"
+    updateServerData(uuid, JSON.stringify(ret))
 }
 
-window.delTarData = delTarData;
-function delTarData() {
+window.importAnnotations = importAnnotations;
+function importAnnotations() {
+    if (!(window.rdmlData.hasOwnProperty("rdml"))) {
+        return
+    }
     var ret = {}
-    ret["mode"] = "run-ed-del-re-tar"
-    ret["sel-experiment"] = window.selExperiment
-    ret["sel-run"] = window.selRun
-    ret["sel-react"] = window.selReact
-    ret["sel-well"] = document.getElementById('runView-ele-react').value
-    ret["sel-pcr"] = document.getElementById('runView-ele-pcrstyle').value
-    ret["sel-tar"] = document.getElementById('runView-ele-tar').value
-    updateServerData(window.uuid, JSON.stringify(ret))
-}
-
-window.replaceExcl = replaceExcl;
-function replaceExcl() {
-    var ret = {}
-    ret["mode"] = "run-ed-up-excl"
-    ret["sel-experiment"] = window.selExperiment
-    ret["sel-run"] = window.selRun
-    ret["sel-react"] = window.selReact
-    ret["sel-well"] = document.getElementById('runView-ele-react').value
-    ret["sel-pcr"] = document.getElementById('runView-ele-pcrstyle').value
-    ret["sel-tar"] = document.getElementById('runView-ele-tar').value
-    ret["sel-excl"] = document.getElementById('runView-ele-excl').value
-    ret["sel-append"] = false
-    updateServerData(window.uuid, JSON.stringify(ret))
-}
-
-window.appendExcl = appendExcl;
-function appendExcl() {
-    var ret = {}
-    ret["mode"] = "run-ed-up-excl"
-    ret["sel-experiment"] = window.selExperiment
-    ret["sel-run"] = window.selRun
-    ret["sel-react"] = window.selReact
-    ret["sel-well"] = document.getElementById('runView-ele-react').value
-    ret["sel-pcr"] = document.getElementById('runView-ele-pcrstyle').value
-    ret["sel-tar"] = document.getElementById('runView-ele-tar').value
-    ret["sel-excl"] = document.getElementById('runView-ele-excl').value
-    ret["sel-append"] = true
-    updateServerData(window.uuid, JSON.stringify(ret))
-}
-
-window.replaceNote = replaceNote;
-function replaceNote() {
-    var ret = {}
-    ret["mode"] = "run-ed-up-note"
-    ret["sel-experiment"] = window.selExperiment
-    ret["sel-run"] = window.selRun
-    ret["sel-react"] = window.selReact
-    ret["sel-well"] = document.getElementById('runView-ele-react').value
-    ret["sel-pcr"] = document.getElementById('runView-ele-pcrstyle').value
-    ret["sel-tar"] = document.getElementById('runView-ele-tar').value
-    ret["sel-note"] = document.getElementById('runView-ele-note').value
-    ret["sel-append"] = false
-    updateServerData(window.uuid, JSON.stringify(ret))
-}
-
-window.appendNote = appendNote;
-function appendNote() {
-    var ret = {}
-    ret["mode"] = "run-ed-up-note"
-    ret["sel-experiment"] = window.selExperiment
-    ret["sel-run"] = window.selRun
-    ret["sel-react"] = window.selReact
-    ret["sel-well"] = document.getElementById('runView-ele-react').value
-    ret["sel-pcr"] = document.getElementById('runView-ele-pcrstyle').value
-    ret["sel-tar"] = document.getElementById('runView-ele-tar').value
-    ret["sel-note"] = document.getElementById('runView-ele-note').value
-    ret["sel-append"] = true
-    updateServerData(window.uuid, JSON.stringify(ret))
+    ret["mode"] = "import-annotations"
+    if (document.getElementById("inSamUploadAnnotation").value) {
+        ret["tableUploadAnnotation"] = true
+        updateServerData(uuid, JSON.stringify(ret))
+    }
 }
 
 // TODO client-side validation
@@ -261,8 +194,14 @@ function updateServerData(stat, reqData) {
         formData.append('showExample', 'showExample')
     } else if (stat == "data") {
         formData.append('queryFile', inputFile.files[0])
+    } else if (stat == "createNew") {
+        formData.append('createNew', 'createNew')
     } else {
         formData.append('uuid', stat)
+        var checkReq = JSON.parse(reqData)
+        if (checkReq.hasOwnProperty("tableUploadAnnotation") && (checkReq["tableUploadAnnotation"] == true)) {
+            formData.append('tableUploadAnnotation', document.getElementById("inSamUploadAnnotation").files[0])
+        }
     }
     formData.append('reqData', reqData)
 
@@ -276,6 +215,12 @@ function updateServerData(stat, reqData) {
                 window.rdmlData = res.data.data.filedata
                 window.uuid = res.data.data.uuid
                 rdmlLibVersion.innerHTML = "rdmlpython version: " + res.data.data.rdml_lib_version
+                if (rdmlLibVersion.innerHTML == "1.1") {
+                    showElement(resultError)
+                    var err = '<i class="fas fa-fire"></i>\n<span id="error-message">'
+                    err += 'Annotations are only available from RDML version 1.2 on. Use RDML-Edit to upgrade.</span>'
+                    resultError.innerHTML = err
+                }
                 if (stat == "data") {
                     var exp = window.rdmlData.rdml.experiments;
                     if (exp.length > 0) {
@@ -309,6 +254,9 @@ function updateServerData(stat, reqData) {
                 } else {
                     hideElement(resultError)
                 }
+                if (res.data.data.hasOwnProperty("exporttable")) {
+                    saveFile("rdml_export.tsv", res.data.data.exporttable, "tsv")
+                }
                 updateClientData()
             }
         })
@@ -327,20 +275,53 @@ function updateServerData(stat, reqData) {
         })
 }
 
+window.detectBrowser = detectBrowser;
+function detectBrowser() {
+    var browser = window.navigator.userAgent.toLowerCase();
+    if (browser.indexOf("edge") != -1) {
+        return "edge";
+    }
+    if (browser.indexOf("firefox") != -1) {
+        return "firefox";
+    }
+    if (browser.indexOf("chrome") != -1) {
+        return "chrome";
+    }
+    if (browser.indexOf("safari") != -1) {
+        return "safari";
+    }
+    alert("Unknown Browser: Functionality may be impaired!\n\n" +browser);
+    return browser;
+}
+
+window.saveFile = saveFile;
+function saveFile(fileName,content,type) {
+    var a = document.createElement("a");
+    document.body.appendChild(a);
+    a.style.display = "none";
+    var blob;
+    if (type == "tsv") {
+        blob = new Blob([content], {type: "text/tab-separated-values"});
+    } else if (type == "svg") {
+        blob = new Blob([content], {type: "image/svg+xml"});
+    } else {
+        blob = new Blob([content], {type: "text/plain"});
+    }
+    var browser = detectBrowser();
+    if (browser != "edge") {
+	    var url = window.URL.createObjectURL(blob);
+	    a.href = url;
+	    a.download = fileName;
+	    a.click();
+	    window.URL.revokeObjectURL(url);
+    } else {
+        window.navigator.msSaveBlob(blob, fileName);
+    }
+    return "";
+};
+
 window.updateClientData = updateClientData
 function updateClientData() {
-    if (window.selRunOnLoad != "") {
-        window.selRun = window.selRunOnLoad
-        if ((window.rdmlData.hasOwnProperty("rdml")) && (window.selExperiment != "") && (window.selRun != "")){
-            var ret = {}
-            ret["mode"] = "get-run-data"
-            ret["sel-experiment"] = window.selExperiment
-            ret["sel-run"] = window.selRun
-            window.selRunOnLoad = ""
-            updateServerData(uuid, JSON.stringify(ret))
-        }
-        return
-    }
     // The UUID box
     var ret = '<br /><div class="card">\n<div class="card-body">\n'
     ret += '<h5 class="card-title">Links to other RDML tools</h5>\n<p>Link to this result page:<br />'
@@ -393,469 +374,93 @@ function updateClientData() {
     var ret = ''
     var exp = window.rdmlData.rdml.experiments;
 
-    ret = '<table style="width:100%;">'
-    ret += '  <tr>\n    <td style="width:8%;">Experiment:</td>\n<td style="width:29%;">'
-    ret += '  <select class="form-control" id="dropSelExperiment" onchange="updateExperimenter()">'
-    ret += '    <option value="">No experiment selected</option>\n'
-    window.experimentPos = -1
-    for (var i = 0; i < exp.length; i++) {
-        ret += '        <option value="' + exp[i].id + '"'
-        if (window.selExperiment == exp[i].id) {
-            ret += ' selected'
-            window.experimentPos = i
-        }
-        ret += '>' + exp[i].id + '</option>\n'
-    }
-    ret += '  </select>\n'
-    ret += '</td>\n'
-    ret += '<td style="width:4%;"></td>'
-    ret += '    <td style="width:4%;">Run:</td>\n<td style="width:33%;">'
-    ret += '  <select class="form-control" id="dropSelRun" onchange="updateRun()">'
-    ret += '    <option value="">No run selected</option>\n'
-    window.runPos = -1
-    if (window.experimentPos > -1) {
-        var runs = exp[window.experimentPos].runs
-        for (var i = 0; i < runs.length; i++) {
-            ret += '        <option value="' + runs[i].id + '"'
-            if (window.selRun == runs[i].id) {
-                ret += ' selected'
-                window.runPos = i
-            }
-            ret += '>' + runs[i].id + '</option>\n'
-        }
-    }
-    ret += '</td>\n'
-    ret += '<td style="width:22%;">\n'
-    ret += '    <button type="submit" class="btn btn-outline-primary" onclick="showRDMLSave()">\n'
-    ret += '    <i class="far fa-save" style="margin-right: 5px;"></i>\n'
-    ret += '      Save RDML\n'
-    ret += '    </button>\n'
-    ret += '</td>\n</tr>\n'
-    ret += '</table>\n'
+    ret = ''
 
     selectorsData.innerHTML = ret
-    ret = ""
-
-    if ((window.experimentPos > -1) && (window.runPos > -1) && (window.reactData.hasOwnProperty("reacts"))) {
-        var reacts = window.reactData.reacts
-        var the_run = exp[window.experimentPos].runs[window.runPos]
-        var rows = parseInt(the_run.pcrFormat.rows)
-        var columns = parseInt(the_run.pcrFormat.columns)
-        var rowLabel = the_run.pcrFormat.rowLabel
-        var columnLabel = the_run.pcrFormat.columnLabel
-        var finRowLabel = ""
-        var finColumnLabel = ""
-        ret += '<table id="rdmlPlateTab" style="width:100%;">'
-        var exRowCount = 0
-        var exClasRowUsed = false
-        var exDigiRowUsed = false
-        var rowCont = ""
-        var lastClassic = 0
-        for (var r = 0; r < rows; r++) {
-            rowCont += '  <tr>'
-            if (rowLabel == "123") {
-                finRowLabel = r + 1
-            } else if (rowLabel == "ABC") {
-                finRowLabel = String.fromCharCode('A'.charCodeAt(0) + r)
-            }
-            for (var c = 0; c < columns; c++) {
-                if (columnLabel == "123") {
-                    finColumnLabel = c + 1
-                } else if (columnLabel == "ABC") {
-                    finColumnLabel = String.fromCharCode('A'.charCodeAt(0) + c)
-                }    
-                var id = r * columns + c + 1
-                var cell = '  <td></td>'
-                for (var reac = 0; reac < reacts.length; reac++) {
-                    if (parseInt(reacts[reac].id) == id) {
-                        var hasReactData = false
-                        if ((reacts[reac].hasOwnProperty("datas")) && 
-                            (reacts[reac].datas.length > 0)) {
-                            hasReactData = true
-                        }
-                        if ((reacts[reac].hasOwnProperty("partitions")) &&
-                            (reacts[reac].partitions.hasOwnProperty("datas")) &&
-                            (reacts[reac].partitions.datas.length > 0)) {
-                            hasReactData = true
-                        }
-                        if (exRowCount == 0) {
-                            if (hasReactData == true) {
-                                cell = '  <td style="font-size:0.7em;background-color:#cccccc;">'
-                                cell += finRowLabel + finColumnLabel + '<br />'
-                                cell += reacts[reac].sample + '</td>'
-                                exClasRowUsed = true
-                            } else {
-                                cell = '  <td></td>'
-                            }
-                        } else {
-                            var dataPos = exRowCount - 1
-                            if ((reacts[reac].hasOwnProperty("datas")) && 
-                                (dataPos < reacts[reac].datas.length)) {
-                                var cBgCol = "#ffffff"
-                                var cExcl = ""
-                                var cNote = ""
-                                if (reacts[reac].datas[dataPos].hasOwnProperty("note")) {
-                                    cNote = reacts[reac].datas[dataPos].note
-                                    cBgCol = "#ccff66"
-                                }
-                                if (reacts[reac].datas[dataPos].hasOwnProperty("excl")) {
-                                    cExcl = reacts[reac].datas[dataPos].excl
-                                    cBgCol = "#ff704d"
-                                }
-                                cell = '  <td style="font-size:0.7em;background-color:' + cBgCol + ';"'
-                                cell += ' onclick="showReactSel(0, ' + reac + ', ' + dataPos + ')">'
-                                cell += reacts[reac].datas[dataPos].tar + '<br />'
-                                cell += 'Excl: ' + cExcl + '<br />'
-                                cell += 'Note: ' + cNote + '</td>'
-                                exClasRowUsed = true
-                                lastClassic = dataPos
-                            }
-                            var dataPos = exRowCount - lastClassic - 1
-                            if ((exClasRowUsed == false) &&
-                                (reacts[reac].hasOwnProperty("partitions")) &&
-                                (reacts[reac].partitions.hasOwnProperty("datas")) &&
-                                (dataPos < reacts[reac].partitions.datas.length)) {
-                                var cBgCol = "#ffffff"
-                                var cExcl = ""
-                                var cNote = ""
-                                if (reacts[reac].partitions.datas[dataPos].hasOwnProperty("note")) {
-                                    cNote = reacts[reac].partitions.datas[dataPos].note
-                                    cBgCol = "#ccff66"
-                                }
-                                if (reacts[reac].partitions.datas[dataPos].hasOwnProperty("excluded")) {
-                                    cExcl = reacts[reac].partitions.datas[dataPos].excluded
-                                    cBgCol = "#ff704d"
-                                }
-                                cell = '  <td style="font-size:0.7em;background-color:' + cBgCol + ';"'
-                                cell += ' onclick="showReactSel(1, ' + reac + ', ' + dataPos + ')">'
-                                cell += reacts[reac].partitions.datas[dataPos].tar + '<br />'
-                                cell += 'Excl: ' + cExcl + '<br />'
-                                cell += 'Note: ' + cNote + '</td>'
-                                exDigiRowUsed = true
-                                }
-                            if ((exClasRowUsed == false) &&
-                                (exDigiRowUsed == false)) {
-                                cell = '  <td></td>'
-                            }
-                        }
 
 
-
-
-                    }
-                    if(0) {
-                        if ((reacts[reac].hasOwnProperty("partitions")) &&
-                            (reacts[reac].partitions.hasOwnProperty("datas")) &&
-                            (window.reactData.max_partition_data_len > 0)) {
-                            var samNr = window.samToNr[reacts[reac].sample]
-                            var colo = colorByNr(samNr)
-                            var fon_col = "#000000"
-                            if (hexToGrey(colo) < 128) {
-                                fon_col = "#ffffff"
-                            }
-                            if (exRowCount == 0) {
-                                cell = '  <td id="plateTab_' + id + '" style="font-size:0.8em;background-color:'
-                                cell += colo + ';color:' + fon_col + ';vertical-align:top;">'
-                                cell += '<b><u>' + reacts[reac].sample + '</u></b><br />'
-                                if (reacts[reac].partitions.hasOwnProperty("endPtTable")) {
-                                    cell += '<a href="#" onclick="getDigitalFile(\'' + id + '\',\''
-                                    cell += reacts[reac].partitions.endPtTable + '\')">Raw data (.tsv)</a><br />'
-                                } else {
-                                    cell += 'No raw data<br />'
-                                }
-                                cell += '</td>'
-                                exRowUsed = true
-                            } else {
-                                if (exRowCount - 1 < reacts[reac].partitions.datas.length) {
-                                    var dData = exRowCount - 1
-                                    cell = '  <td style="font-size:0.8em;background-color:' + colo
-                                    cell += ';color:' + fon_col + ';vertical-align:top;">'
-                                    cell += '<b><u>' + reacts[reac].sample + '</u></b><br />'
-                                    cell += '<b>' + reacts[reac].partitions.datas[dData].tar + '</b><br />'
-                                    cell += "Pos: " + reacts[reac].partitions.datas[dData].pos + '<br />'
-                                    cell += "Neg: " + reacts[reac].partitions.datas[dData].neg + '<br />'
-                                    if (reacts[reac].partitions.datas[dData].hasOwnProperty("undef")) {
-                                        cell += "Undef: " + reacts[reac].partitions.datas[dData].undef + '<br />'
-
-                                    }
-                                    if (reacts[reac].partitions.datas[dData].hasOwnProperty("excl")) {
-                                        cell += "Excl: " + reacts[reac].partitions.datas[dData].excl + '<br />'
-
-                                    }
-                                    if (reacts[reac].partitions.datas[dData].hasOwnProperty("conc")) {
-                                        cell += reacts[reac].partitions.datas[dData].conc + ' cop/&micro;l<br />'
-
-                                    }
-                                    cell += '</td>'
-                                    exRowUsed = true
-                                } else {
-                                    cell = '  <td style="font-size:0.8em;background-color:' + colo + ';"></td>'
-                                }
-                            }
-                        }
-               
-                    }
+    var exp = window.rdmlData.rdml.samples;
+    ret = ''
+    for (var i = 0; i < exp.length; i++) {
+        ret += '<br /><div class="card">\n<div class="card-body">\n'
+        ret += '<h5 class="card-title">' + (i + 1) + '. Sample ID: ' + exp[i].id + '</h5>\n<p>'
+        ret += '<div id="pType-sample-' + i + '"></div>'
+        ret += '<div id="pAnnotation-sample-' + i + '"></div>'
+        ret += '<div class="card">\n<div class="card-body">\n'
+        ret += '<h5 class="card-title">Annotation:</h5>\n'
+        ret += '<table style="width:100%;">'
+        if (exp[i].hasOwnProperty("annotations")) {
+            var au = exp[i].annotations.length
+            for (var j = 0; j < au; j++) {
+                ret += '  <tr>\n    <td style="width:15%;">'
+                ret += saveUndef(exp[i].annotations[j].property) + ': </td>\n'
+                ret += '    <td style="width:45%;">'
+                ret += saveUndef(exp[i].annotations[j].value) + '</td>\n'
+                ret += '    <td style="width:40%">\n'
+                if (j == 0) {
+                    ret += '<button type="button" class="btn btn-success btn-sm disabled">Move Up</button>&nbsp;&nbsp;'
+                } else {
+                    ret += '<button type="button" class="btn btn-success btn-sm" '
+                    ret += 'onclick="moveSecElement(\'sample\', ' + i + ', \'\', 0, \'annotation\', ' + j
+                    ret += ', ' + (j - 1) + ');">Move Up</button>&nbsp;&nbsp;'
                 }
-                rowCont += cell
+                if (j == au - 1) {
+                    ret += '<button type="button" class="btn btn-success btn-sm disabled">Move Down</button>&nbsp;&nbsp;&nbsp;'
+                } else {
+                    ret += '<button type="button" class="btn btn-success btn-sm" '
+                    ret += 'onclick="moveSecElement(\'sample\', ' + i + ', \'\', 0, \'annotation\', ' + j
+                    ret += ', ' + (j + 2) + ');">Move Down</button>&nbsp;&nbsp;&nbsp;'
+                }
+                ret += '<button type="button" class="btn btn-success btn-sm" '
+                ret += 'onclick="deleteSecElement(\'sample\', ' + i + ', \'\', 0, \'annotation\', ' + j
+                ret += ');">Delete</button></td>\n  </tr>'
             }
-            rowCont += '</tr>\n'
-            if ((exClasRowUsed == true) ||
-                (exDigiRowUsed == true)) {
-                ret += rowCont
-                exClasRowUsed = false
-                exDigiRowUsed = false
-                r--
-                exRowCount++
-            } else {
-                exRowCount = 0
-            }
-            rowCont = ""
         }
-        ret += '</table><br /><br />'
+        ret += '</table>\n'
+        ret += '</div>\n</div><br />\n'
 
-        ret += '<div class="card">'
-        ret += '  <div class="card-header">Annotation</div>'
-        ret += '  <div class="card-body">'
-        ret += '    <div class="form-group">'
-        ret += '      <label for="runView-ele-react">Reaction (Ranges may be provided as B2-D6):</label>'
-        ret += '      <input type="text" class="form-control" id="runView-ele-react"'
-        ret += ' value="' + window.selWell + '" onchange="updateWellSel()">'
-        ret += '    </div>'
-        ret += '    <div class="form-group">'
-        ret += '      <label for="runView-ele-tar">Target:</label>'
-        ret += '      <input type="text" class="form-control" id="runView-ele-tar"'
-        ret += ' value="' + window.selTar + '" onchange="updateWellSel()">'
-        ret += '    </div>'
-        ret += '    <div class="form-group">'
-        ret += '      <label for="runView-ele-pcrstyle">Data Source:</label>'
-        ret += '      <select class="form-control" id="runView-ele-pcrstyle" onchange="updateWellSel()">'
-        if (window.selPCR == 0) {
-            ret += '        <option value="classic" selected>classic</option>\n'
-            ret += '        <option value="digital">digital</option>\n'
-        } else {
-            ret += '        <option value="classic">classic</option>\n'
-            ret += '        <option value="digital" selected>digital</option>\n'
-        }
-        ret += '      </select>\n'
-        ret += '    </div>'
-        ret += '    <div class="form-group">'
-        ret += '      <label for="runView-ele-excl">Excluded:</label>'
-        ret += '      <input type="text" class="form-control" id="runView-ele-excl" onchange="updateErrNote()"'
-        ret += ' value="' + window.selExcl + '" >'
-        ret += '    </div>'
-        if (window.rdmlData.rdml.version == "1.3") {
-            ret += '    <div class="form-group">'
-            ret += '      <label for="runView-ele-note">Notes:</label>'
-            ret += '      <input type="text" class="form-control" id="runView-ele-note" onchange="updateErrNote()"'
-            ret += ' value="' + window.selNote + '" >'
-            ret += '    </div>'
-        } else {
-            ret += '      <input type="hidden" id="runView-ele-note" value="" >'
-        }
-        ret += '<button type="submit" class="btn btn-outline-primary" '
-        ret += 'onclick="replaceExcl()">'
-        ret += '      <i class="fas fa-rocket" style="margin-right: 5px;"></i>'
-        ret += '        Replace Exclusion'
-        ret += '    </button>&nbsp;'
-        ret += '<button type="submit" class="btn btn-outline-primary" '
-        ret += 'onclick="replaceNote()">'
-        ret += '      <i class="fas fa-rocket" style="margin-right: 5px;"></i>'
-        ret += '        Replace Note'
-        ret += '    </button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
-        ret += '<button type="submit" class="btn btn-outline-primary" '
-        ret += 'onclick="appendExcl()">'
-        ret += '      <i class="fas fa-rocket" style="margin-right: 5px;"></i>'
-        ret += '        Append Exclusion'
-        ret += '    </button>&nbsp;'
-        ret += '<button type="submit" class="btn btn-outline-primary" '
-        ret += 'onclick="appendNote()">'
-        ret += '      <i class="fas fa-rocket" style="margin-right: 5px;"></i>'
-        ret += '        Append Note'
-        ret += '    </button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
-        ret += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
-        ret += '<button type="submit" class="btn btn-outline-danger" '
-        ret += 'onclick="delTarData()">'
-        ret += '      <i class="fas fa-rocket" style="margin-right: 5px;"></i>'
-        ret += '        Delete Target Data'
-        ret += '    </button>&nbsp;'
-        ret += '<button type="submit" class="btn btn-outline-danger" '
-        ret += 'onclick="delReactData()">'
-        ret += '      <i class="fas fa-rocket" style="margin-right: 5px;"></i>'
-        ret += '        Delete Reaction Data'
-        ret += '    </button><br /><br />'
-        ret += '    Here you can view the exclusion remarks and from RDML version 1.3 the'
-        ret += '    notes of the RDML file. Any entry in exclusion will exclude this reaction/target combination '
-        ret += '    from further analysis. <br />'
-        ret += '  </div>'
-        ret += '</div>'
-
+        ret += '</div>\n</div>\n'
     }
     resultData.innerHTML = ret
-    updateWellSel()
 }
 
-window.updateExperimenter = updateExperimenter;
-function updateExperimenter() {
-    var newData = getSaveHtmlData("dropSelExperiment")
-    if (window.selExperiment == newData) {
-        return
-    }
-    window.selExperiment = newData
-    window.selRun = ""
-    resetSelection()
-    updateClientData()
-}
-
-window.updateRun = updateRun;
-function updateRun() {
-    var newData = getSaveHtmlData("dropSelRun")
-    if (window.selRun == newData) {
-        return
-    }
-    window.selRun = newData
+window.moveSecElement = moveSecElement;
+function moveSecElement(prim_key, prim_pos, sec_key, sec_pos, id_source, cur_pos, new_pos){
     if (!(window.rdmlData.hasOwnProperty("rdml"))) {
         return
     }
-    if ((window.selExperiment == "") || (window.selRun == "")){
+    var ret = {}
+    ret["mode"] = "moveSecIds"
+    ret["primary-key"] = prim_key
+    ret["primary-position"] = prim_pos
+    ret["secondary-key"] = sec_key
+    ret["secondary-position"] = sec_pos
+    ret["id-source"] = id_source
+    ret["old-position"] = cur_pos
+    ret["new-position"] = new_pos
+    updateServerData(uuid, JSON.stringify(ret))
+ }
+
+// Delete the selected element
+window.deleteSecElement = deleteSecElement;
+function deleteSecElement(prim_key, prim_pos, sec_key, sec_pos, id_source, cur_pos){
+    if (!(window.rdmlData.hasOwnProperty("rdml"))) {
         return
     }
     var ret = {}
-    ret["mode"] = "get-run-data"
-    ret["sel-experiment"] = window.selExperiment
-    ret["sel-run"] = window.selRun
-    resetSelection()
+    ret["mode"] = "deleteSecIds"
+    ret["primary-key"] = prim_key
+    ret["primary-position"] = prim_pos
+    ret["secondary-key"] = sec_key
+    ret["secondary-position"] = sec_pos
+    ret["id-source"] = id_source
+    ret["old-position"] = cur_pos
     updateServerData(uuid, JSON.stringify(ret))
 }
-
 window.updateErrNote = updateErrNote;
 function updateErrNote() {
     window.selExcl = document.getElementById('runView-ele-excl').value
     window.selNote = document.getElementById('runView-ele-note').value
-}
-
-window.updateWellSel = updateWellSel;
-function updateWellSel() {
-    window.selReact = -1;
-    var well = document.getElementById('runView-ele-react').value
-    window.selWell = well
-    var pcrStr = document.getElementById('runView-ele-pcrstyle').value
-    var pcr = 0
-    window.selPCR = 0
-    if (pcrStr != "classic") {
-        pcr = 1
-        window.selPCR = 1
-    }
-    var tar = document.getElementById('runView-ele-tar').value
-    window.selTar = tar
-
-    if (well.indexOf("-") > -1) {
-        return
-    }
-    var match = well.match(/(\D)(\d+)\s*/)
-    if ((match != null) &&
-        (window.experimentPos > -1) && 
-        (window.runPos > -1) && 
-        (window.reactData.hasOwnProperty("reacts"))) {
-        var reacts = window.reactData.reacts
-        var exp = window.rdmlData.rdml.experiments
-        var the_run = exp[window.experimentPos].runs[window.runPos]
-        var columns = parseInt(the_run.pcrFormat.columns)
-        var newId = parseInt(match[2]) + (match[1].toUpperCase().charCodeAt() - 'A'.charCodeAt()) * columns
-        var react = -1
-        for (var reac = 0; reac < reacts.length; reac++) {
-            if (parseInt(reacts[reac].id) == newId) {
-                react = reac
-                window.selReact = newId
-                break
-            }
-        }
-        var newTar = -1
-        if ((pcr == 0) &&
-            (react > 0) &&
-            (reacts[react].hasOwnProperty("datas")) && 
-            (reacts[react].datas.length) > 0) {
-            for (var dataIt = 0; dataIt < reacts[react].datas.length; dataIt++) {
-                if (reacts[react].datas[dataIt].tar == tar) {
-                    newTar = dataIt
-                    break
-                }
-            }
-        }
-        if ((pcr == 1) && 
-            (react > 0) &&
-            (window.rdmlData.rdml.version == "1.3") &&
-            (reacts[react].hasOwnProperty("partitions")) &&
-            (reacts[react].partitions.hasOwnProperty("datas")) &&
-            (reacts[react].partitions.datas.length) > 0) {
-            for (var dataIt = 0; dataIt < reacts[react].partitions.datas.length; dataIt++) {
-                if (reacts[react].partitions.datas[dataIt].tar == tar) {
-                    newTar = dataIt
-                    break
-                }
-            }
-        }
-        if ((react > 0) && (newTar > -1)) {
-            showReactSel(pcr, react, newTar)
-        }
-    }
-}
-
-
-window.showReactSel = showReactSel;
-function showReactSel(pcr, react, dataPos) {
-    if ((window.experimentPos > -1) && 
-        (window.runPos > -1) && 
-        (window.reactData.hasOwnProperty("reacts"))) {
-        var reacts = window.reactData.reacts
-        var id = parseInt(reacts[react].id)
-        window.selReact = id
-        var exp = window.rdmlData.rdml.experiments
-        var the_run = exp[window.experimentPos].runs[window.runPos]
-        
-        var columns = parseInt(the_run.pcrFormat.columns)
-        var rowLabel = the_run.pcrFormat.rowLabel
-        var columnLabel = the_run.pcrFormat.columnLabel
-        var finColumn = (parseInt(id) - 1) % columns
-        var finRow = (parseInt((parseInt(id) - 1) / columns))
-        var wellId = ""
-        if (rowLabel == "123") {
-            wellId += finRow + 1
-        } else if (rowLabel == "ABC") {
-            wellId += String.fromCharCode('A'.charCodeAt(0) + finRow)
-        }
-        if (columnLabel == "123") {
-            wellId += finColumn + 1
-        } else if (columnLabel == "ABC") {
-            wellId += String.fromCharCode('A'.charCodeAt(0) + finColumn)
-        }    
-        document.getElementById('runView-ele-react').value = wellId
-        window.selWell = wellId
- 
-        if ((pcr == 0) &&
-            (reacts[react].hasOwnProperty("datas")) && 
-            (dataPos < reacts[react].datas.length)) {
-            document.getElementById('runView-ele-pcrstyle').selectedIndex = 0
-            window.selPCR = 0
-            document.getElementById('runView-ele-tar').value = reacts[react].datas[dataPos].tar
-            window.selTar = reacts[react].datas[dataPos].tar
-            document.getElementById('runView-ele-excl').value = saveUndefKey(reacts[react].datas[dataPos], "excl")
-            if (window.rdmlData.rdml.version == "1.3") {
-                document.getElementById('runView-ele-note').value = saveUndefKey(reacts[react].datas[dataPos], "note")
-            }
-        }
-        if ((pcr == 1) && 
-            (window.rdmlData.rdml.version == "1.3") &&
-            (reacts[react].hasOwnProperty("partitions")) &&
-            (reacts[react].partitions.hasOwnProperty("datas")) &&
-            (dataPos < reacts[react].partitions.datas.length)) {
-            document.getElementById('runView-ele-pcrstyle').selectedIndex = 1
-            window.selPCR = 1
-            document.getElementById('runView-ele-tar').value = reacts[react].partitions.datas[dataPos].tar
-            window.selTar = reacts[react].partitions.datas[dataPos].tar
-            document.getElementById('runView-ele-excl').value = saveUndefKey(reacts[react].partitions.datas[dataPos], "excluded")
-            document.getElementById('runView-ele-note').value = saveUndefKey(reacts[react].partitions.datas[dataPos], "note")
-        }
-    }
 }
 
 function errorMessage(err) {

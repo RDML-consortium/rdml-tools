@@ -73,10 +73,23 @@
       </div>
 
       <div class="tab-pane" id="runs-tab">
-     <!--   <button type="button" class="btn btn-outline-primary" id="btn-jsDebug">Debug JS</button>
-        <textarea rows="4" cols="50" id="text-jsDebug"></textarea> -->
-        <div id="selectors-data"></div><br />
-        <div class="col" id="result-data"></div>
+        <button onclick="exportAnnotations();" type="button"
+                class="btn btn-success">Export Annotation Data</button>
+        <br />
+        <br />
+        <table style="width:100%;">
+          <tr>
+            <td style="width:25%;">Import Amplification Data:</td>
+            <td style="width:50%"><input type="file" class="form-control-file" id="inSamUploadAnnotation"></td>
+            <td style="width:25%;"><button onclick="importAnnotations();" type="button"
+                                      class="btn btn-success">Import Annotation Data</button></td>
+          </tr>
+        </table>
+        <br />
+        <br />
+        <div id="selectors-data"></div>
+        <br />
+        <div id="result-data"></div>
       </div>
 
       <div class="tab-pane" id="help-tab">

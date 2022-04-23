@@ -124,6 +124,21 @@
           must have different names.</p>
         <button id="btn-new-sample" onclick="createNewElement('sample');" type="button"
                 class="btn btn-success rdml-btn-edit">Create New Sample</button>
+        <div class="rdml-btn-edit">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+        <button onclick="exportAnnotations();" type="button"
+                class="btn btn-success">Export Annotation Data</button>
+        <div class="rdml-btn-edit">
+          <br />
+          <br />
+          <table style="width:100%;">
+            <tr>
+              <td style="width:25%;">Import Amplification Data:</td>
+              <td style="width:50%"><input type="file" class="form-control-file" id="inSamUploadAnnotation"></td>
+              <td style="width:25%;"><button onclick="importAnnotations();" type="button"
+                                        class="btn btn-success">Import Annotation Data</button></td>
+            </tr>
+          </table>
+        </div>
         <div id="samples-data"></div>
       </div>
 
