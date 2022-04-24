@@ -12,6 +12,12 @@ exampleButton.addEventListener('click', showExample)
 const compButton = document.getElementById('btn-apply-comp')
 compButton.addEventListener('click', compResTable)
 
+const saveDataButton = document.getElementById('btn-data-save')
+saveDataButton.addEventListener('click', saveDataTable)
+
+const saveMeanButton = document.getElementById('btn-mean-save')
+saveMeanButton.addEventListener('click', saveMeanTable)
+
 const inputFile = document.getElementById('inputFile')
 const resultInfo = document.getElementById('result-info')
 const resultError = document.getElementById('result-error')
@@ -39,8 +45,8 @@ window.inputFile = "";
 window.inputFileName = "";
 window.inputSeparator = "\t";
 window.inputReplaceComma = true;
-window.inputTable = [];
 window.inputTabStr = "";
+window.inputTabFix = [];
 
 window.modifySettings = {};
 window.resultTab = [];
@@ -57,6 +63,24 @@ document.addEventListener("DOMContentLoaded", function() {
         selEl.add(option);
     }
 });
+
+function showElement(element) {
+    element.classList.remove('d-none')
+}
+
+function hideElement(element) {
+    element.classList.add('d-none')
+}
+
+function getSaveHtmlData(key) {
+    var el = document.getElementById(key)
+    if (el) {
+        return el.value
+    } else {
+        return ""
+    }
+}
+
 function errorTxt(mess) {
     showElement(resultError)
     resultError.innerHTML = '<i class="fas fa-fire"></i>\n<span id="error-message">' + mess + '</span>'
@@ -151,7 +175,6 @@ function updateSepCount(txt) {
         document.getElementById('sep-radio-colon').checked = true;
     }
     importTable();
-    updateModification();
 }
 
 window.updateSepManual = updateSepManual;
@@ -162,57 +185,69 @@ function updateSepManual(el) {
         window.inputSeparator = el.value;
     }
     importTable();
-    updateModification();
 }
 
 window.updateCommaManual = updateCommaManual;
 function updateCommaManual() {
     window.inputReplaceComma = document.getElementById("modCommaDot").checked;
     importTable();
-    updateModification();
 }
 
 window.importTable = importTable;
 function importTable() {
-    var preTab = window.inputFile.split("\n");
-    var tab = [];
-    for (var i = 0 ; i < preTab.length ; i++) {
-        tab.push(preTab[i].split(window.inputSeparator));
-        if (window.inputSeparator != ";") {
-            var lastTab = tab.length - 1;
-            if (tab[lastTab].length > 2) {
-                var rawVals = tab[lastTab][2];
-                rawVals = rawVals.replace(/[^0-9\.;]/g, "");
-                rawVals = rawVals.replace(/^;/, "");
-                rawVals = rawVals.replace(/;$/, "");
-                var rawList = rawVals.split(";");
-                tab[lastTab][4] = rawList[0]
-                if (rawList.length > 1) {
-                    var a_0 = tab[lastTab][0];
-                    var a_1 = tab[lastTab][1];
-                    var a_2 = tab[lastTab][2];
-                    var a_3 = tab[lastTab][3];
-                    for (var k = 1 ; k < rawList.length ; k++) {
-                        tab.push([a_0, a_1, a_2, a_3, rawList[k]]);
-                    }
-                }
+    processTable(window.inputFile, window.inputSeparator);
+}
+
+window.readHtmlRawData = readHtmlRawData;
+function readHtmlRawData() {
+    var dataIn = getSaveHtmlData("table-data-points")
+    processTable(dataIn, "\t");
+}
+
+window.processTable = processTable;
+function processTable(txtInput, inputSep) {
+    var rawTab = txtInput.split("\n");
+    window.inputTabFix = [];
+    for (var i = 0 ; i < rawTab.length ; i++) {
+        var rawLine = rawTab[i].split(inputSep)
+        if (rawLine.length < 3) {
+            continue;
+        }
+        var a_0 = rawLine[0].replace(/\t/, " ");
+        var a_1 = rawLine[1].replace(/\t/, " ");
+        for (var k = 2 ; k < rawLine.length ; k++ ){
+            var rawVals = rawLine[k];
+            if (rawLine[k] == "") {
+                continue;
+            }
+            rawVals = rawVals.replace(/[^0-9\.,;]/g, "");
+            rawVals = rawVals.replace(/^;/, "");
+            rawVals = rawVals.replace(/;$/, "");
+            if (window.inputReplaceComma) {
+                rawVals = rawVals.replace(/,/, ".")
+            } else {
+                rawVals = rawVals.replace(/,/, "")
+            }
+            var rawList = []
+            if (inputSep != ";") {
+                rawList = rawVals.split(";");
+            } else {
+                rawList = [rawVals]
+            }
+            for (var l = 0 ; l < rawList.length ; l++ ){
+                window.inputTabFix.push([a_0, a_1, rawList[l]]);
             }
         }
     }
     window.inputTabStr = "";
-    for (var row = 0 ; row < tab.length ; row++) {
-        for (var col = 0 ; col < tab[row].length ; col++) {
-            tab[row][col] = tab[row][col].replace(/\t/, "")
-            if (window.inputReplaceComma) {
-                tab[row][col] = tab[row][col].replace(/,/, ".")
-            }
-            window.inputTabStr += tab[row][col] + "\t";
+    for (var row = 0 ; row < window.inputTabFix.length ; row++) {
+        for (var col = 0 ; col < window.inputTabFix[row].length ; col++) {
+            window.inputTabStr += window.inputTabFix[row][col] + "\t";
         }
         window.inputTabStr = window.inputTabStr.replace(/\t$/, "\n");
     }
-    window.inputTable = tab;
     tableDataPoints.innerHTML = window.inputTabStr;
-    inputTableView.innerHTML = drawHtmlTable(tab, false);
+    inputTableView.innerHTML = drawHtmlTable(window.inputTabFix, false);
     selectDataCombiMeth();
 }
 
@@ -278,22 +313,106 @@ function getUniqueCol(tab, col){
 window.selectDataCombiMeth = selectDataCombiMeth;
 function selectDataCombiMeth(){
     var selMethod = document.getElementById('selDataCombiMeth').value;
-    var selA = getUniqueCol(window.inputTable, 0)
+    var selA = getUniqueCol(window.inputTabFix, 0)
     if (selA.length == 0) {
         alert("Data must have labels")
     }
-    var selB = getUniqueCol(window.inputTable, 1)
+    var selB = getUniqueCol(window.inputTabFix, 1)
 
 
     if (selMethod == "mean_sem") {
-        alert(getUniqueCol(window.inputTable, 0))
-        alert(getUniqueCol(window.inputTable, 1))
+        //alert(getUniqueCol(window.inputTabFix, 0))
+        //alert(getUniqueCol(window.inputTabFix, 1))
     }
 
     // tableCombinedData
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+window.saveDataTable = saveDataTable;
+function saveDataTable() {
+    saveTabFile("Raw_Data.tsv", window.inputTabStr)
+    return;
+};
+
+window.saveMeanTable = saveMeanTable;
+function saveMeanTable() {
+    saveTabFile("Mean_Data.tsv", window.inputTabStr)
+    return;
+};
+
+window.detectBrowser = detectBrowser;
+function detectBrowser() {
+    var browser = window.navigator.userAgent.toLowerCase();
+    if (browser.indexOf("edge") != -1) {
+        return "edge";
+    }
+    if (browser.indexOf("firefox") != -1) {
+        return "firefox";
+    }
+    if (browser.indexOf("chrome") != -1) {
+        return "chrome";
+    }
+    if (browser.indexOf("safari") != -1) {
+        return "safari";
+    }
+    alert("Unknown Browser: Functionality may be impaired!\n\n" + browser);
+    return browser;
+}
+
+window.saveTabFile = saveTabFile;
+function saveTabFile(fileName, content) {
+    if (content == "") {
+        return;
+    }
+    var a = document.createElement("a");
+    document.body.appendChild(a);
+    a.style.display = "none";
+    var blob = new Blob([content], {type: "text/tab-separated-values"});
+    var browser = detectBrowser();
+    if (browser != "edge") {
+	    var url = window.URL.createObjectURL(blob);
+	    a.href = url;
+	    a.download = fileName;
+	    a.click();
+	    window.URL.revokeObjectURL(url);
+    } else {
+        window.navigator.msSaveBlob(blob, fileName);
+    }
+    return;
+};
 
 
 
@@ -392,23 +511,6 @@ function createServerRdml() {
         })
 }
 
-function showElement(element) {
-    element.classList.remove('d-none')
-}
-
-function hideElement(element) {
-    element.classList.add('d-none')
-}
-
-function getSaveHtmlData(key) {
-    var el = document.getElementById(key)
-    if (el) {
-        return el.value
-    } else {
-        return ""
-    }
-}
-
 window.selectMachineSettings = selectMachineSettings;
 function selectMachineSettings(){
     var sel = document.getElementById('selMachineSettings').value;
@@ -420,25 +522,6 @@ function selectMachineSettings(){
 
 
 
-
-window.detectBrowser = detectBrowser;
-function detectBrowser() {
-    var browser = window.navigator.userAgent.toLowerCase();
-    if (browser.indexOf("edge") != -1) {
-        return "edge";
-    }
-    if (browser.indexOf("firefox") != -1) {
-        return "firefox";
-    }
-    if (browser.indexOf("chrome") != -1) {
-        return "chrome";
-    }
-    if (browser.indexOf("safari") != -1) {
-        return "safari";
-    }
-    alert("Unknown Browser: Functionality may be impaired!\n\n" + browser);
-    return browser;
-}
 
 window.saveJsonFile = saveJsonFile;
 function saveJsonFile() {
@@ -459,39 +542,6 @@ function saveJsonFile() {
 	    window.URL.revokeObjectURL(url);
     } else {
         window.navigator.msSaveBlob(blob, "TableShaper_settings.json");
-    }
-    return;
-};
-
-window.saveTabFile = saveTabFile;
-function saveTabFile() {
-    if (window.resultTab == []) {
-        return;
-    }
-    var content = "";
-    for (var i = 0 ; i < window.resultTab.length ; i++) {
-        for (var k = 0 ; k < window.resultTab[i].length ; k++) {
-            content += window.resultTab[i][k] + "\t"
-        }
-        content = content.replace(/\t$/g, "\n");
-    }
-    var a = document.createElement("a");
-    document.body.appendChild(a);
-    a.style.display = "none";
-    var blob = new Blob([content], {type: "text/tab-separated-values"});
-    var browser = detectBrowser();
-    var downloadFileName = window.inputFileName + "_amplification.tsv";
-    if (document.getElementById('modReformatAmpMelt').value == "melt") {
-        downloadFileName = window.inputFileName + "_melting.tsv";
-    }
-    if (browser != "edge") {
-	    var url = window.URL.createObjectURL(blob);
-	    a.href = url;
-	    a.download = downloadFileName;
-	    a.click();
-	    window.URL.revokeObjectURL(url);
-    } else {
-        window.navigator.msSaveBlob(blob, downloadFileName);
     }
     return;
 };
