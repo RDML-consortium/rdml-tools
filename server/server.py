@@ -675,7 +675,6 @@ def handle_data():
             try:
                 if "tableUploadAnnotation" in request.files:
                     logNote1 = "tableUploadAnnotation"
-                    errRec = ""
                     tabAnnoUpload = request.files['tableUploadAnnotation']
                     if uuidstr in SAMPLEFILES:
                         uuidstr = str(uuid.uuid4())
@@ -690,9 +689,76 @@ def handle_data():
                             return jsonify(errors=[{"title": "Tab annotation file has incorrect file type!"}]), 400
                         tabAnnoFilename = os.path.join(sf, "rdml_" + uuidstr + "_annotation_upload.tsv")
                         tabAnnoUpload.save(tabAnnoFilename)
-                        errRec += rd.import_annotations(tabAnnoFilename)
-                        if errRec:
-                            data["error"] = errRec
+                        rd.import_annotations(tabAnnoFilename)
+            except rdml.RdmlError as err:
+                data["error"] = str(err)
+            else:
+                modified = True
+
+        if "mode" in reqdata and reqdata["mode"] == "rename-annotation-property":
+            if "anno-old-property" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - anno-old-property missing!"}]), 400
+            if "anno-new-property" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - anno-new-property missing!"}]), 400
+            try:
+                logNote1 = "modifyAnnotation"
+                rd.rename_annotation_property(oldProperty=reqdata["anno-old-property"],
+                                              newProperty=reqdata["anno-new-property"])
+            except rdml.RdmlError as err:
+                data["error"] = str(err)
+            else:
+                modified = True
+
+        if "mode" in reqdata and reqdata["mode"] == "rename-annotation-value":
+            if "anno-property" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - anno-property missing!"}]), 400
+            if "anno-old-value" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - anno-old-value missing!"}]), 400
+            if "anno-new-value" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - anno-new-value missing!"}]), 400
+            try:
+                logNote1 = "modifyAnnotation"
+                rd.rename_annotation_value(property=reqdata["anno-property"],
+                                           oldValue=reqdata["anno-old-value"],
+                                           newValue=reqdata["anno-new-value"])
+            except rdml.RdmlError as err:
+                data["error"] = str(err)
+            else:
+                modified = True
+
+        if "mode" in reqdata and reqdata["mode"] == "create-annotation-combined":
+            if "anno-combined-property" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - anno-combined-property missing!"}]), 400
+            if "anno-left-property" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - anno-left-property missing!"}]), 400
+            if "anno-connect-property" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - anno-connect-property missing!"}]), 400
+            if "anno-right-property" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - anno-right-property missing!"}]), 400
+            try:
+                logNote1 = "modifyAnnotation"
+                rd.combine_annotations(combinedPoperty=reqdata["anno-combined-property"],
+                                       leftProperty=reqdata["anno-left-property"],
+                                       connectProperty=reqdata["anno-connect-property"],
+                                       rightProperty=reqdata["anno-right-property"])
+            except rdml.RdmlError as err:
+                data["error"] = str(err)
+            else:
+                modified = True
+
+        if "mode" in reqdata and reqdata["mode"] == "create-annotation-list":
+            if "anno-new-property" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - anno-new-property missing!"}]), 400
+            if "anno-new-value" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - anno-new-value missing!"}]), 400
+            if "anno-sample-list" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - anno-sample-list missing!"}]), 400
+            try:
+                logNote1 = "modifyAnnotation"
+                selSam = json.loads(reqdata["anno-sample-list"])
+                for samId in selSam:
+                    el = rd.get_sample(byid=samId)
+                    el.edit_annotation_value(property=reqdata["anno-new-property"], value=reqdata["anno-new-value"])
             except rdml.RdmlError as err:
                 data["error"] = str(err)
             else:

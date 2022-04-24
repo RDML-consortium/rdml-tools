@@ -30,7 +30,7 @@
     </div>
   </header>
 
-  <main class="container-fluid">
+  <main class="container">
     <div id="result-error" class="alert alert-danger d-none" role="alert">
     </div>
     <div id="result-info" class="alert alert-info d-none" role="alert">
@@ -73,15 +73,25 @@
       </div>
 
       <div class="tab-pane" id="runs-tab">
-        <button onclick="exportAnnotations();" type="button"
-                class="btn btn-success">Export Annotation Data</button>
-        <br />
-        <br />
+        <table style="width:100%;">
+          <tr>
+            <td style="width:50%;"><button onclick="exportAnnotations();" type="button"
+               class="btn btn-success">Export Annotation Data</button></td>
+          </tr>
+          <tr>
+            <td style="width:50%;text-align: right;">
+              <button type="submit" class="btn btn-outline-primary" id="btn-rdml-save">
+                <i class="far fa-save" style="margin-right: 5px;"></i>
+                Save RDML
+              </button>
+            </td>
+          </tr>
+        </table>
         <table style="width:100%;">
           <tr>
             <td style="width:25%;">Import Amplification Data:</td>
-            <td style="width:50%"><input type="file" class="form-control-file" id="inSamUploadAnnotation"></td>
-            <td style="width:25%;"><button onclick="importAnnotations();" type="button"
+            <td style="width:25%"><input type="file" class="form-control-file" id="inSamUploadAnnotation"></td>
+            <td style="width:50%;"><button onclick="importAnnotations();" type="button"
                                       class="btn btn-success">Import Annotation Data</button></td>
           </tr>
         </table>

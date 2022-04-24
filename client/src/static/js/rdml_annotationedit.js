@@ -11,6 +11,9 @@ submitButton.addEventListener('click', showUpload)
 const exampleButton = document.getElementById('btn-example')
 exampleButton.addEventListener('click', showExample)
 
+const saveRDMLButton = document.getElementById('btn-rdml-save')
+saveRDMLButton.addEventListener('click', showRDMLSave)
+
 const rdmlLibVersion = document.getElementById('rdml_lib_version')
 
 // For debugging
@@ -36,20 +39,21 @@ window.isvalid = "untested";
 
 window.selExperiment = "";
 window.selRun = "";
-window.selRunOnLoad = "";
 
-window.selReact = -1;
-window.selWell = "";
-window.selTar = "";
-window.selPCR = 0;
+window.sampleList = [];
+window.sampleListCheck = {};
+window.sampleListProp = "";
+window.sampleListVal = "";
+
 window.selExcl = "";
 window.selNote = "";
 
 function resetSelection() {
-    window.selReact = -1;
-    window.selWell = "";
-    window.selTar = "";
-    window.selPCR = 0;
+    window.sampleList = [];
+    window.sampleListCheck = {};
+    window.sampleListProp = "";
+    window.sampleListVal = "";
+
     window.selExcl = "";
     window.selNote = "";
 }
@@ -70,26 +74,6 @@ function saveUndef(tst) {
     } else {
         return ""
     }
-}
-
-function saveUndefKey(base, key) {
-    if (base) {
-        if(base.hasOwnProperty(key)) {
-            return base[key]
-        }
-    }
-    return ""
-}
-
-function saveUndefKeyKey(base, key, skey) {
-    if (base) {
-        if(base.hasOwnProperty(key)) {
-            if(base[key].hasOwnProperty(skey)) {
-                return base[key][skey]
-            }
-        }
-    }
-    return ""
 }
 
 function getSaveHtmlData(key) {
@@ -145,10 +129,9 @@ $('#mainTab a').on('click', function(e) {
 })
 
 function showExample() {
-    window.selRun = "";
     window.selExperiment = "Experiment_1";
-    window.selRunOnLoad = "Run_1";
- 
+    window.selRun = "Run_1";
+
     resetSelection()
     updateServerData("example", '{"mode": "upload", "validate": true}')
     $('[href="#runs-tab"]').tab('show')
@@ -157,10 +140,66 @@ function showExample() {
 function showUpload() {
     window.selRun = "";
     window.selExperiment = "";
-    window.selRunOnLoad = "";
- 
+
     resetSelection()
     updateServerData("data", '{"mode": "upload", "validate": true}')
+    $('[href="#runs-tab"]').tab('show')
+}
+
+changeProperty
+window.changeProperty = changeProperty;
+function changeProperty() {
+    var ret = {}
+    ret["mode"] = "rename-annotation-property"
+    ret["anno-old-property"] = getSaveHtmlData("inOldProperty")
+    ret["anno-new-property"] = getSaveHtmlData("inNewProperty")
+    updateServerData(uuid, JSON.stringify(ret))
+    $('[href="#runs-tab"]').tab('show')
+}
+
+window.changeValue = changeValue;
+function changeValue() {
+    var ret = {}
+    ret["mode"] = "rename-annotation-value"
+    ret["anno-property"] = getSaveHtmlData("inProperty")
+    ret["anno-old-value"] = getSaveHtmlData("inOldValue")
+    ret["anno-new-value"] = getSaveHtmlData("inNewValue")
+    updateServerData(uuid, JSON.stringify(ret))
+    $('[href="#runs-tab"]').tab('show')
+}
+
+window.combineAnnos = combineAnnos;
+function combineAnnos() {
+    var ret = {}
+    ret["mode"] = "create-annotation-combined"
+    ret["anno-combined-property"] = getSaveHtmlData("inCombinedProperty")
+    ret["anno-left-property"] = getSaveHtmlData("inPropertyLeft")
+    ret["anno-connect-property"] = getSaveHtmlData("inConnector")
+    ret["anno-right-property"] = getSaveHtmlData("inPropertyRight")
+    updateServerData(uuid, JSON.stringify(ret))
+    $('[href="#runs-tab"]').tab('show')
+}
+
+window.createAnnotations = createAnnotations;
+function createAnnotations() {
+    var ret = {}
+    var allSam = []
+    ret["mode"] = "create-annotation-list"
+    ret["anno-new-property"] = getSaveHtmlData("inCreateProperty")
+    ret["anno-new-value"] = getSaveHtmlData("inValue")
+    window.sampleListProp = getSaveHtmlData("inCreateProperty");
+    window.sampleListVal = getSaveHtmlData("inValue");
+    for (var i = 0; i < window.sampleList.length; i++) {
+        var ele = document.getElementById('inSample_' + i);
+        if (ele) {
+            window.sampleListCheck[window.sampleList[i]] = ele.checked;
+            if (ele.checked) {
+                allSam.push(window.sampleList[i])
+            }
+        }
+    }
+    ret["anno-sample-list"] = JSON.stringify(allSam)
+    updateServerData(uuid, JSON.stringify(ret))
     $('[href="#runs-tab"]').tab('show')
 }
 
@@ -208,6 +247,8 @@ function updateServerData(stat, reqData) {
     hideElement(resultError)
     showElement(resultInfo)
 
+    window.sampleList = [];
+
     axios
         .post(`${API_URL}/data`, formData)
         .then(res => {
@@ -226,8 +267,15 @@ function updateServerData(stat, reqData) {
                     if (exp.length > 0) {
                         window.selExperiment = exp[0].id;
                         var runs = exp[0].runs
-                        window.selRunOnLoad = runs[0].id;
+                        window.selRun = runs[0].id;
                     }
+                }
+                if ((window.rdmlData.hasOwnProperty("rdml")) && (window.rdmlData.rdml.hasOwnProperty("samples"))) {
+                    var exp = window.rdmlData.rdml.samples;
+                    for (var i = 0; i < exp.length; i++) {
+                        window.sampleList.push(exp[i].id);
+                    }
+                    window.sampleList.sort();
                 }
                 if (res.data.data.hasOwnProperty("reactsdata")) {
                     window.reactData = res.data.data.reactsdata
@@ -374,13 +422,103 @@ function updateClientData() {
     var ret = ''
     var exp = window.rdmlData.rdml.experiments;
 
-    ret = ''
+    ret = '<div class="card">\n<div class="card-body">\n'
+    ret += '<h5 class="card-title">Rename Annotation Property</h5>\n<p>'
+    ret += '<table style="width:100%;">'
+    ret += '  <tr>\n    <td style="width:25%;">Old Property</td>\n'
+    ret += '    <td style="width:75%"><input type="text" class="form-control" '
+    ret += 'id="inOldProperty" value=""></td>\n'
+    ret += '  </tr>'
+    ret += '  <tr>\n    <td style="width:25%;">New Property</td>\n'
+    ret += '    <td style="width:75%"><input type="text" class="form-control" '
+    ret += 'id="inNewProperty" value=""></td>\n'
+    ret += '  </tr>'
+    ret += '</table>'
+    ret += '<button type="button" class="btn btn-success" '
+    ret += 'onclick="changeProperty();">Change All Properties</button>'
+    ret += '</div>\n</div>\n<br />\n<br />\n'
+    ret += '<div class="card">\n<div class="card-body">\n'
+    ret += '<h5 class="card-title">Rename Annotation Value</h5>\n<p>'
+    ret += '<table style="width:100%;">'
+    ret += '  <tr>\n    <td style="width:25%;">Property</td>\n'
+    ret += '    <td style="width:75%"><input type="text" class="form-control" '
+    ret += 'id="inProperty" value=""></td>\n'
+    ret += '  </tr>'
+    ret += '  <tr>\n    <td style="width:25%;">Old Value</td>\n'
+    ret += '    <td style="width:75%"><input type="text" class="form-control" '
+    ret += 'id="inOldValue" value=""></td>\n'
+    ret += '  </tr>'
+    ret += '  <tr>\n    <td style="width:25%;">New Value</td>\n'
+    ret += '    <td style="width:75%"><input type="text" class="form-control" '
+    ret += 'id="inNewValue" value=""></td>\n'
+    ret += '  </tr>'
+    ret += '</table>'
+    ret += '<button type="button" class="btn btn-success" '
+    ret += 'onclick="changeValue();">Change All Values</button>'
+    ret += '</div>\n</div>\n<br />\n<br />\n'
+    ret += '<div class="card">\n<div class="card-body">\n'
+    ret += '<h5 class="card-title">Create New Annotation from two existent Annotations</h5>\n<p>'
+    ret += '<table style="width:100%;">'
+    ret += '  <tr>\n    <td style="width:25%;">Combined Property Name</td>\n'
+    ret += '    <td style="width:75%"><input type="text" class="form-control" '
+    ret += 'id="inCombinedProperty" value=""></td>\n'
+    ret += '  </tr>'
+    ret += '  <tr>\n    <td style="width:25%;">Property Left</td>\n'
+    ret += '    <td style="width:75%"><input type="text" class="form-control" '
+    ret += 'id="inPropertyLeft" value=""></td>\n'
+    ret += '  </tr>'
+    ret += '  <tr>\n    <td style="width:25%;">Connect with</td>\n'
+    ret += '    <td style="width:75%"><input type="text" class="form-control" '
+    ret += 'id="inConnector" value=" - "></td>\n'
+    ret += '  </tr>'
+    ret += '  <tr>\n    <td style="width:25%;">Property Right</td>\n'
+    ret += '    <td style="width:75%"><input type="text" class="form-control" '
+    ret += 'id="inPropertyRight" value=""></td>\n'
+    ret += '  </tr>'
+    ret += '</table>'
+    ret += '<button type="button" class="btn btn-success" '
+    ret += 'onclick="combineAnnos();">Change All Values</button>'
+    ret += '</div>\n</div>\n<br />\n<br />\n'
+    ret += '<div class="card">\n<div class="card-body">\n'
+    ret += '<h5 class="card-title">Create new Annotation</h5>\n<p>'
+    ret += '<table style="width:100%;">'
+    ret += '  <tr>\n    <td style="width:25%;">Property</td>\n'
+    ret += '    <td style="width:75%"><input type="text" class="form-control" '
+    ret += 'id="inCreateProperty" value="' + window.sampleListProp + '"></td>\n'
+    ret += '  </tr>'
+    ret += '  <tr>\n    <td style="width:25%;">Old Value</td>\n'
+    ret += '    <td style="width:75%"><input type="text" class="form-control" '
+    ret += 'id="inValue" value="' + window.sampleListVal + '"></td>\n'
+    ret += '  </tr>'
+    for (var i = 0; i < window.sampleList.length; i++) {
+        ret += '  <tr>\n    <td style="width:25%;">Add Sample:</td>\n'
+        ret += '    <td style="width:75%">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
+        ret += '      <label class="form-check-label">'
+        ret += '        <input type="checkbox" class="form-check-input" id="inSample_' + i
+        ret += '" value=""'
+        if (window.sampleListCheck[ window.sampleList[i]]) {
+            ret += ' checked'
+        }
+        ret += '>' + window.sampleList[i]
+        ret += '      </label></td>\n'
+        ret += '  </tr>'
+    }
+    ret += '</table><br />'
+    ret += '<button type="button" class="btn btn-success" '
+    ret += 'onclick="createAnnotations();">Create Annotations</button>&nbsp;&nbsp;'
+    ret += '<button type="button" class="btn btn-success" '
+    ret += 'onclick="selAllSamples();">Select All Samples</button>&nbsp;&nbsp;'
+    ret += '<button type="button" class="btn btn-success" '
+    ret += 'onclick="invertSelSamples();">Invert Sample Selection</button>&nbsp;&nbsp;'
+    ret += '<button type="button" class="btn btn-success" '
+    ret += 'onclick="unSelAllSamples();">Deselect All Samples</button>&nbsp;&nbsp;'
+    ret += '</div>\n</div>\n'
 
     selectorsData.innerHTML = ret
 
 
     var exp = window.rdmlData.rdml.samples;
-    ret = ''
+    ret = '<br /><br /><h4>Current Sample Annotations:</h4>'
     for (var i = 0; i < exp.length; i++) {
         ret += '<br /><div class="card">\n<div class="card-body">\n'
         ret += '<h5 class="card-title">' + (i + 1) + '. Sample ID: ' + exp[i].id + '</h5>\n<p>'
@@ -423,6 +561,49 @@ function updateClientData() {
     }
     resultData.innerHTML = ret
 }
+
+window.selAllSamples = selAllSamples;
+function selAllSamples(){
+    if (!(window.rdmlData.hasOwnProperty("rdml"))) {
+        return
+    }
+    for (var i = 0; i < window.sampleList.length; i++) {
+        var ele = document.getElementById('inSample_' + i);
+        if (ele) {
+            ele.checked = true;
+        }
+    }
+ }
+
+window.invertSelSamples = invertSelSamples;
+function invertSelSamples(){
+    if (!(window.rdmlData.hasOwnProperty("rdml"))) {
+        return
+    }
+    for (var i = 0; i < window.sampleList.length; i++) {
+        var ele = document.getElementById('inSample_' + i);
+        if (ele) {
+            if (ele.checked) {
+                ele.checked = false;
+            } else {
+                ele.checked = true;
+            }
+        }
+    }
+ }
+
+window.unSelAllSamples = unSelAllSamples;
+function unSelAllSamples(){
+    if (!(window.rdmlData.hasOwnProperty("rdml"))) {
+        return
+    }
+    for (var i = 0; i < window.sampleList.length; i++) {
+        var ele = document.getElementById('inSample_' + i);
+        if (ele) {
+            ele.checked = false;
+        }
+    }
+ }
 
 window.moveSecElement = moveSecElement;
 function moveSecElement(prim_key, prim_pos, sec_key, sec_pos, id_source, cur_pos, new_pos){
