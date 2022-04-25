@@ -51,15 +51,19 @@ window.averTabStr = "";
 
 window.resultTab = [];
 
-window.setArr = {};
+window.xPosOrder = [];
+window.xGroupCenter = [];
+window.xPosLookUp = {};
 
 
 window.modifySettings = {};
 window.modifySettings["YAxLinLog"] = "lin";
 window.modifySettings["YAxMaxVal"] = "";
 window.modifySettings["YAxMinVal"] = "";
-window.modifySettings["YAxTopSpace"] = "0.05";
-window.modifySettings["YAxBottomSpace"] = "0.05";
+
+window.modifySettings["XAxEmptySpace"] = "y";
+window.modifySettings["XAxGapBar"] = "0.5";
+window.modifySettings["XAxGapGrp"] = "0.25";
 
 window.modifySettings["GraphHeight"] = "6.0";
 window.modifySettings["GraphWidth"] = "9.0";
@@ -347,7 +351,11 @@ window.selectDataCombiMeth = selectDataCombiMeth;
 function selectDataCombiMeth(){
     window.sortData = {};
     window.sortPara = {};
+    window.sortPara["yRawMin"] = Number.POSITIVE_INFINITY;
+    window.sortPara["yRawPosMin"] = Number.POSITIVE_INFINITY;
+    window.sortPara["yRawMax"] = Number.NEGATIVE_INFINITY;
     window.sortPara["yMin"] = Number.POSITIVE_INFINITY;
+    window.sortPara["yPosMin"] = Number.POSITIVE_INFINITY;
     window.sortPara["yMax"] = Number.NEGATIVE_INFINITY;
     var selMethod = document.getElementById('selDataCombiMeth').value;
     window.selA = getUniqueCol(window.inputTabFix, 0)
@@ -373,12 +381,34 @@ function selectDataCombiMeth(){
             if (!("dp" in window.sortData[elA][elB])) {
                 window.sortData[elA][elB]["dp"] = [];
             }
-            window.sortData[elA][elB]["dp"].push(parseFloat(window.inputTabFix[i][2]));
+            var currVal = parseFloat(window.inputTabFix[i][2]);
+            if (currVal < window.sortPara["yRawMin"]) {
+                window.sortPara["yRawMin"] = currVal
+            }
+            if ((currVal < window.sortPara["yRawPosMin"]) &&
+                (currVal > 0.0)) {
+                window.sortPara["yRawPosMin"] = currVal
+            }
+            if (currVal > window.sortPara["yRawMax"]) {
+                window.sortPara["yRawMax"] = currVal
+            }
+            window.sortData[elA][elB]["dp"].push(currVal);
         } else {
             if (!("dp" in window.sortData[elA])) {
                 window.sortData[elA]["dp"] = [];
             }
-            window.sortData[elA]["dp"].push(parseFloat(window.inputTabFix[i][2]));
+            var currVal = parseFloat(window.inputTabFix[i][2]);
+            if (currVal < window.sortPara["yRawMin"]) {
+                window.sortPara["yRawMin"] = currVal
+            }
+            if ((currVal < window.sortPara["yRawPosMin"]) &&
+                (currVal > 0.0)) {
+                window.sortPara["yRawPosMin"] = currVal
+            }
+            if (currVal > window.sortPara["yRawMax"]) {
+                window.sortPara["yRawMax"] = currVal
+            }
+            window.sortData[elA]["dp"].push(currVal);
         }
     }
     for (var i = 0 ; i < window.selA.length ; i++) {
@@ -397,6 +427,13 @@ function selectDataCombiMeth(){
                     window.sortData[window.selA[i]][window.selB[j]]["aver"] = ccMean
                     window.sortData[window.selA[i]][window.selB[j]]["err_min"] = ccErrMin
                     window.sortData[window.selA[i]][window.selB[j]]["err_max"] = ccErrMax
+                } else if (selMethod == "mean_sd") {
+                    ccMean = cMean(window.sortData[window.selA[i]][window.selB[j]]["dp"])
+                    ccErrMin = cSd(window.sortData[window.selA[i]][window.selB[j]]["dp"])
+                    ccErrMax = ccErrMin
+                    window.sortData[window.selA[i]][window.selB[j]]["aver"] = ccMean
+                    window.sortData[window.selA[i]][window.selB[j]]["err_min"] = ccErrMin
+                    window.sortData[window.selA[i]][window.selB[j]]["err_max"] = ccErrMax
                 }
 
 
@@ -405,6 +442,12 @@ function selectDataCombiMeth(){
                     (isFinite(ccErrMin)) &&
                     (ccMean - ccErrMin < window.sortPara["yMin"])) {
                     window.sortPara["yMin"] = ccMean - ccErrMin;
+                }
+                if ((isFinite(ccMean)) &&
+                    (isFinite(ccErrMin)) &&
+                    (ccMean - ccErrMin < window.sortPara["yPosMin"]) &&
+                    (ccMean - ccErrMin > 0.0)) {
+                    window.sortPara["yPosMin"] = ccMean - ccErrMin;
                 }
                 if ((isFinite(ccMean)) &&
                     (isFinite(ccErrMax)) &&
@@ -419,11 +462,19 @@ function selectDataCombiMeth(){
             if (selMethod == "mean_sem") {
                 ccMean = cMean(window.sortData[window.selA[i]]["dp"])
                 ccErrMin = cSEM(window.sortData[window.selA[i]]["dp"])
-                ccErrMax = window.sortData[window.selA[i]]["err_min"]
+                ccErrMax = ccErrMin
+                window.sortData[window.selA[i]]["aver"] = ccMean
+                window.sortData[window.selA[i]]["err_min"] = ccErrMin
+                window.sortData[window.selA[i]]["err_max"] = ccErrMax
+            } else if (selMethod == "mean_sd") {
+                ccMean = cMean(window.sortData[window.selA[i]]["dp"])
+                ccErrMin = cSd(window.sortData[window.selA[i]]["dp"])
+                ccErrMax = ccErrMin
                 window.sortData[window.selA[i]]["aver"] = ccMean
                 window.sortData[window.selA[i]]["err_min"] = ccErrMin
                 window.sortData[window.selA[i]]["err_max"] = ccErrMax
             }
+
 
 
             if ((isFinite(ccMean)) &&
@@ -432,13 +483,28 @@ function selectDataCombiMeth(){
                 window.sortPara["yMin"] = ccMean - ccErrMin;
             }
             if ((isFinite(ccMean)) &&
+                (isFinite(ccErrMin)) &&
+                (ccMean - ccErrMin < window.sortPara["yPosMin"]) &&
+                (ccMean - ccErrMin > 0.0)) {
+                window.sortPara["yPosMin"] = ccMean - ccErrMin;
+            }
+            if ((isFinite(ccMean)) &&
                 (isFinite(ccErrMax)) &&
                 (ccMean + ccErrMax > window.sortPara["yMax"])) {
                 window.sortPara["yMax"] = ccMean + ccErrMax;
             }
         }
     }
-    alert( window.sortPara["yMax"] + " - " +  window.sortPara["yMin"])
+    if (window.sortPara["yMin"] > window.sortPara["yRawMin"]) {
+        window.sortPara["yMin"] = window.sortPara["yRawMin"];
+    }
+    if (window.sortPara["yPosMin"] > window.sortPara["yRawPosMin"]) {
+        window.sortPara["yPosMin"] = window.sortPara["yRawPosMin"];
+    }
+    if (window.sortPara["yMax"] < window.sortPara["yRawMax"]) {
+        window.sortPara["yMax"] = window.sortPara["yRawMax"];
+    }
+
     window.averTabStr = "";
     for (var i = 0 ; i < window.selA.length ; i++) {
         if (window.selB.length != 0) {
@@ -495,7 +561,10 @@ function showSVG() {
 function createSVG() {
     setStartStop();
     var retVal = "";
-    retVal += createCoordinates ();
+    retVal += createBoxes();
+    retVal += createDots();
+    retVal += createErrorBars();
+    retVal += createCoordinates();
     retVal += "</svg>";
     var head = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='-60 -40 600 400' width='900px'>";
     return head + retVal;
@@ -510,12 +579,76 @@ function setStartStop() {
         window.frameYend = parseFloat(window.modifySettings["GraphHeight"]) * 96.0;
     }
 
+    window.winYmax = window.sortPara["yMax"]
+    if (window.modifySettings["YAxLinLog"] == "lin") {
+        window.winYmin = window.sortPara["yMin"];
+    } else {
+        window.winYmin = window.sortPara["yPosMin"];
+    }
+    if (window.modifySettings["YAxMaxVal"] != "") {
+        window.winYmax = parseFloat(window.modifySettings["YAxMaxVal"]);
+    }
+    if (window.modifySettings["YAxMinVal"] != "") {
+        window.winYmin = parseFloat(window.modifySettings["YAxMinVal"]);
+    }
 
-    window.winXst = window.winXmin;
-    window.winXend = 5 * Math.ceil(window.winXmax / 5);
-window.sortPara["yMin"]
+    window.xPosOrder = [];
+    window.xGroupCenter = [];
+    window.xPosLookUp = {};
+    var addGapBar = parseFloat(window.modifySettings["XAxGapBar"]);
+    var addGapGrp = parseFloat(window.modifySettings["XAxGapGrp"]);
+    var barCount = 0;
+    var grpCount = 0;
+    if (window.selB.length != 0) {
+        grpCount = -1;
+    }
+    for (var i = 0 ; i < window.selA.length ; i++) {
+        if (window.selB.length != 0) {
+            for (var j = 0 ; j < window.selB.length ; j++) {
+                if (isFinite(window.sortData[window.selA[i]][window.selB[j]]["aver"])) {
+                    barCount += 1;
+                }
+            }
+            grpCount += 1;
+        } else {
+            if (isFinite(window.sortData[window.selA[i]]["aver"])) {
+                barCount += 1;
+            }
+        }
+    }
+    var totalSize = barCount * (1.0 + addGapBar) + grpCount * addGapGrp + addGapBar;
+    window.xPosBarWidth = 0.5 * window.frameXend / totalSize;
+    barCount = 0;
+    grpCount = 0;
+    var grpLast = 0;
+    for (var i = 0 ; i < window.selA.length ; i++) {
+        if (window.selB.length != 0) {
+            for (var j = 0 ; j < window.selB.length ; j++) {
+                if (isFinite(window.sortData[window.selA[i]][window.selB[j]]["aver"])) {
+                    barCount += 1;
+                    var curPos = (barCount * (1.0 + addGapBar) - 0.5 + grpCount * addGapGrp) * window.frameXend / totalSize;
+                    window.xPosOrder.push(curPos);
+                    if (!(window.selA[i] in window.xPosLookUp)) {
+                        window.xPosLookUp[window.selA[i]] = {};
+                    }
+                    window.xPosLookUp[window.selA[i]][window.selB[j]] = curPos;
+                }
+            }
+            var grpPos = (grpLast + ((barCount * (1.0 + addGapBar) + 0.5 + grpCount * addGapGrp) - grpLast) / 2.0 ) * window.frameXend / totalSize;
+            grpLast = barCount * (1.0 + addGapBar) + grpCount * addGapGrp + addGapGrp
+            window.xGroupCenter.push(grpPos);
+            grpCount += 1;
+        } else {
+            if (isFinite(window.sortData[window.selA[i]]["aver"])) {
+                barCount += 1;
+                var curPos = (barCount * (1.0 + addGapBar) - 0.5 ) * window.frameXend / totalSize;
+                window.xPosOrder.push(curPos);
+                window.xPosLookUp[window.selA[i]] = curPos;
+            }
+        }
+    }
 
-    if (window.yScale == "lin") {
+    if (window.modifySettings["YAxLinLog"] == "lin") {
         if (window.winYmin > 0.0) {
             var dimension = Math.pow(10, Math.floor(Math.log(window.winYmax) / Math.log(10)))
             var scaleNorm = window.winYmax / dimension
@@ -573,12 +706,8 @@ window.sortPara["yMin"]
     }
 }
 
-function toSvgXScale(val) {
-    return (val - window.winXst) / (window.winXend - window.winXst) * window.frameXend;
-}
-
 function toSvgYScale(val) {
-    if (window.yScale == "lin") {
+    if (window.modifySettings["YAxLinLog"] == "lin") {
         return toSvgYLinScale(val);
     } else {
         return toSvgYLogScale(val);
@@ -586,7 +715,7 @@ function toSvgYScale(val) {
 }
 
 function toSvgSaveYScale(val) {
-    if (window.yScale == "lin") {
+    if (window.modifySettings["YAxLinLog"] == "lin") {
         return toSvgYLinScale(val);
     } else {
         if (val < window.winYst) {
@@ -598,52 +727,18 @@ function toSvgSaveYScale(val) {
 }
 
 function toSvgYLinScale(val) {
+    if (val < window.winYst) {
+        return window.frameYend
+    }
     return window.frameYend - (val - window.winYst) / (window.winYend - window.winYst) * window.frameYend;
 }
 
 function toSvgYLogScale(val) {
+    if (val < window.winYst) {
+        return window.frameYend
+    }
     return window.frameYend - (Math.log10(val) - Math.log10(window.winYst)) / (Math.log10(window.winYend) - Math.log10(window.winYst)) * window.frameYend;
 
-}
-
-function createMeltcurveBox () {
-    var lineXend = window.frameXend + 5;
-    var lineYst = 0.0 - 5;
-    var retVal = ""
-    // Expected Peak line
-    if ((["smo", "nrm", "fdm", "mdp"].includes(window.curveSource)) &&
-        (window.sampSelFirst == "target") &&
-        (window.sampSelSecond != "7s8e45-Show-All")) {
-
-        var mTemp = -1.0
-        var mWidth = 0.0
-        var exp = window.rdmlData.rdml.targets
-        for (var i = 0; i < exp.length; i++) {
-            if (exp[i].id == window.sampSelSecond) {
-                if (exp[i].hasOwnProperty("meltingTemperature")) {
-                    mTemp = parseFloat(exp[i].meltingTemperature)
-                    var eleMcaTruePeakWidth = document.getElementById('mcaTruePeakWidth')
-                    if (eleMcaTruePeakWidth) {
-                        mWidth = parseFloat(eleMcaTruePeakWidth.value)
-                    }
-                }
-            }
-        }
-        if ((mTemp > 0.0) && (!(isNaN(mWidth)))) {
-            var rlPos = toSvgXScale(mTemp - mWidth)
-            var rrPos = toSvgXScale(mTemp + mWidth)
-            var rwPos = rrPos - rlPos
-            var rhPos = window.frameYend - lineYst
-            retVal += "<rect x='" + rlPos + "' y='" + lineYst;
-            retVal += "' width='" + rwPos + "' height='" + rhPos + "' fill='rgb(230,230,230)' />"
-        }
-        if (mTemp > 0.0) {
-            var xPos = toSvgXScale(mTemp);
-            retVal += "<line x1='" + xPos + "' y1='" + lineYst;
-            retVal += "' x2='" + xPos + "' y2='" + window.frameYend + "' stroke-width='0.5' stroke='black' />";
-        }
-    }
-    return retVal;
 }
 
 function createCoordinates () {
@@ -652,18 +747,17 @@ function createCoordinates () {
     var retVal = ""
 
     // The X-Axis
-    var xStep = 5;
-    for (var i = 0; (i * xStep + window.winXst) < (window.winXend + xStep); i++) {
-        var xPos = toSvgXScale(i * xStep + window.winXst);
+    for (var i = 0; i < window.xPosOrder.length; i++) {
+        var xPos = window.xPosOrder[i];
         retVal += "<line x1='" + xPos + "' y1='" + window.frameYend;
         retVal += "' x2='" + xPos + "' y2='" + (window.frameYend + 7) + "' stroke-width='2' stroke='black' />";
         retVal += "<text x='" + xPos + "' y='" + (window.frameYend + 26);
-        retVal += "' font-family='Arial' font-size='20' fill='black' text-anchor='middle'>";
-        retVal += (i * xStep + window.winXst) + "</text>";
+        retVal += "' font-family='Arial' font-size='10' fill='black' text-anchor='middle'>";
+        retVal += i  + "</text>";
     }
 
     // The Y-Axis
-    if (window.yScale == "lin") {
+    if (window.modifySettings["YAxLinLog"] == "lin") {
         var maxYScaleVal = window.winYend - window.winYst + window.winYstep;
         var yRound = Math.max(0, Math.floor(1 - Math.log10(Math.abs(maxYScaleVal))))
         if (Math.log10(maxYScaleVal) < 1.0) {
@@ -675,7 +769,7 @@ function createCoordinates () {
             retVal += "' x2='" + (0.0 - 7) + "' y2='" + yPos + "' stroke-width='2' stroke='black' />";
             retVal += "<text x='" + (0.0 - 11) + "' y='" + (yPos + 3);
             retVal += "' font-family='Arial' font-size='10' fill='black' text-anchor='end'>";
-            var textValOut = i *  window.winYstep - window.winYst
+            var textValOut = i *  window.winYstep + window.winYst
             retVal += textValOut.toFixed(yRound) + "</text>";
         }
     } else {
@@ -706,6 +800,131 @@ function createCoordinates () {
     retVal += "' x2='" + lineXend + "' y2='" + window.frameYend + "' stroke-width='2' stroke='black' stroke-linecap='square'/>";
     retVal += "<line x1='0.0' y1='" + lineYst;
     retVal += "' x2='0.0' y2='" + window.frameYend + "' stroke-width='2' stroke='black' stroke-linecap='square'/>";
+
+    return retVal;
+}
+
+function createBoxes() {
+    var retVal = ""
+    for (var i = 0 ; i < window.selA.length ; i++) {
+        if (window.selB.length != 0) {
+            for (var j = 0 ; j < window.selB.length ; j++) {
+                if ((selA[i] in window.xPosLookUp) &&
+                        (selB[j] in window.xPosLookUp[window.selA[i]]) &&
+                        (isFinite(window.sortData[window.selA[i]][window.selB[j]]["aver"]))){
+                    var xPos = window.xPosLookUp[window.selA[i]][window.selB[j]] - window.xPosBarWidth;
+                    var yPos = toSvgYScale(window.sortData[window.selA[i]][window.selB[j]]["aver"]);
+                    var xWid = 2 * window.xPosBarWidth;
+                    var yHig = window.frameYend - yPos;
+                    retVal += "<rect x='" + xPos + "' y='" + yPos
+                    retVal += "' width='" + xWid + "' height='" + yHig
+                    retVal += "' style='fill:rgb(0,0,255);stroke-width:0.5;stroke:rgb(0,0,0)' />"
+                }
+            }
+        } else {
+            if ((selA[i] in window.xPosLookUp)  &&
+                    (isFinite(window.sortData[window.selA[i]]["aver"]))) {
+                var xPos = window.xPosLookUp[window.selA[i]] - window.xPosBarWidth;
+                var yPos = toSvgYScale(window.sortData[window.selA[i]]["aver"]);
+                var xWid = 2 * window.xPosBarWidth;
+                var yHig = window.frameYend - yPos;
+                retVal += "<rect x='" + xPos + "' y='" + yPos
+                retVal += "' width='" + xWid + "' height='" + yHig
+                retVal += "' style='fill:rgb(0,0,255);stroke-width:0.5;stroke:rgb(0,0,0)' />"
+            }
+        }
+    }
+
+    return retVal;
+}
+
+function createErrorBars() {
+    var retVal = ""
+    for (var i = 0 ; i < window.selA.length ; i++) {
+        if (window.selB.length != 0) {
+            for (var j = 0 ; j < window.selB.length ; j++) {
+                if ((selA[i] in window.xPosLookUp) &&
+                        (selB[j] in window.xPosLookUp[window.selA[i]]) &&
+                        (isFinite(window.sortData[window.selA[i]][window.selB[j]]["aver"]))){
+                    var xPos = window.xPosLookUp[window.selA[i]][window.selB[j]];
+                    var aver = window.sortData[window.selA[i]][window.selB[j]]["aver"]
+                    var errMax = aver;
+                    var errMin = aver;
+                    if (isFinite(window.sortData[window.selA[i]][window.selB[j]]["err_max"])) {
+                        errMax = aver + window.sortData[window.selA[i]][window.selB[j]]["err_max"];
+                    }
+                    if (isFinite(window.sortData[window.selA[i]][window.selB[j]]["err_min"])) {
+                        errMin = aver - window.sortData[window.selA[i]][window.selB[j]]["err_min"];
+                    }
+                    if (errMax == errMin) {
+                        continue;
+                    }
+                    retVal += "<line x1='" + xPos + "' y1='" + toSvgYScale(errMin) + "' x2='" + xPos + "' y2='" + toSvgYScale(errMax) + "' style='stroke:rgb(0,0,0);stroke-width:1.0' />"
+                    if (errMax!= aver) {
+                        retVal += "<line x1='" + (xPos - 6) + "' y1='" + toSvgYScale(errMax) + "' x2='" + (xPos + 6) + "' y2='" + toSvgYScale(errMax) + "' style='stroke:rgb(0,0,0);stroke-width:1.0' />"
+                    }
+                    if (errMin != aver) {
+
+                        retVal += "<line x1='" + (xPos - 6) + "' y1='" + toSvgYScale(errMin) + "' x2='" + (xPos + 6) + "' y2='" + toSvgYScale(errMin) + "' style='stroke:rgb(0,0,0);stroke-width:1.0' />"
+                    }
+                }
+            }
+        } else {
+            if ((selA[i] in window.xPosLookUp)  &&
+                    (isFinite(window.sortData[window.selA[i]]["aver"]))) {
+                var xPos = window.xPosLookUp[window.selA[i]];
+                var aver = window.sortData[window.selA[i]]["aver"]
+                var errMax = aver;
+                var errMin = aver;
+                if (isFinite(window.sortData[window.selA[i]]["err_max"])) {
+                    errMax = aver + window.sortData[window.selA[i]]["err_max"];
+                }
+                if (isFinite(window.sortData[window.selA[i]]["err_min"])) {
+                    errMin = aver - window.sortData[window.selA[i]]["err_min"];
+                }
+                if (errMax == errMin) {
+                    continue;
+                }
+                retVal += "<line x1='" + xPos + "' y1='" + toSvgYScale(errMin) + "' x2='" + xPos + "' y2='" + toSvgYScale(errMax) + "' style='stroke:rgb(0,0,0);stroke-width:1.0' />"
+                if (errMax != aver) {
+                    retVal += "<line x1='" + (xPos - 6) + "' y1='" + toSvgYScale(errMax) + "' x2='" + (xPos + 6) + "' y2='" + toSvgYScale(errMax) + "' style='stroke:rgb(0,0,0);stroke-width:1.0' />"
+                }
+                if ((errMin != aver) &&  (errMin > window.winYst)) {
+                    retVal += "<line x1='" + (xPos - 6) + "' y1='" + toSvgYScale(errMin) + "' x2='" + (xPos + 6) + "' y2='" + toSvgYScale(errMin) + "' style='stroke:rgb(0,0,0);stroke-width:1.0' />"
+                }
+            }
+        }
+    }
+
+    return retVal;
+}
+
+function createDots() {
+    var retVal = ""
+    for (var i = 0 ; i < window.selA.length ; i++) {
+        if (window.selB.length != 0) {
+            for (var j = 0 ; j < window.selB.length ; j++) {
+                if ((selA[i] in window.xPosLookUp) &&
+                        (selB[j] in window.xPosLookUp[window.selA[i]]) &&
+                        (window.sortData[window.selA[i]][window.selB[j]]["dp"].length > 0)){
+                    for (var k = 0 ; k < window.sortData[window.selA[i]][window.selB[j]]["dp"].length ; k++) {
+                        var xPos = window.xPosLookUp[window.selA[i]][window.selB[j]];
+                        var yPos = toSvgYScale(window.sortData[window.selA[i]][window.selB[j]]["dp"][k]);
+                        retVal += "<circle cx='" + xPos + "' cy='" + yPos + "' r='2' stroke='black' stroke-width='0.5' fill='none' />"
+                    }
+                }
+            }
+        } else {
+            if ((selA[i] in window.xPosLookUp)  &&
+                    (window.sortData[window.selA[i]]["dp"].length > 0)){
+                for (var k = 0 ; k < window.sortData[window.selA[i]]["dp"].length ; k++) {
+                    var xPos = window.xPosLookUp[window.selA[i]];
+                    var yPos = toSvgYScale(window.sortData[window.selA[i]]["dp"][k]);
+                    retVal += "<circle cx='" + xPos + "' cy='" + yPos + "' r='2' stroke='black' stroke-width='0.5' fill='none' />"
+                }
+        }
+        }
+    }
 
     return retVal;
 }
@@ -873,8 +1092,10 @@ function loadModification(newSett) {
     updateKeyEl(newSett,"YAxLinLog","modYAxLinLog");
     updateKeyEl(newSett,"YAxMaxVal","modYAxMaxVal");
     updateKeyEl(newSett,"YAxMinVal","modYAxMinVal");
-    updateKeyEl(newSett,"YAxTopSpace","modYAxTopSpace");
-    updateKeyEl(newSett,"YAxBottomSpace","modYAxBottomSpace");
+
+    updateKeyEl(newSett,"XAxEmptySpace","modXAxEmptySpace");
+    updateKeyEl(newSett,"XAxGapBar","modXAxGapBar");
+    updateKeyEl(newSett,"XAxGapGrp","modXAxGapGrp");
 
     updateKeyEl(newSett,"GraphHeight","modGraphHeight");
     updateKeyEl(newSett,"GraphWidth","modGraphWidth");
@@ -894,8 +1115,6 @@ function updateMod(ele, hashId) {
     }
     showSVG();
 }
-
-
 
 
 

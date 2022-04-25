@@ -149,7 +149,8 @@
           <div class="card-body">
             <h5 class="card-title">Combine Data:</h5>
             <select id="selDataCombiMeth" onchange="selectDataCombiMeth()">
-              <option value="mean_sem" selected="true" selected>Combine: Mean - Error: SEM</option>
+              <option value="mean_sem" selected>Combine: Mean - Error: SEM</option>
+              <option value="mean_sd">Combine: Mean - Error: SD</option>
             </select>
           </div>
         </div>
@@ -218,27 +219,15 @@
                 </td>
               </tr>
               <tr>
-                <td style="width:25%;">Height:</td>
+                <td style="width:25%;">Max Y Value:</td>
                 <td style="width:75%">
                   <input type="text" class="form-control" id="modYAxMaxVal" onchange="updateMod('modYAxMaxVal', 'YAxMaxVal')" value="">
                 </td>
               </tr>
               <tr>
-                <td style="width:25%;">Height:</td>
+                <td style="width:25%;">Min Y Value:</td>
                 <td style="width:75%">
                   <input type="text" class="form-control" id="modYAxMinVal" onchange="updateMod('modYAxMinVal', 'YAxMinVal')" value="">
-                </td>
-              </tr>
-              <tr>
-                <td style="width:25%;">Height:</td>
-                <td style="width:75%">
-                  <input type="text" class="form-control" id="modYAxTopSpace" onchange="updateMod('modYAxTopSpace', 'YAxTopSpace')" value="">
-                </td>
-              </tr>
-              <tr>
-                <td style="width:25%;">Width:</td>
-                <td style="width:75%">
-                  <input type="text" class="form-control" id="modYAxBottomSpace" onchange="updateMod('modYAxBottomSpace', 'YAxBottomSpace')" value="">
                 </td>
               </tr>
              </table>
@@ -252,15 +241,24 @@
             <h5 class="card-title">X-Axis</h5>
             <table style="width:100%;">
               <tr>
-                <td style="width:25%;">Height:</td>
+                <td style="width:25%;">Empty Space for Missing Bars:</td>
                 <td style="width:75%">
-                  <input type="text" class="form-control" id="modXAxTopSpace" onchange="updateMod('modXAxTopSpace', 'XAxTopSpace')" value="">
+                  <select class="form-control" id="modXAxEmptySpace" onchange="updateMod('modXAxEmptySpace', 'XAxEmptySpace')">
+                    <option value="y" selected>Yes</option>
+                    <option value="n">No</option>
+                  </select>
                 </td>
               </tr>
               <tr>
-                <td style="width:25%;">Width:</td>
+                <td style="width:25%;">Gap Width between Bars:</td>
                 <td style="width:75%">
-                  <input type="text" class="form-control" id="modXAxBottomSpace" onchange="updateMod('modXAxBottomSpace', 'XAxBottomSpace')" value="">
+                  <input type="text" class="form-control" id="modXAxGapBar" onchange="updateMod('modXAxGapBar', 'XAxGapBar')" value="">
+                </td>
+              </tr>
+              <tr>
+                <td style="width:25%;">Gap Width between Groups (additional):</td>
+                <td style="width:75%">
+                  <input type="text" class="form-control" id="modXAxGapGrp" onchange="updateMod('modXAxGapGrp', 'XAxGapGrp')" value="">
                 </td>
               </tr>
              </table>
