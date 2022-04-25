@@ -9,9 +9,6 @@ submitButton.addEventListener('click', loadInputFile)
 const exampleButton = document.getElementById('btn-example')
 exampleButton.addEventListener('click', showExample)
 
-const compButton = document.getElementById('btn-apply-comp')
-compButton.addEventListener('click', compResTable)
-
 const saveDataButton = document.getElementById('btn-data-save')
 saveDataButton.addEventListener('click', saveDataTable)
 
@@ -21,6 +18,7 @@ saveMeanButton.addEventListener('click', saveMeanTable)
 const inputFile = document.getElementById('inputFile')
 const resultInfo = document.getElementById('result-info')
 const resultError = document.getElementById('result-error')
+const svgImage = document.getElementById('svg-image-data')
 
 const inputTableView = document.getElementById('import-table-view')
 const tableDataPoints = document.getElementById('table-data-points')
@@ -32,10 +30,8 @@ const exportTableView = document.getElementById('export-table-view')
 
 const saveJsonButton = document.getElementById('btn-save-Json')
 saveJsonButton.addEventListener('click', saveJsonFile)
-const saveTabButton = document.getElementById('btn-save-Tsv')
-saveTabButton.addEventListener('click', saveTabFile)
-const createRdmlButton = document.getElementById('btn-save-RDML')
-createRdmlButton.addEventListener('click', createServerRdml)
+const saveSvgButton = document.getElementById('btn-save-svg')
+saveSvgButton.addEventListener('click', saveTabFile)
 const loadJFile = document.getElementById('inputJsonFile')
 loadJFile.addEventListener('change', loadJsonFile, false);
 
@@ -47,21 +43,31 @@ window.inputSeparator = "\t";
 window.inputReplaceComma = true;
 window.inputTabStr = "";
 window.inputTabFix = [];
+window.selA = [];
+window.selB = [];
+window.sortData = {};
+window.sortPara = {};
+window.averTabStr = "";
 
-window.modifySettings = {};
 window.resultTab = [];
 
 window.setArr = {};
 
+
+window.modifySettings = {};
+window.modifySettings["YAxLinLog"] = "lin";
+window.modifySettings["YAxMaxVal"] = "";
+window.modifySettings["YAxMinVal"] = "";
+window.modifySettings["YAxTopSpace"] = "0.05";
+window.modifySettings["YAxBottomSpace"] = "0.05";
+
+window.modifySettings["GraphHeight"] = "6.0";
+window.modifySettings["GraphWidth"] = "9.0";
+window.modifySettings["GraphCmInch"] = "cm";
+
+
 document.addEventListener("DOMContentLoaded", function() {
-    var selEl = document.getElementById('selMachineSettings');
-    window.setArr = getSettingsArr();
-    for (var i = 0 ; i < window.setArr.length ; i++) {
-        var option = document.createElement("option");
-        option.text = window.setArr[i]["settingsID"];
-        option.value = i;
-        selEl.add(option);
-    }
+    loadModification(window.modifySettings);
 });
 
 function showElement(element) {
@@ -310,27 +316,399 @@ function getUniqueCol(tab, col){
     return array_keys;
 }
 
-window.selectDataCombiMeth = selectDataCombiMeth;
-function selectDataCombiMeth(){
-    var selMethod = document.getElementById('selDataCombiMeth').value;
-    var selA = getUniqueCol(window.inputTabFix, 0)
-    if (selA.length == 0) {
-        alert("Data must have labels")
-    }
-    var selB = getUniqueCol(window.inputTabFix, 1)
-
-
-    if (selMethod == "mean_sem") {
-        //alert(getUniqueCol(window.inputTabFix, 0))
-        //alert(getUniqueCol(window.inputTabFix, 1))
-    }
-
-    // tableCombinedData
+function cMean(array) {
+  if (!array || array.length === 0) {
+      return Number.Nan;
+  }
+  const n = array.length;
+  return array.reduce((a, b) => a + b) / n;
 }
 
+function cSd (array) {
+  if (!array || array.length === 0) {
+      return Number.Nan;
+  }
+  const n = array.length;
+  const mean = array.reduce((a, b) => a + b) / n;
+  return Math.sqrt(array.map(x => Math.pow(x - mean, 2)).reduce((a, b) => a + b) / (n - 1));
+}
+
+function cSEM (array) {
+  if (!array || array.length === 0) {
+      return Number.Nan;
+  }
+  const n = array.length;
+  const mean = array.reduce((a, b) => a + b) / n;
+  const sd = Math.sqrt(array.map(x => Math.pow(x - mean, 2)).reduce((a, b) => a + b) / (n - 1));
+  return sd /  Math.sqrt(n);
+}
+
+window.selectDataCombiMeth = selectDataCombiMeth;
+function selectDataCombiMeth(){
+    window.sortData = {};
+    window.sortPara = {};
+    window.sortPara["yMin"] = Number.POSITIVE_INFINITY;
+    window.sortPara["yMax"] = Number.NEGATIVE_INFINITY;
+    var selMethod = document.getElementById('selDataCombiMeth').value;
+    window.selA = getUniqueCol(window.inputTabFix, 0)
+    if (window.selA.length == 0) {
+        alert("Data must have labels")
+        return
+    }
+    window.selB = getUniqueCol(window.inputTabFix, 1)
+    for (var i = 0 ; i < window.inputTabFix.length ; i++) {
+        if (window.inputTabFix[i].length != 3) {
+            continue;
+        }
+        var elA = window.inputTabFix[i][0];
+        var elB = window.inputTabFix[i][1];
+
+        if (!(elA in window.sortData)) {
+            window.sortData[elA] = {};
+        }
+        if (window.selB.length != 0) {
+            if (!(elB in window.sortData[elA])) {
+                window.sortData[elA][elB] = {};
+            }
+            if (!("dp" in window.sortData[elA][elB])) {
+                window.sortData[elA][elB]["dp"] = [];
+            }
+            window.sortData[elA][elB]["dp"].push(parseFloat(window.inputTabFix[i][2]));
+        } else {
+            if (!("dp" in window.sortData[elA])) {
+                window.sortData[elA]["dp"] = [];
+            }
+            window.sortData[elA]["dp"].push(parseFloat(window.inputTabFix[i][2]));
+        }
+    }
+    for (var i = 0 ; i < window.selA.length ; i++) {
+        var ccMean = Number.Nan;
+        var ccErrMin = Number.Nan;
+        var ccErrMax = Number.Nan;
+        if (window.selB.length != 0) {
+            for (var j = 0 ; j < window.selB.length ; j++) {
+                if (window.sortData[window.selA[i]][window.selB[j]]["dp"].length == 0) {
+                    continue;
+                }
+                if (selMethod == "mean_sem") {
+                    ccMean = cMean(window.sortData[window.selA[i]][window.selB[j]]["dp"])
+                    ccErrMin = cSEM(window.sortData[window.selA[i]][window.selB[j]]["dp"])
+                    ccErrMax = ccErrMin
+                    window.sortData[window.selA[i]][window.selB[j]]["aver"] = ccMean
+                    window.sortData[window.selA[i]][window.selB[j]]["err_min"] = ccErrMin
+                    window.sortData[window.selA[i]][window.selB[j]]["err_max"] = ccErrMax
+                }
 
 
 
+                if ((isFinite(ccMean)) &&
+                    (isFinite(ccErrMin)) &&
+                    (ccMean - ccErrMin < window.sortPara["yMin"])) {
+                    window.sortPara["yMin"] = ccMean - ccErrMin;
+                }
+                if ((isFinite(ccMean)) &&
+                    (isFinite(ccErrMax)) &&
+                    (ccMean + ccErrMax > window.sortPara["yMax"])) {
+                    window.sortPara["yMax"] = ccMean + ccErrMax;
+                }
+            }
+        } else {
+            if (window.sortData[window.selA[i]]["dp"].length == 0) {
+                continue;
+            }
+            if (selMethod == "mean_sem") {
+                ccMean = cMean(window.sortData[window.selA[i]]["dp"])
+                ccErrMin = cSEM(window.sortData[window.selA[i]]["dp"])
+                ccErrMax = window.sortData[window.selA[i]]["err_min"]
+                window.sortData[window.selA[i]]["aver"] = ccMean
+                window.sortData[window.selA[i]]["err_min"] = ccErrMin
+                window.sortData[window.selA[i]]["err_max"] = ccErrMax
+            }
+
+
+            if ((isFinite(ccMean)) &&
+                (isFinite(ccErrMin)) &&
+                (ccMean - ccErrMin < window.sortPara["yMin"])) {
+                window.sortPara["yMin"] = ccMean - ccErrMin;
+            }
+            if ((isFinite(ccMean)) &&
+                (isFinite(ccErrMax)) &&
+                (ccMean + ccErrMax > window.sortPara["yMax"])) {
+                window.sortPara["yMax"] = ccMean + ccErrMax;
+            }
+        }
+    }
+    alert( window.sortPara["yMax"] + " - " +  window.sortPara["yMin"])
+    window.averTabStr = "";
+    for (var i = 0 ; i < window.selA.length ; i++) {
+        if (window.selB.length != 0) {
+            for (var j = 0 ; j < window.selB.length ; j++) {
+                window.averTabStr += window.selA[i] + "\t" + window.selB[j] + "\t";
+                if ("aver" in window.sortData[window.selA[i]][window.selB[j]]) {
+                    window.averTabStr += window.sortData[window.selA[i]][window.selB[j]]["aver"];
+                }
+                window.averTabStr += "\t"
+                if ("aver" in window.sortData[window.selA[i]][window.selB[j]]) {
+                    window.averTabStr += window.sortData[window.selA[i]][window.selB[j]]["err_min"];
+                }
+                window.averTabStr += "\t"
+                if ("aver" in window.sortData[window.selA[i]][window.selB[j]]) {
+                    window.averTabStr += window.sortData[window.selA[i]][window.selB[j]]["err_max"];
+                }
+                window.averTabStr += "\n"
+            }
+        } else {
+            window.averTabStr += window.selA[i] + "\t\t";
+            if ("aver" in window.sortData[window.selA[i]]) {
+                window.averTabStr += window.sortData[window.selA[i]]["aver"];
+            }
+            window.averTabStr += "\t"
+            if ("aver" in window.sortData[window.selA[i]]) {
+                window.averTabStr += window.sortData[window.selA[i]]["err_min"];
+            }
+            window.averTabStr += "\t"
+            if ("aver" in window.sortData[window.selA[i]]) {
+                window.averTabStr += window.sortData[window.selA[i]]["err_max"];
+            }
+            window.averTabStr += "\n"
+        }
+    }
+    tableCombinedData.innerHTML = window.averTabStr;
+    showSVG();
+}
+
+window.showSVG = showSVG;
+function showSVG() {
+    var retVal = createSVG();
+    if (0) {
+    var regEx1 = /</g;
+    retVal = retVal.replace(regEx1, "%3C");
+    var regEx2 = />/g;
+    retVal = retVal.replace(regEx2, "%3E");
+    var regEx3 = /#/g;
+    retVal = retVal.replace(regEx3, "%23");
+    retVal = '<img src="data:image/svg+xml,' + retVal + '" alt="Digest-SVG" width="900px">';
+    }
+    svgImage.innerHTML = retVal;
+}
+
+function createSVG() {
+    setStartStop();
+    var retVal = "";
+    retVal += createCoordinates ();
+    retVal += "</svg>";
+    var head = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='-60 -40 600 400' width='900px'>";
+    return head + retVal;
+}
+
+function setStartStop() {
+    if (window.modifySettings["GraphCmInch"] == "cm") {
+        window.frameXend = parseFloat(window.modifySettings["GraphWidth"]) * 37.795275591;
+        window.frameYend = parseFloat(window.modifySettings["GraphHeight"]) * 37.795275591;
+    } else {
+        window.frameXend = parseFloat(window.modifySettings["GraphWidth"]) * 96.0;
+        window.frameYend = parseFloat(window.modifySettings["GraphHeight"]) * 96.0;
+    }
+
+
+    window.winXst = window.winXmin;
+    window.winXend = 5 * Math.ceil(window.winXmax / 5);
+window.sortPara["yMin"]
+
+    if (window.yScale == "lin") {
+        if (window.winYmin > 0.0) {
+            var dimension = Math.pow(10, Math.floor(Math.log(window.winYmax) / Math.log(10)))
+            var scaleNorm = window.winYmax / dimension
+            if (scaleNorm > 6) {
+                window.winYstep = 2.0 * dimension
+                window.winYprec = 0
+            } else if (scaleNorm > 4) {
+                window.winYstep = 1.0 * dimension
+                window.winYprec = 0
+            } else if (scaleNorm > 2) {
+                window.winYstep = 0.5 * dimension
+                window.winYprec = 1
+            } else {
+                window.winYstep = 0.2 * dimension
+                window.winYprec = 1
+            }
+            window.winYst = 0.0;
+            window.winYend = Math.ceil(window.winYmax / window.winYstep) * window.winYstep;
+        } else {
+            var dimension = Math.pow(10, Math.floor(Math.log(window.winYmax - window.winYmin) / Math.log(10)))
+            var scaleNorm = window.winYmax / dimension
+            if (scaleNorm > 6) {
+                window.winYstep = 2.0 * dimension
+                window.winYprec = 0
+            } else if (scaleNorm > 4) {
+                window.winYstep = 1.0 * dimension
+                window.winYprec = 0
+            } else if (scaleNorm > 2) {
+                window.winYstep = 0.5 * dimension
+                window.winYprec = 1
+            } else {
+                window.winYstep = 0.2 * dimension
+                window.winYprec = 1
+            }
+            window.winYst = Math.floor(window.winYmin / window.winYstep) * window.winYstep;
+            window.winYend = Math.ceil(window.winYmax / window.winYstep) * window.winYstep;
+        }
+    } else {
+        if (window.winYmax < 0.000000001) {
+            // There are no useful values
+            window.winYst = 0.1;
+            window.winYend = 10.0;
+        } else {
+            // First fix the max window
+            window.winYstep = Math.pow(10, Math.floor(Math.log10(Math.abs(window.winYmax) / 10)));
+            window.winYend = Math.ceil(window.winYmax / window.winYstep) * window.winYstep;
+            // Get the right start
+            window.winYstep = Math.pow(10, Math.floor(Math.log10(Math.abs(window.winYmin))));
+            window.winYst = Math.floor(window.winYmin / window.winYstep) * window.winYstep;
+            if (window.winYst < window.winYend/Math.abs(window.maxLogRange)) {
+                window.winYstep = Math.pow(10, Math.floor(Math.log10(Math.abs(window.winYend/window.maxLogRange))));
+                window.winYst = Math.floor((window.winYend/window.maxLogRange) / window.winYstep) * window.winYstep;
+            }
+        }
+    }
+}
+
+function toSvgXScale(val) {
+    return (val - window.winXst) / (window.winXend - window.winXst) * window.frameXend;
+}
+
+function toSvgYScale(val) {
+    if (window.yScale == "lin") {
+        return toSvgYLinScale(val);
+    } else {
+        return toSvgYLogScale(val);
+    }
+}
+
+function toSvgSaveYScale(val) {
+    if (window.yScale == "lin") {
+        return toSvgYLinScale(val);
+    } else {
+        if (val < window.winYst) {
+            return toSvgYLogScale(window.winYst);
+        } else {
+            return toSvgYLogScale(val);
+        }
+    }
+}
+
+function toSvgYLinScale(val) {
+    return window.frameYend - (val - window.winYst) / (window.winYend - window.winYst) * window.frameYend;
+}
+
+function toSvgYLogScale(val) {
+    return window.frameYend - (Math.log10(val) - Math.log10(window.winYst)) / (Math.log10(window.winYend) - Math.log10(window.winYst)) * window.frameYend;
+
+}
+
+function createMeltcurveBox () {
+    var lineXend = window.frameXend + 5;
+    var lineYst = 0.0 - 5;
+    var retVal = ""
+    // Expected Peak line
+    if ((["smo", "nrm", "fdm", "mdp"].includes(window.curveSource)) &&
+        (window.sampSelFirst == "target") &&
+        (window.sampSelSecond != "7s8e45-Show-All")) {
+
+        var mTemp = -1.0
+        var mWidth = 0.0
+        var exp = window.rdmlData.rdml.targets
+        for (var i = 0; i < exp.length; i++) {
+            if (exp[i].id == window.sampSelSecond) {
+                if (exp[i].hasOwnProperty("meltingTemperature")) {
+                    mTemp = parseFloat(exp[i].meltingTemperature)
+                    var eleMcaTruePeakWidth = document.getElementById('mcaTruePeakWidth')
+                    if (eleMcaTruePeakWidth) {
+                        mWidth = parseFloat(eleMcaTruePeakWidth.value)
+                    }
+                }
+            }
+        }
+        if ((mTemp > 0.0) && (!(isNaN(mWidth)))) {
+            var rlPos = toSvgXScale(mTemp - mWidth)
+            var rrPos = toSvgXScale(mTemp + mWidth)
+            var rwPos = rrPos - rlPos
+            var rhPos = window.frameYend - lineYst
+            retVal += "<rect x='" + rlPos + "' y='" + lineYst;
+            retVal += "' width='" + rwPos + "' height='" + rhPos + "' fill='rgb(230,230,230)' />"
+        }
+        if (mTemp > 0.0) {
+            var xPos = toSvgXScale(mTemp);
+            retVal += "<line x1='" + xPos + "' y1='" + lineYst;
+            retVal += "' x2='" + xPos + "' y2='" + window.frameYend + "' stroke-width='0.5' stroke='black' />";
+        }
+    }
+    return retVal;
+}
+
+function createCoordinates () {
+    var lineXend = window.frameXend + 5;
+    var lineYst = 0.0 - 5;
+    var retVal = ""
+
+    // The X-Axis
+    var xStep = 5;
+    for (var i = 0; (i * xStep + window.winXst) < (window.winXend + xStep); i++) {
+        var xPos = toSvgXScale(i * xStep + window.winXst);
+        retVal += "<line x1='" + xPos + "' y1='" + window.frameYend;
+        retVal += "' x2='" + xPos + "' y2='" + (window.frameYend + 7) + "' stroke-width='2' stroke='black' />";
+        retVal += "<text x='" + xPos + "' y='" + (window.frameYend + 26);
+        retVal += "' font-family='Arial' font-size='20' fill='black' text-anchor='middle'>";
+        retVal += (i * xStep + window.winXst) + "</text>";
+    }
+
+    // The Y-Axis
+    if (window.yScale == "lin") {
+        var maxYScaleVal = window.winYend - window.winYst + window.winYstep;
+        var yRound = Math.max(0, Math.floor(1 - Math.log10(Math.abs(maxYScaleVal))))
+        if (Math.log10(maxYScaleVal) < 1.0) {
+            yRound = yRound + window.winYprec
+        }
+        for (var i = 0; i *  window.winYstep < window.winYend - window.winYst + window.winYstep; i++) {
+            var yPos = toSvgYLinScale(window.winYst + i *  window.winYstep);
+            retVal += "<line x1='0.0' y1='" + yPos;
+            retVal += "' x2='" + (0.0 - 7) + "' y2='" + yPos + "' stroke-width='2' stroke='black' />";
+            retVal += "<text x='" + (0.0 - 11) + "' y='" + (yPos + 3);
+            retVal += "' font-family='Arial' font-size='10' fill='black' text-anchor='end'>";
+            var textValOut = i *  window.winYstep - window.winYst
+            retVal += textValOut.toFixed(yRound) + "</text>";
+        }
+    } else {
+        var sumVal = window.winYst
+        var yLogStep= window.winYstep
+        for (var i = 0; (sumVal + i * yLogStep) < window.winYend ; i++) {
+            if ((sumVal + i * yLogStep) / yLogStep >= 10) {
+                yLogStep = yLogStep * 10
+                i = 0
+                sumVal = yLogStep
+            }
+            var yPos = toSvgYLogScale(sumVal + i * yLogStep);
+            retVal += "<line x1='0.0' y1='" + yPos;
+            retVal += "' x2='" + (0.0 - 7) + "' y2='" + yPos + "' stroke-width='2' stroke='black' />";
+            var textValOut = sumVal + i * yLogStep
+            var yRound = Math.max(0, Math.floor(2 - Math.log10(Math.abs(textValOut))))
+            if (!(((Math.round(textValOut.toFixed(yRound) / yLogStep) == 5) && (window.maxLogRange > 3000)) ||
+                  (Math.round(textValOut.toFixed(yRound) / yLogStep) == 7) ||
+                  (Math.round(textValOut.toFixed(yRound) / yLogStep) == 9) )) {
+                retVal += "<text x='" + (0.0 - 11) + "' y='" + (yPos + 3);
+                retVal += "' font-family='Arial' font-size='10' fill='black' text-anchor='end'>";
+                retVal += textValOut.toFixed(yRound) + "</text>";
+            }
+        }
+    }
+
+    retVal += "<line x1='0.0' y1='" + window.frameYend;
+    retVal += "' x2='" + lineXend + "' y2='" + window.frameYend + "' stroke-width='2' stroke='black' stroke-linecap='square'/>";
+    retVal += "<line x1='0.0' y1='" + lineYst;
+    retVal += "' x2='0.0' y2='" + window.frameYend + "' stroke-width='2' stroke='black' stroke-linecap='square'/>";
+
+    return retVal;
+}
 
 
 
@@ -369,7 +747,7 @@ function saveDataTable() {
 
 window.saveMeanTable = saveMeanTable;
 function saveMeanTable() {
-    saveTabFile("Mean_Data.tsv", window.inputTabStr)
+    saveTabFile("Mean_Data.tsv", window.averTabStr)
     return;
 };
 
@@ -414,10 +792,108 @@ function saveTabFile(fileName, content) {
     return;
 };
 
+window.saveSVGFile = saveSVGFile;
+function saveSVGFile() {
+    var fileName = "bargraph.svg"
+    var content = createSVG();
+    var a = document.createElement("a");
+    document.body.appendChild(a);
+    a.style.display = "none";
+    var blob = new Blob([content], {type: "image/svg+xml"});
+    var browser = detectBrowser();
+    if (browser != "edge") {
+	    var url = window.URL.createObjectURL(blob);
+	    a.href = url;
+	    a.download = fileName;
+	    a.click();
+	    window.URL.revokeObjectURL(url);
+    } else {
+        window.navigator.msSaveBlob(blob, fileName);
+    }
+    return;
+}
+
+window.saveJsonFile = saveJsonFile;
+function saveJsonFile() {
+    if (window.data == "") {
+        return;
+    }
+    var content = JSON.stringify(window.modifySettings);
+    var a = document.createElement("a");
+    document.body.appendChild(a);
+    a.style.display = "none";
+    var blob = new Blob([content], {type: "application/json"});
+    var browser = detectBrowser();
+    if (browser != "edge") {
+	    var url = window.URL.createObjectURL(blob);
+	    a.href = url;
+	    a.download = "TableShaper_settings.json";
+	    a.click();
+	    window.URL.revokeObjectURL(url);
+    } else {
+        window.navigator.msSaveBlob(blob, "TableShaper_settings.json");
+    }
+    return;
+};
+
+window.loadJsonFile = loadJsonFile;
+function loadJsonFile(f){
+    var file = f.target.files[0];
+    if (file) { // && file.type.match("text/*")) {
+        var reader = new FileReader();
+        reader.onload = function(event) {
+            var newSett = JSON.parse(event.target.result);
+            loadModification(newSett);
+            updateModification();
+        }
+        reader.readAsText(file);
+    } else {
+        alert("Error opening file");
+    }
+}
+
+window.updateKeyEl = updateKeyEl;
+function updateKeyEl(newSett,keyName,elName) {
+    if (newSett.hasOwnProperty(keyName)) {
+        document.getElementById(elName).value = newSett[keyName];
+        window.modifySettings[keyName] = newSett[keyName];
+    }
+}
+
+window.updateKeyElCheck = updateKeyElCheck;
+function updateKeyElCheck(newSett,keyName,elName) {
+    if (newSett.hasOwnProperty(keyName)) {
+        document.getElementById(elName).checked = newSett[keyName];
+        window.modifySettings[keyName] = newSett[keyName];
+    }
+}
+
+window.loadModification = loadModification;
+function loadModification(newSett) {
+    updateKeyEl(newSett,"YAxLinLog","modYAxLinLog");
+    updateKeyEl(newSett,"YAxMaxVal","modYAxMaxVal");
+    updateKeyEl(newSett,"YAxMinVal","modYAxMinVal");
+    updateKeyEl(newSett,"YAxTopSpace","modYAxTopSpace");
+    updateKeyEl(newSett,"YAxBottomSpace","modYAxBottomSpace");
+
+    updateKeyEl(newSett,"GraphHeight","modGraphHeight");
+    updateKeyEl(newSett,"GraphWidth","modGraphWidth");
+    updateKeyEl(newSett,"GraphCmInch","modGraphCmInch");
 
 
+//    updateKeyEl(newSett,"settingsID","modSetName");
+//    updateKeyElCheck(newSett,"fluorCommaDot","modCommaDot");
 
+}
 
+window.updateMod = updateMod;
+function updateMod(ele, hashId) {
+    var mEle = document.getElementById(ele)
+    if ((mEle) && (window.modifySettings.hasOwnProperty(hashId))) {
+        window.modifySettings[hashId] = mEle.value;
+    }
+    showSVG();
+}
 
 
 
@@ -511,105 +987,11 @@ function createServerRdml() {
         })
 }
 
-window.selectMachineSettings = selectMachineSettings;
-function selectMachineSettings(){
-    var sel = document.getElementById('selMachineSettings').value;
-    if (sel >= 0) {
-        loadModification(window.setArr[sel]);
-        updateModification();
-    }
-}
 
 
 
 
-window.saveJsonFile = saveJsonFile;
-function saveJsonFile() {
-    if (window.data == "") {
-        return;
-    }
-    var content = JSON.stringify(window.modifySettings);
-    var a = document.createElement("a");
-    document.body.appendChild(a);
-    a.style.display = "none";
-    var blob = new Blob([content], {type: "application/json"});
-    var browser = detectBrowser();
-    if (browser != "edge") {
-	    var url = window.URL.createObjectURL(blob);
-	    a.href = url;
-	    a.download = "TableShaper_settings.json";
-	    a.click();
-	    window.URL.revokeObjectURL(url);
-    } else {
-        window.navigator.msSaveBlob(blob, "TableShaper_settings.json");
-    }
-    return;
-};
 
-window.loadJsonFile = loadJsonFile;
-function loadJsonFile(f){
-    var file = f.target.files[0];
-    if (file) { // && file.type.match("text/*")) {
-        var reader = new FileReader();
-        reader.onload = function(event) {
-            var newSett = JSON.parse(event.target.result);
-            loadModification(newSett);
-            updateModification();
-        }
-        reader.readAsText(file);
-    } else {
-        alert("Error opening file");
-    }
-}
-
-window.updateKeyEl = updateKeyEl;
-function updateKeyEl(newSett,keyName,elName) {
-    if (newSett.hasOwnProperty(keyName)) {
-        document.getElementById(elName).value = newSett[keyName];
-        window.modifySettings[keyName] = newSett[keyName];
-    }
-}
-
-window.updateKeyElCheck = updateKeyElCheck;
-function updateKeyElCheck(newSett,keyName,elName) {
-    if (newSett.hasOwnProperty(keyName)) {
-        document.getElementById(elName).checked = newSett[keyName];
-        window.modifySettings[keyName] = newSett[keyName];
-    }
-}
-
-window.loadModification = loadModification;
-function loadModification(newSett) {
-    updateKeyEl(newSett,"settingsID","modSetName");
-    updateKeyEl(newSett,"reformatAmpMelt","modReformatAmpMelt");
-    updateKeyEl(newSett,"reformatTableShape","modReformatTableShape");
-    updateKeyEl(newSett,"fluorDelColStart","modDelColStart");
-    updateKeyEl(newSett,"fluorDelRowStart","modDelRowStart");
-    updateKeyEl(newSett,"fluorDelOtherRow","modDelOtherRow");
-    updateKeyEl(newSett,"fluorDelColEnd","modDelColEnd");
-    updateKeyEl(newSett,"fluorDelRowEnd","modDelRowEnd");
-    updateKeyElCheck(newSett,"fluorCommaDot","modCommaDot");
-
-    updateKeyEl(newSett,"exFluorCol","modExFluorCol");
-    updateKeyEl(newSett,"exCycRow","modExCycRow");
-    updateKeyEl(newSett,"exCycRowRegEx","modExCycRowRegEx");
-    updateKeyEl(newSett,"exCycCol","modExCycCol");
-    updateKeyEl(newSett,"exCycColRegEx","modExCycColRegEx");
-    updateKeyEl(newSett,"exWellCol","modExWellCol");
-    updateKeyEl(newSett,"exWellRegEx","modExWellRegEx");
-    updateKeyEl(newSett,"exSamCol", "modExSamCol");
-    updateKeyEl(newSett,"exSamRegEx", "modExSamRegEx");
-    updateKeyEl(newSett,"exSamTypeCol", "modExSamTypeCol");
-    updateKeyEl(newSett,"exSamTypeRegEx", "modExSamTypeRegEx");
-    updateKeyEl(newSett,"exTarCol", "modExTarCol");
-    updateKeyEl(newSett,"exTarRegEx", "modExTarRegEx");
-    updateKeyEl(newSett,"exTarTypeCol", "modExTarTypeCol");
-    updateKeyEl(newSett,"exTarTypeRegEx", "modExTarTypeRegEx");
-    updateKeyEl(newSett,"exDyeCol", "modExDyeCol");
-    updateKeyEl(newSett,"exDyeRegEx", "modExDyeRegEx");
-    updateKeyEl(newSett,"exTrueCol", "modExTrueCol");
-    updateKeyEl(newSett,"exTrueRegEx", "modExTrueRegEx");
-}
 
 window.updateModification = updateModification;
 function updateModification() {
@@ -1180,588 +1562,6 @@ function errorMessage(err) {
     html += '</div>';
     var trTrc = document.getElementById('traceView-Traces');
     trTrc.innerHTML = html;
-}
-
-function getSettingsArr() {
-    var ret = [{
-               "settingsID":"RDML Import Format",
-               "reformatAmpMelt":"melt",
-               "reformatTableShape":"keep",
-               "fluorDelColStart":6,
-               "fluorDelRowStart":1,
-               "fluorDelOtherRow":0,
-               "fluorDelColEnd":null,
-               "fluorDelRowEnd":null,
-               "fluorCommaDot":true,
-               "exFluorCol":4,
-               "exCycRow":1,
-               "exCycRowRegEx":"(.*)",
-               "exCycCol":1,
-               "exCycColRegEx":"([0-9]+)",
-               "exWellCol":1,
-               "exWellRegEx":"(.*)",
-               "exSamCol":2,
-               "exSamRegEx":"(.*)",
-               "exSamTypeCol":3,
-               "exSamTypeRegEx":"(.*)",
-               "exTarCol":4,
-               "exTarRegEx":"(.*)",
-               "exTarTypeCol":5,
-               "exTarTypeRegEx":"(.*)",
-               "exDyeCol":6,
-               "exDyeRegEx":"(.*)",
-               "exTrueCol":-1,
-               "exTrueRegEx":"2"
-               },{
-               "settingsID":"Applied Biosystems SDS v2.4",
-               "reformatAmpMelt":"amp",
-               "reformatTableShape":"keep",
-               "fluorDelColStart":3,
-               "fluorDelRowStart":2,
-               "fluorDelOtherRow":0,
-               "fluorDelColEnd":null,
-               "fluorDelRowEnd":null,
-               "fluorCommaDot":true,
-               "exFluorCol":4,
-               "exCycRow":2,
-               "exCycRowRegEx":"([0-9]+)",
-               "exCycCol":1,
-               "exCycColRegEx":"([0-9]+)",
-               "exWellCol":1,
-               "exWellRegEx":"([0-9]+)",
-               "exSamCol":2,
-               "exSamRegEx":"(.*) .+",
-               "exSamTypeCol":null,
-               "exSamTypeRegEx":"(.*)",
-               "exTarCol":null,
-               "exTarRegEx":"(.*)",
-               "exTarTypeCol":null,
-               "exTarTypeRegEx":"(.*)",
-               "exDyeCol":2,
-               "exDyeRegEx":".+ (.*)",
-               "exTrueCol":-1,
-               "exTrueRegEx":"2"
-               },{
-               "settingsID":"Applied Biosystems v9.24",
-               "reformatAmpMelt":"amp",
-               "reformatTableShape":"keep",
-               "fluorDelColStart":2,
-               "fluorDelRowStart":1,
-               "fluorDelOtherRow":0,
-               "fluorDelColEnd":null,
-               "fluorDelRowEnd":null,
-               "fluorCommaDot":true,
-               "exFluorCol":4,
-               "exCycRow":1,
-               "exCycRowRegEx":"([0-9]+)",
-               "exCycCol":1,
-               "exCycColRegEx":"([0-9]+)",
-               "exWellCol":1,
-               "exWellRegEx":"([0-9]+)",
-               "exSamCol":2,
-               "exSamRegEx":"(.*)",
-               "exSamTypeCol":null,
-               "exSamTypeRegEx":"(.*)",
-               "exTarCol":null,
-               "exTarRegEx":"(.*)",
-               "exTarTypeCol":null,
-               "exTarTypeRegEx":"(.*)",
-               "exDyeCol":null,
-               "exDyeRegEx":"(.*)",
-               "exTrueCol":-1,
-               "exTrueRegEx":"2"
-               },{
-               "settingsID":"BioRad CFX v3.1",
-               "reformatAmpMelt":"amp",
-               "reformatTableShape":"flip",
-               "fluorDelColStart":1,
-               "fluorDelRowStart":2,
-               "fluorDelOtherRow":0,
-               "fluorDelColEnd":null,
-               "fluorDelRowEnd":null,
-               "fluorCommaDot":true,
-               "exFluorCol":4,
-               "exCycRow":2,
-               "exCycRowRegEx":"([0-9]+)",
-               "exCycCol":1,
-               "exCycColRegEx":"([0-9]+)",
-               "exWellCol":1,
-               "exWellRegEx":"(^[A-Za-z]+[0-9]+)",
-               "exSamCol":null,"exSamRegEx":"(.*)",
-               "exSamTypeCol":null,
-               "exSamTypeRegEx":"(.*)",
-               "exTarCol":null,
-               "exTarRegEx":"(.*)",
-               "exTarTypeCol":null,
-               "exTarTypeRegEx":"(.*)",
-               "exDyeCol":null,
-               "exDyeRegEx":"(.*)",
-               "exTrueCol":-1,
-               "exTrueRegEx":"2"
-               },{
-               "settingsID":"BioRad iCycler v9.35",
-               "reformatAmpMelt":"amp",
-               "reformatTableShape":"flip",
-               "fluorDelColStart":2,
-               "fluorDelRowStart":1,
-               "fluorDelOtherRow":0,
-               "fluorDelColEnd":null,
-               "fluorDelRowEnd":null,
-               "fluorCommaDot":true,
-               "exFluorCol":4,
-               "exCycRow":1,
-               "exCycRowRegEx":"(.+)",
-               "exCycCol":1,
-               "exCycColRegEx":"([0-9]+)",
-               "exWellCol":2,
-               "exWellRegEx":"(^[A-Za-z]+[0-9]+).*",
-               "exSamCol":null,
-               "exSamRegEx":"^[A-Za-z]+[0-9]+ (.*)",
-               "exSamTypeCol":null,
-               "exSamTypeRegEx":"(.*)",
-               "exTarCol":2,
-               "exTarRegEx":"^[A-Za-z]+[0-9]+ (.*)",
-               "exTarTypeCol":null,
-               "exTarTypeRegEx":"(.*)",
-               "exDyeCol":null,
-               "exDyeRegEx":"(.*)",
-               "exTrueCol":-1,
-               "exTrueRegEx":"2"
-               },{
-               "settingsID":"Eppendorf Realplex",
-               "reformatAmpMelt":"amp",
-               "reformatTableShape":"keep",
-               "fluorDelColStart":6,
-               "fluorDelRowStart":4,
-               "fluorDelOtherRow":0,
-               "fluorDelColEnd":null,
-               "fluorDelRowEnd":49,
-               "fluorCommaDot":true,
-               "exFluorCol":4,
-               "exCycRow":4,
-               "exCycRowRegEx":"([0-9]+)",
-               "exCycCol":1,
-               "exCycColRegEx":"([0-9]+)",
-               "exWellCol":1,
-               "exWellRegEx":"(^[A-Za-z]+[0-9]+)",
-               "exSamCol":3,
-               "exSamRegEx":"(.*)",
-               "exSamTypeCol":null,
-               "exSamTypeRegEx":"(.*)",
-               "exTarCol":5,
-               "exTarRegEx":"(.*)",
-               "exTarTypeCol":null,
-               "exTarTypeRegEx":"(.*)",
-               "exDyeCol":6,
-               "exDyeRegEx":"(.*)",
-               "exTrueCol":-1,
-               "exTrueRegEx":"2"
-               },{
-               "settingsID":"Illumina Eco v3.0",
-               "reformatAmpMelt":"amp",
-               "reformatTableShape":"keep",
-               "fluorDelColStart":3,
-               "fluorDelRowStart":9,
-               "fluorDelOtherRow":0,
-               "fluorDelColEnd":null,
-               "fluorDelRowEnd":null,
-               "fluorCommaDot":true,
-               "exFluorCol":4,
-               "exCycRow":9,
-               "exCycRowRegEx":"([0-9]+)",
-               "exCycCol":1,
-               "exCycColRegEx":"([0-9]+)",
-               "exWellCol":1,
-               "exWellRegEx":"(^[A-Za-z]+[0-9]+)",
-               "exSamCol":null,
-               "exSamRegEx":"(.*)",
-               "exSamTypeCol":null,
-               "exSamTypeRegEx":"(.*)",
-               "exTarCol":null,
-               "exTarRegEx":"(.*)",
-               "exTarTypeCol":null,
-               "exTarTypeRegEx":"(.*)",
-               "exDyeCol":3,
-               "exDyeRegEx":"(.*)",
-               "exTrueCol":-1,
-               "exTrueRegEx":"2"
-               },{
-               "settingsID":"Mic v2.7",
-               "reformatAmpMelt":"amp",
-               "reformatTableShape":"flip",
-               "fluorDelColStart":1,
-               "fluorDelRowStart":1,
-               "fluorDelOtherRow":0,
-               "fluorDelColEnd":null,
-               "fluorDelRowEnd":null,
-               "fluorCommaDot":true,
-               "exFluorCol":4,
-               "exCycRow":1,
-               "exCycRowRegEx":"([0-9]+)",
-               "exCycCol":1,
-               "exCycColRegEx":"([0-9]+)",
-               "exWellCol":1,
-               "exWellRegEx":"(^[0-9]+)",
-               "exSamCol":null,
-               "exSamRegEx":"(.*)",
-               "exSamTypeCol":null,
-               "exSamTypeRegEx":"(.*)",
-               "exTarCol":null,
-               "exTarRegEx":"(.*)",
-               "exTarTypeCol":null,
-               "exTarTypeRegEx":"(.*)",
-               "exDyeCol":null,
-               "exDyeRegEx":"(.*)",
-               "exTrueCol":-1,
-               "exTrueRegEx":"2"
-               },{
-               "settingsID":"MJ research",
-               "reformatAmpMelt":"amp",
-               "reformatTableShape":"flip",
-               "fluorDelColStart":1,
-               "fluorDelRowStart":3,
-               "fluorDelOtherRow":0,
-               "fluorDelColEnd":41,
-               "fluorDelRowEnd":null,
-               "fluorCommaDot":false,
-               "exFluorCol":4,
-               "exCycRow":2,
-               "exCycRowRegEx":"([0-9]+)",
-               "exCycCol":1,
-               "exCycColRegEx":"([0-9]+)",
-               "exWellCol":1,
-               "exWellRegEx":"(^[A-Za-z]+[0-9]+)",
-               "exSamCol":null,
-               "exSamRegEx":"(.*)",
-               "exSamTypeCol":null,
-               "exSamTypeRegEx":"(.*)",
-               "exTarCol":null,
-               "exTarRegEx":"(.*)",
-               "exTarTypeCol":null,
-               "exTarTypeRegEx":"(.*)",
-               "exDyeCol":null,
-               "exDyeRegEx":"(.*)",
-               "exTrueCol":-1,
-               "exTrueRegEx":"2"
-               },{
-               "settingsID":"QuantStudio 12K Flex",
-               "reformatAmpMelt":"amp",
-               "reformatTableShape":"create",
-               "fluorDelColStart":1,
-               "fluorDelRowStart":18,
-               "fluorDelOtherRow":0,
-               "fluorDelColEnd":null,
-               "fluorDelRowEnd":null,
-               "fluorCommaDot":true,
-               "exFluorCol":4,
-               "exCycRow":1,
-               "exCycRowRegEx":"([0-9]+)",
-               "exCycCol":3,
-               "exCycColRegEx":"([0-9]+)",
-               "exWellCol":2,
-               "exWellRegEx":"(^[A-Za-z]+[0-9]+[A-Za-z]+[0-9]+)",
-               "exSamCol":null,
-               "exSamRegEx":"(.*)",
-               "exSamTypeCol":null,
-               "exSamTypeRegEx":"(.*)",
-               "exTarCol":null,"exTarRegEx":"(.*)",
-               "exTarTypeCol":null,
-               "exTarTypeRegEx":"(.*)",
-               "exDyeCol":null,
-               "exDyeRegEx":"(.*)",
-               "exTrueCol":-1,
-               "exTrueRegEx":"2"
-               },{
-               "settingsID":"Roche LC96",
-               "reformatAmpMelt":"amp",
-               "reformatTableShape":"keep",
-               "fluorDelColStart":1,
-               "fluorDelRowStart":1,
-               "fluorDelOtherRow":0,
-               "fluorDelColEnd":null,
-               "fluorDelRowEnd":null,
-               "fluorCommaDot":true,
-               "exFluorCol":4,
-               "exCycRow":1,
-               "exCycRowRegEx":"([0-9]+)",
-               "exCycCol":1,
-               "exCycColRegEx":"([0-9]+)",
-               "exWellCol":1,
-               "exWellRegEx":"(^[A-Za-z]+[0-9]+)",
-               "exSamCol":null,"exSamRegEx":"(.*)",
-               "exSamTypeCol":null,
-               "exSamTypeRegEx":"(.*)",
-               "exTarCol":null,
-               "exTarRegEx":"(.*)",
-               "exTarTypeCol":null,
-               "exTarTypeRegEx":"(.*)",
-               "exDyeCol":1,
-               "exDyeRegEx":"^[A-Za-z]+[0-9]+ (.*)",
-               "exTrueCol":-1,
-               "exTrueRegEx":"2"
-               },{
-               "settingsID":"Roche LC96 (flip)",
-               "reformatAmpMelt":"amp",
-               "reformatTableShape":"flip",
-               "fluorDelColStart":1,
-               "fluorDelRowStart":1,
-               "fluorDelOtherRow":0,
-               "fluorDelColEnd":null,
-               "fluorDelRowEnd":null,
-               "fluorCommaDot":true,
-               "exFluorCol":4,
-               "exCycRow":1,
-               "exCycRowRegEx":"([0-9]+)",
-               "exCycCol":1,
-               "exCycColRegEx":"([0-9]+)",
-               "exWellCol":1,
-               "exWellRegEx":"(^[A-Za-z]+[0-9]+) .*",
-               "exSamCol":null,
-               "exSamRegEx":"(.*)",
-               "exSamTypeCol":null,
-               "exSamTypeRegEx":"(.*)",
-               "exTarCol":null,
-               "exTarRegEx":"(.*)",
-               "exTarTypeCol":null,
-               "exTarTypeRegEx":"(.*)",
-               "exDyeCol":1,
-               "exDyeRegEx":"^[A-Za-z]+[0-9]+ (.*)",
-               "exTrueCol":-1,
-               "exTrueRegEx":"2"
-               },{
-               "settingsID":"Roche LightCycler480",
-               "reformatAmpMelt":"amp",
-               "reformatTableShape":"keep",
-               "fluorDelColStart":2,
-               "fluorDelRowStart":1,
-               "fluorDelOtherRow":0,
-               "fluorDelColEnd":null,
-               "fluorDelRowEnd":null,
-               "fluorCommaDot":true,
-               "exFluorCol":4,
-               "exCycRow":1,
-               "exCycRowRegEx":"([0-9]+)",
-               "exCycCol":1,
-               "exCycColRegEx":"([0-9]+)",
-               "exWellCol":1,
-               "exWellRegEx":"(^[A-Za-z]+[0-9]+)",
-               "exSamCol":2,
-               "exSamRegEx":"(.*)",
-               "exSamTypeCol":null,
-               "exSamTypeRegEx":"(.*)",
-               "exTarCol":null,
-               "exTarRegEx":"(.*)",
-               "exTarTypeCol":null,
-               "exTarTypeRegEx":"(.*)",
-               "exDyeCol":null,
-               "exDyeRegEx":"(.*)",
-               "exTrueCol":-1,
-               "exTrueRegEx":"2"
-               },{
-               "settingsID":"Roche LightCycler480 (flip)",
-               "reformatAmpMelt":"amp",
-               "reformatTableShape":"flip",
-               "fluorDelColStart":1,
-               "fluorDelRowStart":2,
-               "fluorDelOtherRow":1,
-               "fluorDelColEnd":null,
-               "fluorDelRowEnd":null,
-               "fluorCommaDot":true,
-               "exFluorCol":4,
-               "exCycRow":1,
-               "exCycRowRegEx":"([0-9]+)",
-               "exCycCol":1,
-               "exCycColRegEx":"([0-9]+)",
-               "exWellCol":1,
-               "exWellRegEx":"(^[A-Za-z]+[0-9]+):.*",
-               "exSamCol":1,
-               "exSamRegEx":"^[A-Za-z]+[0-9]+: (.*)",
-               "exSamTypeCol":null,
-               "exSamTypeRegEx":"(.*)",
-               "exTarCol":null,"exTarRegEx":"(.*)",
-               "exTarTypeCol":null,
-               "exTarTypeRegEx":"(.*)",
-               "exDyeCol":null,
-               "exDyeRegEx":"(.*)",
-               "exTrueCol":-1,
-               "exTrueRegEx":"2"
-               },{
-               "settingsID":"Roche LightCycler480 (create)",
-               "reformatAmpMelt":"amp",
-               "reformatTableShape":"create",
-               "fluorDelColStart":1,
-               "fluorDelRowStart":2,
-               "fluorDelOtherRow":0,
-               "fluorDelColEnd":null,
-               "fluorDelRowEnd":null,
-               "fluorCommaDot":true,
-               "exFluorCol":8,
-               "exCycRow":1,
-               "exCycRowRegEx":"([0-9]+)",
-               "exCycCol":5,
-               "exCycColRegEx":"([0-9]+)",
-               "exWellCol":1,
-               "exWellRegEx":"(^[A-Za-z]+[0-9]+)",
-               "exSamCol":2,
-               "exSamRegEx":"(.*)",
-               "exSamTypeCol":null,
-               "exSamTypeRegEx":"(.*)",
-               "exTarCol":null,
-               "exTarRegEx":"(.*)",
-               "exTarTypeCol":null,
-               "exTarTypeRegEx":"(.*)",
-               "exDyeCol":null,
-               "exDyeRegEx":"(.*)",
-               "exTrueCol":-1,
-               "exTrueRegEx":"2"
-               },{
-               "settingsID":"Rotorgene",
-               "reformatAmpMelt":"amp",
-               "reformatTableShape":"keep",
-               "fluorDelColStart":6,
-               "fluorDelRowStart":4,
-               "fluorDelOtherRow":0,
-               "fluorDelColEnd":46,
-               "fluorDelRowEnd":68,
-               "fluorCommaDot":true,
-               "exFluorCol":4,
-               "exCycRow":4,
-               "exCycRowRegEx":"([0-9]+)",
-               "exCycCol":1,
-               "exCycColRegEx":"([0-9]+)",
-               "exWellCol":1,
-               "exWellRegEx":"(^[A-Za-z]+[0-9]+)",
-               "exSamCol":3,
-               "exSamRegEx":"(.*)",
-               "exSamTypeCol":2,
-               "exSamTypeRegEx":"(.*)",
-               "exTarCol":5,
-               "exTarRegEx":"(.*)",
-               "exTarTypeCol":null,
-               "exTarTypeRegEx":"(.*)",
-               "exDyeCol":6,
-               "exDyeRegEx":"(.*)",
-               "exTrueCol":-1,
-               "exTrueRegEx":"2"
-               },{
-               "settingsID":"Stratagene Mx3000P",
-               "reformatAmpMelt":"amp",
-               "reformatTableShape":"flip",
-               "fluorDelColStart":4,
-               "fluorDelRowStart":2,
-               "fluorDelOtherRow":0,
-               "fluorDelColEnd":44,
-               "fluorDelRowEnd":null,
-               "fluorCommaDot":true,
-               "exFluorCol":4,
-               "exCycRow":2,
-               "exCycRowRegEx":"([0-9]+)",
-               "exCycCol":1,
-               "exCycColRegEx":"([0-9]+)",
-               "exWellCol":3,
-               "exWellRegEx":"(^[A-Za-z]+[0-9]+),.*",
-               "exSamCol":3,
-               "exSamRegEx":"[^,]*, ([^,]*,[^,]*),.*",
-               "exSamTypeCol":null,
-               "exSamTypeRegEx":"(.*)",
-               "exTarCol":null,
-               "exTarRegEx":"(.*)",
-               "exTarTypeCol":null,
-               "exTarTypeRegEx":"(.*)",
-               "exDyeCol":3,
-               "exDyeRegEx":"[^,]*,[^,]*,[^,]*, (.*)",
-               "exTrueCol":-1,
-               "exTrueRegEx":"2"
-               },{
-               "settingsID":"ThermoFisher StepOnePlus",
-               "reformatAmpMelt":"amp",
-               "reformatTableShape":"create",
-               "fluorDelColStart":1,
-               "fluorDelRowStart":8,
-               "fluorDelOtherRow":0,
-               "fluorDelColEnd":null,
-               "fluorDelRowEnd":null,
-               "fluorCommaDot":true,
-               "exFluorCol":3,
-               "exCycRow":1,
-               "exCycRowRegEx":"([0-9]+)",
-               "exCycCol":2,
-               "exCycColRegEx":"([0-9]+)",
-               "exWellCol":1,
-               "exWellRegEx":"(^[A-Za-z]+[0-9]+)",
-               "exSamCol":null,
-               "exSamRegEx":"(.*)",
-               "exSamTypeCol":null,
-               "exSamTypeRegEx":"(.*)",
-               "exTarCol":null,
-               "exTarRegEx":"(.*)",
-               "exTarTypeCol":null,
-               "exTarTypeRegEx":"(.*)",
-               "exDyeCol":null,
-               "exDyeRegEx":"(.*)",
-               "exTrueCol":-1,
-               "exTrueRegEx":"2"
-               },{
-               "settingsID":"Roche LCS480 Amplification v1.5.0.39",
-               "reformatAmpMelt":"amp",
-               "reformatTableShape":"create",
-               "fluorDelColStart":1,
-               "fluorDelRowStart":2,
-               "fluorDelOtherRow":0,
-               "fluorDelColEnd":null,
-               "fluorDelRowEnd":null,
-               "fluorCommaDot":true,
-               "exFluorCol":8,
-               "exCycRow":1,
-               "exCycRowRegEx":"([0-9]+)",
-               "exCycCol":5,
-               "exCycColRegEx":"([0-9\\.]+)",
-               "exWellCol":1,
-               "exWellRegEx":"(^[A-Za-z]+[0-9]+)",
-               "exSamCol":2,
-               "exSamRegEx":"(.*)",
-               "exSamTypeCol":null,
-               "exSamTypeRegEx":"(.*)",
-               "exTarCol":null,
-               "exTarRegEx":"(.*)",
-               "exTarTypeCol":null,
-               "exTarTypeRegEx":"(.*)",
-               "exDyeCol":null,
-               "exDyeRegEx":"(.*)",
-               "exTrueCol":3,
-               "exTrueRegEx":"3"
-               },{
-               "settingsID":"Roche LCS480 Meltcurve v1.5.0.39",
-               "reformatAmpMelt":"melt",
-               "reformatTableShape":"create",
-               "fluorDelColStart":1,
-               "fluorDelRowStart":2,
-               "fluorDelOtherRow":0,
-               "fluorDelColEnd":null,
-               "fluorDelRowEnd":null,
-               "fluorCommaDot":true,
-               "exFluorCol":8,
-               "exCycRow":1,
-               "exCycRowRegEx":"([0-9]+)",
-               "exCycCol":7,
-               "exCycColRegEx":"([0-9\\.]+)",
-               "exWellCol":1,
-               "exWellRegEx":"(^[A-Za-z]+[0-9]+)",
-               "exSamCol":2,
-               "exSamRegEx":"(.*)",
-               "exSamTypeCol":null,
-               "exSamTypeRegEx":"(.*)",
-               "exTarCol":null,
-               "exTarRegEx":"(.*)",
-               "exTarTypeCol":null,
-               "exTarTypeRegEx":"(.*)",
-               "exDyeCol":null,
-               "exDyeRegEx":"(.*)",
-               "exTrueCol":3,
-               "exTrueRegEx":"2"
-               }
-              ];
-    return ret;
 }
 
 function getSampleStr() {

@@ -191,139 +191,111 @@
           </div>
         </div>
         <div class="form-group">
-          <button type="submit" class="btn btn-outline-primary" id="btn-save-Tsv">
+          <button type="submit" class="btn btn-outline-primary" id="btn-save-svg">
             <i class="far fa-save" style="margin-right: 5px;"></i>
-            Save table file (.tsv)
+            Save image file (.svg)
           </button>
         </div>
+        <p>SVG vector files can be adapted to individual needs or converted to PNG/JPG using
+          <a href="https://inkscape.org/" target="_blank">Inkscape (click to download)</a>.
+        </p>
+        <br />
+        <br />
+        <div id="svg-image-data"></div>
+        <br />
         <br />
         <div class="card">
           <div class="card-body">
-            <h5 class="card-title">Create RDML file</h5>
+            <h5 class="card-title">Y-Axis</h5>
             <table style="width:100%;">
               <tr>
-                <td style="width:25%;">Experiment ID:</td>
+                <td style="width:25%;">Image Scale:</td>
                 <td style="width:75%">
-                  <input type="text" class="form-control" id="inExperimentID" value="Experiment 1">
-                </td>
-              </tr>
-              <tr>
-                <td style="width:25%;">Run ID:</td>
-                <td style="width:75%">
-                  <input type="text" class="form-control" id="inRunID" value="Run 1">
-                </td>
-              </tr>
-              <tr>
-                <td style="width:25%;">PCR Format - Columns:</td>
-                <td style="width:75%">
-                  <input type="text" class="form-control" id="inRunPcrFormat_columns" value="12">
-                </td>
-              </tr>
-              <tr>
-                <td style="width:25%;">PCR Format - Column Label:</td>
-                <td style="width:75%">
-                  <select class="form-control" id="inRunPcrFormat_columnLabel">
-                    <option value="ABC">ABC</option>
-                    <option value="123" selected>123</option>
-                    <option value="A1a1">A1a1</option>
+                  <select class="form-control" id="modYAxLinLog" onchange="updateMod('modYAxLinLog', 'YAxLinLog')">
+                    <option value="lin" selected>linear</option>
+                    <option value="log">logarithmic</option>
                   </select>
                 </td>
               </tr>
               <tr>
-                <td style="width:25%;">PCR Format - Rows:</td>
+                <td style="width:25%;">Height:</td>
                 <td style="width:75%">
-                  <input type="text" class="form-control" id="inRunPcrFormat_rows" value="8">
+                  <input type="text" class="form-control" id="modYAxMaxVal" onchange="updateMod('modYAxMaxVal', 'YAxMaxVal')" value="">
                 </td>
               </tr>
               <tr>
-                <td style="width:25%;">PCR Format - Row Label:</td>
+                <td style="width:25%;">Height:</td>
                 <td style="width:75%">
-                  <select class="form-control" id="inRunPcrFormat_rowLabel">
-                    <option value="ABC" selected>ABC</option>
-                    <option value="123">123</option>
-                    <option value="A1a1">A1a1</option>
-                  </select>
+                  <input type="text" class="form-control" id="modYAxMinVal" onchange="updateMod('modYAxMinVal', 'YAxMinVal')" value="">
                 </td>
               </tr>
               <tr>
-                <td style="width:25%;">PCR Format - Predefined:</td>
+                <td style="width:25%;">Height:</td>
                 <td style="width:75%">
-                  <button type="button" onclick="selPlate_Rotor();">Rotor</button>&nbsp;&nbsp;
-                  <button type="button" onclick="selPlate_96_Well();">96 Well Plate</button>&nbsp;&nbsp;
-                  <button type="button" onclick="selPlate_384_Well();">384 Well Plate</button>
+                  <input type="text" class="form-control" id="modYAxTopSpace" onchange="updateMod('modYAxTopSpace', 'YAxTopSpace')" value="">
                 </td>
               </tr>
-            </table>
+              <tr>
+                <td style="width:25%;">Width:</td>
+                <td style="width:75%">
+                  <input type="text" class="form-control" id="modYAxBottomSpace" onchange="updateMod('modYAxBottomSpace', 'YAxBottomSpace')" value="">
+                </td>
+              </tr>
+             </table>
             <br />
-            <button type="submit" class="btn btn-outline-primary" id="btn-save-RDML">
-              <i class="far fa-save" style="margin-right: 5px;"></i>
-              Create RDML
-            </button>
-            <div id="download-section"></div>
           </div>
         </div>
+        <br />
         <br />
         <div class="card">
           <div class="card-body">
-            <h5 class="card-title">Complement columns 1 to 5 (required)</h5>
-            <select id="inCompSelection" onchange="selCompSelection()">
-              <option value="1" selected="true">Sample</option>
-              <option value="2">Sample Type</option>
-              <option value="3">Target</option>
-              <option value="4">Target Type</option>
-              <option value="5">Dye</option>
-            </select>
+            <h5 class="card-title">X-Axis</h5>
+            <table style="width:100%;">
+              <tr>
+                <td style="width:25%;">Height:</td>
+                <td style="width:75%">
+                  <input type="text" class="form-control" id="modXAxTopSpace" onchange="updateMod('modXAxTopSpace', 'XAxTopSpace')" value="">
+                </td>
+              </tr>
+              <tr>
+                <td style="width:25%;">Width:</td>
+                <td style="width:75%">
+                  <input type="text" class="form-control" id="modXAxBottomSpace" onchange="updateMod('modXAxBottomSpace', 'XAxBottomSpace')" value="">
+                </td>
+              </tr>
+             </table>
             <br />
-            <br />
-            <div class="form-group">
-              <label for="inCompStart">Start at well (leave empty for all):</label>
-              <input type="text" class="form-control" id="inCompStart" value="A1">
-            </div>
-            <div class="form-group">
-              <label for="inCompEnd">Stop at well (leave empty for only start well):</label>
-              <input type="text" class="form-control" id="inCompEnd" value="">
-            </div>
-            <div class="form-group" id="idCompText">
-              <label for="inCompText">Text to enter (leave empty for unique id):</label>
-              <input type="text" class="form-control" id="inCompText" value="">
-            </div>
-            <div id="idCompSamType" style="display: None;">
-              <select id="inCompSamType">
-                <option value="unkn" selected="true">unkn - unknown sample</option>
-                <option value="ntc">ntc - non template control</option>
-                <option value="nac">nac - no amplification control</option>
-                <option value="std">std - standard sample</option>
-                <option value="ntp">ntp - no target present</option>
-                <option value="nrt">nrt - minusRT</option>
-                <option value="pos">pos - positive control</option>
-                <option value="opt">opt - optical calibrator sample</option>
-              </select>
-              <br />
-            </div>
-            <div id="idCompTarType" style="display: None;">
-              <select id="inCompTarType">
-                <option value="ref">ref - reference target</option>
-                <option value="toi" selected="true">toi - target of interest</option>
-              </select>
-              <br />
-            </div>
-            <br />
-            <div class="form-group">
-              <button type="submit" class="btn btn-outline-primary" id="btn-apply-comp">
-                <i class="far fa-edit" style="margin-right: 5px;"></i>
-                Complement table
-              </button>
-            </div>
           </div>
         </div>
         <br />
-        <div class="card tableCard">
+        <br />
+        <div class="card">
           <div class="card-body">
-            <h5 class="card-title">Table for export</h5>
-            <p> The columns 1-6 must be filled for successfull import into RDML. Leave 
-                them free for empty wells.<br /> White rows indicate missing information,
-                only green rows are complete for import.</p>
-            <div id="export-table-view"></div>
+            <h5 class="card-title">Graph Basics</h5>
+            <table style="width:100%;">
+              <tr>
+                <td style="width:25%;">Height:</td>
+                <td style="width:75%">
+                  <input type="text" class="form-control" id="modGraphHeight" onchange="updateMod('modGraphHeight', 'GraphHeight')" value="">
+                </td>
+              </tr>
+              <tr>
+                <td style="width:25%;">Width:</td>
+                <td style="width:75%">
+                  <input type="text" class="form-control" id="modGraphWidth" onchange="updateMod('modGraphWidth', 'GraphWidth')" value="">
+                </td>
+              </tr>
+              <tr>
+                <td style="width:25%;">Image Scale Unit:</td>
+                <td style="width:75%">
+                  <select class="form-control" id="modGraphCmInch" onchange="updateMod('modGraphCmInch', 'GraphCmInch')">
+                    <option value="cm" selected>Centimeter</option>
+                    <option value="inch">Inch</option>
+                  </select>
+                </td>
+              </tr>
+             </table>
+            <br />
           </div>
         </div>
       </div>
