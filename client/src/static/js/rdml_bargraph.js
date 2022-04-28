@@ -65,6 +65,12 @@ window.modifySettings["XAxEmptySpace"] = "y";
 window.modifySettings["XAxGapBar"] = "0.5";
 window.modifySettings["XAxGapGrp"] = "0.25";
 
+window.modifySettings["DotShowIt"] = "y";
+window.modifySettings["DotPlacingMethod"] = "comp-asc";
+window.modifySettings["DotSize"] = "2.0";
+window.modifySettings["DotLineWidth"] = "0.5";
+window.modifySettings["DotColor"] = "#FFFFFF";
+
 window.modifySettings["GraphHeight"] = "6.0";
 window.modifySettings["GraphWidth"] = "9.0";
 window.modifySettings["GraphCmInch"] = "cm";
@@ -100,6 +106,8 @@ function showExample() {
     window.inputFileName = "example"
     window.inputFile = getSampleStr();
     updateSepCount(window.inputFile);
+
+    $('[href="#save-tab"]').tab('show');
 }
 
 window.loadInputFile = loadInputFile;
@@ -121,6 +129,8 @@ function loadInputFile(){
     } else {
         alert("Error opening file");
     }
+
+    $('[href="#save-tab"]').tab('show');
 }
 
 window.updateSepCount = updateSepCount
@@ -230,7 +240,7 @@ function processTable(txtInput, inputSep) {
             if (rawLine[k] == "") {
                 continue;
             }
-            rawVals = rawVals.replace(/[^0-9\.,;]/g, "");
+            rawVals = rawVals.replace(/[^0-9\.,;-]/g, "");
             rawVals = rawVals.replace(/^;/, "");
             rawVals = rawVals.replace(/;$/, "");
             if (window.inputReplaceComma) {
@@ -257,12 +267,12 @@ function processTable(txtInput, inputSep) {
         window.inputTabStr = window.inputTabStr.replace(/\t$/, "\n");
     }
     tableDataPoints.innerHTML = window.inputTabStr;
-    inputTableView.innerHTML = drawHtmlTable(window.inputTabFix, false);
+    inputTableView.innerHTML = drawHtmlTable(window.inputTabFix);
     selectDataCombiMeth();
 }
 
 window.drawHtmlTable = drawHtmlTable;
-function drawHtmlTable(tab, useColor) {
+function drawHtmlTable(tab) {
     var retVal = "<table class=\"tablePreview\">\n"
     retVal += "<tr>\n<th style=\"background-color: grey;\"></th>\n";
     var maxXCount = 0;
@@ -285,19 +295,8 @@ function drawHtmlTable(tab, useColor) {
     for (var i = 0 ; i < maxLength ; i++) {
         retVal += "<tr>\n<td style=\"background-color: grey;\">" + (i + 1) + "</td>\n"
         var complete = true;
-        if (useColor == true) {
-            for (var k = 0 ; k < 6 ; k++) {
-                if (tab[i][k] == "") {
-                    complete = false;
-                }
-            }
-        }
         for (var k = 0 ; k < tab[i].length ; k++) {
-            if ((useColor == true) && (i != 0) && (complete == true)) {
-                retVal += "<td style=\"background-color:#00e600;\">" + tab[i][k] + "</td>\n"
-            } else {
-                retVal += "<td>" + tab[i][k] + "</td>\n"
-            }
+            retVal += "<td>" + tab[i][k] + "</td>\n"
         }
         retVal += "</tr>\n"
     }
@@ -562,7 +561,9 @@ function createSVG() {
     setStartStop();
     var retVal = "";
     retVal += createBoxes();
-    retVal += createDots();
+    if (window.modifySettings["DotShowIt"] == "y") {
+        retVal += createDots();
+    }
     retVal += createErrorBars();
     retVal += createCoordinates();
     retVal += "</svg>";
@@ -589,7 +590,10 @@ function setStartStop() {
         window.winYmax = parseFloat(window.modifySettings["YAxMaxVal"]);
     }
     if (window.modifySettings["YAxMinVal"] != "") {
-        window.winYmin = parseFloat(window.modifySettings["YAxMinVal"]);
+        var tWinYmin = parseFloat(window.modifySettings["YAxMinVal"]);
+        if ((window.modifySettings["YAxLinLog"] == "lin") || (tWinYmin > 0.0)) {
+            window.winYmin = tWinYmin;
+        }
     }
 
     window.xPosOrder = [];
@@ -900,41 +904,230 @@ function createErrorBars() {
 }
 
 function createDots() {
-    var retVal = ""
+    var retVal = "";
+    var usrDSize = "2.0";
+    var usrDStroke = "0.5";
+    var usrDColor= "#FFFFFF";
+    if (isFinite(parseFloat(window.modifySettings["DotSize"]))) {
+        usrDSize = parseFloat(window.modifySettings["DotSize"]);
+    }
+    if (isFinite(parseFloat(window.modifySettings["DotLineWidth"]))) {
+        usrDStroke = parseFloat(window.modifySettings["DotLineWidth"]);
+    }
+    if (window.modifySettings["DotColor"] != "") {
+        usrDColor = window.modifySettings["DotColor"];
+    }
+
+    var yDotSize = 0.0;
+    if (window.modifySettings["YAxLinLog"] == "lin") {
+        yDotSize = (window.winYend - window.winYst) / window.frameYend;
+    } else {
+        yDotSize = (Math.log10(window.winYend) - Math.log10(window.winYst)) / window.frameYend;
+    }
+    var xDotSize = 2.0 * usrDSize + usrDStroke;
+    yDotSize = yDotSize * xDotSize;
+    // window.frameYend - (val - window.winYst) / (window.winYend - window.winYst) * window.frameYend;
+    //  window.frameYend - (Math.log10(val) - Math.log10(window.winYst)) / (Math.log10(window.winYend) - Math.log10(window.winYst)) * window.frameYend;
     for (var i = 0 ; i < window.selA.length ; i++) {
         if (window.selB.length != 0) {
             for (var j = 0 ; j < window.selB.length ; j++) {
                 if ((selA[i] in window.xPosLookUp) &&
                         (selB[j] in window.xPosLookUp[window.selA[i]]) &&
                         (window.sortData[window.selA[i]][window.selB[j]]["dp"].length > 0)){
+
+                    var yVals = window.sortData[window.selA[i]][window.selB[j]]["dp"];
+                    var xOff = swarmCalc(yVals, yDotSize, xDotSize);
                     for (var k = 0 ; k < window.sortData[window.selA[i]][window.selB[j]]["dp"].length ; k++) {
-                        var xPos = window.xPosLookUp[window.selA[i]][window.selB[j]];
-                        var yPos = toSvgYScale(window.sortData[window.selA[i]][window.selB[j]]["dp"][k]);
-                        retVal += "<circle cx='" + xPos + "' cy='" + yPos + "' r='2' stroke='black' stroke-width='0.5' fill='none' />"
+                        if ((window.modifySettings["YAxLinLog"] == "lin") || (window.sortData[window.selA[i]][window.selB[j]]["dp"][k] > 0.0 )){
+                            var xPos = window.xPosLookUp[window.selA[i]][window.selB[j]] + xOff[k];
+                            var yPos = toSvgYScale(window.sortData[window.selA[i]][window.selB[j]]["dp"][k]);
+                            retVal += "<circle cx='" + xPos + "' cy='" + yPos + "' r='" + usrDSize
+                            retVal += "' stroke='black' stroke-width='" + usrDStroke + "' fill='" + usrDColor + "' />"
+                         }
                     }
                 }
             }
         } else {
             if ((selA[i] in window.xPosLookUp)  &&
                     (window.sortData[window.selA[i]]["dp"].length > 0)){
+                var yVals = window.sortData[window.selA[i]]["dp"];
+                var xOff = swarmCalc(yVals, yDotSize, xDotSize);
                 for (var k = 0 ; k < window.sortData[window.selA[i]]["dp"].length ; k++) {
-                    var xPos = window.xPosLookUp[window.selA[i]];
-                    var yPos = toSvgYScale(window.sortData[window.selA[i]]["dp"][k]);
-                    retVal += "<circle cx='" + xPos + "' cy='" + yPos + "' r='2' stroke='black' stroke-width='0.5' fill='none' />"
+                    if ((window.modifySettings["YAxLinLog"] == "lin") || (window.sortData[window.selA[i]]["dp"][k] > 0.0 )){
+                        var xPos = window.xPosLookUp[window.selA[i]] + xOff[k];
+                        var yPos = toSvgYScale(window.sortData[window.selA[i]]["dp"][k]);
+                        retVal += "<circle cx='" + xPos + "' cy='" + yPos + "' r='" + usrDSize
+                        retVal += "' stroke='black' stroke-width='" + usrDStroke + "' fill='" + usrDColor + "' />"
+                    }
                 }
-        }
+            }
         }
     }
 
     return retVal;
 }
 
+function swarmCalc(rawX, dsize, gsize) {
+    if (rawX.length < 2) {
+        return [0.0];
+    }
+    var plMeth = "comp-asc";
+    if (window.modifySettings["DotPlacingMethod"] != "") {
+        if ((window.modifySettings["DotPlacingMethod"] == "comp-rand") ||
+            (window.modifySettings["DotPlacingMethod"] == "comp-desc") ||
+            (window.modifySettings["DotPlacingMethod"] == "swarm-asc") ||
+            (window.modifySettings["DotPlacingMethod"] == "swarm-rand") ||
+            (window.modifySettings["DotPlacingMethod"] == "swarm-desc")) {
+            plMeth = window.modifySettings["DotPlacingMethod"];
+        }
+    }
 
+    // This function is inspired by the calculateCompactSwarm function from https://github.com/aroneklund/beeswarm
+    // 0: x, 1:y, 2:index, 3:placed, 4:low, 5:high, 6:best, 7:current abs diff
+    var dd = [];
+    var ret = [];
+    // Fill the data structure
+    for (var i = 0 ; i < rawX.length ; i++) {
+        if (window.modifySettings["YAxLinLog"] == "lin") {
+            dd.push([rawX[i]/dsize, 0.0, i + 1, false, 0.0, 0.0, 0.0, 0.0]);
+        } else {
+            if (rawX[i] <= 0.0) {
+                dd.push([-1.0/dsize, 0.0, i + 1, true, 0.0, 0.0, 0.0, 0.0]);
+            } else {
+                dd.push([Math.log10(rawX[i])/dsize, 0.0, i + 1, false, 0.0, 0.0, 0.0, 0.0]);
+            }
+        }
+    }
+    // Sort for smiles, random would avoid smiles
+    if ((plMeth == "comp-asc") || (plMeth == "swarm-asc")) {
+        dd.sort(sortAsc);
+    }
+    if ((plMeth == "comp-rand") || (plMeth == "swarm-rand")) {
+        fisherYates(dd);
+    }
+    if ((plMeth == "comp-desc") || (plMeth == "swarm-desc")) {
+        dd.sort(sortDesc);
+    }
 
+    // Place the dots
+    for (var i = 0 ; i < dd.length ; i++) {
+        // Find the best dot to place now
+        var minBest = Number.POSITIVE_INFINITY;
+        var cur = Number.POSITIVE_INFINITY;
+        for (var j = 0 ; j < dd.length ; j++) {
+            if (Math.abs(dd[j][6]) < minBest) {
+                minBest = Math.abs(dd[j][6]);
+                cur = j
+            }
+        }
+        var xi = dd[cur][0];
+        var yi = dd[cur][6];
+        dd[cur][1] = yi;
+        dd[cur][3] = true;
+        dd[cur][6] = Number.POSITIVE_INFINITY;
+        for (var j = 0 ; j < dd.length ; j++) {
+            dd[j][7] = Math.abs(xi - dd[j][0])
+        }
+        // Move the overlapping dots
+        if ((plMeth == "comp-asc") || (plMeth == "comp-rand") || (plMeth == "comp-desc")) {
+            for (var j = 0 ; j < dd.length ; j++) {
+                if (dd[j][3]) {
+                    continue;
+                }
+                if (dd[j][7] >= 1.0) {
+                    continue;
+                }
+                var offset = Math.sqrt(1 - Math.pow(dd[j][7], 2));
+                var high = Math.max(dd[j][5], yi + offset);
+                dd[j][5] = high;
+                var low = Math.min(dd[j][4], yi - offset);
+                dd[j][4] = low;
+                if (-low < high) {
+                    dd[j][6] = low;
+                } else {
+                    dd[j][6] = high;
+                }
+            }
+        } else {
+            // collect offsets
+            var preX = [];
+            var preY = [];
+            var possOff = [0.0];
+            for (var j = 0 ; j < i ; j++) {
+                if (dd[j][7] >= 1.0) {
+                    continue;
+                }
+                var offset = Math.sqrt(1 - Math.pow(dd[j][7], 2));
+                possOff.push(dd[j][1] + offset);
+                possOff.push(dd[j][1] - offset);
+                preX.push(dd[j][0]);
+                preY.push(dd[j][1]);
+            }
+            if (preX.length > 0) {
+                for (var j = 0 ; j < possOff.length ; j++) {
+                    var currOver = possOff[j];
+                    var isAnyOverlap = false;
+                    for (var k = 0 ; k < preX.length ; k++) {
+                        if (Math.pow(xi - preX[k], 2) + Math.pow(currOver - preY[k], 2) < 0.999) {
+                            possOff[j] = Number.POSITIVE_INFINITY;
+                        }
+                    }
+                }
+                var minY = Number.POSITIVE_INFINITY;
+                for (var j = 0 ; j < possOff.length ; j++) {
+                    if(Math.abs(possOff[j]) < Math.abs(minY)) {
+                        minY = possOff[j];
+                    }
+                }
+                dd[cur][1] = minY;
+            }
+        }
+    }
+    dd.sort(sortBack);
+    for (var i = 0 ; i < dd.length ; i++) {
+        ret.push(dd[i][1] * gsize);
+    }
+    return ret;
+}
 
+function sortAsc(a, b) {
+    if (a[0] === b[0]) {
+        return 0;
+    }
+    else {
+        return (a[0] < b[0]) ? -1 : 1;
+    }
+}
 
+function sortDesc(a, b) {
+    if (a[0] === b[0]) {
+        return 0;
+    }
+    else {
+        return (a[0] > b[0]) ? -1 : 1;
+    }
+}
 
+function sortBack(a, b) {
+    if (a[2] === b[2]) {
+        return 0;
+    }
+    else {
+        return (a[2] < b[2]) ? -1 : 1;
+    }
+}
 
+function fisherYates(arr) {
+  var i = arr.length;
+  if ( i == 0 ) return false;
+  while ( --i ) {
+     var j = Math.floor( Math.random() * ( i + 1 ) );
+     var tempi = arr[i];
+     var tempj = arr[j];
+     arr[i] = tempj;
+     arr[j] = tempi;
+   }
+}
 
 
 
@@ -1096,6 +1289,12 @@ function loadModification(newSett) {
     updateKeyEl(newSett,"XAxEmptySpace","modXAxEmptySpace");
     updateKeyEl(newSett,"XAxGapBar","modXAxGapBar");
     updateKeyEl(newSett,"XAxGapGrp","modXAxGapGrp");
+
+    updateKeyEl(newSett,"DotShowIt","modDotShowIt");
+    updateKeyEl(newSett,"DotPlacingMethod","modDotPlacingMethod");
+    updateKeyEl(newSett,"DotSize","modDotSize");
+    updateKeyEl(newSett,"DotLineWidth","modDotLineWidth");
+    updateKeyEl(newSett,"DotColor","modDotColor");
 
     updateKeyEl(newSett,"GraphHeight","modGraphHeight");
     updateKeyEl(newSett,"GraphWidth","modGraphWidth");

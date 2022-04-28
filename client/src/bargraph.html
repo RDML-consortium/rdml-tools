@@ -269,6 +269,56 @@
         <br />
         <div class="card">
           <div class="card-body">
+            <h5 class="card-title">Datapoint Dots</h5>
+            <table style="width:100%;">
+              <tr>
+                <td style="width:25%;">Show Individual Dots:</td>
+                <td style="width:75%">
+                  <select class="form-control" id="modDotShowIt" onchange="updateMod('modDotShowIt', 'DotShowIt')">
+                    <option value="y" selected>Yes</option>
+                    <option value="n">No</option>
+                  </select>
+                </td>
+              </tr>
+              <tr>
+                <td style="width:25%;">Dot Placing Method:</td>
+                <td style="width:75%">
+                  <select class="form-control" id="modDotPlacingMethod" onchange="updateMod('modDotPlacingMethod', 'DotPlacingMethod')">
+                    <option value="comp-asc" selected>Compactswarm - Ascending</option>
+                    <option value="comp-rand" selected>Compactswarm - Random</option>
+                    <option value="comp-desc" selected>Compactswarm - Descending</option>
+                    <option value="swarm-asc" selected>Swarm - Ascending</option>
+                    <option value="swarm-rand" selected>Swarm - Random</option>
+                    <option value="swarm-desc" selected>Swarm - Descending</option>
+                  </select>
+                </td>
+              </tr>
+              <tr>
+                <td style="width:25%;">Dot Size:</td>
+                <td style="width:75%">
+                  <input type="text" class="form-control" id="modDotSize" onchange="updateMod('modDotSize', 'DotSize')" value="">
+                </td>
+              </tr>
+              <tr>
+                <td style="width:25%;">Dot Line Width:</td>
+                <td style="width:75%">
+                  <input type="text" class="form-control" id="modDotLineWidth" onchange="updateMod('modDotLineWidth', 'DotLineWidth')" value="">
+                </td>
+              </tr>
+              <tr>
+                <td style="width:25%;">Dot Color:</td>
+                <td style="width:75%">
+                   <input type="color" id="modDotColor" onchange="updateMod('modDotColor', 'DotColor')" value="#FFFFFF">
+                </td>
+              </tr>
+             </table>
+            <br />
+          </div>
+        </div>
+        <br />
+        <br />
+        <div class="card">
+          <div class="card-body">
             <h5 class="card-title">Graph Basics</h5>
             <table style="width:100%;">
               <tr>
@@ -307,6 +357,12 @@
             convert them by opening in Excel (Microsoft) or Calc (Libre Office),
             selecting the table with the amplification data and save as tab separated
             text file. The tab separated text file can be modified using TableShaper.
+        </p>
+        <h4>Function to place the dots</h4>
+        <p>
+            The function to place the dots in a not overlapping form was heavily inspired
+            by the calculateCompactSwarm function from the R package beeswarm
+            (see <a target="_blank" href="https://github.com/aroneklund/beeswarm">https://github.com/aroneklund/beeswarm</a>).
         </p>
         <h4>The use of TableShaper</h4>
         <p>
