@@ -55,15 +55,31 @@ window.xPosOrder = [];
 window.xGroupCenter = [];
 window.xPosLookUp = {};
 
+window.svgDimXStart = 0.0;
+window.svgDimXEnd = 9.0 * 96.0;
+window.svgDimYStart = 0.0;
+window.svgDimYEnd = 6.0 * 96.0;
 
 window.modifySettings = {};
 window.modifySettings["YAxLinLog"] = "lin";
 window.modifySettings["YAxMaxVal"] = "";
 window.modifySettings["YAxMinVal"] = "";
+window.modifySettings["YPlAxisStroke"] = "2.0";
+window.modifySettings["YPlTickStroke"] = "2.0";
+window.modifySettings["YPlTickLength"] = "7.0";
+window.modifySettings["YPlTextSpace"] = "6.0";
+window.modifySettings["YPlTextSize"] = "10.0";
+window.modifySettings["YPlTextType"] = "Arial";
 
 window.modifySettings["XAxEmptySpace"] = "y";
 window.modifySettings["XAxGapBar"] = "0.5";
 window.modifySettings["XAxGapGrp"] = "0.25";
+window.modifySettings["XPlAxisStroke"] = "2.0";
+window.modifySettings["XPlTickStroke"] = "2.0";
+window.modifySettings["XPlTickLength"] = "7.0";
+window.modifySettings["XPlTextSpace"] = "6.0";
+window.modifySettings["XPlTextSize"] = "10.0";
+window.modifySettings["XPlTextType"] = "Arial";
 
 window.modifySettings["DotShowIt"] = "y";
 window.modifySettings["DotPlacingMethod"] = "comp-asc";
@@ -567,7 +583,15 @@ function createSVG() {
     retVal += createErrorBars();
     retVal += createCoordinates();
     retVal += "</svg>";
-    var head = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='-60 -40 600 400' width='900px'>";
+
+    window.svgDimXStart -= 20;
+    window.svgDimYStart -= 20;
+    window.svgDimXEnd += 20;
+    window.svgDimYEnd += 20;
+    var svgWith = window.svgDimXEnd - window.svgDimXStart;
+    var svgHight = window.svgDimYEnd - window.svgDimYStart;
+    var head = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='" + window.svgDimXStart + " "
+    head += window.svgDimYStart + " " + svgWith + " " + svgHight + "' width='900px'>";
     return head + retVal;
 }
 
@@ -579,6 +603,11 @@ function setStartStop() {
         window.frameXend = parseFloat(window.modifySettings["GraphWidth"]) * 96.0;
         window.frameYend = parseFloat(window.modifySettings["GraphHeight"]) * 96.0;
     }
+
+    window.svgDimXStart = 0.0;
+    window.svgDimYStart = 0.0;
+    window.svgDimXEnd = window.frameXend;
+    window.svgDimYEnd = window.frameYend;
 
     window.winYmax = window.sortPara["yMax"]
     if (window.modifySettings["YAxLinLog"] == "lin") {
@@ -746,21 +775,79 @@ function toSvgYLogScale(val) {
 }
 
 function createCoordinates () {
-    var lineXend = window.frameXend + 5;
-    var lineYst = 0.0 - 5;
     var retVal = ""
+
+    var xAxisStroke = 2.0;
+    var xTickStroke = 2.0;
+    var xTickLength = 7.0;
+    var xTextSpace = 6.0;
+    var xTextSize = 10.0;
+    var xTextType = "Arial";
+
+    var yAxisStroke = 2.0;
+    var yTickStroke = 2.0;
+    var yTickLength = 7.0;
+    var yTextSpace = 6.0;
+    var yTextSize = 10.0;
+    var yTextType = "Arial";
+
+    if (isFinite(parseFloat(window.modifySettings["YPlAxisStroke"]))) {
+        yAxisStroke = parseFloat(window.modifySettings["YPlAxisStroke"]);
+    }
+    if (isFinite(parseFloat(window.modifySettings["YPlTickStroke"]))) {
+        yTickStroke = parseFloat(window.modifySettings["YPlTickStroke"]);
+    }
+    if (isFinite(parseFloat(window.modifySettings["YPlTickLength"]))) {
+        yTickLength = parseFloat(window.modifySettings["YPlTickLength"]);
+    }
+    if (isFinite(parseFloat(window.modifySettings["YPlTextSpace"]))) {
+        yTextSpace = parseFloat(window.modifySettings["YPlTextSpace"]);
+    }
+    if (isFinite(parseFloat(window.modifySettings["YPlTextSize"]))) {
+        yTextSize = parseFloat(window.modifySettings["YPlTextSize"]);
+    }
+    if (window.modifySettings["YPlTextType"] != "") {
+        yTextType = window.modifySettings["YPlTextType"];
+    }
+
+    if (isFinite(parseFloat(window.modifySettings["XPlAxisStroke"]))) {
+        xAxisStroke = parseFloat(window.modifySettings["XPlAxisStroke"]);
+    }
+    if (isFinite(parseFloat(window.modifySettings["XPlTickStroke"]))) {
+        xTickStroke = parseFloat(window.modifySettings["XPlTickStroke"]);
+    }
+    if (isFinite(parseFloat(window.modifySettings["XPlTickLength"]))) {
+        xTickLength = parseFloat(window.modifySettings["XPlTickLength"]);
+    }
+    if (isFinite(parseFloat(window.modifySettings["XPlTextSpace"]))) {
+        xTextSpace = parseFloat(window.modifySettings["XPlTextSpace"]);
+    }
+    if (isFinite(parseFloat(window.modifySettings["XPlTextSize"]))) {
+        xTextSize = parseFloat(window.modifySettings["XPlTextSize"]);
+    }
+    if (window.modifySettings["XPlTextType"] != "") {
+        xTextType = window.modifySettings["XPlTextType"];
+    }
+
+    var lineXend = window.frameXend + 5.0;
+    var lineYst = -5.0;
+    window.svgDimYStart += lineYst;
+    window.svgDimXEnd += 5.0;
 
     // The X-Axis
     for (var i = 0; i < window.xPosOrder.length; i++) {
         var xPos = window.xPosOrder[i];
         retVal += "<line x1='" + xPos + "' y1='" + window.frameYend;
-        retVal += "' x2='" + xPos + "' y2='" + (window.frameYend + 7) + "' stroke-width='2' stroke='black' />";
-        retVal += "<text x='" + xPos + "' y='" + (window.frameYend + 26);
-        retVal += "' font-family='Arial' font-size='10' fill='black' text-anchor='middle'>";
+        retVal += "' x2='" + xPos + "' y2='" + (window.frameYend + xTickLength) ;
+        retVal += "' stroke-width='" + xTickStroke + "' stroke='black' />";
+        retVal += "<text x='" + xPos + "' y='" + (window.frameYend + xTickLength + xTextSpace + xTextSize);
+        retVal += "' font-family='" + xTextType + "' font-size='" + xTextSize + "' fill='black' text-anchor='middle'>";
         retVal += i  + "</text>";
     }
+    window.svgDimYEnd += xTickLength + xTextSpace + xTextSize;
 
     // The Y-Axis
+    var maxYText = 0.0;
     if (window.modifySettings["YAxLinLog"] == "lin") {
         var maxYScaleVal = window.winYend - window.winYst + window.winYstep;
         var yRound = Math.max(0, Math.floor(1 - Math.log10(Math.abs(maxYScaleVal))))
@@ -770,11 +857,13 @@ function createCoordinates () {
         for (var i = 0; i *  window.winYstep < window.winYend - window.winYst + window.winYstep; i++) {
             var yPos = toSvgYLinScale(window.winYst + i *  window.winYstep);
             retVal += "<line x1='0.0' y1='" + yPos;
-            retVal += "' x2='" + (0.0 - 7) + "' y2='" + yPos + "' stroke-width='2' stroke='black' />";
-            retVal += "<text x='" + (0.0 - 11) + "' y='" + (yPos + 3);
-            retVal += "' font-family='Arial' font-size='10' fill='black' text-anchor='end'>";
+            retVal += "' x2='" + (0.0 - yTickLength) + "' y2='" + yPos + "' stroke-width='" + yTickStroke + "' stroke='black' />";
             var textValOut = i *  window.winYstep + window.winYst
-            retVal += textValOut.toFixed(yRound) + "</text>";
+            var textValStr = textValOut.toFixed(yRound)
+            maxYText = mSvgTextLen(maxYText, textValStr, yTextSize, yTextType);
+            retVal += "<text x='" + (0.0 - yTickLength - yTextSpace) + "' y='" + yPos;
+            retVal += "' font-family='" + yTextType + "' font-size='" + yTextSize + "' fill='black' text-anchor='end' alignment-baseline='middle'>";
+            retVal += textValStr + "</text>";
         }
     } else {
         var sumVal = window.winYst
@@ -787,23 +876,28 @@ function createCoordinates () {
             }
             var yPos = toSvgYLogScale(sumVal + i * yLogStep);
             retVal += "<line x1='0.0' y1='" + yPos;
-            retVal += "' x2='" + (0.0 - 7) + "' y2='" + yPos + "' stroke-width='2' stroke='black' />";
+            retVal += "' x2='" + (0.0 - yTickLength) + "' y2='" + yPos + "' stroke-width='" + yTickStroke + "' stroke='black' />";
             var textValOut = sumVal + i * yLogStep
+            var textValStr = textValOut.toFixed(yRound)
             var yRound = Math.max(0, Math.floor(2 - Math.log10(Math.abs(textValOut))))
             if (!(((Math.round(textValOut.toFixed(yRound) / yLogStep) == 5) && (window.maxLogRange > 3000)) ||
                   (Math.round(textValOut.toFixed(yRound) / yLogStep) == 7) ||
                   (Math.round(textValOut.toFixed(yRound) / yLogStep) == 9) )) {
-                retVal += "<text x='" + (0.0 - 11) + "' y='" + (yPos + 3);
-                retVal += "' font-family='Arial' font-size='10' fill='black' text-anchor='end'>";
-                retVal += textValOut.toFixed(yRound) + "</text>";
+                maxYText = mSvgTextLen(maxYText, textValStr, yTextSize, yTextType);
+                retVal += "<text x='" + (0.0 - yTickLength - yTextSpace) + "' y='" + yPos;
+                retVal += "' font-family='" + yTextType + "' font-size='" + yTextSize + "' fill='black' text-anchor='end' alignment-baseline='middle'>";
+                retVal += textValStr + "</text>";
             }
         }
     }
+    window.svgDimXStart -= yTickLength + yTextSpace + maxYText;
 
     retVal += "<line x1='0.0' y1='" + window.frameYend;
-    retVal += "' x2='" + lineXend + "' y2='" + window.frameYend + "' stroke-width='2' stroke='black' stroke-linecap='square'/>";
+    retVal += "' x2='" + lineXend + "' y2='" + window.frameYend + "' stroke-width='"
+    retVal += xAxisStroke + "' stroke='black' stroke-linecap='square'/>";
     retVal += "<line x1='0.0' y1='" + lineYst;
-    retVal += "' x2='0.0' y2='" + window.frameYend + "' stroke-width='2' stroke='black' stroke-linecap='square'/>";
+    retVal += "' x2='0.0' y2='" + window.frameYend + "' stroke-width='"
+    retVal += yAxisStroke + "' stroke='black' stroke-linecap='square'/>";
 
     return retVal;
 }
@@ -1129,16 +1223,21 @@ function fisherYates(arr) {
    }
 }
 
+function mSvgTextLen(mVal, txt, fSize, fType) {
+    return Math.max(mVal, svgTextLen(txt, fSize, fType));
+}
 
-
-
-
-
-
-
-
-
-
+function svgTextLen(txt, fSize, fType) {
+    var retVal = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='-60 -40 60 40' width='90px'>";
+    retVal += "<text id='svg-scale-helper-text' x='0' y='0' font-family='" + fType;
+    retVal += "' font-size='" + fSize + "' fill='black'>" + txt  + "</text></svg>";
+    var ele = document.getElementById("svg-scale-helper");
+    ele.innerHTML = retVal;
+    var txtEle = document.getElementById("svg-scale-helper-text");
+    var retSize = txtEle.getComputedTextLength()
+    ele.innerHTML = "";
+    return retSize;
+}
 
 
 
@@ -1285,10 +1384,22 @@ function loadModification(newSett) {
     updateKeyEl(newSett,"YAxLinLog","modYAxLinLog");
     updateKeyEl(newSett,"YAxMaxVal","modYAxMaxVal");
     updateKeyEl(newSett,"YAxMinVal","modYAxMinVal");
+    updateKeyEl(newSett,"YPlAxisStroke","modYPlAxisStroke");
+    updateKeyEl(newSett,"YPlTickStroke","modYPlTickStroke");
+    updateKeyEl(newSett,"YPlTickLength","modYPlTickLength");
+    updateKeyEl(newSett,"YPlTextSpace","modYPlTextSpace");
+    updateKeyEl(newSett,"YPlTextSize","modYPlTextSize");
+    updateKeyEl(newSett,"YPlTextType","modYPlTextType");
 
     updateKeyEl(newSett,"XAxEmptySpace","modXAxEmptySpace");
     updateKeyEl(newSett,"XAxGapBar","modXAxGapBar");
     updateKeyEl(newSett,"XAxGapGrp","modXAxGapGrp");
+    updateKeyEl(newSett,"XPlAxisStroke","modXPlAxisStroke");
+    updateKeyEl(newSett,"XPlTickStroke","modXPlTickStroke");
+    updateKeyEl(newSett,"XPlTickLength","modXPlTickLength");
+    updateKeyEl(newSett,"XPlTextSpace","modXPlTextSpace");
+    updateKeyEl(newSett,"XPlTextSize","modXPlTextSize");
+    updateKeyEl(newSett,"XPlTextType","modXPlTextType");
 
     updateKeyEl(newSett,"DotShowIt","modDotShowIt");
     updateKeyEl(newSett,"DotPlacingMethod","modDotPlacingMethod");
@@ -1313,657 +1424,6 @@ function updateMod(ele, hashId) {
         window.modifySettings[hashId] = mEle.value;
     }
     showSVG();
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// TODO client-side validation
-function createServerRdml() {
-    if (window.resultTab == []) {
-        alert("Not sufficient data to create an RDML file.")
-        return;
-    }
-    var content = "";
-    for (var i = 0 ; i < window.resultTab.length ; i++) {
-        for (var k = 0 ; k < window.resultTab[i].length ; k++) {
-            content += window.resultTab[i][k] + "\t"
-        }
-        content = content.replace(/\t$/g, "\n");
-    }
-
-    const formData = new FormData()
-    formData.append('createFromTableShaper', 'createFromTableShaper')
-    formData.append('experimentID', getSaveHtmlData('inExperimentID'))
-    formData.append('runID', getSaveHtmlData('inRunID'))
-    formData.append('pcrFormat_columns', getSaveHtmlData('inRunPcrFormat_columns'))
-    formData.append('pcrFormat_columnLabel', getSaveHtmlData('inRunPcrFormat_columnLabel'))
-    formData.append('pcrFormat_rows', getSaveHtmlData('inRunPcrFormat_rows'))
-    formData.append('pcrFormat_rowLabel', getSaveHtmlData('inRunPcrFormat_rowLabel'))
-    formData.append('tableDataFormat', getSaveHtmlData('modReformatAmpMelt'))
-    formData.append('tableData', content)
-
-    var section = document.getElementById('download-section')
-    section.innerHTML = ""
-
-    hideElement(resultError)
-    showElement(resultInfo)
-
-    axios
-        .post(`${API_URL}/data`, formData)
-        .then(res => {
-	        if (res.status === 200) {
-                var uuid = res.data.data.uuid
-                hideElement(resultInfo)
-
-                if (res.data.data.hasOwnProperty("error")) {
-                    showElement(resultError)
-                    var err = '<i class="fas fa-fire"></i>\n<span id="error-message">'
-                    err += res.data.data.error + '</span>'
-                    resultError.innerHTML = err
-                } else {
-                    var ret = '<br /><p>Go to RDML-edit:<br />'
-                    ret += '<a href="' + `${API_LINK}` + "edit.html?UUID=" + uuid + '" target="_blank" id="download-link">'
-                    ret += `${API_LINK}` + "edit.html?UUID=" + uuid + '</a> (valid for 3 days)\n</p>\n'
-                    section.innerHTML = ret
-
-                    var elem = document.getElementById('download-link')
-                    elem.click()
-
-                    hideElement(resultError)
-                }
-            }
-        })
-        .catch(err => {
-            let errorMessage = err
-            if (err.response) {
-                errorMessage = err.response.data.errors
-               .map(error => error.title)
-               .join('; ')
-            }
-            hideElement(resultInfo)
-            showElement(resultError)
-            var err = '<i class="fas fa-fire"></i>\n<span id="error-message">'
-            err += errorMessage + '</span>'
-            resultError.innerHTML = err
-        })
-}
-
-
-
-
-
-
-
-window.updateModification = updateModification;
-function updateModification() {
-    window.modifySettings["settingsID"] = document.getElementById('modSetName').value;
-    window.modifySettings["reformatAmpMelt"] = document.getElementById('modReformatAmpMelt').value;
-    window.modifySettings["reformatTableShape"] = document.getElementById('modReformatTableShape').value;
-    window.modifySettings["fluorDelColStart"] = parseInt(document.getElementById('modDelColStart').value);
-    window.modifySettings["fluorDelRowStart"] = parseInt(document.getElementById('modDelRowStart').value);
-    window.modifySettings["fluorDelOtherRow"] = parseInt(document.getElementById('modDelOtherRow').value);
-    window.modifySettings["fluorDelColEnd"] = parseInt(document.getElementById('modDelColEnd').value);
-    window.modifySettings["fluorDelRowEnd"] = parseInt(document.getElementById('modDelRowEnd').value);
-    window.modifySettings["fluorCommaDot"] = document.getElementById("modCommaDot").checked;
-
-    window.modifySettings["exFluorCol"] = parseInt(document.getElementById('modExFluorCol').value);
-    window.modifySettings["exCycRow"] = parseInt(document.getElementById('modExCycRow').value);
-    window.modifySettings["exCycRowRegEx"] = document.getElementById('modExCycRowRegEx').value;
-    window.modifySettings["exCycCol"] = parseInt(document.getElementById('modExCycCol').value);
-    window.modifySettings["exCycColRegEx"] = document.getElementById('modExCycColRegEx').value;
-    window.modifySettings["exWellCol"] = parseInt(document.getElementById('modExWellCol').value);
-    window.modifySettings["exWellRegEx"] = document.getElementById('modExWellRegEx').value;
-    window.modifySettings["exSamCol"] = parseInt(document.getElementById('modExSamCol').value);
-    window.modifySettings["exSamRegEx"] = document.getElementById('modExSamRegEx').value;
-    window.modifySettings["exSamTypeCol"] = parseInt(document.getElementById('modExSamTypeCol').value);
-    window.modifySettings["exSamTypeRegEx"] = document.getElementById('modExSamTypeRegEx').value;
-    window.modifySettings["exTarCol"] = parseInt(document.getElementById('modExTarCol').value);
-    window.modifySettings["exTarRegEx"] = document.getElementById('modExTarRegEx').value;
-    window.modifySettings["exTarTypeCol"] = parseInt(document.getElementById('modExTarTypeCol').value);
-    window.modifySettings["exTarTypeRegEx"] = document.getElementById('modExTarTypeRegEx').value;
-    window.modifySettings["exDyeCol"] = parseInt(document.getElementById('modExDyeCol').value);
-    window.modifySettings["exDyeRegEx"] = document.getElementById('modExDyeRegEx').value;
-    window.modifySettings["exTrueCol"] = parseInt(document.getElementById('modExTrueCol').value);
-    window.modifySettings["exTrueRegEx"] = document.getElementById('modExTrueRegEx').value;
-
-    // Show the table or the list form elements
-    var clElem = document.getElementsByClassName('table-list-only');
-    var liElem = document.getElementsByClassName('table-table-only');
-    if (window.modifySettings["reformatTableShape"] == "create") {
-        for (var i = 0; i < clElem.length; i++) {
-            clElem[i].style.display = "inline";
-        }
-        for (var i = 0; i < liElem.length; i++) {
-            liElem[i].style.display = "none";
-        }
-    } else {
-        for (var i = 0; i < clElem.length; i++) {
-            clElem[i].style.display = "none";
-        }
-        for (var i = 0; i < liElem.length; i++) {
-            liElem[i].style.display = "inline";
-        }
-    }
-
-    var preTab = window.inputFile.split("\n");
-    var tab = [];
-    for (var i = 0 ; i < preTab.length ; i++) {
-        tab.push(preTab[i].split(window.inputSeparator));
-    }
-
-    // Flip the table if required
-    if (window.modifySettings["reformatTableShape"] == "flip") {
-        var maxXCount = 0;
-        for (var i = 0 ; i < tab.length ; i++) {
-            if (maxXCount < tab[i].length) {
-                maxXCount = tab[i].length;
-            }
-        }
-        var ntab = [];
-        for (var c = 0 ; c < maxXCount ; c++) {
-            ntab[c] = [];
-            for (var r = 0 ; r < tab.length ; r++) {
-                if (c < tab[r].length ) {
-                    ntab[c][r] = tab[r][c];
-                }
-            }
-        }
-        tab = ntab;
-    }
-
-    // Leave rows at the start or end out
-    var minRowNr = 0;
-    if (window.modifySettings["fluorDelRowStart"] > 0) {
-         minRowNr = window.modifySettings["fluorDelRowStart"];
-    }
-    var maxRowNr = tab.length;
-    if ((window.modifySettings["fluorDelRowEnd"] > 1) && (window.modifySettings["fluorDelRowEnd"] < tab.length)) {
-         maxRowNr = window.modifySettings["fluorDelRowEnd"];
-    }
-
-    // Draw the reshaped table
-    reshapeTableView.innerHTML = drawHtmlTable(tab, false)
-
-    // Finally extract the information
-    var ftab = [["Well", "Sample", "Sample Type", "Target", "Target Type", "Dye"]];
-
-    var trueColRe = new RegExp(window.modifySettings["exTrueRegEx"]);
-    var trueCol = window.modifySettings["exTrueCol"] - 1;
-
-    if (window.modifySettings["reformatTableShape"] != "create") {
-        // This is the regular table transformation
-        // Insert columns and extract the fluorescence data
-        var jumpStep = 1;
-        if (window.modifySettings["fluorDelOtherRow"] > 0) {
-            jumpStep = window.modifySettings["fluorDelOtherRow"] + 1 ;
-        }
-        // Fill the array used to exclude lines
-        var exclFromTable = {}
-        if (trueCol >= 0) {
-            for (var r = minRowNr ; r < maxRowNr ; r += jumpStep) {
-                if (trueColRe.test(tab[r][trueCol])) {
-                    exclFromTable[r] = true;
-                } else {
-                    exclFromTable[r] = false;
-                }
-            }
-        } else {
-            exclFromTable[r] = false;
-        }
-
-        var realRowNr = 0;
-        for (var r = minRowNr ; r < maxRowNr ; r += jumpStep) {
-            if (exclFromTable[r]) {
-                continue;
-            }
-            realRowNr++;
-            ftab[realRowNr] = ["", "", "unkn", "", "toi", "unkn_dye"];
-            var minColNr = 0;
-            if (window.modifySettings["fluorDelColStart"] > 0) {
-                 minColNr = window.modifySettings["fluorDelColStart"];
-            }
-            var maxColNr = tab[r].length;
-            if ((window.modifySettings["fluorDelColEnd"] > 1) &&
-                (window.modifySettings["fluorDelColEnd"] < tab[r].length)) {
-                 maxColNr = window.modifySettings["fluorDelColEnd"];
-            }
-            var realColNr = 5;
-            for (var c = minColNr ; c < maxColNr ; c++) {
-                realColNr++;
-                if (window.modifySettings["fluorCommaDot"] == true) {
-                    if (tab[r][c].match(/,/) != null) {
-                        var resVal = tab[r][c].replace(/\./g, "");;
-                        ftab[realRowNr][realColNr] = resVal.replace(/,/g, ".");;
-                    } else {
-                        ftab[realRowNr][realColNr] = tab[r][c];
-                    }
-                } else {
-                    ftab[realRowNr][realColNr] = tab[r][c];
-                }
-            }
-        }
-        // Insert extracted data
-        // Cycle information from row
-        if (window.modifySettings["exCycRow"] > 0) {
-            var cycRowRe = new RegExp(window.modifySettings["exCycRowRegEx"]);
-            var fRow = window.modifySettings["exCycRow"] - 1;
-            var minColNr = 0;
-            if (window.modifySettings["fluorDelColStart"] > 0) {
-                 minColNr = window.modifySettings["fluorDelColStart"];
-            }
-            var maxColNr = tab[fRow].length;
-            if ((window.modifySettings["fluorDelColEnd"] > 1) &&
-                (window.modifySettings["fluorDelColEnd"] < tab[fRow].length)) {
-                 maxColNr = window.modifySettings["fluorDelColEnd"];
-            }
-            var realColNr = 5;
-            for (var c = minColNr ; c < maxColNr ; c++) {
-                realColNr++;
-                var fluorVal = "";
-                if (cycRowRe.test(tab[fRow][c])) {
-                    var match = cycRowRe.exec(tab[fRow][c]);
-                    fluorVal = match[1];
-                    if (window.modifySettings["fluorCommaDot"] == true) {
-                        if (match[1].match(/,/) != null) {
-                            var resVal = fluorVal.replace(/\./g, "");;
-                            fluorVal = resVal.replace(/,/g, ".");
-                        }
-                    }
-                    if (window.modifySettings["reformatAmpMelt"] == "amp") {
-                        fluorVal = Math.ceil(parseFloat(fluorVal));
-                    }
-                }
-                ftab[0][realColNr] = fluorVal;
-            }
-        }
-        // Well information
-        if (window.modifySettings["exWellCol"] > 0) {
-            var wellColRe = new RegExp(window.modifySettings["exWellRegEx"]);
-            var wellCol = window.modifySettings["exWellCol"] - 1;
-            realRowNr = 0;
-            for (var r = minRowNr ; r < maxRowNr ; r += jumpStep) {
-                if (exclFromTable[r]) {
-                    continue;
-                }
-                realRowNr++;
-                if (wellColRe.test(tab[r][wellCol])) {
-                    var match = wellColRe.exec(tab[r][wellCol]);
-                    ftab[realRowNr][0] = match[1];
-                } else {
-                    ftab[realRowNr][0] = "";
-                }
-            }
-        }
-        // Sample information
-        if (window.modifySettings["exSamCol"] > 0) {
-            var samColRe = new RegExp(window.modifySettings["exSamRegEx"]);
-            var samCol = window.modifySettings["exSamCol"] - 1;
-            realRowNr = 0;
-            for (var r = minRowNr ; r < maxRowNr ; r += jumpStep) {
-                if (exclFromTable[r]) {
-                    continue;
-                }
-                realRowNr++;
-                if (samColRe.test(tab[r][samCol])) {
-                    var match = samColRe.exec(tab[r][samCol]);
-                    ftab[realRowNr][1] = match[1];
-                } else {
-                    ftab[realRowNr][1] = "";
-                }
-            }
-        }
-        // Sample Type information
-        if (window.modifySettings["exSamTypeCol"] > 0) {
-            var samTypeColRe = new RegExp(window.modifySettings["exSamTypeRegEx"]);
-            var samTypeCol = window.modifySettings["exSamTypeCol"] - 1;
-            realRowNr = 0;
-            for (var r = minRowNr ; r < maxRowNr ; r += jumpStep) {
-                if (exclFromTable[r]) {
-                    continue;
-                }
-                realRowNr++;
-                if (samTypeColRe.test(tab[r][samTypeCol])) {
-                    var match = samTypeColRe.exec(tab[r][samTypeCol]);
-                    ftab[realRowNr][2] = match[1];
-                } else {
-                    ftab[realRowNr][2] = "";
-                }
-            }
-        }
-
-        // Target information
-        if (window.modifySettings["exTarCol"] > 0) {
-            var tarColRe = new RegExp(window.modifySettings["exTarRegEx"]);
-            var tarCol = window.modifySettings["exTarCol"] - 1;
-            realRowNr = 0;
-            for (var r = minRowNr ; r < maxRowNr ; r += jumpStep) {
-                if (exclFromTable[r]) {
-                    continue;
-                }
-                realRowNr++;
-                if (tarColRe.test(tab[r][tarCol])) {
-                    var match = tarColRe.exec(tab[r][tarCol]);
-                    ftab[realRowNr][3] = match[1];
-                } else {
-                    ftab[realRowNr][3] = "";
-                }
-            }
-        }
-        // Target Type information
-        if (window.modifySettings["exTarTypeCol"] > 0) {
-            var tarTypeColRe = new RegExp(window.modifySettings["exTarTypeRegEx"]);
-            var tarTypeCol = window.modifySettings["exTarTypeCol"] - 1;
-            realRowNr = 0;
-            for (var r = minRowNr ; r < maxRowNr ; r += jumpStep) {
-                if (exclFromTable[r]) {
-                    continue;
-                }
-                realRowNr++;
-                if (tarTypeColRe.test(tab[r][tarTypeCol])) {
-                    var match = tarTypeColRe.exec(tab[r][tarTypeCol]);
-                    ftab[realRowNr][4] = match[1];
-                } else {
-                    ftab[realRowNr][4] = "";
-                }
-            }
-        }
-        // Dye information
-        if (window.modifySettings["exDyeCol"] > 0) {
-            var dyeColRe = new RegExp(window.modifySettings["exDyeRegEx"]);
-            var dyeCol = window.modifySettings["exDyeCol"] - 1;
-            realRowNr = 0;
-            for (var r = minRowNr ; r < maxRowNr ; r += jumpStep) {
-                if (exclFromTable[r]) {
-                    continue;
-                }
-                realRowNr++;
-                if (dyeColRe.test(tab[r][dyeCol])) {
-                    var match = dyeColRe.exec(tab[r][dyeCol]);
-                    ftab[realRowNr][5] = match[1];
-                } else {
-                    ftab[realRowNr][5] = "";
-                }
-            }
-        }
-    } else {
-        // This is a one row is one fluorescence data (the create) version
-        var cycCount = 0;
-        var wellCount = 0;
-        var cycLookUp = {};
-        var wellLookUp = {};
-        var cycColRe = new RegExp(window.modifySettings["exCycColRegEx"]);
-        var cycCol = window.modifySettings["exCycCol"] - 1;
-        var wellColRe = new RegExp(window.modifySettings["exWellRegEx"]);
-        var wellCol = window.modifySettings["exWellCol"] - 1;
-        var fluorCol = window.modifySettings["exFluorCol"] - 1;
-        var samColRe = new RegExp(window.modifySettings["exSamRegEx"]);
-        var samTypeColRe = new RegExp(window.modifySettings["exSamTypeRegEx"]);
-        var samTypeCol = window.modifySettings["exSamTypeCol"] - 1;
-        var tarColRe = new RegExp(window.modifySettings["exTarRegEx"]);
-        var tarTypeColRe = new RegExp(window.modifySettings["exTarTypeRegEx"]);
-        var dyeColRe = new RegExp(window.modifySettings["exDyeRegEx"]);
-        for (var r = minRowNr ; r < maxRowNr ; r++) {
-            if (trueColRe.test(tab[r][trueCol])) {
-                continue;
-            }
-            var matchCyc = cycColRe.exec(tab[r][cycCol]);
-            var cycVal = matchCyc[1];
-            var matchWell = wellColRe.exec(tab[r][wellCol]);
-            var wellVal = matchWell[1];
-            if (cycLookUp.hasOwnProperty(cycVal) != true) {
-                cycLookUp[cycVal] = cycCount + 6;
-                var cycWriteVal = cycVal;
-                if (window.modifySettings["reformatAmpMelt"] == "amp") {
-                    cycWriteVal = Math.ceil(parseFloat(cycWriteVal));
-                }
-                ftab[0][cycLookUp[cycVal]] = cycWriteVal;
-                cycCount++;
-            }
-            if (wellLookUp.hasOwnProperty(wellVal) != true) {
-                wellLookUp[wellVal] = wellCount + 1;
-                ftab[wellLookUp[wellVal]] = [wellVal, "", "unkn", "", "toi", "unkn_dye"];
-                wellCount++;
-            }
-            // Sample information
-            if (window.modifySettings["exSamCol"] > 0) {
-                var samCol = window.modifySettings["exSamCol"] - 1;
-                var match = samColRe.exec(tab[r][samCol]);
-                ftab[wellLookUp[wellVal]][1] = match[1];
-            }
-            // Sample Type information
-            if (window.modifySettings["exSamTypeCol"] > 0) {
-                var samTypeCol = window.modifySettings["exSamTypeCol"] - 1;
-                var match = samTypeColRe.exec(tab[r][samTypeCol]);
-                ftab[wellLookUp[wellVal]][2] = match[1];
-            }
-
-            // Target information
-            if (window.modifySettings["exTarCol"] > 0) {
-                var tarCol = window.modifySettings["exTarCol"] - 1;
-                var match = tarColRe.exec(tab[r][tarCol]);
-                ftab[wellLookUp[wellVal]][3] = match[1];
-            }
-            // Target Type information
-            if (window.modifySettings["exTarTypeCol"] > 0) {
-                var tarTypeCol = window.modifySettings["exTarTypeCol"] - 1;
-                var match = tarTypeColRe.exec(tab[r][tarTypeCol]);
-                ftab[wellLookUp[wellVal]][4] = match[1];
-            }
-            // Dye information
-            if (window.modifySettings["exDyeCol"] > 0) {
-                var dyeCol = window.modifySettings["exDyeCol"] - 1;
-                var match = dyeColRe.exec(tab[r][dyeCol]);
-                ftab[wellLookUp[wellVal]][5] = match[1];
-            }
-            // Fluorescence values
-            var fluorVal = tab[r][fluorCol];
-            if (window.modifySettings["fluorCommaDot"] == true) {
-                if (tab[r][fluorCol].match(/,/) != null) {
-                    var resVal = tab[r][fluorCol].replace(/\./g, "");
-                    fluorVal = resVal.replace(/,/g, ".");;
-                }
-            }
-            ftab[wellLookUp[wellVal]][cycLookUp[cycVal]] = fluorVal;
-        }
-    }
-
-    // Remove empty rows
-    var wordChar = /\w/;
-    for (var r = ftab.length - 1 ; r > 0 ; r--) {
-        var rowCount = false;
-        // It has to have fluorescence data
-        for (var c = 6 ; c < ftab[r].length ; c++) {
-            if (wordChar.test(ftab[r][c])) {
-                rowCount = true;
-            }
-        }
-        if (rowCount == false) {
-            ftab.splice(r,1);
-        }
-    }
-
-    // Remove empty colums
-    var maxCol = 0;
-    for (var r = 0 ; r < ftab.length ; r++) {
-        if (maxCol < ftab[r].length) {
-            maxCol = ftab[r].length;
-        }
-    }
-    for (var c = maxCol - 1 ; c >= 0 ; c--) {
-        var colCount = false;
-        for (var r = 0 ; r < ftab.length ; r++) {
-            if ((c < ftab[r].length) && (wordChar.test(ftab[r][c]))) {
-                colCount = true;
-            }
-        }
-        if (colCount == false) {
-            for (var r = 0 ; r < ftab.length ; r++) {
-                if (c < ftab[r].length) {
-                    ftab[r].splice(c,1);
-                }
-            }
-        }
-    }
-
-    window.resultTab = ftab;
-    updateExport();
-}
-
-window.selCompSelection = selCompSelection;
-function selCompSelection() {
-    var modSel = document.getElementById('inCompSelection').value;
-    if ((modSel != "2") && (modSel != "4")) {
-        document.getElementById('idCompText').style.display = "inline";
-        document.getElementById('idCompSamType').style.display = "none";
-        document.getElementById('idCompTarType').style.display = "none";
-    } else {
-        document.getElementById('idCompText').style.display = "none";
-        if (modSel == "2") {
-            document.getElementById('idCompSamType').style.display = "inline";
-            document.getElementById('idCompTarType').style.display = "none";
-        }
-        if (modSel == "4") {
-            document.getElementById('idCompSamType').style.display = "none";
-            document.getElementById('idCompTarType').style.display = "inline";
-        }
-    }
-}
-
-window.compResTable = compResTable;
-function compResTable() {
-    var modSel = document.getElementById('inCompSelection').value;
-    var startAll = document.getElementById('inCompStart').value;
-    var endAll = document.getElementById('inCompEnd').value;
-    var letterNumberRe = /([A-Za-z])([0-9]+)/;
-    var onlyNumberRe = /([0-9]+)/;
-    var startLetter = null;
-    var startNumber = null;
-    var endLetter = null;
-    var endNumber = null;
-    if (letterNumberRe.test(startAll)) {
-        var match = letterNumberRe.exec(startAll);
-        startLetter = match[1];
-        startNumber = parseInt(match[2]);
-    } else if (onlyNumberRe.test(startAll)) {
-        var match = onlyNumberRe.exec(startAll);
-        startNumber = parseInt(match[1]);
-    }
-    if (letterNumberRe.test(endAll)) {
-        var match = letterNumberRe.exec(endAll);
-        endLetter = match[1];
-        endNumber = parseInt(match[2]);
-    } else if (onlyNumberRe.test(endAll)) {
-        var match = onlyNumberRe.exec(endAll);
-        endNumber = parseInt(match[1]);
-    } else {
-        // Only the one element at start
-        if ((startNumber != null) || (startLetter != null)) {
-        endLetter = startLetter;
-        endNumber = startNumber;
-        }
-    }
-
-    for (var r = 1 ; r < window.resultTab.length ; r++) {
-        var repText = document.getElementById('inCompText').value;
-        if (modSel == "2") {
-            repText = document.getElementById('inCompSamType').value;
-        }
-        if (modSel == "4") {
-            repText = document.getElementById('inCompTarType').value;
-        }
-        var well = window.resultTab[r][0];
-        var wellLetter = null;
-        var wellNumber = null;
-        if (letterNumberRe.test(well)) {
-            var match = letterNumberRe.exec(well);
-            wellLetter = match[1];
-            wellNumber = parseInt(match[2]);
-        } else if (onlyNumberRe.test(well)) {
-            var match = onlyNumberRe.exec(well);
-            wellNumber = parseInt(match[1]);
-        }
-        if (((startLetter == null) && (startNumber == null) && (endLetter == null) && (endNumber == null)) ||
-            ((wellLetter == null) && (wellNumber >= startNumber) && (wellNumber <= endNumber)) ||
-            ((wellLetter.charCodeAt(0) >= startLetter.charCodeAt(0)) &&
-             (wellLetter.charCodeAt(0) <= endLetter.charCodeAt(0)) &&
-             (wellNumber >= startNumber) &&
-             (wellNumber <= endNumber))) {
-            if ((repText == "") && (modSel == "1")) {
-                repText = "Sample " + r;
-            }
-            if ((repText == "") && (modSel == "3")) {
-                repText = "Target " + r;
-            }
-            window.resultTab[r][modSel] = repText;
-        }
-    }
-
-    updateExport();
-}
-
-window.updateExport = updateExport;
-function updateExport() {
-    exportTableView.innerHTML = drawHtmlTable(window.resultTab, true)
-
-}
-
-// Select Rotor
-window.selPlate_Rotor = selPlate_Rotor;
-function selPlate_Rotor(){
-    var col = document.getElementById('inRunPcrFormat_columns');
-    col.value = "1"
-    var colLab = document.getElementById('inRunPcrFormat_columnLabel');
-    colLab.value = "123"
-    var row = document.getElementById('inRunPcrFormat_rows');
-    row.value = "Enter maximal number of rotor positions here."
-    var rowLab = document.getElementById('inRunPcrFormat_rowLabel');
-    rowLab.value = "123"
-    return;
-}
-
-// Select 96 Well Plate
-window.selPlate_96_Well = selPlate_96_Well;
-function selPlate_96_Well(){
-    var col = document.getElementById('inRunPcrFormat_columns');
-    col.value = "12"
-    var colLab = document.getElementById('inRunPcrFormat_columnLabel');
-    colLab.value = "123"
-    var row = document.getElementById('inRunPcrFormat_rows');
-    row.value = "8"
-    var rowLab = document.getElementById('inRunPcrFormat_rowLabel');
-    rowLab.value = "ABC"
-    return;
-}
-
-// Select 384 Well Plate
-window.selPlate_384_Well = selPlate_384_Well;
-function selPlate_384_Well(){
-    var col = document.getElementById('inRunPcrFormat_columns');
-    col.value = "24"
-    var colLab = document.getElementById('inRunPcrFormat_columnLabel');
-    colLab.value = "123"
-    var row = document.getElementById('inRunPcrFormat_rows');
-    row.value = "16"
-    var rowLab = document.getElementById('inRunPcrFormat_rowLabel');
-    rowLab.value = "ABC"
-    return;
 }
 
 $('#mainTab a').on('click', function(e) {

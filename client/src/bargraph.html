@@ -230,6 +230,42 @@
                   <input type="text" class="form-control" id="modYAxMinVal" onchange="updateMod('modYAxMinVal', 'YAxMinVal')" value="">
                 </td>
               </tr>
+              <tr>
+                <td style="width:25%;">Axis Line Strength:</td>
+                <td style="width:75%">
+                  <input type="text" class="form-control" id="modYPlAxisStroke" onchange="updateMod('modYPlAxisStroke', 'YPlAxisStroke')" value="">
+                </td>
+              </tr>
+              <tr>
+                <td style="width:25%;">Tick Line Strength:</td>
+                <td style="width:75%">
+                  <input type="text" class="form-control" id="modYPlTickStroke" onchange="updateMod('modYPlTickStroke', 'YPlTickStroke')" value="">
+                </td>
+              </tr>
+              <tr>
+                <td style="width:25%;">Tick Line Length:</td>
+                <td style="width:75%">
+                  <input type="text" class="form-control" id="modYPlTickLength" onchange="updateMod('modYPlTickLength', 'YPlTickLength')" value="">
+                </td>
+              </tr>
+              <tr>
+                <td style="width:25%;">Space to Text:</td>
+                <td style="width:75%">
+                  <input type="text" class="form-control" id="modYPlTextSpace" onchange="updateMod('modYPlTextSpace', 'YPlTextSpace')" value="">
+                </td>
+              </tr>
+              <tr>
+                <td style="width:25%;">Text Size:</td>
+                <td style="width:75%">
+                  <input type="text" class="form-control" id="modYPlTextSize" onchange="updateMod('modYPlTextSize', 'YPlTextSize')" value="">
+                </td>
+              </tr>
+              <tr>
+                <td style="width:25%;">Font Type:</td>
+                <td style="width:75%">
+                  <input type="text" class="form-control" id="modYPlTextType" onchange="updateMod('modYPlTextType', 'YPlTextType')" value="">
+                </td>
+              </tr>
              </table>
             <br />
           </div>
@@ -259,6 +295,42 @@
                 <td style="width:25%;">Gap Width between Groups (additional):</td>
                 <td style="width:75%">
                   <input type="text" class="form-control" id="modXAxGapGrp" onchange="updateMod('modXAxGapGrp', 'XAxGapGrp')" value="">
+                </td>
+              </tr>
+              <tr>
+                <td style="width:25%;">Axis Line Strength:</td>
+                <td style="width:75%">
+                  <input type="text" class="form-control" id="modXPlAxisStroke" onchange="updateMod('modXPlAxisStroke', 'XPlAxisStroke')" value="">
+                </td>
+              </tr>
+              <tr>
+                <td style="width:25%;">Tick Line Strength:</td>
+                <td style="width:75%">
+                  <input type="text" class="form-control" id="modXPlTickStroke" onchange="updateMod('modXPlTickStroke', 'XPlTickStroke')" value="">
+                </td>
+              </tr>
+              <tr>
+                <td style="width:25%;">Tick Line Length:</td>
+                <td style="width:75%">
+                  <input type="text" class="form-control" id="modXPlTickLength" onchange="updateMod('modXPlTickLength', 'XPlTickLength')" value="">
+                </td>
+              </tr>
+              <tr>
+                <td style="width:25%;">Space to Text:</td>
+                <td style="width:75%">
+                  <input type="text" class="form-control" id="modXPlTextSpace" onchange="updateMod('modXPlTextSpace', 'XPlTextSpace')" value="">
+                </td>
+              </tr>
+              <tr>
+                <td style="width:25%;">Text Size:</td>
+                <td style="width:75%">
+                  <input type="text" class="form-control" id="modXPlTextSize" onchange="updateMod('modXPlTextSize', 'XPlTextSize')" value="">
+                </td>
+              </tr>
+              <tr>
+                <td style="width:25%;">Font Type:</td>
+                <td style="width:75%">
+                  <input type="text" class="form-control" id="modXPlTextType" onchange="updateMod('modXPlTextType', 'XPlTextType')" value="">
                 </td>
               </tr>
              </table>
@@ -451,6 +523,8 @@
       </div>
     </div>
   </footer>
+
+  <div id="svg-scale-helper"></div>  <!-- Must be always visible and rendered to allow text length calculation -->
 
   <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
