@@ -70,6 +70,10 @@ window.modifySettings["YPlTickLength"] = "7.0";
 window.modifySettings["YPlTextSpace"] = "6.0";
 window.modifySettings["YPlTextSize"] = "10.0";
 window.modifySettings["YPlTextType"] = "Arial";
+window.modifySettings["YPlDescText"] = "";
+window.modifySettings["YPlDescSpace"] = "12.0";
+window.modifySettings["YPlDescSize"] = "14.0";
+window.modifySettings["YPlDescType"] = "Arial";
 
 window.modifySettings["XAxEmptySpace"] = "y";
 window.modifySettings["XAxGapBar"] = "0.5";
@@ -81,6 +85,11 @@ window.modifySettings["XPlTextSpace"] = "6.0";
 window.modifySettings["XPlTextSize"] = "10.0";
 window.modifySettings["XPlTextType"] = "Arial";
 
+window.modifySettings["ErrShowIt"] = "y";
+window.modifySettings["ErrShape"] = "both";
+window.modifySettings["ErrTickStroke"] = "1.5";
+window.modifySettings["ErrTickLength"] = "6.0";
+
 window.modifySettings["DotShowIt"] = "y";
 window.modifySettings["DotPlacingMethod"] = "comp-asc";
 window.modifySettings["DotSize"] = "2.0";
@@ -90,6 +99,10 @@ window.modifySettings["DotColor"] = "#FFFFFF";
 window.modifySettings["GraphHeight"] = "6.0";
 window.modifySettings["GraphWidth"] = "9.0";
 window.modifySettings["GraphCmInch"] = "cm";
+window.modifySettings["GraphTitlText"] = "";
+window.modifySettings["GraphTitlSpace"] = "18.0";
+window.modifySettings["GraphTitlSize"] = "24.0";
+window.modifySettings["GraphTitlType"] = "Arial";
 
 
 document.addEventListener("DOMContentLoaded", function() {
@@ -580,7 +593,9 @@ function createSVG() {
     if (window.modifySettings["DotShowIt"] == "y") {
         retVal += createDots();
     }
-    retVal += createErrorBars();
+    if (window.modifySettings["ErrShowIt"] == "y") {
+        retVal += createErrorBars();
+    }
     retVal += createCoordinates();
     retVal += "</svg>";
 
@@ -892,6 +907,47 @@ function createCoordinates () {
     }
     window.svgDimXStart -= yTickLength + yTextSpace + maxYText;
 
+    if (window.modifySettings["YPlDescText"] != "") {
+        var descSpace = 8.0;
+        var descSize = 16.0;
+        var descType = "Arial";
+        if (isFinite(parseFloat(window.modifySettings["YPlDescSpace"]))) {
+            descSpace = parseFloat(window.modifySettings["YPlDescSpace"]);
+        }
+        if (isFinite(parseFloat(window.modifySettings["YPlDescSize"]))) {
+            descSize = parseFloat(window.modifySettings["YPlDescSize"]);
+        }
+        if (window.modifySettings["YPlDescType"] != "") {
+            descType = window.modifySettings["YPlDescType"];
+        }
+        retVal += "<text x='0.0' y='0.0' font-family='" + descType + "' font-size='" + descSize
+        retVal += "' fill='black' text-anchor='middle' alignment-baseline='bottom' transform='translate("
+        retVal += (window.svgDimXStart - descSpace) + ", " + (window.frameYend / 2.0) + ") rotate(-90)'>";
+        retVal += window.modifySettings["YPlDescText"] + "</text>";
+        window.svgDimXStart -= descSpace + descSize;
+    }
+
+    if (window.modifySettings["GraphTitlText"] != "") {
+        var titleSpace = 8.0;
+        var titleSize = 16.0;
+        var titleType = "Arial";
+        if (isFinite(parseFloat(window.modifySettings["GraphTitlSpace"]))) {
+            titleSpace = parseFloat(window.modifySettings["GraphTitlSpace"]);
+        }
+        if (isFinite(parseFloat(window.modifySettings["GraphTitlSize"]))) {
+            titleSize = parseFloat(window.modifySettings["GraphTitlSize"]);
+        }
+        if (window.modifySettings["GraphTitlType"] != "") {
+            titleType = window.modifySettings["GraphTitlType"];
+        }
+        retVal += "<text x='" + ((window.svgDimXEnd + window.svgDimXStart) / 2.0)
+        retVal +=  "' y='" + (window.svgDimYStart - titleSpace);
+        retVal += "' font-family='" + titleType + "' font-size='" + titleSize
+        retVal += "' fill='black' text-anchor='middle' alignment-baseline='bottom'>";
+        retVal += window.modifySettings["GraphTitlText"] + "</text>";
+        window.svgDimYStart -= titleSpace + titleSize;
+    }
+
     retVal += "<line x1='0.0' y1='" + window.frameYend;
     retVal += "' x2='" + lineXend + "' y2='" + window.frameYend + "' stroke-width='"
     retVal += xAxisStroke + "' stroke='black' stroke-linecap='square'/>";
@@ -937,7 +993,17 @@ function createBoxes() {
 }
 
 function createErrorBars() {
-    var retVal = ""
+    var retVal = "";
+    var barStroke = 1.5;
+    var tickLength = 6.0;
+
+    if (isFinite(parseFloat(window.modifySettings["ErrTickStroke"]))) {
+        barStroke = parseFloat(window.modifySettings["ErrTickStroke"]);
+    }
+    if (isFinite(parseFloat(window.modifySettings["ErrTickLength"]))) {
+        tickLength = parseFloat(window.modifySettings["ErrTickLength"]);
+    }
+
     for (var i = 0 ; i < window.selA.length ; i++) {
         if (window.selB.length != 0) {
             for (var j = 0 ; j < window.selB.length ; j++) {
@@ -948,22 +1014,32 @@ function createErrorBars() {
                     var aver = window.sortData[window.selA[i]][window.selB[j]]["aver"]
                     var errMax = aver;
                     var errMin = aver;
-                    if (isFinite(window.sortData[window.selA[i]][window.selB[j]]["err_max"])) {
-                        errMax = aver + window.sortData[window.selA[i]][window.selB[j]]["err_max"];
+                    if ((window.modifySettings["ErrShape"] == "both") ||
+                        (window.modifySettings["ErrShape"] == "upper")) {
+                        if (isFinite(window.sortData[window.selA[i]][window.selB[j]]["err_max"])) {
+                            errMax = aver + window.sortData[window.selA[i]][window.selB[j]]["err_max"];
+                        }
                     }
-                    if (isFinite(window.sortData[window.selA[i]][window.selB[j]]["err_min"])) {
-                        errMin = aver - window.sortData[window.selA[i]][window.selB[j]]["err_min"];
+                    if ((window.modifySettings["ErrShape"] == "both") ||
+                        (window.modifySettings["ErrShape"] == "lower")) {
+                        if (isFinite(window.sortData[window.selA[i]][window.selB[j]]["err_min"])) {
+                            errMin = aver - window.sortData[window.selA[i]][window.selB[j]]["err_min"];
+                        }
                     }
                     if (errMax == errMin) {
                         continue;
                     }
-                    retVal += "<line x1='" + xPos + "' y1='" + toSvgYScale(errMin) + "' x2='" + xPos + "' y2='" + toSvgYScale(errMax) + "' style='stroke:rgb(0,0,0);stroke-width:1.0' />"
-                    if (errMax!= aver) {
-                        retVal += "<line x1='" + (xPos - 6) + "' y1='" + toSvgYScale(errMax) + "' x2='" + (xPos + 6) + "' y2='" + toSvgYScale(errMax) + "' style='stroke:rgb(0,0,0);stroke-width:1.0' />"
+                    retVal += "<line x1='" + xPos + "' y1='" + toSvgYScale(errMin) + "' x2='" + xPos + "' y2='" + toSvgYScale(errMax)
+                    retVal += "' stroke='#000000' stroke-width='" + barStroke + "' />"
+                    if ((errMax!= aver) && (parseFloat(tickLength))) {
+                        retVal += "<line x1='" + (xPos - tickLength) + "' y1='" + toSvgYScale(errMax)
+                        retVal += "' x2='" + (xPos + tickLength) + "' y2='" + toSvgYScale(errMax)
+                        retVal += "' stroke='#000000' stroke-width='" + barStroke + "' />"
                     }
-                    if (errMin != aver) {
-
-                        retVal += "<line x1='" + (xPos - 6) + "' y1='" + toSvgYScale(errMin) + "' x2='" + (xPos + 6) + "' y2='" + toSvgYScale(errMin) + "' style='stroke:rgb(0,0,0);stroke-width:1.0' />"
+                    if ((errMin != aver) && (parseFloat(tickLength))) {
+                        retVal += "<line x1='" + (xPos - tickLength) + "' y1='" + toSvgYScale(errMin)
+                        retVal += "' x2='" + (xPos + tickLength) + "' y2='" + toSvgYScale(errMin)
+                        retVal += "' stroke='#000000' stroke-width='" + barStroke + "' />"
                     }
                 }
             }
@@ -1390,6 +1466,10 @@ function loadModification(newSett) {
     updateKeyEl(newSett,"YPlTextSpace","modYPlTextSpace");
     updateKeyEl(newSett,"YPlTextSize","modYPlTextSize");
     updateKeyEl(newSett,"YPlTextType","modYPlTextType");
+    updateKeyEl(newSett,"YPlDescText","modYPlDescText");
+    updateKeyEl(newSett,"YPlDescSpace","modYPlDescSpace");
+    updateKeyEl(newSett,"YPlDescSize","modYPlDescSize");
+    updateKeyEl(newSett,"YPlDescType","modYPlDescType");
 
     updateKeyEl(newSett,"XAxEmptySpace","modXAxEmptySpace");
     updateKeyEl(newSett,"XAxGapBar","modXAxGapBar");
@@ -1401,6 +1481,11 @@ function loadModification(newSett) {
     updateKeyEl(newSett,"XPlTextSize","modXPlTextSize");
     updateKeyEl(newSett,"XPlTextType","modXPlTextType");
 
+    updateKeyEl(newSett,"ErrShowIt","modErrShowIt");
+    updateKeyEl(newSett,"ErrShape","modErrShape");
+    updateKeyEl(newSett,"ErrTickStroke","modErrTickStroke");
+    updateKeyEl(newSett,"ErrTickLength","modErrTickLength");
+
     updateKeyEl(newSett,"DotShowIt","modDotShowIt");
     updateKeyEl(newSett,"DotPlacingMethod","modDotPlacingMethod");
     updateKeyEl(newSett,"DotSize","modDotSize");
@@ -1410,11 +1495,10 @@ function loadModification(newSett) {
     updateKeyEl(newSett,"GraphHeight","modGraphHeight");
     updateKeyEl(newSett,"GraphWidth","modGraphWidth");
     updateKeyEl(newSett,"GraphCmInch","modGraphCmInch");
-
-
-//    updateKeyEl(newSett,"settingsID","modSetName");
-//    updateKeyElCheck(newSett,"fluorCommaDot","modCommaDot");
-
+    updateKeyEl(newSett,"GraphTitlText","modGraphTitlText");
+    updateKeyEl(newSett,"GraphTitlSpace","modGraphTitlSpace");
+    updateKeyEl(newSett,"GraphTitlSize","modGraphTitlSize");
+    updateKeyEl(newSett,"GraphTitlType","modGraphTitlType");
 }
 
 window.updateMod = updateMod;

@@ -266,6 +266,30 @@
                   <input type="text" class="form-control" id="modYPlTextType" onchange="updateMod('modYPlTextType', 'YPlTextType')" value="">
                 </td>
               </tr>
+              <tr>
+                <td style="width:25%;">Description:</td>
+                <td style="width:75%">
+                  <input type="text" class="form-control" id="modYPlDescText" onchange="updateMod('modYPlDescText', 'YPlDescText')" value="">
+                </td>
+              </tr>
+              <tr>
+                <td style="width:25%;">Space to Desc.:</td>
+                <td style="width:75%">
+                  <input type="text" class="form-control" id="modYPlDescSpace" onchange="updateMod('modYPlDescSpace', 'YPlDescSpace')" value="">
+                </td>
+              </tr>
+              <tr>
+                <td style="width:25%;">Desc. Size:</td>
+                <td style="width:75%">
+                  <input type="text" class="form-control" id="modYPlDescSize" onchange="updateMod('modYPlDescSize', 'YPlDescSize')" value="">
+                </td>
+              </tr>
+              <tr>
+                <td style="width:25%;">Desc. Type:</td>
+                <td style="width:75%">
+                  <input type="text" class="form-control" id="modYPlDescType" onchange="updateMod('modYPlDescType', 'YPlDescType')" value="">
+                </td>
+              </tr>
              </table>
             <br />
           </div>
@@ -331,6 +355,47 @@
                 <td style="width:25%;">Font Type:</td>
                 <td style="width:75%">
                   <input type="text" class="form-control" id="modXPlTextType" onchange="updateMod('modXPlTextType', 'XPlTextType')" value="">
+                </td>
+              </tr>
+             </table>
+            <br />
+          </div>
+        </div>
+        <br />
+        <br />
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Error Bars</h5>
+            <table style="width:100%;">
+              <tr>
+                <td style="width:25%;">Show Error Bars:</td>
+                <td style="width:75%">
+                  <select class="form-control" id="modErrShowIt" onchange="updateMod('modErrShowIt', 'ErrShowIt')">
+                    <option value="y" selected>Yes</option>
+                    <option value="n">No</option>
+                  </select>
+                </td>
+              </tr>
+              <tr>
+                <td style="width:25%;">Error Bars Shape:</td>
+                <td style="width:75%">
+                  <select class="form-control" id="modErrShape" onchange="updateMod('modErrShape', 'ErrShape')">
+                    <option value="both" selected>Upper and Lower</option>
+                    <option value="upper" selected>Upper</option>
+                    <option value="lower" selected>Lower</option>
+                  </select>
+                </td>
+              </tr>
+              <tr>
+                <td style="width:25%;">Tick Line Strength:</td>
+                <td style="width:75%">
+                  <input type="text" class="form-control" id="modErrTickStroke" onchange="updateMod('modErrTickStroke', 'ErrTickStroke')" value="">
+                </td>
+              </tr>
+              <tr>
+                <td style="width:25%;">Tick Line Length:</td>
+                <td style="width:75%">
+                  <input type="text" class="form-control" id="modErrTickLength" onchange="updateMod('modErrTickLength', 'ErrTickLength')" value="">
                 </td>
               </tr>
              </table>
@@ -412,6 +477,30 @@
                     <option value="cm" selected>Centimeter</option>
                     <option value="inch">Inch</option>
                   </select>
+                </td>
+              </tr>
+              <tr>
+                <td style="width:25%;">Title:</td>
+                <td style="width:75%">
+                  <input type="text" class="form-control" id="modGraphTitlText" onchange="updateMod('modGraphTitlText', 'GraphTitlText')" value="">
+                </td>
+              </tr>
+              <tr>
+                <td style="width:25%;">Space to Title:</td>
+                <td style="width:75%">
+                  <input type="text" class="form-control" id="modGraphTitlSpace" onchange="updateMod('modGraphTitlSpace', 'GraphTitlSpace')" value="">
+                </td>
+              </tr>
+              <tr>
+                <td style="width:25%;">Title Size:</td>
+                <td style="width:75%">
+                  <input type="text" class="form-control" id="modGraphTitlSize" onchange="updateMod('modGraphTitlSize', 'GraphTitlSize')" value="">
+                </td>
+              </tr>
+              <tr>
+                <td style="width:25%;">Title Type:</td>
+                <td style="width:75%">
+                  <input type="text" class="form-control" id="modGraphTitlType" onchange="updateMod('modGraphTitlType', 'GraphTitlType')" value="">
                 </td>
               </tr>
              </table>
