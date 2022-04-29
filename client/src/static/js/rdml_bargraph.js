@@ -643,6 +643,7 @@ function setStartStop() {
     window.xPosOrder = [];
     window.xGroupCenter = [];
     window.xPosLookUp = {};
+    window.xGroupLookUp = {};
     var addGapBar = parseFloat(window.modifySettings["XAxGapBar"]);
     var addGapGrp = parseFloat(window.modifySettings["XAxGapGrp"]);
     var barCount = 0;
@@ -685,6 +686,7 @@ function setStartStop() {
             var grpPos = (grpLast + ((barCount * (1.0 + addGapBar) + 0.5 + grpCount * addGapGrp) - grpLast) / 2.0 ) * window.frameXend / totalSize;
             grpLast = barCount * (1.0 + addGapBar) + grpCount * addGapGrp + addGapGrp
             window.xGroupCenter.push(grpPos);
+            window.xGroupLookUp[window.selA[i]] = grpPos;
             grpCount += 1;
         } else {
             if (isFinite(window.sortData[window.selA[i]]["aver"])) {
@@ -798,6 +800,13 @@ function createCoordinates () {
     var xTextSpace = 6.0;
     var xTextSize = 10.0;
     var xTextType = "Arial";
+    var xLineSpace = 12.0;
+    var xLineStroke = 2.0;
+    var xLineDelta = 0.0;
+
+    var xTextSpace2 = 12.0;
+    var xTextSize2 = 10.0;
+    var xTextType2 = "Arial";
 
     var yAxisStroke = 2.0;
     var yTickStroke = 2.0;
@@ -855,11 +864,67 @@ function createCoordinates () {
         retVal += "<line x1='" + xPos + "' y1='" + window.frameYend;
         retVal += "' x2='" + xPos + "' y2='" + (window.frameYend + xTickLength) ;
         retVal += "' stroke-width='" + xTickStroke + "' stroke='black' />";
-        retVal += "<text x='" + xPos + "' y='" + (window.frameYend + xTickLength + xTextSpace + xTextSize);
-        retVal += "' font-family='" + xTextType + "' font-size='" + xTextSize + "' fill='black' text-anchor='middle'>";
-        retVal += i  + "</text>";
     }
-    window.svgDimYEnd += xTickLength + xTextSpace + xTextSize;
+    var maxXText = 0.0;
+    var maxXText2 = 0.0;
+    var addUpSpace = 0.0;
+    for (var i = 0 ; i < window.selA.length ; i++) {
+        if (window.selB.length != 0) {
+            var grpLineStart = -1.0;
+            var grpLineEnd = -1.0;
+            for (var j = 0 ; j < window.selB.length ; j++) {
+                if ((selA[i] in window.xPosLookUp) &&
+                        (selB[j] in window.xPosLookUp[window.selA[i]]) &&
+                        (isFinite(window.sortData[window.selA[i]][window.selB[j]]["aver"]))){
+                    if (j == 0) {
+                        grpLineStart = window.xPosLookUp[window.selA[i]][window.selB[j]];
+                        grpLineEnd = grpLineStart;
+                    }
+                    if (j == window.selB.length - 1) {
+                        grpLineEnd = window.xPosLookUp[window.selA[i]][window.selB[j]];
+                    }
+                    retVal += "<text x='0.0' y='0.0' font-family='" + xTextType + "' font-size='" + xTextSize;
+                    retVal += "' fill='black' text-anchor='end' alignment-baseline='middle' transform='translate(";
+                    retVal += window.xPosLookUp[window.selA[i]][window.selB[j]] + ", "
+                    retVal += (window.frameYend + xTickLength + xTextSpace) + ") rotate(-90)'>";
+                    retVal += window.selB[j] + "</text>";
+                    maxXText = mSvgTextLen(maxXText, window.selB[j], xTextSize, xTextType);
+                }
+            }
+            var linYPos = window.frameYend + xTickLength + xTextSpace + maxXText + xLineSpace;
+            if ((grpLineStart != grpLineEnd) && (xLineStroke > 0.0)) {
+                retVal += "<line x1='" + (grpLineStart - window.xPosBarWidth) + "' y1='" + linYPos;
+                retVal += "' x2='" + (grpLineEnd + window.xPosBarWidth) + "' y2='" + linYPos;
+                retVal += "' stroke-width='" + xLineStroke + "' stroke='black' />";
+            }
+            retVal += "<text x='0.0' y='0.0' font-family='" + xTextType2 + "' font-size='" + xTextSize2;
+            retVal += "' fill='black' text-anchor='end' alignment-baseline='middle' transform='translate(";
+            retVal += window.xGroupLookUp[window.selA[i]] + ", "
+            retVal += (linYPos + xLineStroke  + xTextSpace2) + ") rotate(-90)'>";
+            retVal += window.selA[i] + "</text>";
+            maxXText2 = mSvgTextLen(maxXText2, window.selA[i], xTextSize2, xTextType2);
+            addUpSpace = xTextSpace + maxXText + xLineSpace + xLineStroke + xTextSpace2 + maxXText2;
+
+
+        } else {
+            if ((selA[i] in window.xPosLookUp)  &&
+                    (isFinite(window.sortData[window.selA[i]]["aver"]))) {
+
+                retVal += "<text x='0.0' y='0.0' font-family='" + xTextType + "' font-size='" + xTextSize;
+                retVal += "' fill='black' text-anchor='end' alignment-baseline='middle' transform='translate(";
+                retVal += window.xPosLookUp[window.selA[i]] + ", "
+                retVal += (window.frameYend + xTickLength + xTextSpace) + ") rotate(-90)'>";
+                retVal += window.selA[i] + "</text>";
+                maxXText = mSvgTextLen(maxXText, window.selA[i], xTextSize, xTextType);
+                addUpSpace = xTextSpace + maxXText;
+
+            }
+        }
+    }
+
+
+
+    window.svgDimYEnd += xTickLength + addUpSpace;
 
     // The Y-Axis
     var maxYText = 0.0;
