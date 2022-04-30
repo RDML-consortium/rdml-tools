@@ -131,14 +131,26 @@
       <div class="tab-pane" id="modify-tab">
         <div class="card">
           <div class="card-body">
-             <button type="submit" class="btn btn-outline-primary" id="btn-data-save">
-               <i class="far fa-save" style="margin-right: 5px;"></i>
-                Save Table CSV
-            </button>
+            <table style="width:100%;">
+              <tr>
+                <td style="width:50%;">
+                  <button type="submit" class="btn btn-outline-primary" id="btn-data-save">
+                    <i class="far fa-save" style="margin-right: 5px;"></i>
+                      Save Table CSV
+                  </button>
+                </td>
+                <td style="width:50%">
+                  <button type="submit" class="btn btn-outline-primary" id="btn-data-clear">
+                    <i class="fa fa-trash" style="margin-right: 5px;"></i>
+                      Delete Data
+                  </button>
+                </td>
+              </tr>
+            </table>
             <br />
             <br />
             <div class="form-group">
-              <label for="table-data-points">Data Points:</label>
+              <label for="table-data-points">Data Points (Data can be copy and pasted in here):</label>
               <textarea class="form-control" rows="10" id="table-data-points"
                   onchange="readHtmlRawData()"></textarea>
             </div> 
@@ -340,6 +352,16 @@
                 </td>
               </tr>
               <tr>
+                <td style="width:25%;">Rotate Axis Text:</td>
+                <td style="width:75%">
+                  <select class="form-control" id="modXPlAxisOrientation" onchange="updateMod('modXPlAxisOrientation', 'XPlAxisOrientation')">
+                    <option value="0">0&deg;</option>
+                    <option value="-90" selected>-90&deg;</option>
+                    <option value="90">90&deg;</option>
+                  </select>
+                </td>
+              </tr>
+              <tr>
                 <td style="width:25%;">Space to Text:</td>
                 <td style="width:75%">
                   <input type="text" class="form-control" id="modXPlTextSpace" onchange="updateMod('modXPlTextSpace', 'XPlTextSpace')" value="">
@@ -355,6 +377,52 @@
                 <td style="width:25%;">Font Type:</td>
                 <td style="width:75%">
                   <input type="text" class="form-control" id="modXPlTextType" onchange="updateMod('modXPlTextType', 'XPlTextType')" value="">
+                </td>
+              </tr>
+              <tr>
+                <td style="width:25%;">Space to Group Line:</td>
+                <td style="width:75%">
+                  <input type="text" class="form-control" id="modXPlLineSpace" onchange="updateMod('modXPlLineSpace', 'XPlLineSpace')" value="">
+                </td>
+              </tr>
+              <tr>
+                <td style="width:25%;">Group Line Strength:</td>
+                <td style="width:75%">
+                  <input type="text" class="form-control" id="modXPlLineStroke" onchange="updateMod('modXPlLineStroke', 'XPlLineStroke')" value="">
+                </td>
+              </tr>
+              <tr>
+                <td style="width:25%;">Group Line Extension:</td>
+                <td style="width:75%">
+                  <input type="text" class="form-control" id="modXPlLineDelta" onchange="updateMod('modXPlLineDelta', 'XPlLineDelta')" value="">
+                </td>
+              </tr>
+              <tr>
+                <td style="width:25%;">Rotate Axis Text 2:</td>
+                <td style="width:75%">
+                  <select class="form-control" id="modXPlAxisOrientation2" onchange="updateMod('modXPlAxisOrientation2', 'XPlAxisOrientation2')">
+                    <option value="0" selected>0&deg;</option>
+                    <option value="-90">-90&deg;</option>
+                    <option value="90">90&deg;</option>
+                  </select>
+                </td>
+              </tr>
+              <tr>
+                <td style="width:25%;">Space to Text 2:</td>
+                <td style="width:75%">
+                  <input type="text" class="form-control" id="modXPlTextSpace2" onchange="updateMod('modXPlTextSpace2', 'XPlTextSpace2')" value="">
+                </td>
+              </tr>
+              <tr>
+                <td style="width:25%;">Text 2 Size:</td>
+                <td style="width:75%">
+                  <input type="text" class="form-control" id="modXPlTextSize2" onchange="updateMod('modXPlTextSize2', 'XPlTextSize2')" value="">
+                </td>
+              </tr>
+              <tr>
+                <td style="width:25%;">Font Type 2:</td>
+                <td style="width:75%">
+                  <input type="text" class="form-control" id="modXPlTextType2" onchange="updateMod('modXPlTextType2', 'XPlTextType2')" value="">
                 </td>
               </tr>
              </table>
@@ -381,8 +449,8 @@
                 <td style="width:75%">
                   <select class="form-control" id="modErrShape" onchange="updateMod('modErrShape', 'ErrShape')">
                     <option value="both" selected>Upper and Lower</option>
-                    <option value="upper" selected>Upper</option>
-                    <option value="lower" selected>Lower</option>
+                    <option value="upper">Upper</option>
+                    <option value="lower">Lower</option>
                   </select>
                 </td>
               </tr>
@@ -422,11 +490,11 @@
                 <td style="width:75%">
                   <select class="form-control" id="modDotPlacingMethod" onchange="updateMod('modDotPlacingMethod', 'DotPlacingMethod')">
                     <option value="comp-asc" selected>Compactswarm - Ascending</option>
-                    <option value="comp-rand" selected>Compactswarm - Random</option>
-                    <option value="comp-desc" selected>Compactswarm - Descending</option>
-                    <option value="swarm-asc" selected>Swarm - Ascending</option>
-                    <option value="swarm-rand" selected>Swarm - Random</option>
-                    <option value="swarm-desc" selected>Swarm - Descending</option>
+                    <option value="comp-rand">Compactswarm - Random</option>
+                    <option value="comp-desc">Compactswarm - Descending</option>
+                    <option value="swarm-asc">Swarm - Ascending</option>
+                    <option value="swarm-rand">Swarm - Random</option>
+                    <option value="swarm-desc">Swarm - Descending</option>
                   </select>
                 </td>
               </tr>

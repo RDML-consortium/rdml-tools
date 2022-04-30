@@ -12,6 +12,9 @@ exampleButton.addEventListener('click', showExample)
 const saveDataButton = document.getElementById('btn-data-save')
 saveDataButton.addEventListener('click', saveDataTable)
 
+const clearDataButton = document.getElementById('btn-data-clear')
+clearDataButton.addEventListener('click', clearDataTable)
+
 const saveMeanButton = document.getElementById('btn-mean-save')
 saveMeanButton.addEventListener('click', saveMeanTable)
 
@@ -81,9 +84,17 @@ window.modifySettings["XAxGapGrp"] = "0.25";
 window.modifySettings["XPlAxisStroke"] = "2.0";
 window.modifySettings["XPlTickStroke"] = "2.0";
 window.modifySettings["XPlTickLength"] = "7.0";
+window.modifySettings["XPlAxisOrientation"] = "-90";
 window.modifySettings["XPlTextSpace"] = "6.0";
 window.modifySettings["XPlTextSize"] = "10.0";
 window.modifySettings["XPlTextType"] = "Arial";
+window.modifySettings["XPlLineSpace"] = "12.0";
+window.modifySettings["XPlLineStroke"] = "2.0";
+window.modifySettings["XPlLineDelta"] = "0.0";
+window.modifySettings["XPlAxisOrientation2"] = "0";
+window.modifySettings["XPlTextSpace2"] = "12.0";
+window.modifySettings["XPlTextSize2"] = "10.0";
+window.modifySettings["XPlTextType2"] = "Arial";
 
 window.modifySettings["ErrShowIt"] = "y";
 window.modifySettings["ErrShape"] = "both";
@@ -298,6 +309,12 @@ function processTable(txtInput, inputSep) {
     tableDataPoints.innerHTML = window.inputTabStr;
     inputTableView.innerHTML = drawHtmlTable(window.inputTabFix);
     selectDataCombiMeth();
+}
+
+window.clearDataTable = clearDataTable;
+function clearDataTable() {
+    var ele = document.getElementById("table-data-points");
+    ele.innerHTML = "";
 }
 
 window.drawHtmlTable = drawHtmlTable;
@@ -797,13 +814,16 @@ function createCoordinates () {
     var xAxisStroke = 2.0;
     var xTickStroke = 2.0;
     var xTickLength = 7.0;
+    var xTextOrientation = -90.0;
     var xTextSpace = 6.0;
     var xTextSize = 10.0;
     var xTextType = "Arial";
+
     var xLineSpace = 12.0;
     var xLineStroke = 2.0;
     var xLineDelta = 0.0;
 
+    var xTextOrientation2 = 0.0;
     var xTextSpace2 = 12.0;
     var xTextSize2 = 10.0;
     var xTextType2 = "Arial";
@@ -834,6 +854,9 @@ function createCoordinates () {
         yTextType = window.modifySettings["YPlTextType"];
     }
 
+    if (isFinite(parseFloat(window.modifySettings["XPlAxisOrientation"]))) {
+        xTextOrientation = parseFloat(window.modifySettings["XPlAxisOrientation"]);
+    }
     if (isFinite(parseFloat(window.modifySettings["XPlAxisStroke"]))) {
         xAxisStroke = parseFloat(window.modifySettings["XPlAxisStroke"]);
     }
@@ -852,6 +875,30 @@ function createCoordinates () {
     if (window.modifySettings["XPlTextType"] != "") {
         xTextType = window.modifySettings["XPlTextType"];
     }
+
+    if (isFinite(parseFloat(window.modifySettings["XPlLineSpace"]))) {
+        xLineSpace = parseFloat(window.modifySettings["XPlLineSpace"]);
+    }
+    if (isFinite(parseFloat(window.modifySettings["XPlLineStroke"]))) {
+        xLineStroke = parseFloat(window.modifySettings["XPlLineStroke"]);
+    }
+    if (isFinite(parseFloat(window.modifySettings["XPlLineDelta"]))) {
+        xLineDelta = parseFloat(window.modifySettings["XPlLineDelta"]);
+    }
+
+    if (isFinite(parseFloat(window.modifySettings["XPlAxisOrientation2"]))) {
+        xTextOrientation2 = parseFloat(window.modifySettings["XPlAxisOrientation2"]);
+    }
+    if (isFinite(parseFloat(window.modifySettings["XPlTextSpace2"]))) {
+        xTextSpace2 = parseFloat(window.modifySettings["XPlTextSpace2"]);
+    }
+    if (isFinite(parseFloat(window.modifySettings["XPlTextSize2"]))) {
+        xTextSize2 = parseFloat(window.modifySettings["XPlTextSize2"]);
+    }
+    if (window.modifySettings["XPlTextType2"] != "") {
+        xTextType2 = window.modifySettings["XPlTextType2"];
+    }
+
 
     var lineXend = window.frameXend + 5.0;
     var lineYst = -5.0;
@@ -883,29 +930,63 @@ function createCoordinates () {
                     if (j == window.selB.length - 1) {
                         grpLineEnd = window.xPosLookUp[window.selA[i]][window.selB[j]];
                     }
-                    retVal += "<text x='0.0' y='0.0' font-family='" + xTextType + "' font-size='" + xTextSize;
-                    retVal += "' fill='black' text-anchor='end' alignment-baseline='middle' transform='translate(";
-                    retVal += window.xPosLookUp[window.selA[i]][window.selB[j]] + ", "
-                    retVal += (window.frameYend + xTickLength + xTextSpace) + ") rotate(-90)'>";
-                    retVal += window.selB[j] + "</text>";
-                    maxXText = mSvgTextLen(maxXText, window.selB[j], xTextSize, xTextType);
+                    if (Math.abs(-90 - xTextOrientation) < 1) {
+                        retVal += "<text x='0.0' y='0.0' font-family='" + xTextType + "' font-size='" + xTextSize;
+                        retVal += "' fill='black' text-anchor='end' alignment-baseline='middle' transform='translate(";
+                        retVal += window.xPosLookUp[window.selA[i]][window.selB[j]] + ", "
+                        retVal += (window.frameYend + xTickLength + xTextSpace) + ") rotate(-90)'>";
+                        retVal += window.selB[j] + "</text>";
+                        maxXText = mSvgTextLen(maxXText, window.selB[j], xTextSize, xTextType);
+                    }
+                    if (Math.abs(xTextOrientation) < 1) {
+                        retVal += "<text x='" + window.xPosLookUp[window.selA[i]][window.selB[j]];
+                        retVal += "'  y='" + (window.frameYend + xTickLength + xTextSpace + xTextSize)
+                        retVal += "' font-family='" + xTextType + "' font-size='" + xTextSize;
+                        retVal += "' fill='black' text-anchor='middle'>";
+                        retVal += window.selB[j] + "</text>";
+                        maxXText = xTextSize;
+                    }
+                    if (Math.abs(90 - xTextOrientation) < 1) {
+                        retVal += "<text x='0.0' y='0.0' font-family='" + xTextType + "' font-size='" + xTextSize;
+                        retVal += "' fill='black' text-anchor='start' alignment-baseline='middle' transform='translate(";
+                        retVal += window.xPosLookUp[window.selA[i]][window.selB[j]] + ", "
+                        retVal += (window.frameYend + xTickLength + xTextSpace) + ") rotate(90)'>";
+                        retVal += window.selB[j] + "</text>";
+                        maxXText = mSvgTextLen(maxXText, window.selB[j], xTextSize, xTextType);
+                    }
                 }
             }
             var linYPos = window.frameYend + xTickLength + xTextSpace + maxXText + xLineSpace;
             if ((grpLineStart != grpLineEnd) && (xLineStroke > 0.0)) {
-                retVal += "<line x1='" + (grpLineStart - window.xPosBarWidth) + "' y1='" + linYPos;
-                retVal += "' x2='" + (grpLineEnd + window.xPosBarWidth) + "' y2='" + linYPos;
+                retVal += "<line x1='" + (grpLineStart - window.xPosBarWidth - xLineDelta) + "' y1='" + linYPos;
+                retVal += "' x2='" + (grpLineEnd + window.xPosBarWidth + xLineDelta) + "' y2='" + linYPos;
                 retVal += "' stroke-width='" + xLineStroke + "' stroke='black' />";
             }
-            retVal += "<text x='0.0' y='0.0' font-family='" + xTextType2 + "' font-size='" + xTextSize2;
-            retVal += "' fill='black' text-anchor='end' alignment-baseline='middle' transform='translate(";
-            retVal += window.xGroupLookUp[window.selA[i]] + ", "
-            retVal += (linYPos + xLineStroke  + xTextSpace2) + ") rotate(-90)'>";
-            retVal += window.selA[i] + "</text>";
-            maxXText2 = mSvgTextLen(maxXText2, window.selA[i], xTextSize2, xTextType2);
+            if (Math.abs(-90 - xTextOrientation2) < 1) {
+                retVal += "<text x='0.0' y='0.0' font-family='" + xTextType2 + "' font-size='" + xTextSize2;
+                retVal += "' fill='black' text-anchor='end' alignment-baseline='middle' transform='translate(";
+                retVal += window.xGroupLookUp[window.selA[i]] + ", "
+                retVal += (linYPos + xLineStroke  + xTextSpace2) + ") rotate(-90)'>";
+                retVal += window.selA[i] + "</text>";
+                maxXText2 = mSvgTextLen(maxXText2, window.selA[i], xTextSize2, xTextType2);
+            }
+            if (Math.abs(xTextOrientation2) < 1) {
+                retVal += "<text x='" + window.xGroupLookUp[window.selA[i]];
+                retVal += "'  y='" + (linYPos + xLineStroke + xTextSpace2 + xTextSize2)
+                retVal += "' font-family='" + xTextType + "' font-size='" + xTextSize2;
+                retVal += "' fill='black' text-anchor='middle'>";
+                retVal += window.selA[i] + "</text>";
+                maxXText2 = xTextSize2;
+            }
+            if (Math.abs(90 - xTextOrientation2) < 1) {
+                retVal += "<text x='0.0' y='0.0' font-family='" + xTextType2 + "' font-size='" + xTextSize2;
+                retVal += "' fill='black' text-anchor='start' alignment-baseline='middle' transform='translate(";
+                retVal += window.xGroupLookUp[window.selA[i]] + ", "
+                retVal += (linYPos + xLineStroke  + xTextSpace2) + ") rotate(90)'>";
+                retVal += window.selA[i] + "</text>";
+                maxXText2 = mSvgTextLen(maxXText2, window.selA[i], xTextSize2, xTextType2);
+            }
             addUpSpace = xTextSpace + maxXText + xLineSpace + xLineStroke + xTextSpace2 + maxXText2;
-
-
         } else {
             if ((selA[i] in window.xPosLookUp)  &&
                     (isFinite(window.sortData[window.selA[i]]["aver"]))) {
@@ -917,13 +998,9 @@ function createCoordinates () {
                 retVal += window.selA[i] + "</text>";
                 maxXText = mSvgTextLen(maxXText, window.selA[i], xTextSize, xTextType);
                 addUpSpace = xTextSpace + maxXText;
-
             }
         }
     }
-
-
-
     window.svgDimYEnd += xTickLength + addUpSpace;
 
     // The Y-Axis
@@ -1542,9 +1619,17 @@ function loadModification(newSett) {
     updateKeyEl(newSett,"XPlAxisStroke","modXPlAxisStroke");
     updateKeyEl(newSett,"XPlTickStroke","modXPlTickStroke");
     updateKeyEl(newSett,"XPlTickLength","modXPlTickLength");
+    updateKeyEl(newSett,"XPlAxisOrientation","modXPlAxisOrientation");
     updateKeyEl(newSett,"XPlTextSpace","modXPlTextSpace");
     updateKeyEl(newSett,"XPlTextSize","modXPlTextSize");
     updateKeyEl(newSett,"XPlTextType","modXPlTextType");
+    updateKeyEl(newSett,"XPlLineSpace","modXPlLineSpace");
+    updateKeyEl(newSett,"XPlLineStroke","modXPlLineStroke");
+    updateKeyEl(newSett,"XPlLineDelta","modXPlLineDelta");
+    updateKeyEl(newSett,"XPlAxisOrientation2","modXPlAxisOrientation2");
+    updateKeyEl(newSett,"XPlTextSpace2","modXPlTextSpace2");
+    updateKeyEl(newSett,"XPlTextSize2","modXPlTextSize2");
+    updateKeyEl(newSett,"XPlTextType2","modXPlTextType2");
 
     updateKeyEl(newSett,"ErrShowIt","modErrShowIt");
     updateKeyEl(newSett,"ErrShape","modErrShape");
