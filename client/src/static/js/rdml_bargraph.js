@@ -403,12 +403,24 @@ function selectDataCombiMeth(){
     window.sortPara["yPosMin"] = Number.POSITIVE_INFINITY;
     window.sortPara["yMax"] = Number.NEGATIVE_INFINITY;
     var selMethod = document.getElementById('selDataCombiMeth').value;
-    window.selA = getUniqueCol(window.inputTabFix, 0)
+    window.selA = getUniqueCol(window.inputTabFix, 0);
+    var srtEleA = document.getElementById("modSamFirstOrder");
+    var outSrtStrA = "";
+    for (var i = 0 ; i < window.selA.length ; i++) {
+        outSrtStrA += window.selA[i] + "\t";
+    }
+    srtEleA.value = outSrtStrA.replace(/\t$/, "");
     if (window.selA.length == 0) {
         alert("Data must have labels")
         return
     }
-    window.selB = getUniqueCol(window.inputTabFix, 1)
+    window.selB = getUniqueCol(window.inputTabFix, 1);
+    var srtEleB = document.getElementById("modSamSecondOrder");
+    var outSrtStrB = "";
+    for (var i = 0 ; i < window.selB.length ; i++) {
+        outSrtStrB += window.selB[i] + "\t";
+    }
+    srtEleB.value = outSrtStrB.replace(/\t$/, "");
     for (var i = 0 ; i < window.inputTabFix.length ; i++) {
         if (window.inputTabFix[i].length != 3) {
             continue;
@@ -597,6 +609,24 @@ function selectDataCombiMeth(){
         }
     }
     tableCombinedData.innerHTML = window.averTabStr;
+    showSVG();
+}
+
+window.updateSam = updateSam;
+function updateSam(id) {
+    var str = document.getElementById(id).value;
+    var rawLine = str.split("\t");
+    var collect = [];
+    for (var i = 0 ; i < rawLine.length ; i++) {
+        if (rawLine[i] != "") {
+            collect.push(rawLine[i]);
+        }
+    }
+    if (id == "modSamFirstOrder") {
+        window.selA = collect;
+    } else {
+        window.selB = collect;
+    }
     showSVG();
 }
 
