@@ -34,7 +34,7 @@ const exportTableView = document.getElementById('export-table-view')
 const saveJsonButton = document.getElementById('btn-save-Json')
 saveJsonButton.addEventListener('click', saveJsonFile)
 const saveSvgButton = document.getElementById('btn-save-svg')
-saveSvgButton.addEventListener('click', saveTabFile)
+saveSvgButton.addEventListener('click', saveSVGFile)
 const loadJFile = document.getElementById('inputJsonFile')
 loadJFile.addEventListener('change', loadJsonFile, false);
 
