@@ -352,6 +352,12 @@
                 </td>
               </tr>
               <tr>
+                <td style="width:25%;">First Order:</td>
+                <td style="width:75%">
+                  <input type="text" class="form-control" id="modSamFirstOrder" onchange="updateSam('modSamFirstOrder')" value="">
+                </td>
+              </tr>
+              <tr>
                 <td style="width:25%;">Rotate Axis Text:</td>
                 <td style="width:75%">
                   <select class="form-control" id="modXPlAxisOrientation" onchange="updateMod('modXPlAxisOrientation', 'XPlAxisOrientation')">
@@ -398,6 +404,12 @@
                 </td>
               </tr>
               <tr>
+                <td style="width:25%;">Second Order:</td>
+                <td style="width:75%">
+                  <input type="text" class="form-control" id="modSamSecondOrder" onchange="updateSam('modSamSecondOrder')" value="">
+                </td>
+              </tr>
+              <tr>
                 <td style="width:25%;">Rotate Axis Text 2:</td>
                 <td style="width:75%">
                   <select class="form-control" id="modXPlAxisOrientation2" onchange="updateMod('modXPlAxisOrientation2', 'XPlAxisOrientation2')">
@@ -426,6 +438,23 @@
                 </td>
               </tr>
              </table>
+            <br />
+          </div>
+        </div>
+        <br />
+        <br />
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Box Plot</h5>
+            <table style="width:100%;">
+              <tr>
+                <td style="width:25%;">Box Line Strength:</td>
+                <td style="width:75%">
+                  <input type="text" class="form-control" id="modBoxLineStroke" onchange="updateMod('modBoxLineStroke', 'BoxLineStroke')" value="">
+                </td>
+              </tr>
+            </table>
+            <div id="sample-color-sel"></div>
             <br />
           </div>
         </div>
@@ -569,28 +598,6 @@
                 <td style="width:25%;">Title Type:</td>
                 <td style="width:75%">
                   <input type="text" class="form-control" id="modGraphTitlType" onchange="updateMod('modGraphTitlType', 'GraphTitlType')" value="">
-                </td>
-              </tr>
-             </table>
-            <br />
-          </div>
-        </div>
-        <br />
-        <br />
-        <div class="card">
-          <div class="card-body">
-            <h5 class="card-title">Samples</h5>
-            <table style="width:100%;">
-              <tr>
-                <td style="width:25%;">First Order:</td>
-                <td style="width:75%">
-                  <input type="text" class="form-control" id="modSamFirstOrder" onchange="updateSam('modSamFirstOrder')" value="">
-                </td>
-              </tr>
-              <tr>
-                <td style="width:25%;">Second Order:</td>
-                <td style="width:75%">
-                  <input type="text" class="form-control" id="modSamSecondOrder" onchange="updateSam('modSamSecondOrder')" value="">
                 </td>
               </tr>
              </table>

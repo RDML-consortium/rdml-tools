@@ -51,6 +51,7 @@ window.selB = [];
 window.sortData = {};
 window.sortPara = {};
 window.averTabStr = "";
+window.samColorLookup = {};
 
 window.resultTab = [];
 
@@ -95,6 +96,8 @@ window.modifySettings["XPlAxisOrientation2"] = "0";
 window.modifySettings["XPlTextSpace2"] = "12.0";
 window.modifySettings["XPlTextSize2"] = "10.0";
 window.modifySettings["XPlTextType2"] = "Arial";
+
+window.modifySettings["BoxLineStroke"] = "1.0";
 
 window.modifySettings["ErrShowIt"] = "y";
 window.modifySettings["ErrShape"] = "both";
@@ -421,6 +424,31 @@ function selectDataCombiMeth(){
         outSrtStrB += window.selB[i] + "\t";
     }
     srtEleB.value = outSrtStrB.replace(/\t$/, "");
+
+    var colorEle = document.getElementById("sample-color-sel");
+    var colorHtml = '<table style="width:100%;">\n';
+    if (window.selB.length != 0) {
+        for (var i = 0 ; i < window.selB.length ; i++) {
+            colorHtml += '<tr>\n';
+            colorHtml += '<td style="width:25%;">' + window.selB[i] + ' Color:</td>\n';
+            colorHtml += '<td style="width:75%">\n';
+            colorHtml += '<input type="color" id="uniqueSamID_' + i +'" onchange="colorSam(\'';
+            colorHtml +=  window.selB[i] + '\', \'uniqueSamID_' + i + '\')" value="#0000FF">\n';
+            colorHtml += '</td>\n</tr>\n';
+        }
+    } else {
+        for (var i = 0 ; i < window.selA.length ; i++) {
+            colorHtml += '<tr>\n';
+            colorHtml += '<td style="width:25%;">' + window.selA[i] + ' Color:</td>\n';
+            colorHtml += '<td style="width:75%">\n';
+            colorHtml += '<input type="color" id="uniqueSamID_' + i +'" onchange="colorSam(\'';
+            colorHtml +=  window.selA[i] + '\', \'uniqueSamID_' + i + '\')" value="#0000FF">\n';
+            colorHtml += '</td>\n</tr>\n';
+        }
+    }
+    colorHtml += "</table>\n";
+    colorEle.innerHTML = colorHtml;
+
     for (var i = 0 ; i < window.inputTabFix.length ; i++) {
         if (window.inputTabFix[i].length != 3) {
             continue;
@@ -627,6 +655,13 @@ function updateSam(id) {
     } else {
         window.selB = collect;
     }
+    showSVG();
+}
+
+window.colorSam = colorSam;
+function colorSam(sam, id) {
+    var col = document.getElementById(id).value;
+    window.samColorLookup[sam] = col;
     showSVG();
 }
 
@@ -1166,6 +1201,11 @@ function createCoordinates () {
 
 function createBoxes() {
     var retVal = ""
+    var boxStroke = 1.0;
+    if (isFinite(parseFloat(window.modifySettings["BoxLineStroke"]))) {
+        boxStroke = parseFloat(window.modifySettings["BoxLineStroke"]);
+    }
+
     for (var i = 0 ; i < window.selA.length ; i++) {
         if (window.selB.length != 0) {
             for (var j = 0 ; j < window.selB.length ; j++) {
@@ -1180,7 +1220,11 @@ function createBoxes() {
                     var yHig = window.frameYend - yPos;
                     retVal += "<rect x='" + xPos + "' y='" + yPos
                     retVal += "' width='" + xWid + "' height='" + yHig
-                    retVal += "' style='fill:rgb(0,0,255);stroke-width:0.5;stroke:rgb(0,0,0)' />"
+                    var useCol = "#0000FF";
+                    if (selB[j] in window.samColorLookup) {
+                        useCol = window.samColorLookup[selB[j]];
+                    }
+                    retVal += "' fill='" + useCol + "' stroke-width='" + boxStroke + "' stroke='#000000' />"
                 }
             }
         } else {
@@ -1192,7 +1236,11 @@ function createBoxes() {
                 var yHig = window.frameYend - yPos;
                 retVal += "<rect x='" + xPos + "' y='" + yPos
                 retVal += "' width='" + xWid + "' height='" + yHig
-                retVal += "' style='fill:rgb(0,0,255);stroke-width:0.5;stroke:rgb(0,0,0)' />"
+                var useCol = "#0000FF";
+                if (selA[i] in window.samColorLookup) {
+                    useCol = window.samColorLookup[selA[i]];
+                }
+                retVal += "' fill='" + useCol + "' stroke-width='" + boxStroke + "' stroke='#000000' />"
             }
         }
     }
@@ -1700,6 +1748,8 @@ function loadModification(newSett) {
     updateKeyEl(newSett,"XPlTextSpace2","modXPlTextSpace2");
     updateKeyEl(newSett,"XPlTextSize2","modXPlTextSize2");
     updateKeyEl(newSett,"XPlTextType2","modXPlTextType2");
+
+    updateKeyEl(newSett,"BoxLineStroke","modBoxLineStroke");
 
     updateKeyEl(newSett,"ErrShowIt","modErrShowIt");
     updateKeyEl(newSett,"ErrShape","modErrShape");
