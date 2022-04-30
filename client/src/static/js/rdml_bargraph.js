@@ -462,6 +462,12 @@ function selectDataCombiMeth(){
         var ccErrMax = Number.Nan;
         if (window.selB.length != 0) {
             for (var j = 0 ; j < window.selB.length ; j++) {
+                if (!(window.selB[j] in window.sortData[window.selA[i]])) {
+                    continue;
+                }
+                if (!("dp" in window.sortData[window.selA[i]][window.selB[j]])) {
+                    continue;
+                }
                 if (window.sortData[window.selA[i]][window.selB[j]]["dp"].length == 0) {
                     continue;
                 }
@@ -501,6 +507,9 @@ function selectDataCombiMeth(){
                 }
             }
         } else {
+            if (!("dp" in window.sortData[window.selA[i]])) {
+                continue;
+            }
             if (window.sortData[window.selA[i]]["dp"].length == 0) {
                 continue;
             }
@@ -555,6 +564,9 @@ function selectDataCombiMeth(){
         if (window.selB.length != 0) {
             for (var j = 0 ; j < window.selB.length ; j++) {
                 window.averTabStr += window.selA[i] + "\t" + window.selB[j] + "\t";
+                if (!(window.selB[j] in window.sortData[window.selA[i]])) {
+                    continue;
+                }
                 if ("aver" in window.sortData[window.selA[i]][window.selB[j]]) {
                     window.averTabStr += window.sortData[window.selA[i]][window.selB[j]]["aver"];
                 }
@@ -671,8 +683,13 @@ function setStartStop() {
     for (var i = 0 ; i < window.selA.length ; i++) {
         if (window.selB.length != 0) {
             for (var j = 0 ; j < window.selB.length ; j++) {
-                if (isFinite(window.sortData[window.selA[i]][window.selB[j]]["aver"])) {
+                if ((window.selB[j] in window.sortData[window.selA[i]]) &&
+                    (isFinite(window.sortData[window.selA[i]][window.selB[j]]["aver"]))) {
                     barCount += 1;
+                } else {
+                    if (window.modifySettings["XAxEmptySpace"] == "y") {
+                        barCount += 1;
+                    }
                 }
             }
             grpCount += 1;
@@ -690,7 +707,8 @@ function setStartStop() {
     for (var i = 0 ; i < window.selA.length ; i++) {
         if (window.selB.length != 0) {
             for (var j = 0 ; j < window.selB.length ; j++) {
-                if (isFinite(window.sortData[window.selA[i]][window.selB[j]]["aver"])) {
+                if ((window.selB[j] in window.sortData[window.selA[i]]) &&
+                    (isFinite(window.sortData[window.selA[i]][window.selB[j]]["aver"]))) {
                     barCount += 1;
                     var curPos = (barCount * (1.0 + addGapBar) - 0.5 + grpCount * addGapGrp) * window.frameXend / totalSize;
                     window.xPosOrder.push(curPos);
@@ -698,6 +716,16 @@ function setStartStop() {
                         window.xPosLookUp[window.selA[i]] = {};
                     }
                     window.xPosLookUp[window.selA[i]][window.selB[j]] = curPos;
+                } else {
+                    if (window.modifySettings["XAxEmptySpace"] == "y") {
+                        barCount += 1;
+                        var curPos = (barCount * (1.0 + addGapBar) - 0.5 + grpCount * addGapGrp) * window.frameXend / totalSize;
+                        window.xPosOrder.push(curPos);
+                        if (!(window.selA[i] in window.xPosLookUp)) {
+                            window.xPosLookUp[window.selA[i]] = {};
+                        }
+                        window.xPosLookUp[window.selA[i]][window.selB[j]] = curPos;
+                    }
                 }
             }
             var grpPos = (grpLast + ((barCount * (1.0 + addGapBar) + 0.5 + grpCount * addGapGrp) - grpLast) / 2.0 ) * window.frameXend / totalSize;
@@ -922,14 +950,13 @@ function createCoordinates () {
             for (var j = 0 ; j < window.selB.length ; j++) {
                 if ((selA[i] in window.xPosLookUp) &&
                         (selB[j] in window.xPosLookUp[window.selA[i]]) &&
+                        (selB[j] in window.sortData[window.selA[i]]) &&
+                        ("aver" in window.sortData[window.selA[i]][window.selB[j]]) &&
                         (isFinite(window.sortData[window.selA[i]][window.selB[j]]["aver"]))){
-                    if (j == 0) {
+                    if (grpLineStart == -1.0) {
                         grpLineStart = window.xPosLookUp[window.selA[i]][window.selB[j]];
-                        grpLineEnd = grpLineStart;
                     }
-                    if (j == window.selB.length - 1) {
-                        grpLineEnd = window.xPosLookUp[window.selA[i]][window.selB[j]];
-                    }
+                    grpLineEnd = window.xPosLookUp[window.selA[i]][window.selB[j]];
                     if (Math.abs(-90 - xTextOrientation) < 1) {
                         retVal += "<text x='0.0' y='0.0' font-family='" + xTextType + "' font-size='" + xTextSize;
                         retVal += "' fill='black' text-anchor='end' alignment-baseline='middle' transform='translate(";
@@ -953,6 +980,13 @@ function createCoordinates () {
                         retVal += (window.frameYend + xTickLength + xTextSpace) + ") rotate(90)'>";
                         retVal += window.selB[j] + "</text>";
                         maxXText = mSvgTextLen(maxXText, window.selB[j], xTextSize, xTextType);
+                    }
+                } else {
+                    if (window.modifySettings["XAxEmptySpace"] == "y") {
+                        if (grpLineStart == -1.0) {
+                            grpLineStart = window.xPosLookUp[window.selA[i]][window.selB[j]];
+                        }
+                        grpLineEnd = window.xPosLookUp[window.selA[i]][window.selB[j]];
                     }
                 }
             }
@@ -1107,6 +1141,8 @@ function createBoxes() {
             for (var j = 0 ; j < window.selB.length ; j++) {
                 if ((selA[i] in window.xPosLookUp) &&
                         (selB[j] in window.xPosLookUp[window.selA[i]]) &&
+                        (selB[j] in window.sortData[window.selA[i]]) &&
+                        ("aver" in window.sortData[window.selA[i]][window.selB[j]]) &&
                         (isFinite(window.sortData[window.selA[i]][window.selB[j]]["aver"]))){
                     var xPos = window.xPosLookUp[window.selA[i]][window.selB[j]] - window.xPosBarWidth;
                     var yPos = toSvgYScale(window.sortData[window.selA[i]][window.selB[j]]["aver"]);
@@ -1151,6 +1187,8 @@ function createErrorBars() {
             for (var j = 0 ; j < window.selB.length ; j++) {
                 if ((selA[i] in window.xPosLookUp) &&
                         (selB[j] in window.xPosLookUp[window.selA[i]]) &&
+                        (selB[j] in window.sortData[window.selA[i]]) &&
+                        ("aver" in window.sortData[window.selA[i]][window.selB[j]]) &&
                         (isFinite(window.sortData[window.selA[i]][window.selB[j]]["aver"]))){
                     var xPos = window.xPosLookUp[window.selA[i]][window.selB[j]];
                     var aver = window.sortData[window.selA[i]][window.selB[j]]["aver"]
@@ -1245,6 +1283,8 @@ function createDots() {
             for (var j = 0 ; j < window.selB.length ; j++) {
                 if ((selA[i] in window.xPosLookUp) &&
                         (selB[j] in window.xPosLookUp[window.selA[i]]) &&
+                        (selB[j] in window.sortData[window.selA[i]]) &&
+                        ("dp" in window.sortData[window.selA[i]][window.selB[j]]) &&
                         (window.sortData[window.selA[i]][window.selB[j]]["dp"].length > 0)){
 
                     var yVals = window.sortData[window.selA[i]][window.selB[j]]["dp"];
