@@ -1024,8 +1024,8 @@ function createCoordinates () {
                     grpLineEnd = window.xPosLookUp[window.selA[i]][window.selB[j]];
                     if (Math.abs(-90 - xTextOrientation) < 1) {
                         retVal += "<text x='0.0' y='0.0' font-family='" + xTextType + "' font-size='" + xTextSize;
-                        retVal += "' fill='black' text-anchor='end' alignment-baseline='middle' transform='translate(";
-                        retVal += window.xPosLookUp[window.selA[i]][window.selB[j]] + ", "
+                        retVal += "' fill='black' text-anchor='end' transform='translate(";
+                        retVal += (window.xPosLookUp[window.selA[i]][window.selB[j]] + xTextSize * 3.0 / 8.0) + ", "
                         retVal += (window.frameYend + xTickLength + xTextSpace) + ") rotate(-90)'>";
                         retVal += window.selB[j] + "</text>";
                         maxXText = mSvgTextLen(maxXText, window.selB[j], xTextSize, xTextType);
@@ -1040,8 +1040,8 @@ function createCoordinates () {
                     }
                     if (Math.abs(90 - xTextOrientation) < 1) {
                         retVal += "<text x='0.0' y='0.0' font-family='" + xTextType + "' font-size='" + xTextSize;
-                        retVal += "' fill='black' text-anchor='start' alignment-baseline='middle' transform='translate(";
-                        retVal += window.xPosLookUp[window.selA[i]][window.selB[j]] + ", "
+                        retVal += "' fill='black' text-anchor='start' transform='translate(";
+                        retVal += (window.xPosLookUp[window.selA[i]][window.selB[j]] - xTextSize * 3.0 / 8.0) + ", "
                         retVal += (window.frameYend + xTickLength + xTextSpace) + ") rotate(90)'>";
                         retVal += window.selB[j] + "</text>";
                         maxXText = mSvgTextLen(maxXText, window.selB[j], xTextSize, xTextType);
@@ -1063,8 +1063,8 @@ function createCoordinates () {
             }
             if (Math.abs(-90 - xTextOrientation2) < 1) {
                 retVal += "<text x='0.0' y='0.0' font-family='" + xTextType2 + "' font-size='" + xTextSize2;
-                retVal += "' fill='black' text-anchor='end' alignment-baseline='middle' transform='translate(";
-                retVal += window.xGroupLookUp[window.selA[i]] + ", "
+                retVal += "' fill='black' text-anchor='end' transform='translate(";
+                retVal += (window.xGroupLookUp[window.selA[i]] + xTextSize2 * 3.0 / 8.0) + ", "
                 retVal += (linYPos + xLineStroke  + xTextSpace2) + ") rotate(-90)'>";
                 retVal += window.selA[i] + "</text>";
                 maxXText2 = mSvgTextLen(maxXText2, window.selA[i], xTextSize2, xTextType2);
@@ -1079,8 +1079,8 @@ function createCoordinates () {
             }
             if (Math.abs(90 - xTextOrientation2) < 1) {
                 retVal += "<text x='0.0' y='0.0' font-family='" + xTextType2 + "' font-size='" + xTextSize2;
-                retVal += "' fill='black' text-anchor='start' alignment-baseline='middle' transform='translate(";
-                retVal += window.xGroupLookUp[window.selA[i]] + ", "
+                retVal += "' fill='black' text-anchor='start' transform='translate(";
+                retVal += (window.xGroupLookUp[window.selA[i]] + xTextSize2 * 3.0 / 8.0) + ", "
                 retVal += (linYPos + xLineStroke  + xTextSpace2) + ") rotate(90)'>";
                 retVal += window.selA[i] + "</text>";
                 maxXText2 = mSvgTextLen(maxXText2, window.selA[i], xTextSize2, xTextType2);
@@ -1090,12 +1090,30 @@ function createCoordinates () {
             if ((selA[i] in window.xPosLookUp)  &&
                     (isFinite(window.sortData[window.selA[i]]["aver"]))) {
 
-                retVal += "<text x='0.0' y='0.0' font-family='" + xTextType + "' font-size='" + xTextSize;
-                retVal += "' fill='black' text-anchor='end' alignment-baseline='middle' transform='translate(";
-                retVal += window.xPosLookUp[window.selA[i]] + ", "
-                retVal += (window.frameYend + xTickLength + xTextSpace) + ") rotate(-90)'>";
-                retVal += window.selA[i] + "</text>";
-                maxXText = mSvgTextLen(maxXText, window.selA[i], xTextSize, xTextType);
+                if (Math.abs(-90 - xTextOrientation) < 1) {
+                    retVal += "<text x='0.0' y='0.0' font-family='" + xTextType + "' font-size='" + xTextSize;
+                    retVal += "' fill='black' text-anchor='end' transform='translate(";
+                    retVal += (window.xPosLookUp[window.selA[i]] + xTextSize * 3.0 / 8.0) + ", "
+                    retVal += (window.frameYend + xTickLength + xTextSpace) + ") rotate(-90)'>";
+                    retVal += window.selA[i] + "</text>";
+                    maxXText = mSvgTextLen(maxXText, window.selA[i], xTextSize, xTextType);
+                }
+                if (Math.abs(xTextOrientation) < 1) {
+                    retVal += "<text x='" + window.xPosLookUp[window.selA[i]];
+                    retVal += "'  y='" + (window.frameYend + xTickLength + xTextSpace + xTextSize)
+                    retVal += "' font-family='" + xTextType + "' font-size='" + xTextSize;
+                    retVal += "' fill='black' text-anchor='middle'>";
+                    retVal += window.selA[i] + "</text>";
+                    maxXText = xTextSize;
+                }
+                if (Math.abs(90 - xTextOrientation) < 1) {
+                    retVal += "<text x='0.0' y='0.0' font-family='" + xTextType + "' font-size='" + xTextSize;
+                    retVal += "' fill='black' text-anchor='start' transform='translate(";
+                    retVal += (window.xPosLookUp[window.selA[i]] - xTextSize * 3.0 / 8.0) + ", "
+                    retVal += (window.frameYend + xTickLength + xTextSpace) + ") rotate(90)'>";
+                    retVal += window.selA[i] + "</text>";
+                    maxXText = mSvgTextLen(maxXText, window.selA[i], xTextSize, xTextType);
+                }
                 addUpSpace = xTextSpace + maxXText;
             }
         }
@@ -1117,8 +1135,8 @@ function createCoordinates () {
             var textValOut = i *  window.winYstep + window.winYst
             var textValStr = textValOut.toFixed(yRound)
             maxYText = mSvgTextLen(maxYText, textValStr, yTextSize, yTextType);
-            retVal += "<text x='" + (0.0 - yTickLength - yTextSpace) + "' y='" + yPos;
-            retVal += "' font-family='" + yTextType + "' font-size='" + yTextSize + "' fill='black' text-anchor='end' alignment-baseline='middle'>";
+            retVal += "<text x='" + (0.0 - yTickLength - yTextSpace) + "' y='" + (yPos + yTextSize * 3.0 / 8.0);
+            retVal += "' font-family='" + yTextType + "' font-size='" + yTextSize + "' fill='black' text-anchor='end'>";
             retVal += textValStr + "</text>";
         }
     } else {
@@ -1140,8 +1158,8 @@ function createCoordinates () {
                   (Math.round(textValOut.toFixed(yRound) / yLogStep) == 7) ||
                   (Math.round(textValOut.toFixed(yRound) / yLogStep) == 9) )) {
                 maxYText = mSvgTextLen(maxYText, textValStr, yTextSize, yTextType);
-                retVal += "<text x='" + (0.0 - yTickLength - yTextSpace) + "' y='" + yPos;
-                retVal += "' font-family='" + yTextType + "' font-size='" + yTextSize + "' fill='black' text-anchor='end' alignment-baseline='middle'>";
+                retVal += "<text x='" + (0.0 - yTickLength - yTextSpace) + "' y='" + (yPos + yTextSize * 3.0 / 8.0);
+                retVal += "' font-family='" + yTextType + "' font-size='" + yTextSize + "' fill='black' text-anchor='end'>";
                 retVal += textValStr + "</text>";
             }
         }
@@ -1162,7 +1180,7 @@ function createCoordinates () {
             descType = window.modifySettings["YPlDescType"];
         }
         retVal += "<text x='0.0' y='0.0' font-family='" + descType + "' font-size='" + descSize
-        retVal += "' fill='black' text-anchor='middle' alignment-baseline='bottom' transform='translate("
+        retVal += "' fill='black' text-anchor='middle' transform='translate("
         retVal += (window.svgDimXStart - descSpace) + ", " + (window.frameYend / 2.0) + ") rotate(-90)'>";
         retVal += window.modifySettings["YPlDescText"] + "</text>";
         window.svgDimXStart -= descSpace + descSize;
@@ -1184,7 +1202,7 @@ function createCoordinates () {
         retVal += "<text x='" + ((window.svgDimXEnd + window.svgDimXStart) / 2.0)
         retVal +=  "' y='" + (window.svgDimYStart - titleSpace);
         retVal += "' font-family='" + titleType + "' font-size='" + titleSize
-        retVal += "' fill='black' text-anchor='middle' alignment-baseline='bottom'>";
+        retVal += "' fill='black' text-anchor='middle'>";
         retVal += window.modifySettings["GraphTitlText"] + "</text>";
         window.svgDimYStart -= titleSpace + titleSize;
     }
