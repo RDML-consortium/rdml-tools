@@ -41,7 +41,7 @@ Install the dependencies:
 
 `sudo apt install python3 python3-pip python3-lxml`
 
-`sudo pip3 install matplotlib flask flask_cors numpy scipy`
+`pip3 install matplotlib flask flask_cors numpy scipy`
 
 Start the server:
 
@@ -60,11 +60,7 @@ Install the dependencies:
 
 `sudo apt install npm`
 
-`sudo npm install n -g`
-
-`sudo n stable`
-
-`sudo npm install`
+`npm install`
 
 Start the client:
 
@@ -120,11 +116,7 @@ path. Now the HTML files can be created:
 
 `sudo apt install npm`
 
-`sudo npm install n -g`
-
-`sudo n stable`
-
-`sudo npm install`
+`npm install`
 
 `npm run bulid`
 
@@ -137,7 +129,7 @@ First install all required tools:
 
 `sudo apt install python3 python3-pip python3-lxml`
 
-`sudo pip3 install gunicorn lxml matplotlib flask flask_cors numpy scipy`
+`pip3 install gunicorn lxml matplotlib flask flask_cors numpy scipy`
 
 `sudo npm install pm2 -g`
 

@@ -1691,7 +1691,7 @@ function loadJsonFile(f){
         reader.onload = function(event) {
             var newSett = JSON.parse(event.target.result);
             loadModification(newSett);
-            updateModification();
+            showSVG();
         }
         reader.readAsText(file);
     } else {
