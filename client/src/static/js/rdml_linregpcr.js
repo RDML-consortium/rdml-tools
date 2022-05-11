@@ -125,6 +125,7 @@ window.maxLogRange = 10000;
 window.exNoPlateau = true;
 window.exUnstBase  = true;
 window.exDiffMean = "outlier";
+window.updateTargets = false;
 window.decimalSepPoint = true;
 
 window.sampSelFirst = "7s8e45-Show-All"  // To avoid conflicts with existing values
@@ -469,6 +470,7 @@ function runLinRegPCR() {
     window.exNoPlateau = true
     window.exUnstBase = true
     window.exDiffMean = "outlier"
+    window.updateTargets = false
     hideElement(resultError)
 
     window.sampSelFirst = "7s8e45-Show-All"  // To avoid conflicts with existing values
@@ -496,6 +498,10 @@ function runLinRegPCR() {
     if ((bbExcludeUnstBase) && (bbExcludeUnstBase.value == "n")) {
         window.exUnstBase = false
     }
+    var bbUpdateTarget = document.getElementById('choiceUpdateTarget')
+    if (bbUpdateTarget) {
+        window.updateTargets = bbUpdateTarget.value
+    }
 
     window.yScale = "log"
     window.curveSource = "bas"
@@ -505,6 +511,7 @@ function runLinRegPCR() {
     ret["sel-experiment"] = window.selExperiment
     ret["sel-run"] = window.selRun
     ret["pcr-eff-range"] = rPCREffRange
+    ret["update-target-efficiency"] = window.updateTargets
     ret["update-RDML-data"] = rUpdateRDML
     ret["exclude-no-plateau"] = window.exNoPlateau
     ret["exclude-efficiency"] = window.exDiffMean
