@@ -42,10 +42,10 @@ function hideElement(element) {
 
 function formatTable() {
   if (rawResults != "") {
-    lineSplit = rawResults.split('\n');
-    res = '<div class="rdml_section">\n<table id="rdml-full-with">\n'
+    var lineSplit = rawResults.split('\n');
+    var res = '<div class="rdml_section">\n<table id="rdml-full-with">\n'
     for (var i = 0; i < lineSplit.length; i++) {
-      colSplit = lineSplit[i].split('\t');
+      var colSplit = lineSplit[i].split('\t');
       res += "<tr>\n";
       for (var k = 0; k < colSplit.length; k++) {
         var alig = ""
