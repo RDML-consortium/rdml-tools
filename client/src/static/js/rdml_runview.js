@@ -379,6 +379,95 @@ function fillLookupDics() {
     }
 }
 
+window.createLinkBox = createLinkBox
+function createLinkBox(apiLink, toolhtml, uuuid, valid, experiment = "", run = "") {
+    // The UUID box
+    if (experiment == "") {
+        run = "";
+    }
+    if (!(experiment == "")) {
+        experiment = ';EXP=' + encodeURIComponent(experiment);
+    }
+    if (!(run == "")) {
+        run = ';RUN=' + encodeURIComponent(run);
+    }
+
+    var ret = '<br /><div class="card">\n<div class="card-body">\n'
+    ret += '<h5 class="card-title">Links to other RDML tools</h5>\n<p>Link to this result page:<br />'
+    ret += '<a href="' + apiLink + toolhtml + "?UUID=" + uuuid + ';TAB=runs-tab'
+    ret += experiment + run + '" target="_blank">'
+    ret += apiLink + toolhtml + "?UUID=" + uuuid + ';TAB=runs-tab'
+    ret += experiment + run + '</a> (valid for 3 days)\n<br />\n'
+    ret += '</p>\n'
+    ret += '<p>Download RDML file:<br />'
+    var stuffer = new Date();
+    var stufferStr = stuffer.getTime()
+    ret += '<a href="' + apiLink + "/download/" + uuuid + '?UNIQUE=' + stufferStr
+    ret += '" target="_blank" id="download-link">'
+    ret += apiLink + "/download/" + uuuid + '</a> (valid for 3 days)\n<br />\n'
+    ret += '</p>\n'
+    if (!(toolhtml == 'edit.html')) {
+        ret += '<p>View or edit RDML file:<br />'
+        ret += '<a href="' + apiLink + "edit.html?UUID=" + uuuid + ';TAB=experiments-tab'
+        ret += experiment + run + '" target="_blank">'
+        ret += apiLink  + "edit.html?UUID=" + uuuid + ';TAB=experiments-tab'
+        ret += experiment + run + '</a> (valid for 3 days)\n<br />\n</p>\n'
+    }
+    if (!(toolhtml == 'runedit.html')) {
+        ret += '<p>Edit a single Run in RunEdit:<br />'
+        ret += '<a href="' + apiLink + "runedit.html?UUID=" + uuuid + ';TAB=runs-tab'
+        ret += experiment + run + '" target="_blank">'
+        ret += apiLink  + "runedit.html?UUID=" + uuuid + ';TAB=runs-tab'
+        ret += experiment + run + '</a> (valid for 3 days)\n<br />\n</p>\n'
+    }
+    if (!(toolhtml == 'annotationedit.html')) {
+        ret += '<p>Modify the annotations with AnnotationEdit:<br />'
+        ret += '<a href="' + apiLink + "annotationedit.html?UUID=" + uuuid + ';TAB=runs-tab'
+        ret += experiment + run + '" target="_blank">'
+        ret += apiLink  + "annotationedit.html?UUID=" + uuuid + ';TAB=runs-tab'
+        ret += experiment + run + '</a> (valid for 3 days)\n<br />\n</p>\n'
+    }
+    if (!(toolhtml == 'linregpcr.html')) {
+        ret += '<p>Analyze Run in LinRegPCR:<br />'
+        ret += '<a href="' + apiLink + "linregpcr.html?UUID=" + uuuid + ';TAB=runs-tab'
+        ret += experiment + run + '" target="_blank">'
+        ret += apiLink  + "linregpcr.html?UUID=" + uuuid + ';TAB=runs-tab'
+        ret += experiment + run + '</a> (valid for 3 days)\n<br />\n</p>\n'
+    }
+    if (!(toolhtml == 'analyze.html')) {
+        ret += '<p>Analyze Experiment in RDML-Analyze:<br />'
+        ret += '<a href="' + apiLink + "analyze.html?UUID=" + uuuid + ';TAB=runs-tab'
+        ret += experiment + run + '" target="_blank">'
+        ret += apiLink  + "analyze.html?UUID=" + uuuid + ';TAB=runs-tab'
+        ret += experiment + run + '</a> (valid for 3 days)\n<br />\n</p>\n'
+    }
+    if (!(toolhtml == 'runview.html')) {
+        ret += '<p>View single run in RunView:<br />'
+        ret += '<a href="' + apiLink + "runview.html?UUID=" + uuuid + ';TAB=runs-tab'
+        ret += experiment + run + '" target="_blank">'
+        ret += apiLink  + "runview.html?UUID=" + uuuid + ';TAB=runs-tab'
+        ret += experiment + run + '</a> (valid for 3 days)\n<br />\n</p>\n'
+    }
+    if (!(toolhtml == 'validate.html')) {
+        if (valid == "untested") {
+            ret += '<p>Click here to validate RDML file:<br />'
+        }
+        if (valid == "valid") {
+            ret += '<p>File is valid RDML! Click here for more information:<br />'
+        }
+        if (valid == "invalid") {
+            ret += '<p>File is not valid RDML! Click here for more information:<br />'
+        }
+        ret += '<a href="' + apiLink + "validate.html?UUID=" + uuuid + '" target="_blank">'
+        ret += apiLink + "validate.html?UUID=" + uuuid + '</a> (valid for 3 days)\n<br />\n</p>\n'
+    }
+    ret += '<p>Remove Uploaded Data from Server:<br />'
+    ret += '<a href="' + apiLink + "remove.html?UUID=" + uuuid + '" target="_blank">'
+    ret += apiLink  + "remove.html?UUID=" + uuuid + '</a> (valid for 3 days)\n<br />\n'
+    ret += '</p>\n</div>\n</div>\n'
+    return ret;
+}
+
 window.updateClientData = updateClientData
 function updateClientData() {
     if (window.selRunOnLoad != "") {
@@ -394,49 +483,12 @@ function updateClientData() {
         return
     }
     // The UUID box
-    var ret = '<br /><div class="card">\n<div class="card-body">\n'
-    ret += '<h5 class="card-title">Links to other RDML tools</h5>\n<p>Link to this result page:<br />'
-    ret += '<a href="' + `${API_LINK}` + "runview.html?UUID=" + window.uuid + ';TAB=runs-tab'
-    ret += ';EXP=' + encodeURIComponent(window.selExperiment) + ';RUN=' + encodeURIComponent(window.selRun) + '" '
-    ret += 'target="_blank">'
-    ret += `${API_LINK}` + "runview.html?UUID=" + window.uuid + ';TAB=runs-tab'
-    ret += ';EXP=' + encodeURIComponent(window.selExperiment)
-    ret += ';RUN=' + encodeURIComponent(window.selRun) + '</a> (valid for 3 days)\n<br />\n'
-    ret += '</p>\n'
-    ret += '<p>Download RDML file:<br />'
-    ret += '<a href="' + `${API_URL}` + "/download/" + window.uuid + '" target="_blank" id="download-link">'
-    ret += `${API_URL}` + "/download/" + window.uuid + '</a> (valid for 3 days)\n<br />\n'
-    ret += '</p>\n'
-    ret += '<p>Analyze RDML file in LinRegPCR:<br />'
-    ret += '<a href="' + `${API_LINK}` + "linregpcr.html?UUID=" + window.uuid + ';TAB=runs-tab'
-    ret += ';EXP=' + encodeURIComponent(window.selExperiment) + ';RUN=' + encodeURIComponent(window.selRun) + '" '
-    ret += 'target="_blank">'
-    ret += `${API_LINK}`  + "linregpcr.html?UUID=" + window.uuid + ';TAB=runs-tab'
-    ret += ';EXP=' + encodeURIComponent(window.selExperiment)
-    ret += ';RUN=' + encodeURIComponent(window.selRun) + '</a> (valid for 3 days)\n<br />\n'
-    ret += '</p>\n'
-    ret += '<p>View or edit RDML file:<br />'
-    ret += '<a href="' + `${API_LINK}` + "edit.html?UUID=" + window.uuid + '">'
-    ret += `${API_LINK}` + "edit.html?UUID=" + window.uuid + '</a> (valid for 3 days)\n</p>\n'
-    if (window.isvalid == "untested") {
-        ret += '<p>Click here to validate RDML file:<br />'
-    }
-    if (window.isvalid == "valid") {
-        ret += '<p>File is valid RDML! Click here for more information:<br />'
-    }
+    var ret = '<br />' + createLinkBox(`${API_LINK}`, 'runview.html', window.uuid, window.isvalid, window.selExperiment, window.selRun);
     if (window.isvalid == "invalid") {
-        ret += '<p>File is not valid RDML! Click here for more information:<br />'
         resultError.innerHTML = '<i class="fas fa-fire"></i>\n<span id="error-message">' +
                                 'Error: Uploaded file is not valid RDML!</span>'
         showElement(resultError)
     }
-    ret += '<a href="' + `${API_LINK}` + "validate.html?UUID=" + window.uuid + '" target="_blank">'
-    ret += `${API_LINK}` + "validate.html?UUID=" + window.uuid + '</a> (valid for 3 days)\n<br />\n'
-    ret += '</p>\n'
-    ret += '<p>Remove Uploaded Data from Server:<br />'
-    ret += '<a href="' + `${API_LINK}` + "remove.html?UUID=" + window.uuid + '" target="_blank">'
-    ret += `${API_LINK}`  + "remove.html?UUID=" + window.uuid + '</a> (valid for 3 days)\n<br />\n'
-    ret += '</p>\n</div>\n</div>\n'
     resultLink.innerHTML = ret
 
     if (!(window.rdmlData.hasOwnProperty("rdml"))) {
