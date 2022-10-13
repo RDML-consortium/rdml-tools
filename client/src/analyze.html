@@ -311,29 +311,36 @@
         <table style="width:100%;background-color: #e6e6e6;">
           <tr>
             <td style="width:1%;"></td>
-            <td style="width:14%;">Overlap:</td>
-            <td style="width:14%;">
-              <select class="form-control" id="selOverlapGenorm">
-                <option value="samples" selected>Technical Replicates</option>
-                <option value="annotation">Same Annotation</option>
+            <td style="width:12%;">Select Samples:</td>
+            <td style="width:8%;">
+              <select class="form-control" id="selSamplesGenorm">
+                <option value="all" selected>All</option>
+                <option value="annotation">By Annotation</option>
               </select>
             </td>
             <td style="width:4%;"></td>
-            <td style="width:14%;background-color: #e6e6e6;">Sel. Annotation:</td>
+            <td style="width:12%;background-color: #e6e6e6;">Sel. Annotation:</td>
             <td style="width:8%;background-color: #e6e6e6;">
               <select class="form-control" id="selGenormAnnotation">
                 <option value="" selected>Not Selected</option>
               </select>
             </td>
             <td style="width:4%;"></td>
-            <td style="width:14%;">Decimal Separator:</td>
+            <td style="width:8%;background-color: #e6e6e6;">Sel. Value:</td>
+            <td style="width:8%;background-color: #e6e6e6;">
+              <select class="form-control" id="selGenormAnVal">
+                <option value="" selected>Not Selected</option>
+              </select>
+            </td>
+            <td style="width:4%;"></td>
+            <td style="width:12%;">Decimal Separator:</td>
             <td style="width:6%;">
               <select class="form-control" id="selGenormSeparator">
                 <option value="point" selected>Point</option>
                 <option value="comma">Comma</option>
               </select>
             </td>
-            <td style="width:20%;text-align: right;">
+            <td style="width:14%;text-align: right;">
               <button type="submit" class="btn btn-outline-primary" id="btn-run-genorm">
                 <i class="fas fa-rocket" style="margin-right: 5px;"></i>
                 Run geNorm

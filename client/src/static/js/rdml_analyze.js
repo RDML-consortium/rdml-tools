@@ -181,6 +181,7 @@ window.samToNr = {}
 window.samToType = {}
 window.samAnnotations = {}
 window.samToAnnotations = {}
+window.samValues = {}
 
 window.usedSamples = {}
 window.usedTargets = {}
@@ -190,6 +191,7 @@ window.usedDyeMaxPos = 0
 function resetAllGlobalVal() {
     window.plateView = "plate";
     window.selAnnotation = "";
+    window.samValues = {}
     hideElement(resultError)
     resetAllInterRun()
     resetAbsoluteQant()
@@ -337,12 +339,14 @@ function updateRelativeAnno() {
 window.updateAllAnnotations = updateAllAnnotations
 function updateAllAnnotations() {
     window.samToAnnotations = {}
+    window.samValues = {}
     var exp = window.rdmlData.rdml.samples
     for (var i = 0; i < exp.length; i++) {
         if (exp[i].hasOwnProperty("annotations")) {
             for (var j = 0; j < exp[i].annotations.length; j++) {
                 if (window.selAnnotation == exp[i].annotations[j].property) {
                     window.samToAnnotations[exp[i].id] = exp[i].annotations[j].value
+                    window.samValues[exp[i].annotations[j].value] = 1
                 }
             }
         }
@@ -401,6 +405,17 @@ function updateGenormAnnotations() {
             opt.selected = true;
         }
         selAn.appendChild(opt);
+    }
+    var selVal = document.getElementById("selGenormAnVal")
+    for (var i = selVal.length - 1; i > 0; i--) {
+        selVal.remove(i);
+    }
+    var allAnnotVals = Object.keys(window.samValues)
+    for (var i = 0; i < allAnnotVals.length; i++) {
+        var opt = document.createElement('option');
+        opt.value = allAnnotVals[i];
+        opt.innerHTML = allAnnotVals[i];
+        selVal.appendChild(opt);
     }
 }
 
@@ -726,8 +741,9 @@ function runGenorm() {
     var ret = {}
     ret["mode"] = "run-genorm"
     ret["sel-experiment"] = window.selExperiment
-    ret["overlap-type"] = getSaveHtmlData("selOverlapGenorm")
+    ret["sel-sam-gen"] = getSaveHtmlData("selSamplesGenorm")
     ret["sel-annotation"] = window.selAnnotation
+    ret["sel-anno-val"] = getSaveHtmlData("selGenormAnVal")
     updateServerData(uuid, JSON.stringify(ret))
 
     $('[href="#genorm-tab"]').tab('show')
