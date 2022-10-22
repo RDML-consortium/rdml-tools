@@ -622,7 +622,10 @@ def handle_data():
                 data["error"] = "Corrupted RDML file was repaired (no rdml_data.xml) - please save fixed RDML file!"
        
         if rd.version() == "1.0":
-            rd.migrate_version_1_0_to_1_1()
+            try:
+                rd.migrate_version_1_0_to_1_1()
+            except TypeError:
+                return jsonify(errors=[{"title": "Corrupted RDML: Migration from version 1.0 to 1.1 failed!"}]), 400
             rd.save(fexpname)
             rd = rdml.Rdml(fexpname)
         modified = False
