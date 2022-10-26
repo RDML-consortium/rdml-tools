@@ -406,7 +406,7 @@ function updateServerData(stat, reqData) {
                     hideElement(resultError)
                 }
                 if (res.data.data.hasOwnProperty("exporttable")) {
-                    saveFile("rdml_export.tsv", res.data.data.exporttable, "tsv")
+                    saveFile("rdes_export.tsv", res.data.data.exporttable, "tsv")
                 }
                 updateClientData()
             }
@@ -553,7 +553,7 @@ function htmlUnitSelector(tag, base) {
 }
 
 window.createLinkBox = createLinkBox
-function createLinkBox(apiLink, toolhtml, uuuid, valid, experiment = "", run = "") {
+function createLinkBox(apiLink, apiURL, toolhtml, uuuid, valid, experiment = "", run = "") {
     // The UUID box
     if (experiment == "") {
         run = "";
@@ -575,9 +575,9 @@ function createLinkBox(apiLink, toolhtml, uuuid, valid, experiment = "", run = "
     ret += '<p>Download RDML file:<br />'
     var stuffer = new Date();
     var stufferStr = stuffer.getTime()
-    ret += '<a href="' + apiLink + "/download/" + uuuid + '?UNIQUE=' + stufferStr
+    ret += '<a href="' + apiURL + "/download/" + uuuid + '?UNIQUE=' + stufferStr
     ret += '" target="_blank" id="download-link">'
-    ret += apiLink + "/download/" + uuuid + '</a> (valid for 3 days)\n<br />\n'
+    ret += apiURL + "/download/" + uuuid + '</a> (valid for 3 days)\n<br />\n'
     ret += '</p>\n'
     if (!(toolhtml == 'edit.html')) {
         ret += '<p>View or edit RDML file:<br />'
@@ -643,7 +643,7 @@ function createLinkBox(apiLink, toolhtml, uuuid, valid, experiment = "", run = "
 
 function updateClientData() {
     // The UUID box
-    var ret = '<br />' + createLinkBox(`${API_LINK}`, 'edit.html', window.uuid, window.isvalid, window.selExperiment, window.selRun);
+    var ret = '<br />' + createLinkBox(`${API_LINK}`, `${API_URL}`, 'edit.html', window.uuid, window.isvalid, window.selExperiment, window.selRun);
     if (window.isvalid == "invalid") {
         var errT = '<i class="fas fa-fire"></i>\n<span id="error-message">'
         errT += 'Error: Uploaded file is not valid RDML! '
