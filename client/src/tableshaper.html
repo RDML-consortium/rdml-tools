@@ -333,13 +333,27 @@
             <div class="row">
               <div class="col">
                 <div class="form-row">
-                  <label class="col-sm-8 col-form-label" for="modExDyeCol">Select columns on col values (-1 selects all):</label>
+                  <label class="col-sm-8 col-form-label" for="modExCqTmCol">Extract Cq or Tm information from column:</label>
+                  <input type="text" class="form-control col-sm-4" id="modExCqTmCol" value="" onchange="updateModification()">
+                </div>
+              </div>
+              <div class="col">
+                <div class="form-row">
+                  <label class="col-sm-8 col-form-label" for="modExCqTmRegEx">Apply regex:</label>
+                  <input type="text" class="form-control col-sm-4" id="modExCqTmRegEx" value="([0-9\.;\-]+)" onchange="updateModification()">
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col">
+                <div class="form-row">
+                  <label class="col-sm-8 col-form-label" for="modExTrueCol">Select columns on col values (-1 selects all):</label>
                   <input type="text" class="form-control col-sm-4" id="modExTrueCol" value="-1" onchange="updateModification()">
                 </div>
               </div>
               <div class="col">
                 <div class="form-row">
-                  <label class="col-sm-8 col-form-label" for="modExDyeRegEx">Apply regex (must be true to be removed):</label>
+                  <label class="col-sm-8 col-form-label" for="modExTrueRegEx">Apply regex (must be true to be removed):</label>
                   <input type="text" class="form-control col-sm-4" id="modExTrueRegEx" value="2" onchange="updateModification()">
                 </div>
               </div>

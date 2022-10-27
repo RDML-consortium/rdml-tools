@@ -448,6 +448,8 @@ function loadModification(newSett) {
     updateKeyEl(newSett,"exTarTypeRegEx", "modExTarTypeRegEx");
     updateKeyEl(newSett,"exDyeCol", "modExDyeCol");
     updateKeyEl(newSett,"exDyeRegEx", "modExDyeRegEx");
+    updateKeyEl(newSett,"exCqTmCol", "modExCqTmCol");
+    updateKeyEl(newSett,"exCqTmRegEx", "modExCqTmRegEx");
     updateKeyEl(newSett,"exTrueCol", "modExTrueCol");
     updateKeyEl(newSett,"exTrueRegEx", "modExTrueRegEx");
 }
@@ -481,6 +483,8 @@ function updateModification() {
     window.modifySettings["exTarTypeRegEx"] = document.getElementById('modExTarTypeRegEx').value;
     window.modifySettings["exDyeCol"] = parseInt(document.getElementById('modExDyeCol').value);
     window.modifySettings["exDyeRegEx"] = document.getElementById('modExDyeRegEx').value;
+    window.modifySettings["exCqTmCol"] = parseInt(document.getElementById('modExCqTmCol').value);
+    window.modifySettings["exCqTmRegEx"] = document.getElementById('modExCqTmRegEx').value;
     window.modifySettings["exTrueCol"] = parseInt(document.getElementById('modExTrueCol').value);
     window.modifySettings["exTrueRegEx"] = document.getElementById('modExTrueRegEx').value;
 
@@ -543,7 +547,10 @@ function updateModification() {
     reshapeTableView.innerHTML = drawHtmlTable(tab, false)
 
     // Finally extract the information
-    var ftab = [["Well", "Sample", "Sample Type", "Target", "Target Type", "Dye"]];
+    var ftab = [["Well", "Sample", "Sample Type", "Target", "Target Type", "Dye", "Cq"]];
+    if (window.modifySettings["reformatAmpMelt"] == "melt") {
+        ftab[0][6] = "Tm";
+    }
 
     var trueColRe = new RegExp(window.modifySettings["exTrueRegEx"]);
     var trueCol = window.modifySettings["exTrueCol"] - 1;
@@ -575,17 +582,17 @@ function updateModification() {
                 continue;
             }
             realRowNr++;
-            ftab[realRowNr] = ["", "", "unkn", "", "toi", "unkn_dye"];
+            ftab[realRowNr] = ["", "", "unkn", "", "toi", "unkn_dye", ""];
             var minColNr = 0;
             if (window.modifySettings["fluorDelColStart"] > 0) {
-                 minColNr = window.modifySettings["fluorDelColStart"];
+                minColNr = window.modifySettings["fluorDelColStart"];
             }
             var maxColNr = tab[r].length;
             if ((window.modifySettings["fluorDelColEnd"] > 1) &&
                 (window.modifySettings["fluorDelColEnd"] < tab[r].length)) {
-                 maxColNr = window.modifySettings["fluorDelColEnd"];
+                maxColNr = window.modifySettings["fluorDelColEnd"];
             }
-            var realColNr = 5;
+            var realColNr = 6;
             for (var c = minColNr ; c < maxColNr ; c++) {
                 realColNr++;
                 if (window.modifySettings["fluorCommaDot"] == true) {
@@ -614,7 +621,7 @@ function updateModification() {
                 (window.modifySettings["fluorDelColEnd"] < tab[fRow].length)) {
                  maxColNr = window.modifySettings["fluorDelColEnd"];
             }
-            var realColNr = 5;
+            var realColNr = 6;
             for (var c = minColNr ; c < maxColNr ; c++) {
                 realColNr++;
                 var fluorVal = "";
@@ -743,6 +750,24 @@ function updateModification() {
                 }
             }
         }
+        // CqTm information
+        if (window.modifySettings["exCqTmCol"] > 0) {
+            var cqTmColRe = new RegExp(window.modifySettings["exCqTmRegEx"]);
+            var cqTmCol = window.modifySettings["exCqTmCol"] - 1;
+            realRowNr = 0;
+            for (var r = minRowNr ; r < maxRowNr ; r += jumpStep) {
+                if (exclFromTable[r]) {
+                    continue;
+                }
+                realRowNr++;
+                if (cqTmColRe.test(tab[r][cqTmCol])) {
+                    var match = cqTmColRe.exec(tab[r][cqTmCol]);
+                    ftab[realRowNr][6] = match[1];
+                } else {
+                    ftab[realRowNr][6] = "";
+                }
+            }
+        }
     } else {
         // This is a one row is one fluorescence data (the create) version
         var cycCount = 0;
@@ -760,6 +785,7 @@ function updateModification() {
         var tarColRe = new RegExp(window.modifySettings["exTarRegEx"]);
         var tarTypeColRe = new RegExp(window.modifySettings["exTarTypeRegEx"]);
         var dyeColRe = new RegExp(window.modifySettings["exDyeRegEx"]);
+        var cqTmColRe = new RegExp(window.modifySettings["exCqTmRegEx"]);
         for (var r = minRowNr ; r < maxRowNr ; r++) {
             if (trueColRe.test(tab[r][trueCol])) {
                 continue;
@@ -813,6 +839,12 @@ function updateModification() {
                 var match = dyeColRe.exec(tab[r][dyeCol]);
                 ftab[wellLookUp[wellVal]][5] = match[1];
             }
+            // CqTm information
+            if (window.modifySettings["exCqTmCol"] > 0) {
+                var CqTmCol = window.modifySettings["exCqTmCol"] - 1;
+                var match = CqTmColRe.exec(tab[r][CqTmCol]);
+                ftab[wellLookUp[wellVal]][6] = match[1];
+            }
             // Fluorescence values
             var fluorVal = tab[r][fluorCol];
             if (window.modifySettings["fluorCommaDot"] == true) {
@@ -830,7 +862,7 @@ function updateModification() {
     for (var r = ftab.length - 1 ; r > 0 ; r--) {
         var rowCount = false;
         // It has to have fluorescence data
-        for (var c = 6 ; c < ftab[r].length ; c++) {
+        for (var c = 7 ; c < ftab[r].length ; c++) {
             if (wordChar.test(ftab[r][c])) {
                 rowCount = true;
             }
@@ -1025,10 +1057,10 @@ function errorMessage(err) {
 
 function getSettingsArr() {
     var ret = [{
-               "settingsID":"RDML Import Format",
-               "reformatAmpMelt":"melt",
+               "settingsID":"RDES Amplification - RDML Import Format",
+               "reformatAmpMelt":"amp",
                "reformatTableShape":"keep",
-               "fluorDelColStart":6,
+               "fluorDelColStart":7,
                "fluorDelRowStart":1,
                "fluorDelOtherRow":0,
                "fluorDelColEnd":null,
@@ -1051,6 +1083,39 @@ function getSettingsArr() {
                "exTarTypeRegEx":"(.*)",
                "exDyeCol":6,
                "exDyeRegEx":"(.*)",
+               "exCqTmCol":7,
+               "exCqTmRegEx":"(.*)",
+               "exTrueCol":-1,
+               "exTrueRegEx":"2"
+               },{
+               "settingsID":"RDES Meltcurve - RDML Import Format",
+               "reformatAmpMelt":"melt",
+               "reformatTableShape":"keep",
+               "fluorDelColStart":7,
+               "fluorDelRowStart":1,
+               "fluorDelOtherRow":0,
+               "fluorDelColEnd":null,
+               "fluorDelRowEnd":null,
+               "fluorCommaDot":true,
+               "exFluorCol":4,
+               "exCycRow":1,
+               "exCycRowRegEx":"(.*)",
+               "exCycCol":1,
+               "exCycColRegEx":"([0-9]+)",
+               "exWellCol":1,
+               "exWellRegEx":"(.*)",
+               "exSamCol":2,
+               "exSamRegEx":"(.*)",
+               "exSamTypeCol":3,
+               "exSamTypeRegEx":"(.*)",
+               "exTarCol":4,
+               "exTarRegEx":"(.*)",
+               "exTarTypeCol":5,
+               "exTarTypeRegEx":"(.*)",
+               "exDyeCol":6,
+               "exDyeRegEx":"(.*)",
+               "exCqTmCol":7,
+               "exCqTmRegEx":"(.*)",
                "exTrueCol":-1,
                "exTrueRegEx":"2"
                },{
@@ -1080,6 +1145,8 @@ function getSettingsArr() {
                "exTarTypeRegEx":"(.*)",
                "exDyeCol":2,
                "exDyeRegEx":".+ (.*)",
+               "exCqTmCol":null,
+               "exCqTmRegEx":"([0-9\.;\-]+)",
                "exTrueCol":-1,
                "exTrueRegEx":"2"
                },{
@@ -1109,6 +1176,8 @@ function getSettingsArr() {
                "exTarTypeRegEx":"(.*)",
                "exDyeCol":null,
                "exDyeRegEx":"(.*)",
+               "exCqTmCol":null,
+               "exCqTmRegEx":"([0-9\.;\-]+)",
                "exTrueCol":-1,
                "exTrueRegEx":"2"
                },{
@@ -1137,6 +1206,8 @@ function getSettingsArr() {
                "exTarTypeRegEx":"(.*)",
                "exDyeCol":null,
                "exDyeRegEx":"(.*)",
+               "exCqTmCol":null,
+               "exCqTmRegEx":"([0-9\.;\-]+)",
                "exTrueCol":-1,
                "exTrueRegEx":"2"
                },{
@@ -1166,6 +1237,8 @@ function getSettingsArr() {
                "exTarTypeRegEx":"(.*)",
                "exDyeCol":null,
                "exDyeRegEx":"(.*)",
+               "exCqTmCol":null,
+               "exCqTmRegEx":"([0-9\.;\-]+)",
                "exTrueCol":-1,
                "exTrueRegEx":"2"
                },{
@@ -1195,6 +1268,8 @@ function getSettingsArr() {
                "exTarTypeRegEx":"(.*)",
                "exDyeCol":6,
                "exDyeRegEx":"(.*)",
+               "exCqTmCol":null,
+               "exCqTmRegEx":"([0-9\.;\-]+)",
                "exTrueCol":-1,
                "exTrueRegEx":"2"
                },{
@@ -1224,6 +1299,8 @@ function getSettingsArr() {
                "exTarTypeRegEx":"(.*)",
                "exDyeCol":3,
                "exDyeRegEx":"(.*)",
+               "exCqTmCol":null,
+               "exCqTmRegEx":"([0-9\.;\-]+)",
                "exTrueCol":-1,
                "exTrueRegEx":"2"
                },{
@@ -1253,6 +1330,8 @@ function getSettingsArr() {
                "exTarTypeRegEx":"(.*)",
                "exDyeCol":null,
                "exDyeRegEx":"(.*)",
+               "exCqTmCol":null,
+               "exCqTmRegEx":"([0-9\.;\-]+)",
                "exTrueCol":-1,
                "exTrueRegEx":"2"
                },{
@@ -1282,6 +1361,8 @@ function getSettingsArr() {
                "exTarTypeRegEx":"(.*)",
                "exDyeCol":null,
                "exDyeRegEx":"(.*)",
+               "exCqTmCol":null,
+               "exCqTmRegEx":"([0-9\.;\-]+)",
                "exTrueCol":-1,
                "exTrueRegEx":"2"
                },{
@@ -1310,6 +1391,8 @@ function getSettingsArr() {
                "exTarTypeRegEx":"(.*)",
                "exDyeCol":null,
                "exDyeRegEx":"(.*)",
+               "exCqTmCol":null,
+               "exCqTmRegEx":"([0-9\.;\-]+)",
                "exTrueCol":-1,
                "exTrueRegEx":"2"
                },{
@@ -1338,6 +1421,8 @@ function getSettingsArr() {
                "exTarTypeRegEx":"(.*)",
                "exDyeCol":1,
                "exDyeRegEx":"^[A-Za-z]+[0-9]+ (.*)",
+               "exCqTmCol":null,
+               "exCqTmRegEx":"([0-9\.;\-]+)",
                "exTrueCol":-1,
                "exTrueRegEx":"2"
                },{
@@ -1367,6 +1452,8 @@ function getSettingsArr() {
                "exTarTypeRegEx":"(.*)",
                "exDyeCol":1,
                "exDyeRegEx":"^[A-Za-z]+[0-9]+ (.*)",
+               "exCqTmCol":null,
+               "exCqTmRegEx":"([0-9\.;\-]+)",
                "exTrueCol":-1,
                "exTrueRegEx":"2"
                },{
@@ -1396,6 +1483,8 @@ function getSettingsArr() {
                "exTarTypeRegEx":"(.*)",
                "exDyeCol":null,
                "exDyeRegEx":"(.*)",
+               "exCqTmCol":null,
+               "exCqTmRegEx":"([0-9\.;\-]+)",
                "exTrueCol":-1,
                "exTrueRegEx":"2"
                },{
@@ -1424,6 +1513,8 @@ function getSettingsArr() {
                "exTarTypeRegEx":"(.*)",
                "exDyeCol":null,
                "exDyeRegEx":"(.*)",
+               "exCqTmCol":null,
+               "exCqTmRegEx":"([0-9\.;\-]+)",
                "exTrueCol":-1,
                "exTrueRegEx":"2"
                },{
@@ -1453,6 +1544,8 @@ function getSettingsArr() {
                "exTarTypeRegEx":"(.*)",
                "exDyeCol":null,
                "exDyeRegEx":"(.*)",
+               "exCqTmCol":null,
+               "exCqTmRegEx":"([0-9\.;\-]+)",
                "exTrueCol":-1,
                "exTrueRegEx":"2"
                },{
@@ -1482,6 +1575,8 @@ function getSettingsArr() {
                "exTarTypeRegEx":"(.*)",
                "exDyeCol":6,
                "exDyeRegEx":"(.*)",
+               "exCqTmCol":null,
+               "exCqTmRegEx":"([0-9\.;\-]+)",
                "exTrueCol":-1,
                "exTrueRegEx":"2"
                },{
@@ -1511,6 +1606,8 @@ function getSettingsArr() {
                "exTarTypeRegEx":"(.*)",
                "exDyeCol":null,
                "exDyeRegEx":"(.*)",
+               "exCqTmCol":null,
+               "exCqTmRegEx":"([0-9\.;\-]+)",
                "exTrueCol":3,
                "exTrueRegEx":"3"
                },{
@@ -1540,6 +1637,8 @@ function getSettingsArr() {
                "exTarTypeRegEx":"(.*)",
                "exDyeCol":null,
                "exDyeRegEx":"(.*)",
+               "exCqTmCol":null,
+               "exCqTmRegEx":"([0-9\.;\-]+)",
                "exTrueCol":3,
                "exTrueRegEx":"2"
                },{
@@ -1569,6 +1668,8 @@ function getSettingsArr() {
                "exTarTypeRegEx":"(.*)",
                "exDyeCol":3,
                "exDyeRegEx":"[^,]*,[^,]*,[^,]*, (.*)",
+               "exCqTmCol":null,
+               "exCqTmRegEx":"([0-9\.;\-]+)",
                "exTrueCol":-1,
                "exTrueRegEx":"2"
                },{
@@ -1598,6 +1699,8 @@ function getSettingsArr() {
                "exTarTypeRegEx":"(.*)",
                "exDyeCol":null,
                "exDyeRegEx":"(.*)",
+               "exCqTmCol":null,
+               "exCqTmRegEx":"([0-9\.;\-]+)",
                "exTrueCol":-1,
                "exTrueRegEx":"2"
                },{
@@ -1627,6 +1730,8 @@ function getSettingsArr() {
                "exTarTypeRegEx":"(.*)",
                "exDyeCol":null,
                "exDyeRegEx":"(.*)",
+               "exCqTmCol":null,
+               "exCqTmRegEx":"([0-9\.;\-]+)",
                "exTrueCol":-1,
                "exTrueRegEx":"2"
                },{
@@ -1656,6 +1761,8 @@ function getSettingsArr() {
                "exTarTypeRegEx":"(.*)",
                "exDyeCol":null,
                "exDyeRegEx":"(.*)",
+               "exCqTmCol":null,
+               "exCqTmRegEx":"([0-9\.;\-]+)",
                "exTrueCol":-1,
                "exTrueRegEx":"2"
                }
