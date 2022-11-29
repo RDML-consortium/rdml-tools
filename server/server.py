@@ -300,6 +300,29 @@ def validate_file():
     return jsonify(errors=[{"title": "Error in handling POST request!"}]), 400
 
 
+@app.route('/api/v1/teststat', methods=['POST'])
+def teststat_data():
+    if request.method == 'POST':
+        if 'reqData' not in request.form.keys():
+            return jsonify(errors=[{"title": "Invalid server request - reqData missing!"}]), 400
+        reqdata = json.loads(request.form['reqData'])
+        if "parametric" not in reqdata:
+            return jsonify(errors=[{"title": "Invalid server request - parametric missing!"}]), 400
+        if "seperator" not in reqdata:
+            return jsonify(errors=[{"title": "Invalid server request - seperator missing!"}]), 400
+        if "replace-comma" not in reqdata:
+            return jsonify(errors=[{"title": "Invalid server request - replace-comma missing!"}]), 400
+        if "table" not in reqdata:
+            return jsonify(errors=[{"title": "Invalid server request - table missing!"}]), 400
+
+        # Run RDML-Python
+        ret = rdml.webAppRunStatistics(reqdata["table"], parametric=reqdata["parametric"], seperator=reqdata["seperator"], replaceComma=reqdata["replace-comma"])
+        if LOGRDMLRUNS:
+            logData("RDML-Tools", "TestStat", '0', '---')
+        return jsonify(data={"table": ret})
+    return jsonify(errors=[{"title": "Error in handling POST request!"}]), 400
+
+
 @app.route('/api/v1/merge', methods=['POST'])
 def merge_data():
     if request.method == 'POST':
@@ -2364,6 +2387,8 @@ def handle_data():
                 return jsonify(errors=[{"title": "Invalid server request - overlap-type id missing!"}]), 400
             if "sel-annotation" not in reqdata:
                 return jsonify(errors=[{"title": "Invalid server request - sel-annotation missing!"}]), 400
+            if "stats-parametric" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - stats-parametric missing!"}]), 400
             if "incl-annotation" not in reqdata:
                 return jsonify(errors=[{"title": "Invalid server request - incl-annotation missing!"}]), 400
             if "sel-references" not in reqdata:
@@ -2375,6 +2400,7 @@ def handle_data():
                     return jsonify(errors=[{"title": "Invalid server request - experiment id not found!"}]), 400
                 data["relative"] = experiment.relative(overlapType=reqdata["overlap-type"],
                                                        selAnnotation=reqdata["sel-annotation"],
+                                                       statsParametric=reqdata["stats-parametric"],
                                                        inclAnnotation=reqdata["incl-annotation"],
                                                        selReferences=reqdata["sel-references"],
                                                        saveResultsCSV=True)

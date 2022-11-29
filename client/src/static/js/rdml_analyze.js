@@ -784,6 +784,7 @@ function runRelative() {
     ret["sel-experiment"] = window.selExperiment
     ret["overlap-type"] = getSaveHtmlData("selOverlapRelative")
     ret["sel-annotation"] = window.selAnnotation
+    ret["stats-parametric"] = getSaveHtmlData("selStatsParametric")
     ret["incl-annotation"] = inclAnno
     ret["sel-references"] = selRefs
     updateServerData(uuid, JSON.stringify(ret))
@@ -2323,6 +2324,7 @@ function updateRelativeTable() {
     maxCols = tsvGetMaxColumns(window.relative.tsv.relative_data, maxCols)
     if (window.relative.tsv.hasOwnProperty("annotation_data")) {
         maxCols = tsvGetMaxColumns(window.relative.tsv.annotation_data, maxCols)
+        maxCols = tsvGetMaxColumns(window.relative.tsv.statistics_data, maxCols)
     }
 
     ret += '<br /><br />\n'
@@ -2350,6 +2352,12 @@ function updateRelativeTable() {
         content += tsvToTsvHeadline("Expression by Annotation", maxCols)
         ret += tsvToTableSectionNoRaw(window.relative.tsv.annotation_data, maxCols)
         content += tsvToTsvSectionNoRaw(window.relative.tsv.annotation_data, maxCols)
+        ret += tsvToTableHeadline("", maxCols)
+        content += tsvToTsvHeadline("", maxCols)
+        ret += tsvToTableHeadline("Statistics", maxCols)
+        content += tsvToTsvHeadline("Statistics", maxCols)
+        ret += tsvToTableSectionNoRaw(window.relative.tsv.statistics_data, maxCols)
+        content += tsvToTsvSectionNoRaw(window.relative.tsv.statistics_data, maxCols)
     }
     ret += '</table>\n'
 

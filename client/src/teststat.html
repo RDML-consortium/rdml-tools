@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>RDML-TestStat | GEAR</title>
+  <meta name="description" content="Calculate basic statistics on groups.">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.0/css/all.css">
+  <link rel="stylesheet" href="static/css/gear.css">
+</head>
+
+<body>
+
+  <header class="px-0 py-4">
+    <div class="container">
+      <h1 class="display-4 app-name">RDML-TestStat</h1>
+        <p class="lead">Calculate basic statistics on groups.</p>
+        <a class="plain" href="help.html" target="_blank">
+          <i class="fas fa-question"></i> Get help
+        </a>
+        ·
+        <a class="plain" href="index.html" target="_blank">
+          <i class="fas fa-landmark"></i> RDML-Tools
+        </a>
+        ·
+        <a class="plain" target="_blank" href="https://github.com/RDML-consortium/rdml-tools">
+          <i class="fab fa-github-alt"></i> Source
+        </a>
+    </div>
+  </header>
+
+  <main class="container">
+    <ul class="nav nav-fill mb-4" id="mainTab">
+      <li class="nav-item">
+        <a class="nav-link active" href="#input-tab">Input</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#result-tab" id="link-results">Results</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#help-tab" id="link-help">Help</a>
+      </li>
+    </ul>
+    <div class="tab-content" id="main-tabs">
+      <div class="tab-pane show active" id="input-tab">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Select test type</h5>
+            <div class="form-check-inline">
+              <label class="form-check-label">
+                <input type="radio" class="form-check-input" name="sel-test" id="test-radio-non" value="N" checked>
+                <a id="test-opt-non">non-parametric test</a>
+              </label>
+            </div>
+            <div class="form-check-inline">
+              <label class="form-check-label">
+                <input type="radio" class="form-check-input" name="sel-test" id="test-radio-para" value="Y">
+                <a id="sep-opt-comma">parametric test</a>
+              </label>
+            </div>
+          </div>
+        </div>
+        <br />
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Select column separator for import</h5>
+            <div class="form-check-inline">
+              <label class="form-check-label">
+                <input type="radio" class="form-check-input" name="radio-column-sep" id="sep-radio-tab" value="\t" checked>
+                <a id="sep-opt-tab">Tab (\t)</a>
+              </label>
+            </div>
+            <div class="form-check-inline">
+              <label class="form-check-label">
+                <input type="radio" class="form-check-input" name="radio-column-sep" id="sep-radio-comma" value=",">
+                <a id="sep-opt-comma">Comma (,)</a>
+              </label>
+            </div>
+            <div class="form-check-inline">
+              <label class="form-check-label">
+                <input type="radio" class="form-check-input" name="radio-column-sep" id="sep-radio-semicolon" value=";">
+                <a id="sep-opt-semicolon">Semicolon (;)</a>
+              </label>
+            </div>
+            <div class="form-check-inline">
+              <label class="form-check-label">
+                <input type="radio" class="form-check-input" name="radio-column-sep" id="sep-radio-colon" value=":">
+                <a id="sep-opt-colon">Colon (:)</a>
+              </label>
+            </div>
+          </div>
+        </div>
+        <br />
+        <div class="card">
+          <div class="card-body">
+            <div class="form-check">
+              <label class="form-check-label">
+                <input type="checkbox" class="form-check-input" id="modCommaDot" value="">Replace all commas by dots
+              </label>
+            </div>
+          </div>
+        </div>
+        <br />
+        <div class="card">
+          <div class="card-body">
+            <div class="form-group">
+              <label for="table-area">Data (copy & paste in here):</label>
+              <textarea class="form-control" id="table-area" rows="15"></textarea>
+            </div>
+          </div>
+        </div>
+        <br />
+        <button type="submit" class="btn btn-outline-primary" id="btn-submit">
+          <i class="fas fa-rocket" style="margin-right: 5px;"></i>
+          Launch Analysis
+        </button>
+        <button type="submit" class="btn btn-outline-primary" id="btn-example">
+          <i class="fas fa-eye" style="margin-right: 5px;"></i>
+          Load Example
+        </button>
+       </div>
+
+      <div class="tab-pane" id="result-tab">
+        <div id="result-info" class="alert alert-info d-none" role="alert">
+          <i class="fas fa-spinner spinner"></i>
+          Analysis is running, please be patient.
+        </div>
+        <div id="result-error" class="alert alert-danger d-none" role="alert">
+          <i class="fas fa-fire"></i>
+          <span id="error-message"></span>
+        </div>
+        <div id="result-data"></div>
+      </div>
+
+      <div class="tab-pane" id="help-tab">
+        <h4>Application Description</h4>
+        <p> RDML-TestStat calculates basic statistics on groups. It is just a simple wraper 
+          for the functions of the 
+          <a target="_blank" href="https://scipy.org">SciPy library</a> running on the 
+          server. For the parametric tests of two groups, the t-test is used 
+          (stats.ttest_ind()). For more than two groups, the One-way ANOVA is used 
+          (stats.f_oneway()). For non-parametric tests of two groups, the Mann-Whitney test 
+          is used (stats.mannwhitneyu(alternative='two-sided', use_continuity=False, 
+          method='asymptotic')). For more than two groups, the Kruskal-Wallis test is used 
+          (stats.kruskal()).</p>
+        <h4>Accepted Input</h4>
+        <p> Copy a table with a group identifyer in the first column and the values in the 
+          following columns. The values of one group can be provided in seperate rows.</p>
+        <h4>Sample Data</h4>
+        <p> The "Show Example" button loads an example input.
+        </p>
+        <h4>More Help</h4>
+        <p> A general help file is available as
+            <a href="help.html#RDML-TestStat" target="_blank">RDML-Tools Help</a>.
+        </p>
+      </div>
+
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="float-left">
+        <a class="plain" target="_blank" href="https://www.gear-genomics.com">
+          GEAR + RDML Consortium &#126;
+          <i class="fas fa-home"></i>
+        </a>
+        ·
+        <a class="plain" target="_blank" href="https://github.com/gear-genomics">
+          <i class="fab fa-github-alt"></i>
+        </a>
+        ·
+        <a class="plain" target="_blank" href="http://rdml.org">
+          RDML Consortium 
+        </a>
+        ·
+        <a class="plain" target="_blank" href="https://www.gear-genomics.com/terms">
+          Terms of Use
+        </a>
+        ·
+        <a class="plain" target="_blank" href="https://www.gear-genomics.com/contact">
+          Contact Us
+        </a>
+      </div>
+      <div class="float-right">
+        Supported by
+        <a class="plain" target="_blank" href="https://www.embl.de/">
+          <img class="footer-logo" alt="EMBL logo" src="static/img/embl.svg">
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.27.0/axios.min.js"></script>
+  <script type="module" src="static/js/rdml_teststat.js"></script>
+
+</body>
+
+</html>
