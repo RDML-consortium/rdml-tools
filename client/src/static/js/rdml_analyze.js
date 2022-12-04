@@ -88,6 +88,9 @@ choiceAbsoluteAnno.addEventListener('change', updateAbsoluteAnno)
 const choiceGenormAnno = document.getElementById('selGenormAnnotation')
 choiceGenormAnno.addEventListener('change', updateGenormAnno)
 
+const choiceGenormAnVal = document.getElementById('selGenormAnVal')
+choiceGenormAnVal.addEventListener('change', updateGenormAnVal)
+
 const choiceRelativeAnno = document.getElementById('selRelativeAnnotation')
 choiceRelativeAnno.addEventListener('change', updateRelativeAnno)
 
@@ -144,6 +147,7 @@ window.plateView = "plate";
 window.colorStyle = "tarsam";
 window.decimalSepPoint = true;
 window.selAnnotation = "";
+window.selAnnoValue = "";
 
 window.selAnnota = false;
 window.selPCREff = false;
@@ -191,6 +195,7 @@ window.usedDyeMaxPos = 0
 function resetAllGlobalVal() {
     window.plateView = "plate";
     window.selAnnotation = "";
+    window.selAnnoValue = "";
     window.samValues = {}
     hideElement(resultError)
     resetAllInterRun()
@@ -330,6 +335,12 @@ function updateGenormAnno() {
     updateAllAnnotations()
 }
 
+window.updateGenormAnVal = updateGenormAnVal
+function updateGenormAnVal() {
+    window.selAnnoValue = getSaveHtmlData("selGenormAnVal")
+    updateAllAnnotations()
+}
+
 window.updateRelativeAnno = updateRelativeAnno
 function updateRelativeAnno() {
     window.selAnnotation = getSaveHtmlData("selRelativeAnnotation")
@@ -415,6 +426,9 @@ function updateGenormAnnotations() {
         var opt = document.createElement('option');
         opt.value = allAnnotVals[i];
         opt.innerHTML = allAnnotVals[i];
+        if (window.selAnnoValue == allAnnotVals[i]) {
+            opt.selected = true;
+        }
         selVal.appendChild(opt);
     }
 }
@@ -743,7 +757,7 @@ function runGenorm() {
     ret["sel-experiment"] = window.selExperiment
     ret["sel-sam-gen"] = getSaveHtmlData("selSamplesGenorm")
     ret["sel-annotation"] = window.selAnnotation
-    ret["sel-anno-val"] = getSaveHtmlData("selGenormAnVal")
+    ret["sel-anno-val"] = window.selAnnoValue
     updateServerData(uuid, JSON.stringify(ret))
 
     $('[href="#genorm-tab"]').tab('show')
@@ -2003,7 +2017,7 @@ function tsvToTableSectionNoRaw(tsvString, maxColumns) {
             if (col < tsvCells.length) {
                 if (row == 0) {
                     if (col != maxColumns - 1) {
-                        if (tsvCells[col] == "Raw Values") {
+                        if (tsvCells[col] == "Individual Values") {
                             rawCol = col
                         }
                     }
@@ -2085,7 +2099,7 @@ function tsvToTsvSectionNoRaw(tsvString, maxColumns) {
             if (col < tsvCells.length) {
                 if (row == 0) {
                     if (col != maxColumns - 1) {
-                        if (tsvCells[col] == "Raw Values") {
+                        if (tsvCells[col] == "Individual Values") {
                             rawCol = col
                         }
                     }
