@@ -1,5 +1,8 @@
 "use strict";
 
+var jquery = require("jquery");
+window.$ = window.jQuery = jquery; // notice the definition of global variables here
+
 const API_URL = process.env.API_URL
 const API_LINK = process.env.API_LINK
 
