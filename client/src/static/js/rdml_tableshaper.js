@@ -798,7 +798,7 @@ function updateModification() {
             var matchWell = wellColRe.exec(tab[r][wellCol]);
             var wellVal = matchWell[1];
             if (cycLookUp.hasOwnProperty(cycVal) != true) {
-                cycLookUp[cycVal] = cycCount + 6;
+                cycLookUp[cycVal] = cycCount + 7;
                 var cycWriteVal = cycVal;
                 if (window.modifySettings["reformatAmpMelt"] == "amp") {
                     cycWriteVal = Math.ceil(parseFloat(cycWriteVal));
@@ -808,7 +808,7 @@ function updateModification() {
             }
             if (wellLookUp.hasOwnProperty(wellVal) != true) {
                 wellLookUp[wellVal] = wellCount + 1;
-                ftab[wellLookUp[wellVal]] = [wellVal, "", "unkn", "", "toi", "unkn_dye"];
+                ftab[wellLookUp[wellVal]] = [wellVal, "", "unkn", "", "toi", "unkn_dye", ""];
                 wellCount++;
             }
             // Sample information

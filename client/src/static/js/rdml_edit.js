@@ -409,7 +409,7 @@ function updateServerData(stat, reqData) {
                     hideElement(resultError)
                 }
                 if (res.data.data.hasOwnProperty("exporttable")) {
-                    saveFile("rdes_export.tsv", res.data.data.exporttable, "tsv")
+                    saveFile("data_export.tsv", res.data.data.exporttable, "tsv")
                 }
                 updateClientData()
             }
