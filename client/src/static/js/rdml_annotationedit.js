@@ -541,7 +541,7 @@ function updateClientData() {
     ret += '    <td style="width:75%"><input type="text" class="form-control" '
     ret += 'id="inCreateProperty" value="' + window.sampleListProp + '"></td>\n'
     ret += '  </tr>'
-    ret += '  <tr>\n    <td style="width:25%;">Old Value</td>\n'
+    ret += '  <tr>\n    <td style="width:25%;">Value</td>\n'
     ret += '    <td style="width:75%"><input type="text" class="form-control" '
     ret += 'id="inValue" value="' + window.sampleListVal + '"></td>\n'
     ret += '  </tr>'

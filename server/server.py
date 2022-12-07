@@ -2220,6 +2220,9 @@ def handle_data():
             except rdml.RdmlError as err:
                 data["error"] = str(err)
                 modified = False
+            except Exception as err:
+                data["error"] = str(err)
+                modified = False
 
         if "mode" in reqdata and reqdata["mode"] in ["run-meltcurve"]:
             if "sel-experiment" not in reqdata:
@@ -2284,6 +2287,9 @@ def handle_data():
                 if reqdata["update-RDML-data"]:
                     modified = True
             except rdml.RdmlError as err:
+                data["error"] = str(err)
+                modified = False
+            except Exception as err:
                 data["error"] = str(err)
                 modified = False
 
