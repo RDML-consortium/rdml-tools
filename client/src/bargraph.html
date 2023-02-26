@@ -612,13 +612,8 @@
 
       <div class="tab-pane" id="help-tab">
         <h4>Application Description</h4>
-        <p> RDML-TableShaper is a tool to shape tables with amplification data for
-            the import with RDML-tools. This is error-prone and second best to
-            original RDML export by the machine. As some machines do not offer RDML
-            export, TableShaper might help. Most qPCR machines export Excel files. Please
-            convert them by opening in Excel (Microsoft) or Calc (Libre Office),
-            selecting the table with the amplification data and save as tab separated
-            text file. The tab separated text file can be modified using TableShaper.
+        <p> RDML-BarGraph is a tool to create bar plots with error bars and the 
+            individual values as dots.
         </p>
         <h4>Function to place the dots</h4>
         <p>
@@ -626,55 +621,30 @@
             by the calculateCompactSwarm function from the R package beeswarm
             (see <a target="_blank" href="https://github.com/aroneklund/beeswarm">https://github.com/aroneklund/beeswarm</a>).
         </p>
-        <h4>The use of TableShaper</h4>
+        <h4>The use of RDML-BarGraph</h4>
         <p>
-             TableShaper follows three consecutive steps:
+          RDML-BarGraph follows three consecutive steps:
         </p>
         <p>
-            1. The table separators have to be identified on the first tab. If it does
-            not work out automatically, the separator has to be selected manually. The
-            table columns need to be recognized in the table below.
+            1. Upload the data as csv file in the first tab. The file needs to have 
+            three columns. The fist two are used to group the samples, the third 
+            must contain the value.
         </p>
         <p>
-            2. The content need to be recognized in the second tab. If your table
-            format is not found in the predefined settings, you may iteratively select
-            the parameters and load / save them for later use. Adapt the "Number of
-            columns to keep" and "Number of rows to keep" to match the experiments
-            cycle and well numbers and avoid cutoff. "Settings to reshape
-            the table" is the most dramatic shaping option. You can opt to flip the
-            table or to build a table from value list. The result is drawn below and
-            can be used to select the columns for data extraction.
+            2. Choose SEM or SD on the second tab.
         </p>
         <p>
-            3. Fill the missing content in the third tab. To be able to import the
-            table into RDML, the first six columns have to be filled. Using the fields
-            on the third tab eases this step as squares B2-D7 can be used. Take care in
-            this step as errors in the target id and sample id can not be fixed in RDML
-            later. Save the result as .tsv file.
-        </p>
-        <p>
-            4. To create an RDML file fill the information on the "Create RDML file"
-            card and hit the button. RDML-Edit will open with the created RDML file
-            and allow to save or view the RDML file.<br/>
-            Alternatively the data can be imported int existing RDML files. Open the
-            RDML file in RDML-Edit (or create new) and enable editing with the "enable
-            edit mode" button. Now change to the experiments tab and open an experiment
-            or create a new experiment. In the experiment, create a new run. Take care to
-            set the ID and PCR-Format fields correctly. Now select the exported .tsv
-            file in "Import Amplification Data". Once saved you can inspect the result
-            using RunView or save it as RDML file on the first tab.
+            3. Download the graph or adapt it to your needs on the third tab.
         </p>
         <h4>Accepted Input</h4>
         <p> The table files can be provided in text format with tab, comma or semicolon
             as separator(*.txt, *.tsv, and *.csv).</p>
         <h4>Sample Data</h4>
-        <p> The "Show Example" button loads an example table file
-            <a href="static/bin/sample.tsv">(click to download file)</a> from a BioRad
-            iCycler v9.35.
+        <p> The "Show Example" button loads an example table file.
         </p>
         <h4>More Help</h4>
         <p> A general help file is available as
-            <a href="help.html#RDML-TableShaper" target="_blank">RDML-Tools Help</a>.
+            <a href="help.html#RDML-BarGraph" target="_blank">RDML-Tools Help</a>.
         </p>
       </div>
 

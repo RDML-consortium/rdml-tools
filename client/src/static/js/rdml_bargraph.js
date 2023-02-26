@@ -124,7 +124,65 @@ window.modifySettings["GraphTitlType"] = "Arial";
 
 document.addEventListener("DOMContentLoaded", function() {
     loadModification(window.modifySettings);
+    checkForUUID();
 });
+
+function checkForUUID() {
+    var uuid = ""
+
+    var path = (window.location.search + "").replace(/^\?/, "") // .pathname decodeURIComponent(;
+    path = path.replace(/&/g, ";")
+    var allPairs = path.split(";")
+    for (var i = 0 ; i < allPairs.length ; i++) {
+        var pair = allPairs[i].split("=")
+        var pKey = decodeURIComponent(pair[0])
+        var pVal = ""
+        if (pair.length > 1) {
+            pVal = decodeURIComponent(pair[1])
+        }
+        if (pKey == "UUID") {
+            uuid = pVal
+        }
+    }
+    const formData = new FormData()
+    formData.append('uuid', uuid)
+
+    hideElement(resultError)
+    showElement(resultInfo)
+    window.errorMessage = "";
+
+    axios
+        .post(`${API_URL}/bargraph`, formData)
+        .then(res => {
+	        if (res.status === 200) {
+                window.uuid = res.data.data.uuid
+                var tsvData = res.data.data.relativetsv
+                if (tsvData != "") {
+                    window.inputFileName = "relative_analysis"
+                    window.inputFile = tsvData;
+                    updateSepCount(window.inputFile);
+                
+                    $('[href="#save-tab"]').tab('show');
+                }
+            }
+            hideElement(resultInfo)
+        })
+        .catch(err => {
+            let errorMessage = err
+            if (err.response) {
+                errorMessage = err.response.data.errors
+               .map(error => error.title)
+               .join('; ')
+            }
+            hideElement(resultInfo)
+            showElement(resultError)
+            window.errorMessage += " " + errorMessage
+            var err = '<i class="fas fa-fire"></i>\n<span id="error-message">'
+            err += window.errorMessage + '</span>'
+            resultError.innerHTML = err
+        })
+}
+
 
 function showElement(element) {
     element.classList.remove('d-none')

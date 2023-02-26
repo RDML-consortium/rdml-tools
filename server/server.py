@@ -161,7 +161,6 @@ def runstatistics():
             data += str(finalData[dat][5]) + "\t"
             data += str(finalData[dat][6]) + "\t"
             data += str(finalData[dat][7]) + "\n"
-            print(dat)
         logData("RDML-Tools", "Statistics", "1", "---")
         return jsonify({"outfile": data}), 200
     return jsonify(errors=[{"title": "Error: No POST request!"}]), 400
@@ -964,8 +963,6 @@ def handle_data():
             elem = rd.get_sample(byposition=reqdata["primary-position"])
             if elem is None:
                 return jsonify(errors=[{"title": "Invalid server request - sample at position not found!"}]), 400
-            print(reqdata["sampleQuant-position"])
-            print(reqdata["new-position"])
             if reqdata["mode"] == "create-sampleQuantity":
                 try:
                     elem.new_quantity(value=reqdata["data"]["sampValue"],
@@ -2410,6 +2407,19 @@ def handle_data():
                                                        inclAnnotation=reqdata["incl-annotation"],
                                                        selReferences=reqdata["sel-references"],
                                                        saveResultsCSV=True)
+                if uuidstr in SAMPLEFILES:
+                    uuidstr = str(uuid.uuid4())
+                    data["uuid"] = uuidstr
+                    # Get subfolder
+                    sf = os.path.join(app.config['UPLOAD_FOLDER'], uuidstr[0:2])
+                    if not os.path.exists(sf):
+                        os.makedirs(sf)
+                    fexpname = os.path.join(sf, "rdml_" + uuidstr + ".rdml")
+                    modified = True
+                fbarname = os.path.join(sf, "rdml_" + uuidstr + "_relative.tsv")
+                with open(fbarname, 'w') as the_file:
+                    the_file.write(data["relative"]["tsv"]["annotation_data"])
+
                 data["reactsdata"] = experiment.getreactjson()
                 if "error" in data["reactsdata"]:
                     data["error"] = data["reactsdata"]["error"]
@@ -2468,6 +2478,38 @@ def handle_data():
         data["filedata"] = rd.tojson()
         return jsonify(data=data)
     return jsonify(errors=[{"title": "Error in handling POST request!"}]), 400
+
+
+@app.route('/api/v1/bargraph', methods=['POST'])
+def bargraph():
+    data = {"uuid": "", "relativetsv": ""}
+    if request.method == 'POST':
+        sf = ""
+        if 'uuid' in request.form.keys():
+            uuidstr = request.form['uuid']
+            data["uuid"] = uuidstr
+            if is_valid_uuid(uuidstr):
+                fname = "rdml_" + uuidstr + "_relative.tsv"
+                if allowed_tab_file(fname):
+                    sf = os.path.join(app.config['UPLOAD_FOLDER'], uuidstr[0:2])
+                    if os.path.exists(sf):
+                        fexpfilename = os.path.join(sf, fname)
+                        if os.path.isfile(fexpfilename):
+                            with open(fexpfilename, 'r') as the_file:
+                                relData = ""
+                                rawData = the_file.read()
+                                tabLines = rawData.split("\n")
+                                if len(tabLines) > 1:
+                                    for fRowl in range(1, len(tabLines)):
+                                        cellLines = tabLines[fRowl].split("\t")
+                                        if len(cellLines) > 4:
+                                            vals = cellLines[4].split(";")
+                                            for val in vals:
+                                                if re.search(r"[0-9]\.[0-9]", val):
+                                                    relData += cellLines[0] + ";" + cellLines[1] + ";" + val + "\n"
+                                data["relativetsv"] = relData
+                                logData("RDML-Tools", "BarGraph", "loadData", uuidstr)
+    return jsonify(data=data)
 
 
 @app.route('/api/v1/health', methods=['GET'])

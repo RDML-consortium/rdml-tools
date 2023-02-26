@@ -2378,6 +2378,11 @@ function updateRelativeTable() {
     }
     ret += '</table>\n'
 
+    if (window.relative.tsv.hasOwnProperty("annotation_data")) {
+        ret += '<br /><h4>Visualize with RDML-BarGraph:</h4>\n<p>'
+        ret += '<a href="' + `${API_LINK}` + "bargraph.html?UUID=" + window.uuid + '" target="_blank">'
+        ret += `${API_LINK}`  + "bargraph.html?UUID=" + window.uuid + '</a> (valid for 3 days)\n<br />\n</p>\n'
+    }
 
     window.relativeSaveTable = content
     resultRelative.innerHTML = ret
