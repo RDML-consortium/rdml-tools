@@ -2416,9 +2416,12 @@ def handle_data():
                         os.makedirs(sf)
                     fexpname = os.path.join(sf, "rdml_" + uuidstr + ".rdml")
                     modified = True
-                fbarname = os.path.join(sf, "rdml_" + uuidstr + "_relative.tsv")
-                with open(fbarname, 'w') as the_file:
-                    the_file.write(data["relative"]["tsv"]["annotation_data"])
+                if "relative" in data:
+                    if "tsv" in data["relative"]:
+                        if "annotation_data" in data["relative"]["tsv"]:
+                            fbarname = os.path.join(sf, "rdml_" + uuidstr + "_relative.tsv")
+                            with open(fbarname, 'w') as the_file:
+                                the_file.write(data["relative"]["tsv"]["annotation_data"])
 
                 data["reactsdata"] = experiment.getreactjson()
                 if "error" in data["reactsdata"]:

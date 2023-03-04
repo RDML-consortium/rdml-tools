@@ -161,7 +161,7 @@ function checkForUUID() {
                     window.inputFileName = "relative_analysis"
                     window.inputFile = tsvData;
                     updateSepCount(window.inputFile);
-                
+
                     $('[href="#save-tab"]').tab('show');
                 }
             }
