@@ -628,15 +628,16 @@ function updateModification() {
             for (var c = minColNr ; c < maxColNr ; c++) {
                 realColNr++;
                 var fluorVal = "";
-                if (cycRowRe.test(tab[fRow][c])) {
-                    var match = cycRowRe.exec(tab[fRow][c]);
-                    fluorVal = match[1];
-                    if (window.modifySettings["fluorCommaDot"] == true) {
-                        if (match[1].match(/,/) != null) {
-                            var resVal = fluorVal.replace(/\./g, "");;
-                            fluorVal = resVal.replace(/,/g, ".");
-                        }
+                var valDotFix = tab[fRow][c];
+                if (window.modifySettings["fluorCommaDot"] == true) {
+                    if (valDotFix.match(/,/) != null) {
+                        var resVal = valDotFix.replace(/\./g, "");;
+                        valDotFix = resVal.replace(/,/g, ".");
                     }
+                }
+                if (cycRowRe.test(valDotFix)) {
+                    var match = cycRowRe.exec(valDotFix);
+                    fluorVal = match[1];
                     if (window.modifySettings["reformatAmpMelt"] == "amp") {
                         fluorVal = Math.ceil(parseFloat(fluorVal));
                     }
@@ -763,8 +764,15 @@ function updateModification() {
                     continue;
                 }
                 realRowNr++;
-                if (cqTmColRe.test(tab[r][cqTmCol])) {
-                    var match = cqTmColRe.exec(tab[r][cqTmCol]);
+                var valDotFix = tab[r][cqTmCol];
+                if (window.modifySettings["fluorCommaDot"] == true) {
+                    if (valDotFix.match(/,/) != null) {
+                        var resVal = valDotFix.replace(/\./g, "");;
+                        valDotFix = resVal.replace(/,/g, ".");
+                    }
+                }
+                if (cqTmColRe.test(valDotFix)) {
+                    var match = cqTmColRe.exec(valDotFix);
                     ftab[realRowNr][6] = match[1];
                 } else {
                     ftab[realRowNr][6] = "";
@@ -793,7 +801,14 @@ function updateModification() {
             if (trueColRe.test(tab[r][trueCol])) {
                 continue;
             }
-            var matchCyc = cycColRe.exec(tab[r][cycCol]);
+            var valDotFix = tab[r][cycCol];
+            if (window.modifySettings["fluorCommaDot"] == true) {
+                if (valDotFix.match(/,/) != null) {
+                    var resVal = valDotFix.replace(/\./g, "");;
+                    valDotFix = resVal.replace(/,/g, ".");
+                }
+            }
+            var matchCyc = cycColRe.exec(valDotFix);
             var cycVal = matchCyc[1];
             var matchWell = wellColRe.exec(tab[r][wellCol]);
             var wellVal = matchWell[1];
@@ -845,7 +860,14 @@ function updateModification() {
             // CqTm information
             if (window.modifySettings["exCqTmCol"] > 0) {
                 var CqTmCol = window.modifySettings["exCqTmCol"] - 1;
-                var match = CqTmColRe.exec(tab[r][CqTmCol]);
+                var valDotFix = tab[r][CqTmCol];
+                if (window.modifySettings["fluorCommaDot"] == true) {
+                    if (valDotFix.match(/,/) != null) {
+                        var resVal = valDotFix.replace(/\./g, "");;
+                        valDotFix = resVal.replace(/,/g, ".");
+                    }
+                }
+                var match = CqTmColRe.exec(valDotFix);
                 ftab[wellLookUp[wellVal]][6] = match[1];
             }
             // Fluorescence values

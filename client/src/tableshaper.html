@@ -168,6 +168,13 @@
               <option value="flip">Flip columns and rows</option>
               <option value="create">Create table from list</option>
             </select>
+            <br /><br />
+            <div class="form-check">
+              <label class="form-check-label">
+                <input type="checkbox" class="form-check-input" id="modCommaDot"
+                       value="" onchange="updateModification()" checked>Replace all commas by dots
+              </label>
+            </div>
           </div>
         </div>
         <br />
@@ -205,12 +212,6 @@
                 <label class="col-sm-4 col-form-label" for="modDelColEnd">Number of colums to keep (maximal):</label>
                 <input type="text" class="form-control col-sm-8" id="modDelColEnd" value="" onchange="updateModification()">
               </div>
-            </div>
-            <div class="form-check">
-              <label class="form-check-label">
-                <input type="checkbox" class="form-check-input" id="modCommaDot"
-                       value="" onchange="updateModification()" checked>Replace all commas by dots
-              </label>
             </div>
           </div>
         </div>
