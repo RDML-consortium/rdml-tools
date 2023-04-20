@@ -843,7 +843,9 @@ function updateServerData(stat, reqData) {
                     if (exp.length > 0) {
                         window.selExperiment = exp[0].id;
                         var runs = exp[0].runs
-                        window.selRunOnLoad = runs[0].id;
+                        if (runs.length > 0) {
+                            window.selRunOnLoad = runs[0].id;
+                        }
                     }
                 }
                 if (res.data.data.hasOwnProperty("reactsdata")) {

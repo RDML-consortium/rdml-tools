@@ -270,7 +270,9 @@ function updateServerData(stat, reqData) {
                     if (exp.length > 0) {
                         window.selExperiment = exp[0].id;
                         var runs = exp[0].runs
-                        window.selRun = runs[0].id;
+                        if (runs.length > 0) {
+                            window.selRun = runs[0].id;
+                        }
                     }
                 }
                 if ((window.rdmlData.hasOwnProperty("rdml")) && (window.rdmlData.rdml.hasOwnProperty("samples"))) {
