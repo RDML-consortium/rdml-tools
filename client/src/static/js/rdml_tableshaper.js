@@ -435,6 +435,7 @@ function loadModification(newSett) {
     updateKeyElCheck(newSett,"fluorCommaDot","modCommaDot");
 
     updateKeyEl(newSett,"exFluorCol","modExFluorCol");
+    updateKeyElCheck(newSett,"exByPos","modExByPos");
     updateKeyEl(newSett,"exCycRow","modExCycRow");
     updateKeyEl(newSett,"exCycRowRegEx","modExCycRowRegEx");
     updateKeyEl(newSett,"exCycCol","modExCycCol");
@@ -470,6 +471,7 @@ function updateModification() {
     window.modifySettings["fluorCommaDot"] = document.getElementById("modCommaDot").checked;
 
     window.modifySettings["exFluorCol"] = parseInt(document.getElementById('modExFluorCol').value);
+    window.modifySettings["exByPos"] = document.getElementById("modExByPos").checked;
     window.modifySettings["exCycRow"] = parseInt(document.getElementById('modExCycRow').value);
     window.modifySettings["exCycRowRegEx"] = document.getElementById('modExCycRowRegEx').value;
     window.modifySettings["exCycCol"] = parseInt(document.getElementById('modExCycCol').value);
@@ -617,12 +619,12 @@ function updateModification() {
             var fRow = window.modifySettings["exCycRow"] - 1;
             var minColNr = 0;
             if (window.modifySettings["fluorDelColStart"] > 0) {
-                 minColNr = window.modifySettings["fluorDelColStart"];
+                minColNr = window.modifySettings["fluorDelColStart"];
             }
             var maxColNr = tab[fRow].length;
             if ((window.modifySettings["fluorDelColEnd"] > 1) &&
                 (window.modifySettings["fluorDelColEnd"] < tab[fRow].length)) {
-                 maxColNr = window.modifySettings["fluorDelColEnd"];
+                maxColNr = window.modifySettings["fluorDelColEnd"];
             }
             var realColNr = 6;
             for (var c = minColNr ; c < maxColNr ; c++) {
@@ -785,6 +787,9 @@ function updateModification() {
         var wellCount = 0;
         var cycLookUp = {};
         var wellLookUp = {};
+        var lastWellLookUp = {};
+        var colSum = {};
+        var colNr = {};
         var cycColRe = new RegExp(window.modifySettings["exCycColRegEx"]);
         var cycCol = window.modifySettings["exCycCol"] - 1;
         var wellColRe = new RegExp(window.modifySettings["exWellRegEx"]);
@@ -812,19 +817,40 @@ function updateModification() {
             var cycVal = matchCyc[1];
             var matchWell = wellColRe.exec(tab[r][wellCol]);
             var wellVal = matchWell[1];
-            if (cycLookUp.hasOwnProperty(cycVal) != true) {
-                cycLookUp[cycVal] = cycCount + 7;
-                var cycWriteVal = cycVal;
-                if (window.modifySettings["reformatAmpMelt"] == "amp") {
-                    cycWriteVal = Math.ceil(parseFloat(cycWriteVal));
-                }
-                ftab[0][cycLookUp[cycVal]] = cycWriteVal;
-                cycCount++;
-            }
+            // Handle the well
             if (wellLookUp.hasOwnProperty(wellVal) != true) {
                 wellLookUp[wellVal] = wellCount + 1;
                 ftab[wellLookUp[wellVal]] = [wellVal, "", "unkn", "", "toi", "unkn_dye", ""];
                 wellCount++;
+            }
+            // Deal with cycles or temp
+            if ((window.modifySettings["reformatAmpMelt"] == "amp") || (window.modifySettings["exByPos"] != true)) {
+                if (cycLookUp.hasOwnProperty(cycVal) != true) {
+                    cycLookUp[cycVal] = cycCount + 7;
+                    var cycWriteVal = cycVal;
+                    if (window.modifySettings["reformatAmpMelt"] == "amp") {
+                        cycWriteVal = Math.ceil(parseFloat(cycWriteVal));
+                    }
+                    ftab[0][cycLookUp[cycVal]] = cycWriteVal;
+                    cycCount++;
+                }
+            } else {
+                if (lastWellLookUp.hasOwnProperty(wellVal) != true) {
+                    lastWellLookUp[wellVal] = 1;
+                } else {
+                    lastWellLookUp[wellVal] += 1;
+                }
+                if (colSum.hasOwnProperty(lastWellLookUp[wellVal]) != true) {
+                    colSum[lastWellLookUp[wellVal]] = parseFloat(cycVal);
+                    colNr[lastWellLookUp[wellVal]] = 1;
+                } else {
+                    colSum[lastWellLookUp[wellVal]] += parseFloat(cycVal);
+                    colNr[lastWellLookUp[wellVal]] += 1;
+                }
+                cycVal = lastWellLookUp[wellVal] - 1;
+                cycLookUp[cycVal] = cycVal + 7;
+                ftab[0][cycLookUp[cycVal]] = (colSum[lastWellLookUp[wellVal]] / colNr[lastWellLookUp[wellVal]]).toFixed(2);
+                cycCount++;
             }
             // Sample information
             if (window.modifySettings["exSamCol"] > 0) {
@@ -1092,6 +1118,7 @@ function getSettingsArr() {
                "fluorDelRowEnd":null,
                "fluorCommaDot":true,
                "exFluorCol":4,
+               "exByPos":false,
                "exCycRow":1,
                "exCycRowRegEx":"(.*)",
                "exCycCol":1,
@@ -1123,6 +1150,7 @@ function getSettingsArr() {
                "fluorDelRowEnd":null,
                "fluorCommaDot":true,
                "exFluorCol":4,
+               "exByPos":false,
                "exCycRow":1,
                "exCycRowRegEx":"(.*)",
                "exCycCol":1,
@@ -1154,6 +1182,7 @@ function getSettingsArr() {
                "fluorDelRowEnd":null,
                "fluorCommaDot":true,
                "exFluorCol":4,
+               "exByPos":false,
                "exCycRow":2,
                "exCycRowRegEx":"([0-9]+)",
                "exCycCol":1,
@@ -1185,6 +1214,7 @@ function getSettingsArr() {
                "fluorDelRowEnd":null,
                "fluorCommaDot":true,
                "exFluorCol":4,
+               "exByPos":false,
                "exCycRow":1,
                "exCycRowRegEx":"([0-9]+)",
                "exCycCol":1,
@@ -1216,6 +1246,7 @@ function getSettingsArr() {
                "fluorDelRowEnd":null,
                "fluorCommaDot":true,
                "exFluorCol":4,
+               "exByPos":false,
                "exCycRow":2,
                "exCycRowRegEx":"([0-9]+)",
                "exCycCol":1,
@@ -1246,6 +1277,7 @@ function getSettingsArr() {
                "fluorDelRowEnd":null,
                "fluorCommaDot":true,
                "exFluorCol":4,
+               "exByPos":false,
                "exCycRow":1,
                "exCycRowRegEx":"(.+)",
                "exCycCol":1,
@@ -1277,6 +1309,7 @@ function getSettingsArr() {
                "fluorDelRowEnd":49,
                "fluorCommaDot":true,
                "exFluorCol":4,
+               "exByPos":false,
                "exCycRow":4,
                "exCycRowRegEx":"([0-9]+)",
                "exCycCol":1,
@@ -1308,6 +1341,7 @@ function getSettingsArr() {
                "fluorDelRowEnd":null,
                "fluorCommaDot":true,
                "exFluorCol":4,
+               "exByPos":false,
                "exCycRow":9,
                "exCycRowRegEx":"([0-9]+)",
                "exCycCol":1,
@@ -1339,6 +1373,7 @@ function getSettingsArr() {
                "fluorDelRowEnd":null,
                "fluorCommaDot":true,
                "exFluorCol":4,
+               "exByPos":false,
                "exCycRow":1,
                "exCycRowRegEx":"([0-9]+)",
                "exCycCol":1,
@@ -1370,6 +1405,7 @@ function getSettingsArr() {
                "fluorDelRowEnd":null,
                "fluorCommaDot":false,
                "exFluorCol":4,
+               "exByPos":false,
                "exCycRow":2,
                "exCycRowRegEx":"([0-9]+)",
                "exCycCol":1,
@@ -1401,6 +1437,7 @@ function getSettingsArr() {
                "fluorDelRowEnd":null,
                "fluorCommaDot":true,
                "exFluorCol":4,
+               "exByPos":false,
                "exCycRow":1,
                "exCycRowRegEx":"([0-9]+)",
                "exCycCol":3,
@@ -1431,6 +1468,7 @@ function getSettingsArr() {
                "fluorDelRowEnd":null,
                "fluorCommaDot":true,
                "exFluorCol":4,
+               "exByPos":false,
                "exCycRow":1,
                "exCycRowRegEx":"([0-9]+)",
                "exCycCol":1,
@@ -1461,6 +1499,7 @@ function getSettingsArr() {
                "fluorDelRowEnd":null,
                "fluorCommaDot":true,
                "exFluorCol":4,
+               "exByPos":false,
                "exCycRow":1,
                "exCycRowRegEx":"([0-9]+)",
                "exCycCol":1,
@@ -1492,6 +1531,7 @@ function getSettingsArr() {
                "fluorDelRowEnd":null,
                "fluorCommaDot":true,
                "exFluorCol":4,
+               "exByPos":false,
                "exCycRow":1,
                "exCycRowRegEx":"([0-9]+)",
                "exCycCol":1,
@@ -1523,6 +1563,7 @@ function getSettingsArr() {
                "fluorDelRowEnd":null,
                "fluorCommaDot":true,
                "exFluorCol":4,
+               "exByPos":false,
                "exCycRow":1,
                "exCycRowRegEx":"([0-9]+)",
                "exCycCol":1,
@@ -1553,6 +1594,7 @@ function getSettingsArr() {
                "fluorDelRowEnd":null,
                "fluorCommaDot":true,
                "exFluorCol":8,
+               "exByPos":false,
                "exCycRow":1,
                "exCycRowRegEx":"([0-9]+)",
                "exCycCol":5,
@@ -1584,6 +1626,7 @@ function getSettingsArr() {
                "fluorDelRowEnd":68,
                "fluorCommaDot":true,
                "exFluorCol":4,
+               "exByPos":false,
                "exCycRow":4,
                "exCycRowRegEx":"([0-9]+)",
                "exCycCol":1,
@@ -1615,6 +1658,7 @@ function getSettingsArr() {
                "fluorDelRowEnd":null,
                "fluorCommaDot":true,
                "exFluorCol":8,
+               "exByPos":false,
                "exCycRow":1,
                "exCycRowRegEx":"([0-9]+)",
                "exCycCol":5,
@@ -1646,6 +1690,7 @@ function getSettingsArr() {
                "fluorDelRowEnd":null,
                "fluorCommaDot":true,
                "exFluorCol":8,
+               "exByPos":false,
                "exCycRow":1,
                "exCycRowRegEx":"([0-9]+)",
                "exCycCol":7,
@@ -1677,6 +1722,7 @@ function getSettingsArr() {
                "fluorDelRowEnd":null,
                "fluorCommaDot":true,
                "exFluorCol":4,
+               "exByPos":false,
                "exCycRow":2,
                "exCycRowRegEx":"([0-9]+)",
                "exCycCol":1,
@@ -1708,6 +1754,7 @@ function getSettingsArr() {
                "fluorDelRowEnd":null,
                "fluorCommaDot":true,
                "exFluorCol":3,
+               "exByPos":false,
                "exCycRow":1,
                "exCycRowRegEx":"([0-9]+)",
                "exCycCol":2,
@@ -1739,6 +1786,7 @@ function getSettingsArr() {
                "fluorDelRowEnd":null,
                "fluorCommaDot":true,
                "exFluorCol":4,
+               "exByPos":false,
                "exCycRow":18,
                "exCycRowRegEx":"([0-9]+)",
                "exCycCol":1,
@@ -1770,6 +1818,7 @@ function getSettingsArr() {
                "fluorDelRowEnd":null,
                "fluorCommaDot":true,
                "exFluorCol":4,
+               "exByPos":false,
                "exCycRow":18,
                "exCycRowRegEx":"([0-9\\.]+)",
                "exCycCol":1,
