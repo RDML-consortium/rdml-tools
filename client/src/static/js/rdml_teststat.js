@@ -118,6 +118,20 @@ function handleSuccess(res) {
     ret += '    <td style="width:80%;">\n' + res["table"]["p val"] + '</td>\n'
     ret += '  </tr>'
     ret += "</table>\n"
+
+    if (res["table"]["multi comparison"] != "") {
+      var tab = res["table"]["multi comparison"]
+      ret += "<br /><br /><table class=\"tablePreview\">\n"
+      for (var i = 0 ; i < tab.length ; i++) {
+        ret += "<tr>\n"
+        for (var k = 0 ; k < tab[i].length ; k++) {
+            ret += "<td>" + tab[i][k] + "</td>\n"
+        }
+        ret += "</tr>\n"
+      }
+      ret += "</table>\n"
+    }
+
     resultData.innerHTML = ret
     hideElement(resultError)
 }
