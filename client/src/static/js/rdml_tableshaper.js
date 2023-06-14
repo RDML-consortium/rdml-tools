@@ -273,7 +273,7 @@ function drawImportTable() {
 
 window.drawHtmlTable = drawHtmlTable;
 function drawHtmlTable(tab, useColor) {
-    var retVal = "<table class=\"tablePreview\">\n"
+    var retVal = "<div class=\"rdml-screensize\"><table class=\"tablePreview\"><thead style=\"position: sticky;top: 0\">\n"
     retVal += "<tr>\n<th style=\"background-color: grey;\"></th>\n";
     var maxXCount = 0;
     var maxLength = tab.length;
@@ -291,7 +291,7 @@ function drawHtmlTable(tab, useColor) {
     for (var i = 0 ; i < maxXCount ; i++) {
          retVal += "<th style=\"background-color: grey;\">" + (i + 1) + "</th>\n"
     }
-    retVal += "</tr>\n"
+    retVal += "</tr></thead><tbody>\n"
     for (var i = 0 ; i < maxLength ; i++) {
         retVal += "<tr>\n<td style=\"background-color: grey;\">" + (i + 1) + "</td>\n"
         var complete = true;
@@ -311,7 +311,7 @@ function drawHtmlTable(tab, useColor) {
         }
         retVal += "</tr>\n"
     }
-    retVal += "</table>\n" + cutOff
+    retVal += "</tbody></table></div>\n" + cutOff
     return retVal;
 }
 

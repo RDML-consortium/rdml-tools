@@ -1488,26 +1488,32 @@ function updateLinRegPCRTable() {
     }
 
     var content = "";
-    var ret = '<table class="table table-bordered table-striped" id="LinRegPCR_Result_Table">\n'
+    var htmlTag = 'td';
+    var ret = '<table class="table table-bordered table-striped" id="LinRegPCR_Result_Table"><thead style=\"position: sticky;top: 0\">\n'
     if (choiceTable.value == "debug") {
         for (var row = 0; row < window.linRegPCRTable.length; row++) {
             if (row == 0) {
                 ret += '<tr>\n'
+                htmlTag = 'th'
             } else {
                 ret += "<tr ondblclick='window.clickSampSel(\"" + window.linRegPCRTable[row][5]  // "target"
                 ret += "\", \"" + window.linRegPCRTable[row][0] + "\")'> \n"  // "id"
+                htmlTag = 'td'
             }
             for (var col = 0; col < window.linRegPCRTable[row].length; col++) {
                 if (col < 9) {
                     content += window.linRegPCRTable[row][col] + "\t"
-                    ret += '<td>' + window.linRegPCRTable[row][col] + '</td>\n'
+                    ret += '<' + htmlTag + '>' + window.linRegPCRTable[row][col] + '</' + htmlTag + '>\n'
                 } else {
                     content += NumPoint(window.linRegPCRTable[row][col]) + "\t"
-                    ret += '<td>' + NumPoint(window.linRegPCRTable[row][col]) + '</td>\n'
+                    ret += '<' + htmlTag + '>' + NumPoint(window.linRegPCRTable[row][col]) + '</' + htmlTag + '>\n'
                 }
             }
             content = content.replace(/\t$/g, "\n");
             ret += '</tr>\n'
+            if (row == 0) {
+                ret += '</thead>\n<tbody>\n'
+            }
         }
     } else if (choiceTable.value == "classic-compact") {
         var meanCol = 24;  // "mean PCR eff"
@@ -1532,20 +1538,22 @@ function updateLinRegPCRTable() {
         for (var row = 0; row < window.linRegPCRTable.length; row++) {
             if (row == 0) {
                 ret += '<tr>\n'
+                htmlTag = 'th'
             } else {
                 ret += "<tr ondblclick='window.clickSampSel(\"" + window.linRegPCRTable[row][5]  // "target"
                 ret += "\", \"" + window.linRegPCRTable[row][0] + "\")'> \n"  // "id"
+                htmlTag = 'td'
             }
-            ret += '<td>' + window.linRegPCRTable[row][0] + '</td>\n'  // "id"
+            ret += '<' + htmlTag + '>' + window.linRegPCRTable[row][0] + '</' + htmlTag + '>\n'  // "id"
             content += window.linRegPCRTable[row][0] + "\t"  // "id"
-            ret += '<td>' + window.linRegPCRTable[row][1] + '</td>\n'  // "well"
+            ret += '<' + htmlTag + '>' + window.linRegPCRTable[row][1] + '</' + htmlTag + '>\n'  // "well"
             content += window.linRegPCRTable[row][1] + "\t"  // "well"
-            ret += '<td>' + window.linRegPCRTable[row][2] + '</td>\n'  // "sample"
+            ret += '<' + htmlTag + '>' + window.linRegPCRTable[row][2] + '</' + htmlTag + '>\n'  // "sample"
             content += window.linRegPCRTable[row][2] + "\t"  // "sample"
             if (choiceAnnotations.value  == "y") {
                 for (var col = 0; col < annoTab[row].length; col++) {
                     if (row == 0) {
-                        ret += '<td>annotation ' + annoTab[row][col] + '</td>\n'
+                        ret += '<th>annotation ' + annoTab[row][col] + '</th>\n'
                         content += 'annotation ' + annoTab[row][col] + "\t"
                     } else {
                         ret += '<td>' + annoTab[row][col] + '</td>\n'
@@ -1554,7 +1562,7 @@ function updateLinRegPCRTable() {
                 }
             }
             if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][19] + '</td>\n'  // "indiv PCR eff"
+                ret += '<th>' + window.linRegPCRTable[row][19] + '</th>\n'  // "indiv PCR eff"
             } else {
                 if (window.linRegPCRTable[row][effErrCol] == true) {
                     ret += '<td style="background-color: #ffc266;">'
@@ -1564,40 +1572,40 @@ function updateLinRegPCRTable() {
                 }
             }
             content += NumPoint(window.linRegPCRTable[row][19]) + "\t"  // "indiv PCR eff"
-            ret += '<td>' + window.linRegPCRTable[row][5] + '</td>\n'  // "target"
+            ret += '<' + htmlTag + '>' + window.linRegPCRTable[row][5] + '</' + htmlTag + '>\n'  // "target"
             content += window.linRegPCRTable[row][5] + "\t"  // "target"
             if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][12] + '</td>\n'  // "common threshold"
+                ret += '<th>' + window.linRegPCRTable[row][12] + '</th>\n'  // "common threshold"
             } else {
                 ret += '<td>' + floatWithPrec(window.linRegPCRTable[row][12], 1000) + '</td>\n'  // "common threshold"
             }
             content += NumPoint(window.linRegPCRTable[row][12]) + "\t"  // "common threshold"
             if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][meanCol] + '</td>\n'
+                ret += '<th>' + window.linRegPCRTable[row][meanCol] + '</th>\n'
             } else {
                 ret += '<td>' + floatWithPrec(window.linRegPCRTable[row][meanCol], 1000) + '</td>\n'
             }
             content += NumPoint(window.linRegPCRTable[row][meanCol]) + "\t"
             if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][meanCol + 1] + '</td>\n'
+                ret += '<th>' + window.linRegPCRTable[row][meanCol + 1] + '</th>\n'
             } else {
                 ret += '<td>' + floatWithPrec(window.linRegPCRTable[row][meanCol + 1], 1000) + '</td>\n'
             }
             content += NumPoint(window.linRegPCRTable[row][meanCol + 1]) + "\t"
             if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][meanCol + 3] + '</td>\n'
+                ret += '<th>' + window.linRegPCRTable[row][meanCol + 3] + '</th>\n'
             } else {
                 ret += '<td>' + floatWithPrec(window.linRegPCRTable[row][meanCol + 3], 1000) + '</td>\n'
             }
             content += NumPoint(window.linRegPCRTable[row][meanCol + 3]) + "\t"
             if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][meanCol + 2] + '</td>\n'
+                ret += '<th>' + window.linRegPCRTable[row][meanCol + 2] + '</th>\n'
             } else {
                 ret += '<td>' + floatWithExPrec(window.linRegPCRTable[row][meanCol + 2], 2) + '</td>\n'
             }
             content += NumPoint(window.linRegPCRTable[row][meanCol + 2]) + "\t"
             if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][48] + '</td>\n'  // "amplification"
+                ret += '<th>' + window.linRegPCRTable[row][48] + '</th>\n'  // "amplification"
                 content += window.linRegPCRTable[row][48] + "\t"  // "amplification"
             } else {
                 if (window.linRegPCRTable[row][48] == true) {  // "amplification"
@@ -1609,7 +1617,7 @@ function updateLinRegPCRTable() {
                 }
             }
             if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][49] + '</td>\n'  // "baseline error"
+                ret += '<th>' + window.linRegPCRTable[row][49] + '</th>\n'  // "baseline error"
                 content += window.linRegPCRTable[row][49] + "\t"  // "baseline error"
             } else {
                 if (window.linRegPCRTable[row][49] == true) {  // "baseline error"
@@ -1621,7 +1629,7 @@ function updateLinRegPCRTable() {
                 }
             }
             if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][50] + '</td>\n'  // "instable baseline"
+                ret += '<th>' + window.linRegPCRTable[row][50] + '</th>\n'  // "instable baseline"
                 content += window.linRegPCRTable[row][50] + "\t"  // "instable baseline"
             } else {
                 if (window.linRegPCRTable[row][50] == true) {  // "instable baseline"
@@ -1633,7 +1641,7 @@ function updateLinRegPCRTable() {
                 }
             }
             if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][51] + '</td>\n'  // "plateau"
+                ret += '<th>' + window.linRegPCRTable[row][51] + '</th>\n'  // "plateau"
                 content += window.linRegPCRTable[row][51] + "\t"  // "plateau"
             } else {
                 if (window.linRegPCRTable[row][51] == true) {  // "plateau"
@@ -1645,7 +1653,7 @@ function updateLinRegPCRTable() {
                 }
             }
             if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][52] + '</td>\n'  // "noisy sample"
+                ret += '<th>' + window.linRegPCRTable[row][52] + '</th>\n'  // "noisy sample"
                 content += window.linRegPCRTable[row][52] + "\t"  // "noisy sample"
             } else {
                 if (window.linRegPCRTable[row][52] == true) {  // "noisy sample"
@@ -1657,7 +1665,7 @@ function updateLinRegPCRTable() {
                 }
             }
             if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][effErrCol] + '</td>\n'
+                ret += '<th>' + window.linRegPCRTable[row][effErrCol] + '</th>\n'
                 content += window.linRegPCRTable[row][effErrCol] + "\t"
             } else {
                 if (window.linRegPCRTable[row][effErrCol] == true) {
@@ -1669,7 +1677,7 @@ function updateLinRegPCRTable() {
                 }
             }
             if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][61] + '</td>\n'  // "used for W-o-L setting"
+                ret += '<th>' + window.linRegPCRTable[row][61] + '</th>\n'  // "used for W-o-L setting"
                 content += window.linRegPCRTable[row][61] + "\t"  // "used for W-o-L setting"
             } else {
                 if (window.linRegPCRTable[row][61] == true) {  // "used for W-o-L setting"
@@ -1683,6 +1691,9 @@ function updateLinRegPCRTable() {
 
             content = content.replace(/\t$/g, "\n");
             ret += '</tr>\n'
+            if (row == 0) {
+                ret += '</thead>\n<tbody>\n'
+            }
         }
     } else if (choiceTable.value == "extended") {
         var saveExNoPlateau = "n"
@@ -1715,6 +1726,8 @@ function updateLinRegPCRTable() {
         var columnLabel = pcrFormat.columnLabel
 
         for (var row = 0; row < window.linRegPCRTable.length; row++) {
+
+
             // Parse "excl" and "note"
             var highlight_nInLog = ""
             var highlight_indivPCREff = ""
@@ -1868,18 +1881,20 @@ function updateLinRegPCRTable() {
 
             if (row == 0) {
                 ret += '<tr>\n'
+                htmlTag = 'th'
             } else {
                 ret += "<tr ondblclick='window.clickSampSel(\"" + window.linRegPCRTable[row][5]  // "target"
                 ret += "\", \"" + window.linRegPCRTable[row][0] + "\")'> \n"  // "id"
+                htmlTag = 'td'
             }
             for (var col = 0; col < 7; col++) { // "id" - "target chemistry"
-                ret += '<td>' + window.linRegPCRTable[row][col] + '</td>\n'
+                ret += '<' + htmlTag + '>' + window.linRegPCRTable[row][col] + '</' + htmlTag + '>\n'
                 content += window.linRegPCRTable[row][col] + "\t"
             }
             if (choiceAnnotations.value  == "y") {
                 for (var col = 0; col < annoTab[row].length; col++) {
                     if (row == 0) {
-                        ret += '<td>annotation ' + annoTab[row][col] + '</td>\n'
+                        ret += '<th>annotation ' + annoTab[row][col] + '</th>\n'
                         content += 'annotation ' + annoTab[row][col] + "\t"
                     } else {
                         ret += '<td>' + annoTab[row][col] + '</td>\n'
@@ -1889,64 +1904,64 @@ function updateLinRegPCRTable() {
             }
             for (var col = 7; col < 9; col++) { // "excluded" - "note"
                 var brForm = window.linRegPCRTable[row][col].replace(/;/g, ";<br />")
-                ret += '<td' + colorNotes + '>' + brForm + '</td>\n'
+                ret += '<' + htmlTag + colorNotes + '>' + brForm + '</' + htmlTag + '>\n'
                 content += window.linRegPCRTable[row][col] + "\t"
             }
             if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][12] + '</td>\n'  // "common threshold"
+                ret += '<th>' + window.linRegPCRTable[row][12] + '</th>\n'  // "common threshold"
             } else {
                 ret += '<td>' + floatWithPrec(window.linRegPCRTable[row][12], 1000) + '</td>\n'  // "common threshold"
             }
             content += NumPoint(window.linRegPCRTable[row][12]) + "\t"  // "common threshold"
             if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][14] + '</td>\n'  // "n in log phase"
+                ret += '<th>' + window.linRegPCRTable[row][14] + '</th>\n'  // "n in log phase"
             } else {
                 ret += '<td' + highlight_nInLog + '>' + window.linRegPCRTable[row][14] + '</td>\n'  // "n in log phase"
             }
             content += NumPoint(window.linRegPCRTable[row][14]) + "\t"  // "n in log phase"
             if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][16] + '</td>\n'  // "n included"
+                ret += '<th>' + window.linRegPCRTable[row][16] + '</th>\n'  // "n included"
             } else {
                 ret += '<td' + highlight_nIncluded + '>' + window.linRegPCRTable[row][16] + '</td>\n'  // "n included"
             }
             content += NumPoint(window.linRegPCRTable[row][16]) + "\t"  // "n included"
             if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][19] + '</td>\n'  // "indiv PCR eff"
+                ret += '<th>' + window.linRegPCRTable[row][19] + '</th>\n'  // "indiv PCR eff"
             } else {
                 ret += '<td' + highlight_indivPCREff + '>'
                 ret += floatWithPrec(window.linRegPCRTable[row][19], 1000) + '</td>\n'  // "indiv PCR eff"
             }
             content += NumPoint(window.linRegPCRTable[row][19]) + "\t"  // "indiv PCR eff"
             if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][meanCol] + '</td>\n'
+                ret += '<th>' + window.linRegPCRTable[row][meanCol] + '</th>\n'
             } else {
                 ret += '<td' + highlight_meanPCREff + '>'
                 ret += floatWithPrec(window.linRegPCRTable[row][meanCol], 1000) + '</td>\n'
             }
             content += NumPoint(window.linRegPCRTable[row][meanCol]) + "\t"
             if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][meanCol + 1] + '</td>\n'
+                ret += '<th>' + window.linRegPCRTable[row][meanCol + 1] + '</th>\n'
             } else {
                 ret += '<td' + highlight_meanPCREff + '>'
                 ret += floatWithPrec(window.linRegPCRTable[row][meanCol + 1], 1000) + '</td>\n'
             }
             content += NumPoint(window.linRegPCRTable[row][meanCol + 1]) + "\t"
             if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][meanCol + 3] + '</td>\n'
+                ret += '<th>' + window.linRegPCRTable[row][meanCol + 3] + '</th>\n'
             } else {
                 ret += '<td' + highlight_meanCq + '>'
                 ret += floatWithPrec(window.linRegPCRTable[row][meanCol + 3], 1000) + '</td>\n'
             }
             content += NumPoint(window.linRegPCRTable[row][meanCol + 3]) + "\t"
             if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][meanCol + 2] + '</td>\n'
+                ret += '<th>' + window.linRegPCRTable[row][meanCol + 2] + '</th>\n'
             } else {
                 ret += '<td' + highlight_meanN0 + '>'
                 ret += floatWithExPrec(window.linRegPCRTable[row][meanCol + 2], 2) + '</td>\n'
             }
             content += NumPoint(window.linRegPCRTable[row][meanCol + 2]) + "\t"
             if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][48] + '</td>\n'  // "amplification"
+                ret += '<th>' + window.linRegPCRTable[row][48] + '</th>\n'  // "amplification"
                 content += window.linRegPCRTable[row][48] + "\t"  // "amplification"
             } else {
                 ret += '<td' + highlight_ErrAmp + '>'
@@ -1959,7 +1974,7 @@ function updateLinRegPCRTable() {
                 }
             }
             if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][49] + '</td>\n'  // "baseline error"
+                ret += '<th>' + window.linRegPCRTable[row][49] + '</th>\n'  // "baseline error"
                 content += window.linRegPCRTable[row][49] + "\t"  // "baseline error"
             } else {
                 ret += '<td' + highlight_ErrBase + '>'
@@ -1972,7 +1987,7 @@ function updateLinRegPCRTable() {
                 }
             }
             if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][50] + '</td>\n'  // "instable baseline"
+                ret += '<th>' + window.linRegPCRTable[row][50] + '</th>\n'  // "instable baseline"
                 content += window.linRegPCRTable[row][50] + "\t"  // "instable baseline"
             } else {
                 ret += '<td' + highlight_ErrInstab + '>'
@@ -1985,7 +2000,7 @@ function updateLinRegPCRTable() {
                 }
             }
             if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][51] + '</td>\n'  // "plateau"
+                ret += '<th>' + window.linRegPCRTable[row][51] + '</th>\n'  // "plateau"
                 content += window.linRegPCRTable[row][51] + "\t"  // "plateau"
             } else {
                 ret += '<td' + highlight_ErrPlat + '>'
@@ -1998,7 +2013,7 @@ function updateLinRegPCRTable() {
                 }
             }
             if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][52] + '</td>\n'  // "noisy sample"
+                ret += '<th>' + window.linRegPCRTable[row][52] + '</th>\n'  // "noisy sample"
                 content += window.linRegPCRTable[row][52] + "\t"  // "noisy sample"
             } else {
                 ret += '<td' + highlight_ErrNoisy + '>'
@@ -2011,7 +2026,7 @@ function updateLinRegPCRTable() {
                 }
             }
             if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][effErrCol] + '</td>\n'
+                ret += '<th>' + window.linRegPCRTable[row][effErrCol] + '</th>\n'  // "PCR Efficiency"
                 content += window.linRegPCRTable[row][effErrCol] + "\t"
             } else {
                 ret += '<td' + highlight_ErrEffOutside + '>'
@@ -2024,7 +2039,7 @@ function updateLinRegPCRTable() {
                 }
             }
             if (row == 0) {
-                ret += '<td>' + window.linRegPCRTable[row][61] + '</td>\n'  // "used for W-o-L setting"
+                ret += '<th>' + window.linRegPCRTable[row][61] + '</th>\n'  // "used for W-o-L setting"
                 content += window.linRegPCRTable[row][61] + "\t"  // "used for W-o-L setting"
             } else {
                 if (window.linRegPCRTable[row][61] == true) {  // "used for W-o-L setting"
@@ -2038,9 +2053,12 @@ function updateLinRegPCRTable() {
 
             content = content.replace(/\t$/g, "\n");
             ret += '</tr>\n'
+            if (row == 0) {
+                ret += '</thead>\n<tbody>\n'
+            }
         }
     }
-    ret += '</table>\n'
+    ret += '</tbody>\n</table>\n'
     window.linRegSaveTable = content
     resultLinRegPCR.innerHTML = ret
 }
@@ -2056,16 +2074,16 @@ function updateCorrectionTable() {
         if (window.reactData.anyCalcCorrections > 0) {
             ele.style.display = "inline";
             if ((window.experimentPos > -1) && (window.runPos > -1) && (window.reactData.hasOwnProperty("reacts"))) {
-                var ret = '<table class="table table-bordered table-striped" id="Correction_Result_Table">\n'
+                var ret = '<table class="table table-bordered table-striped" id="Correction_Result_Table"><thead style=\"position: sticky;top: 0\">\n'
                 var pcrFormat = window.rdmlData.rdml.experiments[window.experimentPos].runs[window.runPos].pcrFormat
                 var rows = parseInt(pcrFormat.rows)
                 var columns = parseInt(pcrFormat.columns)
                 var rowLabel = pcrFormat.rowLabel
                 var columnLabel = pcrFormat.columnLabel
-                ret += '<tr><td>id</td><td>well</td><td>sample</td><td>target</td>'
-                ret += '<td style="width: 180px;">excluded</td><td style="width: 180px;">note</td><td>PCR efficiency</td>'
-                ret += '<td>corrected Cq</td><td>corrected N0</td><td>correction factor</td>'
-                ret += '<td>observed Cq</td><td>observed N0</td></tr>\n'
+                ret += '<tr><th>id</th><th>well</th><th>sample</th><th>target</th>'
+                ret += '<th style="width: 180px;">excluded</th><th style="width: 180px;">note</th><th>PCR efficiency</th>'
+                ret += '<th>corrected Cq</th><th>corrected N0</th><th>correction factor</th>'
+                ret += '<th>observed Cq</th><th>observed N0</th></tr></thead><tbody>\n'
                 var content = 'id\twell\tsample\ttarget\texcluded\tnote\tPCR efficiency\t'
                 content += 'corrected Cq\tcorrected N0\tcorrection factor\tobserved Cq\tobserved N0\n'
                 for (var id = 1; id < rows * columns + 1; id++) {
@@ -2153,7 +2171,7 @@ function updateCorrectionTable() {
                         }
                     }
                 }
-                ret += '</table>\n'
+                ret += '</tbody>\n</table>\n'
                 resultCorrection.innerHTML = ret
                 window.correctionSaveTable = content
             }
@@ -2176,26 +2194,32 @@ function updateMeltingTable() {
     var warnMesB =  "several products with different melting temperatures detected"
     var warnMesC =  "product detected in negative control"
 
-    var ret = '<table class="table table-bordered table-striped" id="Meltcurve_Result_Table">\n'
+    var htmlTag = 'td';
+    var ret = '<table class="table table-bordered table-striped" id="Meltcurve_Result_Table"><thead style=\"position: sticky;top: 0\">\n'
     if (choiceMeltTable.value == "debug") {
         for (var row = 0; row < window.meltcurveTable.length; row++) {
             if (row == 0) {
                 ret += '<tr>\n'
+                htmlTag = 'th'
             } else {
                 ret += "<tr ondblclick='window.clickSampSel(\"" + window.meltcurveTable[row][4]  // "target"
                 ret += "\", \"" + window.meltcurveTable[row][0] + "\")'> \n"  // "id"
+                htmlTag = 'td'
             }
             for (var col = 0; col < window.meltcurveTable[row].length; col++) {
                 if (col < 7) {
                     content += window.meltcurveTable[row][col] + "\t"
-                    ret += '<td>' + window.meltcurveTable[row][col] + '</td>\n'
+                    ret += '<' + htmlTag + '>' + window.meltcurveTable[row][col] + '</' + htmlTag + '>\n'
                 } else {
                     content += NumPoint(window.meltcurveTable[row][col]) + "\t"
-                    ret += '<td>' + NumPoint(window.meltcurveTable[row][col]) + '</td>\n'
+                    ret += '<' + htmlTag + '>' + NumPoint(window.meltcurveTable[row][col]) + '</' + htmlTag + '>\n'
                 }
             }
             content = content.replace(/\t$/g, "\n");
             ret += '</tr>\n'
+            if (row == 0) {
+                ret += '</thead>\n<tbody>\n'
+            }
         }
     } else {
         for (var row = 0; row < window.meltcurveTable.length; row++) {
@@ -2205,19 +2229,21 @@ function updateMeltingTable() {
             }
             if (row == 0) {
                 ret += '<tr>\n'
+                htmlTag = 'th'
             } else {
                 ret += "<tr ondblclick='window.clickSampSel(\"" + window.meltcurveTable[row][4]  // "target"
                 ret += "\", \"" + window.meltcurveTable[row][0] + "\")'> \n"  // "id"
+                htmlTag = 'td'
             }
             var goodTemp = 0.0
             var currCol = "";
             for (var col = 0; col < window.meltcurveTable[row].length; col++) {
                 if ((row == 0) && (col < 12)) {
                     content += window.meltcurveTable[row][col] + "\t"
-                    ret += '<td>' + window.meltcurveTable[row][col] + '</td>\n'
+                    ret += '<' + htmlTag + '>' + window.meltcurveTable[row][col] + '</' + htmlTag + '>\n'
                 } else if (col < 7) {
                     content += window.meltcurveTable[row][col] + "\t"
-                    ret += '<td>' + window.meltcurveTable[row][col] + '</td>\n'
+                    ret += '<' + htmlTag + '>' + window.meltcurveTable[row][col] + '</' + htmlTag + '>\n'
                 } else if (col < 8) {
                     var editLink = NumPoint(window.meltcurveTable[row][col])
                     content += NumPoint(window.meltcurveTable[row][col]) + "\t"
@@ -2228,7 +2254,7 @@ function updateMeltingTable() {
                             editLink += ';TAB=targets-tab;EDITMODE=on" target="_blank">Edit Tm</a>\n'
                         }
                     }
-                    ret += '<td>' + editLink + '</td>\n'
+                    ret += '<' + htmlTag + '>' + editLink + '</' + htmlTag + '>\n'
                 } else if (col < 9) {
                     content += floatWithPrec(window.meltcurveTable[row][col], 100) + "\t"
                     currCol = colGood
@@ -2254,19 +2280,19 @@ function updateMeltingTable() {
                     if (goodTemp == "") {
                         currCol = ""
                     }
-                    ret += '<td' + currCol + '>' + goodTemp + '</td>\n'
+                    ret += '<' + htmlTag + '' + currCol + '>' + goodTemp + '</' + htmlTag + '>\n'
                 } else if (col < 10) {
                     content += floatWithPrec(window.meltcurveTable[row][col], 100) + "\t"
-                    ret += '<td>' + floatWithPrec(window.meltcurveTable[row][col], 100) + '</td>\n'
+                    ret += '<' + htmlTag + '>' + floatWithPrec(window.meltcurveTable[row][col], 100) + '</' + htmlTag + '>\n'
                 } else if (col < 12) {
                     content += floatWithPrec(window.meltcurveTable[row][col], 1000000) + "\t"
-                    ret += '<td>' + floatWithPrec(window.meltcurveTable[row][col], 1000000) + '</td>\n'
+                    ret += '<' + htmlTag + '>' + floatWithPrec(window.meltcurveTable[row][col], 1000000) + '</' + htmlTag + '>\n'
                 } else {
                     var subCol = (col - 16) % 9;
                     if ((row == 0) && (subCol >= 0) && (subCol < 4)) {
                         currCol = "";
                         content += window.meltcurveTable[row][col] + "\t"
-                        ret += '<td>' + window.meltcurveTable[row][col] + '</td>\n'
+                        ret += '<' + htmlTag + '>' + window.meltcurveTable[row][col] + '</' + htmlTag + '>\n'
                     } else if ((subCol >= 0) && (subCol < 2)) {
                         var currTemp = floatWithPrec(window.meltcurveTable[row][col], 100)
                         if (goodTemp == currTemp) {
@@ -2281,22 +2307,25 @@ function updateMeltingTable() {
                             currCol = ""
                         }
                         content += currTemp + "\t"
-                        ret += '<td' + currCol + '>' + currTemp + '</td>\n'
+                        ret += '<' + htmlTag + '' + currCol + '>' + currTemp + '</' + htmlTag + '>\n'
                     } else if ((subCol >= 0) && (subCol < 3)) {
                         content += floatWithPrec(window.meltcurveTable[row][col], 100) + "\t"
-                        ret += '<td' + currCol + '>' + floatWithPrec(window.meltcurveTable[row][col], 100) + '</td>\n'
+                        ret += '<' + htmlTag + '' + currCol + '>' + floatWithPrec(window.meltcurveTable[row][col], 100) + '</' + htmlTag + '>\n'
                     } else if ((subCol >= 0) && (subCol < 4)) {
                         content += floatWithPrec(window.meltcurveTable[row][col], 1000000) + "\t"
-                        ret += '<td' + currCol + '>' + floatWithPrec(window.meltcurveTable[row][col], 1000000) + '</td>\n'
+                        ret += '<' + htmlTag + '' + currCol + '>' + floatWithPrec(window.meltcurveTable[row][col], 1000000) + '</' + htmlTag + '>\n'
                     }
                 }
             }
             content = content.replace(/\t$/g, "\n");
             ret += '</tr>\n'
+            if (row == 0) {
+                ret += '</thead>\n<tbody>\n'
+            }
         }
     }
 
-    ret += '</table>\n'
+    ret += '</tbody>\n</table>\n'
     window.meltcurveSaveTable = content
     resultMeltcurve.innerHTML = ret
 }

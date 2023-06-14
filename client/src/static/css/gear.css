@@ -134,3 +134,14 @@ a.plain:hover {
   empty-cells: show;
 }
 
+.rdml-screensize {
+  width: 90hh;
+  height: 90vh;
+  overflow: auto;
+}
+
+th {
+  background: white;
+  position: sticky;
+  top: 0;
+}
