@@ -2344,7 +2344,11 @@ function updateRelativeTable() {
     if (window.relative.tsv.hasOwnProperty("annotation_data")) {
         maxCols = tsvGetMaxColumns(window.relative.tsv.annotation_data, maxCols)
         maxCols = tsvGetMaxColumns(window.relative.tsv.statistics_data, maxCols)
-        maxCols = tsvGetMaxColumns(window.relative.tsv.statistics_multi_comp, maxCols)
+        if (window.relative.tsv.hasOwnProperty("statistics_multi_comp")) {
+            if (window.relative.tsv.statistics_multi_comp !=  "") {
+                maxCols = tsvGetMaxColumns(window.relative.tsv.statistics_multi_comp, maxCols)
+            }
+        }
     }
 
     ret += '<br /><br />\n'
@@ -2379,10 +2383,14 @@ function updateRelativeTable() {
         ret += tsvToTableSectionNoRaw(window.relative.tsv.statistics_data, maxCols)
         content += tsvToTsvSectionNoRaw(window.relative.tsv.statistics_data, maxCols)
         if (window.relative.tsv.hasOwnProperty("statistics_multi_comp")) {
-            ret += tsvToTableHeadline("Multiple Comparison Result", maxCols)
-            content += tsvToTsvHeadline("Multiple Comparison Result", maxCols)
-            ret += tsvToTableSectionNoRaw(window.relative.tsv.statistics_multi_comp, maxCols)
-            content += tsvToTsvSectionNoRaw(window.relative.tsv.statistics_multi_comp, maxCols)
+            if (window.relative.tsv.statistics_multi_comp !=  "") {
+                ret += tsvToTableHeadline("", maxCols)
+                content += tsvToTsvHeadline("", maxCols)
+                ret += tsvToTableHeadline("Multiple Comparison Result", maxCols)
+                content += tsvToTsvHeadline("Multiple Comparison Result", maxCols)
+                ret += tsvToTableSectionNoRaw(window.relative.tsv.statistics_multi_comp, maxCols)
+                content += tsvToTsvSectionNoRaw(window.relative.tsv.statistics_multi_comp, maxCols)
+            }
         }
     }
     ret += '</table>\n'
