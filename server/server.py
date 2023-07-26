@@ -2373,7 +2373,8 @@ def handle_data():
                                                    selAnnotation=reqdata["sel-annotation"],
                                                    selAnnoValue=reqdata["sel-anno-val"],
                                                    saveResultsCSV=True,
-                                                   saveResultsSVG=True)
+                                                   saveResultsSVG=True,
+                                                   maxRef=30)
                 data["reactsdata"] = experiment.getreactjson()
                 if "error" in data["reactsdata"]:
                     data["error"] = data["reactsdata"]["error"]
