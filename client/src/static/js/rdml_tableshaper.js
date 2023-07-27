@@ -32,6 +32,8 @@ createRdmlButton.addEventListener('click', createServerRdml)
 const loadJFile = document.getElementById('inputJsonFile')
 loadJFile.addEventListener('change', loadJsonFile, false);
 
+const pasteAcc = document.getElementById('dropZone');
+pasteAcc.addEventListener("change", pasteEvent);
 
 // Global data
 window.inputFile = "";
@@ -169,6 +171,16 @@ function loadInputFile(){
     } else {
         alert("Error opening file");
     }
+}
+
+function pasteEvent () {
+    var txt = pasteAcc.value;
+    txt = txt.replace(/\r\n/g, "\n");
+    txt = txt.replace(/\r/g, "\n");
+    txt = txt.replace(/\n+/g, "\n");
+    txt = txt.replace(/\n$/g, "");
+    window.inputFile = txt;
+    updateSepCount(window.inputFile);
 }
 
 function showExample() {
