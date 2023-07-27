@@ -191,6 +191,7 @@ function resetAllGlobalVal() {
     hideElement(resultError)
     resetLinRegPCRdata()
     resetMeltcurveData()
+    window.curveSource = "adp"
     updateClientData()
 }
 
@@ -252,7 +253,7 @@ function resetMeltcurveData() {
     window.meltcurveSaveTable = ""
     window.meltcurveTable = []
     window.reactToMeltcurveTable = {}
-    window.curveSource = "fdm"
+    window.curveSource = "adp"
     window.meltcurveData = ""
     resultMeltcurve.innerHTML = ""
     updateMeltingTable()
@@ -434,6 +435,8 @@ function showLinRegPCRExample() {
     window.selExperiment = "Experiment_1";
     window.selRunOnLoad = "Run_1";
     window.selDigitalOnLoad = "none";
+    window.curveSource = "adp";
+    window.yScale = "log";
 
     updateServerData("linregpcr", '{"mode": "upload", "validate": true}')
     $('[href="#runs-tab"]').tab('show')
@@ -446,6 +449,8 @@ function showMeltcurveExample() {
     window.selExperiment = "Artifact Mix";
     window.selRunOnLoad = "Artifact Mix with SYBR Green I";
     window.selDigitalOnLoad = "none";
+    window.curveSource = "mdp";
+    window.yScale = "lin";
 
     updateServerData("meltcurve", '{"mode": "upload", "validate": true}')
     $('[href="#runs-tab"]').tab('show')
@@ -3185,6 +3190,11 @@ function updateCurveSource() {
         return
     }
     window.curveSource = newData
+    if (["adp", "bas"].includes(window.curveSource)) {
+        window.yScale = "log"
+    } else {
+        window.yScale = "lin"
+    }
     updateClientData()
 }
 

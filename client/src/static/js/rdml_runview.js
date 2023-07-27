@@ -1445,6 +1445,11 @@ function updateColorStyle() {
         return
     }
     window.colorStyle = newData
+    if (["adp", "bas"].includes(window.curveSource)) {
+        window.yScale = "log"
+    } else {
+        window.yScale = "lin"
+    }
     updateClientData()
 }
 
