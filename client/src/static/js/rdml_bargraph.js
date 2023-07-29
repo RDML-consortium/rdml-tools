@@ -1202,7 +1202,8 @@ function createCoordinates () {
         }
     } else {
         var sumVal = window.winYst
-        var yLogStep= window.winYstep
+        var yLogStep = window.winYstep    
+        var dispRange = Math.log10(window.winYend) - Math.log10(sumVal)
         for (var i = 0; (sumVal + i * yLogStep) < window.winYend ; i++) {
             if ((sumVal + i * yLogStep) / yLogStep >= 10) {
                 yLogStep = yLogStep * 10
@@ -1215,9 +1216,13 @@ function createCoordinates () {
             var textValOut = sumVal + i * yLogStep
             var textValStr = textValOut.toFixed(yRound)
             var yRound = Math.max(0, Math.floor(2 - Math.log10(Math.abs(textValOut))))
-            if (!(((Math.round(textValOut.toFixed(yRound) / yLogStep) == 5) && (window.maxLogRange > 3000)) ||
-                  (Math.round(textValOut.toFixed(yRound) / yLogStep) == 7) ||
-                  (Math.round(textValOut.toFixed(yRound) / yLogStep) == 9) )) {
+            if (!(((Math.round(textValOut.toFixed(yRound) / yLogStep) == 2) && (dispRange > 3)) ||
+                  ((Math.round(textValOut.toFixed(yRound) / yLogStep) == 4) && (dispRange > 3)) ||
+                  ((Math.round(textValOut.toFixed(yRound) / yLogStep) == 6) && (window.maxLogRange > 3000)) ||
+                  ((Math.round(textValOut.toFixed(yRound) / yLogStep) == 6) && (dispRange > 2)) ||
+                  ((Math.round(textValOut.toFixed(yRound) / yLogStep) == 7) && (dispRange > 1)) ||
+                  ((Math.round(textValOut.toFixed(yRound) / yLogStep) == 8) && (dispRange > 3)) ||
+                  (Math.round(textValOut.toFixed(yRound) / yLogStep) == 9))) {
                 maxYText = mSvgTextLen(maxYText, textValStr, yTextSize, yTextType);
                 retVal += "<text x='" + (0.0 - yTickLength - yTextSpace) + "' y='" + (yPos + yTextSize * 3.0 / 8.0);
                 retVal += "' font-family='" + yTextType + "' font-size='" + yTextSize + "' fill='black' text-anchor='end'>";
