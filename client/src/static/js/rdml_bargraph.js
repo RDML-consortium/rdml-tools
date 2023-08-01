@@ -1202,7 +1202,7 @@ function createCoordinates () {
         }
     } else {
         var sumVal = window.winYst
-        var yLogStep = window.winYstep    
+        var yLogStep = window.winYstep
         var dispRange = Math.log10(window.winYend) - Math.log10(sumVal)
         for (var i = 0; (sumVal + i * yLogStep) < window.winYend ; i++) {
             if ((sumVal + i * yLogStep) / yLogStep >= 10) {
