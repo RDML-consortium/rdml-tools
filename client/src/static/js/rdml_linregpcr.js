@@ -729,7 +729,10 @@ function updateServerData(stat, reqData) {
                     showElement(resultError)
                     var err = '<i class="fas fa-fire"></i>\n<span id="error-message">'
                     err += res.data.data.error + '</span>'
-                    resultError.innerHTML = err
+                    resultError.innerHTML = err.replace("will result in wrong PCR efficiencies", 
+                                                        "will result in wrong PCR efficiencies (<a href=\"" + 
+                                                         `${API_LINK}` + 
+                                                         "/help.html#LRP-Neg-Val-Warning\" target=\"_blank\">click to read more</a>)");
                 }
                 fillLookupDics()
                 updateClientData()

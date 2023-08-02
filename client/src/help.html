@@ -88,6 +88,7 @@
               <li><a href="#LRP-Baseline-Basics">3.6.1 Baseline Estimation and Flagging of Deviating Reactions</a></li>
               <li><a href="#LRP-Error-Flagging">3.6.2. Error Flagging</a></li>
               <li><a href="#LRP-Failing-Baseline">3.6.3. Reasons for Failing Baseline Estimation and noisy samples</a></li>
+              <li><a href="#LRP-Neg-Val-Warning">3.6.4. Negative Values Warning</a></li>
             </ul>
           </li>
           <li><a href="#LRP-Mean-Efficiency">3.7. Mean Efficiency Calculation</a></li>
@@ -345,8 +346,8 @@
     <p style="text-align: justify">
       Importing data is always the second-best choice to having a native RDML export by your qPCR machine. If a machine
       purchase is planned, consider one of the
-      <a href="https://rdml.org/instruments.html" target="_blank">machines with RDML support</a>.<br />
-      Without RDML export in your machine, you have to export to another file format and reformat the data into RDML.
+      <a href="https://rdml.org/instruments.html" target="_blank">machines with RDML or RDES support</a>.<br />
+      Without RDML or RDES export in your machine, you have to export to another file format and reformat the data into RDML.
       Run RDML-Edit and create a new file on the main tab and enable editing with the "enable edit mode" button. For
       digital PCR, the version needs to be 1.3 or above which can be set on the "more" tab.
     </p>
@@ -474,6 +475,7 @@
           <li><a href="#LRP-Baseline-Basics">3.6.1 Baseline Estimation and Flagging of Deviating Reactions</a></li>
           <li><a href="#LRP-Error-Flagging">3.6.2. Error Flagging</a></li>
           <li><a href="#LRP-Failing-Baseline">3.6.3. Reasons for Failing Baseline Estimation and noisy samples</a></li>
+          <li><a href="#LRP-Neg-Val-Warning">3.6.4. Negative Values Warning</a></li>
         </ul>
       </li>
       <li><a href="#LRP-Mean-Efficiency">3.7. Mean Efficiency Calculation</a></li>
@@ -726,6 +728,25 @@
       quenched reporters you have to make sure that the quenching efficiency of the probe is as high as possible (see
       Tuomi et al 2010 for suggestions).
     </p>
+
+    <h5 id="LRP-Neg-Val-Warning">3.6.4. Negative Values Warning</h5>
+    <p style="text-align: justify">
+      The RDML-Tools may throw a warning if negative fluorescence values are imported or used. Actually, fluorescence 
+      values can never be negative, as zero means no light is emitted. Usually negative values occur if a baseline 
+      correction was applied to the raw fluorescence data.
+      <br /><br />
+      Most machines perform a baseline correction based on the first 3(5)-10(15) cycles and fit a curve, which is 
+      subtracted from the raw fluorescence data. If only a constant value was subtracted, the calculations of 
+      LinRegPCR are not affected and the constant value is removed. If the subtracted curve has also an inclination, 
+      LinRegPCR will not be able to calculate the correct PCR efficiencies. There is no way to undo the curve 
+      based baseline correction.
+      <br /><br />
+      If this error occurs, you can check if the software of your machine allows to switch off the baseline 
+      correction. You can contact the vendor and ask for help - and maybe also ask why there is noe RDML or RDES 
+      export, as this will make your life much easier. Up to then, there is nothing you can do about it. You may 
+      continue using LinRegPCR, but be warned that the PCR efficiencies might be affected.
+    </p>
+
     <h5 id="LRP-Mean-Efficiency">3.7. Mean Efficiency Calculation</h5>
     <p style="text-align: justify">
       The group of reactions, in which the same target (pair of primers) is used, is called an amplicon group. The PCR
