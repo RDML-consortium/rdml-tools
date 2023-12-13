@@ -601,6 +601,14 @@
       arbitrary fluorescence units and calculated with Eq. 2 (see below). The N<sub>0</sub> value of a target and one
       or more reference genes can be used to calculate the efficiency-corrected gene expression ratio.
       <br /><br />
+      <b>N<sub>copy</sub>:</b> Is calculated as N<sub>copy</sub> = 10 * 1.9^35 * N<sub>0</sub> / Fluorescence threshold<br> 
+      N<sub>copy</sub> is applying the "rule of thumb" indicating that a sample with 10 copies reaches after 35 cycles 
+      the threshold. Of course this is rarely true. It is based on the assumption, that the threshold level is allways 
+      corresponding to the same DNA concentration. The length of the amplicon, the volume of the reaction, the 
+      influence of the chemisty and fluorochrome concentration are ignored in this calculation. Nevertheless this values 
+      are independent of the machine fluorescence levels and provide a human understandable copy number (for the reaction 
+      tube). This values should not be more than factor 10x off.
+      <br /><br />
       <b>Non-cumulative fluorescence:</b> Observed fluorescence data obtained when the PCR amplification is monitored
       with a DNA binding dye or hybridization probe. The reporter is only fluorescent when bound to dsDNA; fluorescence
       intensity is proportional to the amount of DNA present at each cycle.
