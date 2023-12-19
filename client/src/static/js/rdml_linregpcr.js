@@ -2097,10 +2097,10 @@ function updateCorrectionTable() {
                 var columnLabel = pcrFormat.columnLabel
                 ret += '<tr><th>id</th><th>well</th><th>sample</th><th>target</th>'
                 ret += '<th style="width: 180px;">excluded</th><th style="width: 180px;">note</th><th>PCR efficiency</th>'
-                ret += '<th>corrected Cq</th><th>corrected N0</th><th>correction factor</th>'
-                ret += '<th>observed Cq</th><th>observed N0</th></tr></thead><tbody>\n'
-                var content = 'id\twell\tsample\ttarget\texcluded\tnote\tPCR efficiency\t'
-                content += 'corrected Cq\tcorrected N0\tcorrection factor\tobserved Cq\tobserved N0\n'
+                ret += '<th>corrected Cq</th><th>corrected N0</th><th>corrected Ncopy</th><th>correction factor</th>'
+                ret += '<th>observed Cq</th><th>observed N0</th><th>observed Ncopy</th></tr></thead><tbody>\n'
+                var content = 'id\twell\tsample\ttarget\texcluded\tnote\tPCR efficiency\torrected Cq\tcorrected N0\t'
+                content += 'ccorrected Ncopy\tcorrection factor\tobserved Cq\tobserved N0\tobserved Ncopy\n'
                 for (var id = 1; id < rows * columns + 1; id++) {
                     for (var reac = 0; reac < window.reactData.reacts.length; reac++) {
                         var react = window.reactData.reacts[reac]
@@ -2161,6 +2161,13 @@ function updateCorrectionTable() {
                                     ret += '</td><td>'
                                     content += '\t'
                                 }
+                                if (dataS.hasOwnProperty("corrNcopy")) {
+                                    ret += NumPoint(dataS.corrNcopy) + '</td><td>'
+                                    content += NumPoint(dataS.corrNcopy) + '\t'
+                                } else {
+                                    ret += '</td><td>'
+                                    content += '\t'
+                                }
                                 if (dataS.hasOwnProperty("corrF")) {
                                     ret += NumPoint(dataS.corrF) + '</td><td>'
                                     content += NumPoint(dataS.corrF) + '\t'
@@ -2168,16 +2175,23 @@ function updateCorrectionTable() {
                                     ret += '</td><td>'
                                     content += '\t'
                                 }
-                                 if (dataS.hasOwnProperty("cq")) {
+                                if (dataS.hasOwnProperty("cq")) {
                                     ret += NumPoint(dataS.cq) + '</td><td>'
                                     content += NumPoint(dataS.cq) + '\t'
                                 } else {
                                     ret += '</td><td>'
                                     content += '\t'
                                 }
-                                 if (dataS.hasOwnProperty("N0")) {
-                                    ret += NumPoint(dataS.N0) + '</td></tr>\n'
-                                    content += NumPoint(dataS.N0) + '\n'
+                                if (dataS.hasOwnProperty("N0")) {
+                                    ret += NumPoint(dataS.N0) + '</td><td>'
+                                    content += NumPoint(dataS.N0) + '\t'
+                                } else {
+                                    ret += '</td><td>'
+                                    content += '\t'
+                                }
+                                if (dataS.hasOwnProperty("Ncopy")) {
+                                    ret += NumPoint(dataS.Ncopy) + '</td></tr>\n'
+                                    content += NumPoint(dataS.Ncopy) + '\n'
                                 } else {
                                     ret += '</td><td>\n'
                                     content += '\n'

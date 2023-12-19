@@ -156,8 +156,10 @@ window.selAnnota = false;
 window.selPCREff = false;
 window.selRawCq = false;
 window.selRawN0 = false;
+window.selRawNcopy = false;
 window.selCorCq = true;
 window.selCorN0 = true;
+window.selCorNcopy = true;
 window.selCorF = false;
 window.selCorP = false;
 window.selNote = false;
@@ -1292,6 +1294,14 @@ function updateClientData() {
         ret += '    <label class="form-check-label" for="checkRawN0">raw N0</label>\n'
         ret += '  </div>\n</td>\n<td style="width:8%;">'
         ret += '  <div class="form-check">\n'
+        ret += '    <input type="checkbox" class="form-check-input" id="checkRawNcopy"'
+        if (window.selRawNcopy == true) {
+          ret += ' checked="checked"'
+        }
+        ret += ' onchange="updateCheckboxes()">\n'
+        ret += '    <label class="form-check-label" for="checkRawNcopy">raw Ncopy</label>\n'
+        ret += '  </div>\n</td>\n<td style="width:8%;">'
+        ret += '  <div class="form-check">\n'
         ret += '    <input type="checkbox" class="form-check-input" id="checkCorCq"'
         if (window.selCorCq == true) {
           ret += ' checked="checked"'
@@ -1306,6 +1316,14 @@ function updateClientData() {
         }
         ret += ' onchange="updateCheckboxes()">\n'
         ret += '    <label class="form-check-label" for="checkCorN0">corr N0</label>\n'
+        ret += '  </div>\n</td>\n<td style="width:8%;">'
+        ret += '  <div class="form-check">\n'
+        ret += '    <input type="checkbox" class="form-check-input" id="checkCorNcopy"'
+        if (window.selCorNcopy == true) {
+          ret += ' checked="checked"'
+        }
+        ret += ' onchange="updateCheckboxes()">\n'
+        ret += '    <label class="form-check-label" for="checkCorNcopy">corr Ncopy</label>\n'
         ret += '  </div>\n</td>\n<td style="width:8%;">'
         ret += '  <div class="form-check">\n'
         ret += '    <input type="checkbox" class="form-check-input" id="checkCorF"'
@@ -1513,6 +1531,13 @@ function updateClientData() {
                                             }
                                             cell += '<br />'
                                         }
+                                        if (window.selRawNcopy == true) {
+                                            cell += 'raw Ncopy: '
+                                            if (reacts[reac].datas[dataPos].hasOwnProperty("Ncopy")) {
+                                                cell += floatWithFixPrec(reacts[reac].datas[dataPos].Ncopy, 2)
+                                            }
+                                            cell += '<br />'
+                                        }
                                         if (window.selRawCq == true) {
                                             cell += 'raw Cq: '
                                             if (reacts[reac].datas[dataPos].hasOwnProperty("cq")) {
@@ -1524,6 +1549,13 @@ function updateClientData() {
                                             cell += 'N0: '
                                             if (reacts[reac].datas[dataPos].hasOwnProperty("corrN0")) {
                                                 cell += floatWithExPrec(reacts[reac].datas[dataPos].corrN0, 2)
+                                            }
+                                            cell += '<br />'
+                                        }
+                                        if (window.selCorNcopy == true) {
+                                            cell += 'Ncopy: '
+                                            if (reacts[reac].datas[dataPos].hasOwnProperty("corrNcopy")) {
+                                                cell += floatWithFixPrec(reacts[reac].datas[dataPos].corrNcopy, 2)
                                             }
                                             cell += '<br />'
                                         }
@@ -2754,8 +2786,10 @@ function updateCheckboxes() {
     window.selPCREff = getSaveHtmlCheckbox("checkPCREff")
     window.selRawCq = getSaveHtmlCheckbox("checkRawCq")
     window.selRawN0 = getSaveHtmlCheckbox("checkRawN0")
+    window.selRawNcopy = getSaveHtmlCheckbox("checkRawNcopy")
     window.selCorCq = getSaveHtmlCheckbox("checkCorCq")
     window.selCorN0 = getSaveHtmlCheckbox("checkCorN0")
+    window.selCorNcopy = getSaveHtmlCheckbox("checkCorNcopy")
     window.selCorF = getSaveHtmlCheckbox("checkCorF")
     window.selCorP = getSaveHtmlCheckbox("checkCorP")
     window.selNote = getSaveHtmlCheckbox("checkNote")
