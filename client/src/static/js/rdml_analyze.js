@@ -501,7 +501,7 @@ function htmllize(tst) {
 
 function niceQuantityType(txt) {
     if (txt == "cop") {
-        return "copies per microliter"
+        return "copies per reaction"
     }
     if (txt == "fold") {
         return "fold change"
@@ -510,10 +510,10 @@ function niceQuantityType(txt) {
         return "dilution"
     }
     if (txt == "nMol") {
-        return "nanomol per microliter"
+        return "nanomol per reaction"
     }
     if (txt == "ng") {
-        return "nanogram per microliter"
+        return "nanogram per reaction"
     }
     if (txt == "other") {
         return "other unit"
@@ -741,6 +741,7 @@ function runAbsoluteQuan() {
     ret["absolute-method"] = getSaveHtmlData("selAbsoluteMethod")
     ret["absolute-unit"] = getSaveHtmlData("selAbsoluteUnit")
     ret["estimate-missing"] = getSaveHtmlData("selAbsoluteMissTar")
+    ret["absolute-react-vol"] = getSaveHtmlData("selAbsoluteReactVol")
     ret["overlap-type"] = getSaveHtmlData("selOverlapAbsolute")
     ret["sel-annotation"] = window.selAnnotation
     ret["incl-annotation"] = inclAnno
@@ -1697,6 +1698,8 @@ function updateClientData() {
             if (window.selPCRStyle == "classic") {
                 ret += '<td>PCR Eff</td>'
                 csv += 'PCR Eff\t'
+                ret += '<td>raw Ncopy</td>'
+                csv += 'raw Ncopy\t'
                 ret += '<td>raw N0</td>'
                 csv += 'raw N0\t'
                 ret += '<td>raw Cq</td>'
@@ -1705,6 +1708,8 @@ function updateClientData() {
                 csv += 'corr F\t'
                 ret += '<td>corr P</td>'
                 csv += 'corr P\t'
+                ret += '<td>corr Ncopy</td>'
+                csv += 'corr Ncopy\t'
                 ret += '<td>corr N0</td>'
                 csv += 'corr N0\t'
                 ret += '<td>corr Cq</td>'
@@ -1788,6 +1793,12 @@ function updateClientData() {
                                         }
                                         ret += '</td>\n<td>'
                                         csv += '\t'
+                                        if (reacts[reac].datas[dataPos].hasOwnProperty("Ncopy")) {
+                                            ret += floatWithFixPrec(reacts[reac].datas[dataPos].Ncopy, 2)
+                                            csv += floatWithFixPrec(reacts[reac].datas[dataPos].Ncopy, 2)
+                                        }
+                                        ret += '</td>\n<td>'
+                                        csv += '\t'
                                         if (reacts[reac].datas[dataPos].hasOwnProperty("N0")) {
                                             ret += floatWithExPrec(reacts[reac].datas[dataPos].N0, 2)
                                             csv += floatWithExPrec(reacts[reac].datas[dataPos].N0, 2)
@@ -1815,6 +1826,12 @@ function updateClientData() {
                                         } else {
                                             ret += floatWithFixPrec('1.0', 4)
                                             csv += floatWithFixPrec('1.0', 4)
+                                        }
+                                        ret += '</td>\n<td>'
+                                        csv += '\t'
+                                        if (reacts[reac].datas[dataPos].hasOwnProperty("corrNcopy")) {
+                                            ret += floatWithFixPrec(reacts[reac].datas[dataPos].corrNcopy, 2)
+                                            csv += floatWithFixPrec(reacts[reac].datas[dataPos].corrNcopy, 2)
                                         }
                                         ret += '</td>\n<td>'
                                         csv += '\t'

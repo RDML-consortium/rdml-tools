@@ -2327,6 +2327,8 @@ def handle_data():
                 return jsonify(errors=[{"title": "Invalid server request - absolute-unit id missing!"}]), 400
             if "estimate-missing" not in reqdata:
                 return jsonify(errors=[{"title": "Invalid server request - estimate-missing id missing!"}]), 400
+            if "absolute-react-vol" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - absolute-react-vol id missing!"}]), 400
             if "overlap-type" not in reqdata:
                 return jsonify(errors=[{"title": "Invalid server request - overlap-type id missing!"}]), 400
             if "sel-annotation" not in reqdata:
@@ -2344,6 +2346,7 @@ def handle_data():
                 data["absolutequan"] = experiment.absoluteQuantification(method=reqdata["absolute-method"],
                                                                          quantUnit=reqdata["absolute-unit"],
                                                                          estimate=estimateTar,
+                                                                         reactionVolume=reqdata["absolute-react-vol"],
                                                                          overlapType=reqdata["overlap-type"],
                                                                          selAnnotation=reqdata["sel-annotation"],
                                                                          inclAnnotation=reqdata["incl-annotation"])
