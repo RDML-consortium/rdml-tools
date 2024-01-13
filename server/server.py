@@ -807,7 +807,14 @@ def handle_data():
                         modTxt = rd.migrate_version_1_3_to_1_2()
                         modified = True
                 if reqdata["new-version"] == "1.3":
-                    modTxt = rd.migrate_version_1_2_to_1_3()
+                    if migOldVersion in ["1.2"]:
+                        modTxt = rd.migrate_version_1_2_to_1_3()
+                        modified = True
+                    if migOldVersion in ["1.4"]:
+                        modTxt = rd.migrate_version_1_4_to_1_3()
+                        modified = True
+                if reqdata["new-version"] == "1.4":
+                    modTxt = rd.migrate_version_1_3_to_1_4()
                     modified = True
                 if modTxt != "":
                     ret = ""
@@ -2025,6 +2032,35 @@ def handle_data():
                 else:
                     if reqdata["sel-well"] != "":
                         s_run.removeReactGrp(reqdata["sel-well"])
+                data["reactsdata"] = s_run.getreactjson()
+            except rdml.RdmlError as err:
+                data["error"] = str(err)
+            else:
+                modified = True
+
+        if "mode" in reqdata and reqdata["mode"] in ["run-ed-vol-react"]:
+            if "sel-experiment" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - sel-experiment id missing!"}]), 400
+            if "sel-run" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - sel-run id missing!"}]), 400
+            if "sel-react" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - sel-react id missing!"}]), 400
+            if "sel-well" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - sel-well id missing!"}]), 400
+            if "sel-vol" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - sel-vol id missing!"}]), 400
+            try:
+                experiment = rd.get_experiment(byid=reqdata["sel-experiment"])
+                if experiment is None:
+                    return jsonify(errors=[{"title": "Invalid server request - experiment id not found!"}]), 400
+                s_run = experiment.get_run(byid=reqdata["sel-run"])
+                if s_run is None:
+                    return jsonify(errors=[{"title": "Invalid server request - run id not found!"}]), 400
+                if reqdata["sel-react"] > 0:
+                    s_run.setVolume(reqdata["sel-react"], reqdata["sel-vol"])
+                else:
+                    if reqdata["sel-well"] != "":
+                        s_run.setVolumeGrp(reqdata["sel-well"], reqdata["sel-vol"])
                 data["reactsdata"] = s_run.getreactjson()
             except rdml.RdmlError as err:
                 data["error"] = str(err)

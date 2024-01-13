@@ -184,6 +184,18 @@ function delReactData() {
     updateServerData(window.uuid, JSON.stringify(ret))
 }
 
+window.modReactVol = modReactVol;
+function modReactVol() {
+    var ret = {}
+    ret["mode"] = "run-ed-vol-react"
+    ret["sel-experiment"] = window.selExperiment
+    ret["sel-run"] = window.selRun
+    ret["sel-react"] = window.selReact
+    ret["sel-well"] = document.getElementById('runView-ele-react').value
+    ret["sel-vol"] = document.getElementById('runView-ele-vol').value
+    updateServerData(window.uuid, JSON.stringify(ret))
+}
+
 window.delTarData = delTarData;
 function delTarData() {
     var ret = {}
@@ -700,7 +712,7 @@ function updateClientData() {
         ret += '      <input type="text" class="form-control" id="runView-ele-excl" onchange="updateErrNote()"'
         ret += ' value="' + window.selExcl + '" >'
         ret += '    </div>'
-        if (window.rdmlData.rdml.version == "1.3") {
+        if (["1.3", "1.4"].includes(window.rdmlData.rdml.version)) {
             ret += '    <div class="form-group">'
             ret += '      <label for="runView-ele-note">Notes:</label>'
             ret += '      <input type="text" class="form-control" id="runView-ele-note" onchange="updateErrNote()"'
@@ -740,9 +752,25 @@ function updateClientData() {
         ret += '      <i class="fas fa-rocket" style="margin-right: 5px;"></i>'
         ret += '        Delete Reaction Data'
         ret += '    </button><br /><br />'
-        ret += '    Here you can view the exclusion remarks and from RDML version 1.3 the'
+        ret += '    Here you can view the exclusion remarks and from RDML version 1.3+ the'
         ret += '    notes of the RDML file. Any entry in exclusion will exclude this reaction/target combination '
         ret += '    from further analysis. <br />'
+        if (["1.4"].includes(window.rdmlData.rdml.version)) {
+            ret += '    <br /><hr/><br />'
+            ret += '    <div class="form-group">'
+            ret += '      <label for="runView-ele-vol">Reaction Volume in Microliter:</label>'
+            ret += '      <input type="text" class="form-control" id="runView-ele-vol" onchange="updateReactVol()"'
+            ret += ' value="' + window.selNote + '" >'
+            ret += '    </div>'
+            ret += '<button type="submit" class="btn btn-outline-primary" '
+            ret += 'onclick="modReactVol()">'
+            ret += '      <i class="fas fa-rocket" style="margin-right: 5px;"></i>'
+            ret += '        Save Reaction Volume'
+            ret += '    </button><br /><br />'
+            ret += '    Here you can change the reaction volume from RDML version 1.4+. <br />'
+            } else {
+            ret += '      <input type="hidden" id="runView-ele-vol" value="" >'
+        }
         ret += '  </div>'
         ret += '</div>'
 
@@ -840,7 +868,7 @@ function updateWellSel() {
         }
         if ((pcr == 1) && 
             (react > 0) &&
-            (window.rdmlData.rdml.version == "1.3") &&
+            (["1.3", "1.4"].includes(window.rdmlData.rdml.version)) &&
             (reacts[react].hasOwnProperty("partitions")) &&
             (reacts[react].partitions.hasOwnProperty("datas")) &&
             (reacts[react].partitions.datas.length) > 0) {
@@ -896,12 +924,12 @@ function showReactSel(pcr, react, dataPos) {
             document.getElementById('runView-ele-tar').value = reacts[react].datas[dataPos].tar
             window.selTar = reacts[react].datas[dataPos].tar
             document.getElementById('runView-ele-excl').value = saveUndefKey(reacts[react].datas[dataPos], "excl")
-            if (window.rdmlData.rdml.version == "1.3") {
+            if (["1.3", "1.4"].includes(window.rdmlData.rdml.version)) {
                 document.getElementById('runView-ele-note').value = saveUndefKey(reacts[react].datas[dataPos], "note")
             }
         }
         if ((pcr == 1) && 
-            (window.rdmlData.rdml.version == "1.3") &&
+            (["1.3", "1.4"].includes(window.rdmlData.rdml.version)) &&
             (reacts[react].hasOwnProperty("partitions")) &&
             (reacts[react].partitions.hasOwnProperty("datas")) &&
             (dataPos < reacts[react].partitions.datas.length)) {

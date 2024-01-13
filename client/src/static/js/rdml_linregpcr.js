@@ -2278,7 +2278,7 @@ function updateMeltingTable() {
                     content += NumPoint(window.meltcurveTable[row][col]) + "\t"
                     if ((window.meltcurveTable[row][3].includes("Average")) && (editLink == "")) {
                         currCol = ""
-                        if (window.rdmlData.rdml.version == "1.3") {
+                        if (["1.3", "1.4"].includes(window.rdmlData.rdml.version)) {
                             editLink = '<a href="' + `${API_LINK}` + "edit.html?UUID=" + window.uuid
                             editLink += ';TAB=targets-tab;EDITMODE=on" target="_blank">Edit Tm</a>\n'
                         }
@@ -2671,7 +2671,7 @@ function showEditNotes() {
         retVal += '      <label for="runView-ele-excl">Excluded:</label>'
         retVal += '      <input type="text" class="form-control" id="runView-ele-excl" value="' + exclStr + '">'
         retVal += '    </div>'
-        if (window.rdmlData.rdml.version == "1.3") {
+        if (["1.3", "1.4"].includes(window.rdmlData.rdml.version)) {
             retVal += '    <div class="form-group">'
             retVal += '      <label for="runView-ele-notes">Notes:</label>'
             retVal += '      <input type="text" class="form-control" id="runView-ele-notes" value="' + noteStr + '">'
@@ -2682,7 +2682,7 @@ function showEditNotes() {
         retVal += '      <i class="fas fa-rocket" style="margin-right: 5px;"></i>'
         retVal += '        Update Exclusion and Notes in RDML file'
         retVal += '    </button><br /><br />'
-        retVal += '    Here you can view the exclusion remarks and from RDML version 1.3 the'
+        retVal += '    Here you can view the exclusion remarks and from RDML version 1.3+ the'
         retVal += '    notes of the RDML file. Any entry in exclusion will exclude this reaction/target combination '
         retVal += '    from further analysis. <br />'
         retVal += '    Be aware: LinRegPCR runs with <i>"Update RDML Data: Yes"</i> selected will overwrite all '

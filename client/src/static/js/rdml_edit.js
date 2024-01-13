@@ -952,7 +952,7 @@ function updateClientData() {
             ret += '>opt  - optical calibrator sample</option>\n'
             ret += '      </select></td>\n'
             ret += '  </tr>'
-            if (window.rdmlData.rdml.version == "1.3") {
+            if (["1.3", "1.4"].includes(window.rdmlData.rdml.version)) {
                 ret += '  <tr>\n    <td style="width:25%;">Target for Type:</td>\n'
                 ret += '    <td style="width:75%">'
                 var selTypeTarget = ""
@@ -998,7 +998,7 @@ function updateClientData() {
                 ret += htmlUnitSelector("inExpQuantity_Unit", "")
             }
             ret += '</td>\n</tr>\n</table>  </tr>'
-            if (window.rdmlData.rdml.version == "1.3") {
+            if (["1.3", "1.4"].includes(window.rdmlData.rdml.version)) {
                 ret += '  <tr>\n    <td style="width:25%;">Target for Quantity:</td>\n'
                 ret += '    <td style="width:75%">'
                 var selQuantTarget = ""
@@ -1180,7 +1180,7 @@ function updateClientData() {
                 } else {
                     ret += '    <td style="width:45%">\n'+ niceSampleType(exp[i].types[j].type) + '</td>\n'
                 }
-                if (window.rdmlData.rdml.version == "1.3") {
+                if (["1.3", "1.4"].includes(window.rdmlData.rdml.version)) {
                     ret += '<td style="width:30%">\n<button type="button" class="btn btn-success rdml-btn-edit btn-sm" '
                     ret += 'onclick="editSamType(' + i + ', ' + j + ');">Edit</button>&nbsp;&nbsp;'
                     if (j == 0) {
@@ -1233,7 +1233,7 @@ function updateClientData() {
                     ret += '    <td style="width:45%">\n'+ exp[i].quantitys[j].value
                     ret += ' ' + niceUnitType(exp[i].quantitys[j].unit) + '</td>\n'
                 }
-                if (window.rdmlData.rdml.version == "1.3") {
+                if (["1.3", "1.4"].includes(window.rdmlData.rdml.version)) {
                     ret += '<td style="width:30%">\n<button type="button" class="btn btn-success rdml-btn-edit btn-sm" '
                     ret += 'onclick="editQunatType(' + i + ', ' + j + ');">Edit</button>&nbsp;&nbsp;'
                     if (j == 0) {
@@ -1425,7 +1425,7 @@ function updateClientData() {
 
             ret += '<button type="button" class="btn btn-success rdml-btn-edit" '
             ret += 'onclick="editPresentElement(\'sample\', ' + i + ');">Edit</button>&nbsp;&nbsp;&nbsp;&nbsp;'
-            if (window.rdmlData.rdml.version == "1.3") {
+            if (["1.3", "1.4"].includes(window.rdmlData.rdml.version)) {
                 ret += '<button type="button" class="btn btn-success rdml-btn-edit" '
                 ret += 'onclick="editSamType(' + i + ', -1);">Add Type</button>&nbsp;&nbsp;&nbsp;&nbsp;'
                 ret += '<button type="button" class="btn btn-success rdml-btn-edit" '
@@ -1510,7 +1510,7 @@ function updateClientData() {
                 ret += 'id="inTarAmplificationEfficiencySE" value="'+ saveUndef(exp[i].amplificationEfficiencySE) + '"></td>\n'
                 ret += '  </tr>'
             }
-             if (window.rdmlData.rdml.version == "1.3") {
+            if (["1.3", "1.4"].includes(window.rdmlData.rdml.version)) {
                 ret += '  <tr>\n    <td style="width:25%;">MeltingTemperature:</td>\n'
                 ret += '    <td style="width:75%"><input type="text" class="form-control" '
                 ret += 'id="inTarMeltingTemperature" value="'+ saveUndef(exp[i].meltingTemperature) + '"></td>\n'
@@ -2279,7 +2279,7 @@ function updateClientData() {
             ret += '    <td style="width:85%"><input type="text" class="form-control" '
             ret += 'id="inPos" value="' + (i + 1) + '"></td>\n'
             ret += '  </tr>'
-            if (window.rdmlData.rdml.version == "1.3") {
+            if (["1.3", "1.4"].includes(window.rdmlData.rdml.version)) {
                 ret += '  <tr>\n    <td style="width:25%;">Fluorescence Reporter:</td>\n'
                 ret += '    <td style="width:75%"><select class="form-control" id="inDyeDyeChemistry">\n'
                 ret += '        <option value=""'
@@ -2700,7 +2700,7 @@ function saveEditElement(typ, pos, oldId){
         el["id"] = getSaveHtmlData("inSampId")
         el["idUnique"] = getSaveHtmlData("inSampIdUnique")
         el["type"] = getSaveHtmlData("inSampType")
-        if (window.rdmlData.rdml.version == "1.3") {
+        if (["1.3", "1.4"].includes(window.rdmlData.rdml.version)) {
             el["typeTargetId"] = getSaveHtmlData("inSampTypeTarget")
             el["quantTargetId"] = getSaveHtmlData("inSampQuantTarget")
         }
@@ -3760,7 +3760,7 @@ function newEditRun(prim_pos, sec_pos, exp) {
     ret += '  <tr>\n    <td style="width:25%;">Import Melting RDES:</td>\n'
     ret += '    <td style="width:75%">\n<input type="file" class="form-control-file" id="inRunUploadMelting"></td>\n'
     ret += '  </tr>'
-    if (window.rdmlData.rdml.version == "1.3") {
+    if (["1.3", "1.4"].includes(window.rdmlData.rdml.version)) {
         ret += '  <tr>\n    <td style="width:25%;">Digital PCR Data Format:</td>\n'
         ret += '    <td style="width:75%"><select class="form-control" id="inRunUploadDigFormat">\n'
         ret += '        <option value="RDML"  selected >RDML</option>\n'
