@@ -153,6 +153,7 @@ window.selAnnotation = "";
 window.selAnnoValue = "";
 
 window.selAnnota = false;
+window.selVol = false;
 window.selPCREff = false;
 window.selRawCq = false;
 window.selRawN0 = false;
@@ -1271,6 +1272,14 @@ function updateClientData() {
         ret += '    <label class="form-check-label" for="checkAnnota">Annotation</label>\n'
         ret += '  </div>\n</td>\n<td style="width:8%;">'
         ret += '  <div class="form-check">\n'
+        ret += '    <input type="checkbox" class="form-check-input" id="checkVolume"'
+        if (window.selVol == true) {
+          ret += ' checked="checked"'
+        }
+        ret += ' onchange="updateCheckboxes()">\n'
+        ret += '    <label class="form-check-label" for="checkVolume">Volume</label>\n'
+        ret += '  </div>\n</td>\n<td style="width:8%;">'
+        ret += '  <div class="form-check">\n'
         ret += '    <input type="checkbox" class="form-check-input" id="checkPCREff"'
         if (window.selPCREff == true) {
           ret += ' checked="checked"'
@@ -1515,6 +1524,13 @@ function updateClientData() {
                                             cell += 'Anno: '
                                             if (window.samToAnnotations.hasOwnProperty(reacts[reac].sample)) {
                                                 cell += window.samToAnnotations[reacts[reac].sample]
+                                            }
+                                            cell += '<br />'
+                                        }
+                                        if (window.selVol == true) {
+                                            cell += 'Volume: '
+                                            if (reacts[reac].hasOwnProperty("vol")) {
+                                                cell += floatWithFixPrec(reacts[reac].vol, 1)
                                             }
                                             cell += '<br />'
                                         }
@@ -2800,6 +2816,7 @@ function updatePlateView() {
 window.updateCheckboxes = updateCheckboxes;
 function updateCheckboxes() {
     window.selAnnota = getSaveHtmlCheckbox("checkAnnota")
+    window.selVol = getSaveHtmlCheckbox("checkVolume")
     window.selPCREff = getSaveHtmlCheckbox("checkPCREff")
     window.selRawCq = getSaveHtmlCheckbox("checkRawCq")
     window.selRawN0 = getSaveHtmlCheckbox("checkRawN0")

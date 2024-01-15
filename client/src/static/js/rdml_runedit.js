@@ -563,6 +563,7 @@ function updateClientData() {
                                 var cBgCol = "#ffffff"
                                 var cExcl = ""
                                 var cNote = ""
+                                var cVol = ""
                                 if (reacts[reac].datas[dataPos].hasOwnProperty("note")) {
                                     cNote = reacts[reac].datas[dataPos].note
                                     cBgCol = "#ccff66"
@@ -571,11 +572,15 @@ function updateClientData() {
                                     cExcl = reacts[reac].datas[dataPos].excl
                                     cBgCol = "#ff704d"
                                 }
+                                if (reacts[reac].hasOwnProperty("vol")) {
+                                    cVol = reacts[reac].vol
+                                }
                                 cell = '  <td style="font-size:0.7em;background-color:' + cBgCol + ';"'
                                 cell += ' onclick="showReactSel(0, ' + reac + ', ' + dataPos + ')">'
                                 cell += reacts[reac].datas[dataPos].tar + '<br />'
                                 cell += 'Excl: ' + cExcl + '<br />'
-                                cell += 'Note: ' + cNote + '</td>'
+                                cell += 'Note: ' + cNote + '<br />'
+                                cell += 'Volume: ' + cVol + '</td>'
                                 exClasRowUsed = true
                                 lastClassic = dataPos
                             }
