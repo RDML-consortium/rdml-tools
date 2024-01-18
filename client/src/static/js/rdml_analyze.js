@@ -198,6 +198,8 @@ window.usedTargets = {}
 window.usedDyeIds = {}
 window.usedDyeMaxPos = 0
 
+const copyThreshold = 10 * Math.pow(1.9, 35.0);
+
 function resetAllGlobalVal() {
     window.plateView = "plate";
     window.selAnnotation = "";
@@ -1578,8 +1580,12 @@ function updateClientData() {
                                         }
                                         if (window.selCorCq == true) {
                                             cell += 'Cq: '
-                                            if (reacts[reac].datas[dataPos].hasOwnProperty("corrCq")) {
-                                                cell += floatWithFixPrec(reacts[reac].datas[dataPos].corrCq, 2)
+                                            if (reacts[reac].datas[dataPos].hasOwnProperty("corrNcopy")) {
+                                                var corrCq = -1.0;
+                                                if (parseFloat(reacts[reac].datas[dataPos].corrNcopy) > 0.0) {
+                                                    corrCq = Math.log2(copyThreshold / parseFloat(reacts[reac].datas[dataPos].corrNcopy));
+                                                }
+                                                cell += floatWithFixPrec(corrCq, 2)
                                             }
                                             cell += '<br />'
                                         }
@@ -1857,9 +1863,13 @@ function updateClientData() {
                                         }
                                         ret += '</td>\n<td>'
                                         csv += '\t'
-                                        if (reacts[reac].datas[dataPos].hasOwnProperty("corrCq")) {
-                                            ret += floatWithFixPrec(reacts[reac].datas[dataPos].corrCq, 2)
-                                            csv += floatWithFixPrec(reacts[reac].datas[dataPos].corrCq, 2)
+                                        if (reacts[reac].datas[dataPos].hasOwnProperty("corrNcopy")) {
+                                            var corrCq = -1.0;
+                                            if (parseFloat(reacts[reac].datas[dataPos].corrNcopy) > 0.0) {
+                                                corrCq = Math.log2(copyThreshold / parseFloat(reacts[reac].datas[dataPos].corrNcopy));
+                                            }
+                                            ret += floatWithFixPrec(corrCq, 2)
+                                            csv += floatWithFixPrec(corrCq, 2)
                                         }
                                         if (window.absoluteN0Unit  != "") {
                                             ret += '</td>\n<td style="text-align: right;">'
@@ -2226,8 +2236,6 @@ function updatePlateTable() {
     }
     var maxCols = 0
     maxCols = tsvGetMaxColumns(window.interRunCal.tsv.run_correction_factors, maxCols)
-    maxCols = tsvGetMaxColumns(window.interRunCal.tsv.pcr_efficiency, maxCols)
-    maxCols = tsvGetMaxColumns(window.interRunCal.tsv.threshold, maxCols)
     maxCols = tsvGetMaxColumns(window.interRunCal.tsv.overlapping_conditions, maxCols)
 
     var ret = '<p>The calculated results are displayed in the RunView tab.</p>\n'
@@ -2237,18 +2245,6 @@ function updatePlateTable() {
     content += tsvToTsvHeadline("Correction Factors", maxCols)
     ret += tsvToTableSection(window.interRunCal.tsv.run_correction_factors, maxCols)
     content += tsvToTsvSection(window.interRunCal.tsv.run_correction_factors, maxCols)
-    ret += tsvToTableHeadline("", maxCols)
-    content += tsvToTsvHeadline("", maxCols)
-    ret += tsvToTableHeadline("PCR Efficiency", maxCols)
-    content += tsvToTsvHeadline("PCR Efficiency", maxCols)
-    ret += tsvToTableSection(window.interRunCal.tsv.pcr_efficiency, maxCols)
-    content += tsvToTsvSection(window.interRunCal.tsv.pcr_efficiency, maxCols)
-    ret += tsvToTableHeadline("", maxCols)
-    content += tsvToTsvHeadline("", maxCols)
-    ret += tsvToTableHeadline("Threshold", maxCols)
-    content += tsvToTsvHeadline("Threshold", maxCols)
-    ret += tsvToTableSection(window.interRunCal.tsv.threshold, maxCols)
-    content += tsvToTsvSection(window.interRunCal.tsv.threshold, maxCols)
     ret += tsvToTableHeadline("", maxCols)
     content += tsvToTsvHeadline("", maxCols)
     ret += tsvToTableHeadline("Overlapping Conditions", maxCols)
@@ -2348,8 +2344,8 @@ function updateGenormTable() {
     if (window.genorm.tsv.hasOwnProperty("v_values")) {
         maxCols = tsvGetMaxColumns(window.genorm.tsv.v_values, maxCols)
     }
-    maxCols = tsvGetMaxColumns(window.genorm.tsv.n0_count, maxCols)
-    maxCols = tsvGetMaxColumns(window.genorm.tsv.n0_values, maxCols)
+    maxCols = tsvGetMaxColumns(window.genorm.tsv.nCopy_count, maxCols)
+    maxCols = tsvGetMaxColumns(window.genorm.tsv.nCopy_values, maxCols)
     var ret = ""
     var content = ""
 
@@ -2377,14 +2373,14 @@ function updateGenormTable() {
     }
     ret += tsvToTableHeadline("Found Conditions", maxCols)
     content += tsvToTsvHeadline("Found Conditions", maxCols)
-    ret += tsvToTableSection(window.genorm.tsv.n0_count, maxCols)
-    content += tsvToTsvSection(window.genorm.tsv.n0_count, maxCols)
+    ret += tsvToTableSection(window.genorm.tsv.nCopy_count, maxCols)
+    content += tsvToTsvSection(window.genorm.tsv.nCopy_count, maxCols)
     ret += tsvToTableHeadline("", maxCols)
     content += tsvToTsvHeadline("", maxCols)
-    ret += tsvToTableHeadline("Gemetric Mean of N0", maxCols)
-    content += tsvToTsvHeadline("Gemetric Mean of N0", maxCols)
-    ret += tsvToTableSection(window.genorm.tsv.n0_values, maxCols)
-    content += tsvToTsvSection(window.genorm.tsv.n0_values, maxCols)
+    ret += tsvToTableHeadline("Gemetric Mean of Ncopy", maxCols)
+    content += tsvToTsvHeadline("Gemetric Mean of Ncopy", maxCols)
+    ret += tsvToTableSection(window.genorm.tsv.nCopy_values, maxCols)
+    content += tsvToTsvSection(window.genorm.tsv.nCopy_values, maxCols)
     ret += '</table>\n'
 
     window.genormSaveTable = content

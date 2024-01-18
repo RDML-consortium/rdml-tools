@@ -161,6 +161,8 @@ window.meltcurveTable = []
 
 window.lastSelReact = ""
 
+const copyThreshold = 10 * Math.pow(1.9, 35.0);
+
 // Global values for svg curves
 // The value range
 window.valXmin = 0;
@@ -2100,7 +2102,7 @@ function updateCorrectionTable() {
                 ret += '<th>corrected Cq</th><th>corrected N0</th><th>corrected Ncopy</th><th>correction factor</th>'
                 ret += '<th>observed Cq</th><th>observed N0</th><th>observed Ncopy</th></tr></thead><tbody>\n'
                 var content = 'id\twell\tsample\ttarget\texcluded\tnote\tPCR efficiency\torrected Cq\tcorrected N0\t'
-                content += 'ccorrected Ncopy\tcorrection factor\tobserved Cq\tobserved N0\tobserved Ncopy\n'
+                content += 'corrected Ncopy\tcorrection factor\tobserved Cq\tobserved N0\tobserved Ncopy\n'
                 for (var id = 1; id < rows * columns + 1; id++) {
                     for (var reac = 0; reac < window.reactData.reacts.length; reac++) {
                         var react = window.reactData.reacts[reac]
@@ -2147,9 +2149,13 @@ function updateCorrectionTable() {
                                     ret += '</td><td>'
                                     content += '\t'
                                 }
-                                if (dataS.hasOwnProperty("corrCq")) {
-                                    ret += NumPoint(dataS.corrCq) + '</td><td>'
-                                    content += NumPoint(dataS.corrCq) + '\t'
+                                if (dataS.hasOwnProperty("corrNcopy")) {
+                                    var corrCq = -1.0;
+                                    if (parseFloat(dataS.corrNcopy) > 0.0) {
+                                        corrCq = Math.log2(copyThreshold / parseFloat(dataS.corrNcopy));
+                                    }
+                                    ret += NumPoint(corrCq) + '</td><td>'
+                                    content += NumPoint(corrCq) + '\t'
                                 } else {
                                     ret += '</td><td>'
                                     content += '\t'
