@@ -173,8 +173,8 @@ window.interRunSaveTable = "";
 
 window.absoluteQant = {};
 window.absoluteQantSaveTable = "";
-window.absoluteN0Corr = -1.0;
-window.absoluteN0Unit = "";
+window.absoluteNcopyCorr = -1.0;
+window.absoluteNcopyUnit = "";
 
 window.genorm = {};
 window.genormSaveTable = "";
@@ -222,8 +222,8 @@ function resetAllInterRun() {
 
 function resetAbsoluteQant() {
     window.absoluteQant = {};
-    window.absoluteN0Corr = -1.0;
-    window.absoluteN0Unit = "";
+    window.absoluteNcopyCorr = -1.0;
+    window.absoluteNcopyUnit = "";
     window.absoluteQantTable = "";
     resultAbsoluteQant.innerHTML = "";
 }
@@ -863,8 +863,8 @@ function updateServerData(stat, reqData) {
                     }
                     if (res.data.data.hasOwnProperty("absolutequan")) {
                         window.absoluteQant = res.data.data.absolutequan
-                        window.absoluteN0Corr = res.data.data.absolutequan.fluorN0Fact
-                        window.absoluteN0Unit = res.data.data.absolutequan.absUnit
+                        window.absoluteNcopyCorr = res.data.data.absolutequan.corrNcopyFact
+                        window.absoluteNcopyUnit = res.data.data.absolutequan.absUnit
                         updateAbsoluteTable()
                     }
                     if (res.data.data.hasOwnProperty("genorm")) {
@@ -1736,9 +1736,9 @@ function updateClientData() {
                 csv += 'corr N0\t'
                 ret += '<td>corr Cq</td>'
                 csv += 'corr Cq'
-                if (window.absoluteN0Unit != "") {
-                    ret += '<td>' + niceQuantityType(window.absoluteN0Unit) + '</td>'
-                    csv += '\t' +  niceQuantityType(window.absoluteN0Unit)
+                if (window.absoluteNcopyUnit != "") {
+                    ret += '<td>' + niceQuantityType(window.absoluteNcopyUnit) + '</td>'
+                    csv += '\t' +  niceQuantityType(window.absoluteNcopyUnit)
                 }
             } else {
                 ret += '<td>Concentration</td>'
@@ -1871,16 +1871,16 @@ function updateClientData() {
                                             ret += floatWithFixPrec(corrCq, 2)
                                             csv += floatWithFixPrec(corrCq, 2)
                                         }
-                                        if (window.absoluteN0Unit  != "") {
+                                        if (window.absoluteNcopyUnit  != "") {
                                             ret += '</td>\n<td style="text-align: right;">'
                                             csv += '\t'
                                             if ((reacts[reac].datas[dataPos].hasOwnProperty("corrN0")) &&
                                                 (parseFloat(reacts[reac].datas[dataPos].corrN0) > 0.0) &&
-                                                (window.absoluteN0Corr.hasOwnProperty(reacts[reac].datas[dataPos].tar)) &&
-                                                (parseFloat(window.absoluteN0Corr[reacts[reac].datas[dataPos].tar]) > 0.0)) {
+                                                (window.absoluteNcopyCorr.hasOwnProperty(reacts[reac].datas[dataPos].tar)) &&
+                                                (parseFloat(window.absoluteNcopyCorr[reacts[reac].datas[dataPos].tar]) > 0.0)) {
                                                 var fN0 = parseFloat(reacts[reac].datas[dataPos].corrN0)
-                                                var cN0 = parseFloat(window.absoluteN0Corr[reacts[reac].datas[dataPos].tar]);
-                                                if (window.absoluteN0Unit == "cop") {
+                                                var cN0 = parseFloat(window.absoluteNcopyCorr[reacts[reac].datas[dataPos].tar]);
+                                                if (window.absoluteNcopyUnit == "cop") {
                                                     ret += floatWithFixPrec(fN0 / cN0, 2)
                                                     csv += floatWithFixPrec(fN0 / cN0, 2)
                                                 } else {
@@ -2258,13 +2258,11 @@ function updatePlateTable() {
 
 window.updateAbsoluteTable = updateAbsoluteTable
 function updateAbsoluteTable() {
-    if (!(window.absoluteQant.hasOwnProperty("fluorN0Fact"))) {
+    if (!(window.absoluteQant.hasOwnProperty("corrNcopyFact"))) {
         return
     }
     var maxCols = 0
-    maxCols = tsvGetMaxColumns(window.absoluteQant.tsv.fluorN0Fact, maxCols)
-    maxCols = tsvGetMaxColumns(window.absoluteQant.tsv.threshold, maxCols)
-    maxCols = tsvGetMaxColumns(window.absoluteQant.tsv.pcr_efficiency, maxCols)
+    maxCols = tsvGetMaxColumns(window.absoluteQant.tsv.corrNcopyFact, maxCols)
     if (window.absoluteQant.tsv.hasOwnProperty("dilStandard")) {
         maxCols = tsvGetMaxColumns(window.absoluteQant.tsv.dilStandard, maxCols)
     }
@@ -2281,20 +2279,8 @@ function updateAbsoluteTable() {
     var content = ""
     ret += tsvToTableHeadline("Quantification Factor", maxCols)
     content += tsvToTsvHeadline("Quantification Factor", maxCols)
-    ret += tsvToTableSection(window.absoluteQant.tsv.fluorN0Fact, maxCols)
-    content += tsvToTsvSection(window.absoluteQant.tsv.fluorN0Fact, maxCols)
-    ret += tsvToTableHeadline("", maxCols)
-    content += tsvToTsvHeadline("", maxCols)
-    ret += tsvToTableHeadline("Threshold", maxCols)
-    content += tsvToTsvHeadline("Threshold", maxCols)
-    ret += tsvToTableSection(window.absoluteQant.tsv.threshold, maxCols)
-    content += tsvToTsvSection(window.absoluteQant.tsv.threshold, maxCols)
-    ret += tsvToTableHeadline("", maxCols)
-    content += tsvToTsvHeadline("", maxCols)
-    ret += tsvToTableHeadline("PCR Efficiency", maxCols)
-    content += tsvToTsvHeadline("PCR Efficiency", maxCols)
-    ret += tsvToTableSection(window.absoluteQant.tsv.pcr_efficiency, maxCols)
-    content += tsvToTsvSection(window.absoluteQant.tsv.pcr_efficiency, maxCols)
+    ret += tsvToTableSection(window.absoluteQant.tsv.corrNcopyFact, maxCols)
+    content += tsvToTsvSection(window.absoluteQant.tsv.corrNcopyFact, maxCols)
     ret += tsvToTableHeadline("", maxCols)
     content += tsvToTsvHeadline("", maxCols)
     if (window.absoluteQant.tsv.hasOwnProperty("dilStandard")) {
