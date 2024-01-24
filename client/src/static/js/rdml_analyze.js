@@ -1874,18 +1874,24 @@ function updateClientData() {
                                         if (window.absoluteNcopyUnit  != "") {
                                             ret += '</td>\n<td style="text-align: right;">'
                                             csv += '\t'
-                                            if ((reacts[reac].datas[dataPos].hasOwnProperty("corrN0")) &&
-                                                (parseFloat(reacts[reac].datas[dataPos].corrN0) > 0.0) &&
+                                            if ((reacts[reac].datas[dataPos].hasOwnProperty("corrNcopy")) &&
+                                                (parseFloat(reacts[reac].datas[dataPos].corrNcopy) > 0.0) &&
                                                 (window.absoluteNcopyCorr.hasOwnProperty(reacts[reac].datas[dataPos].tar)) &&
                                                 (parseFloat(window.absoluteNcopyCorr[reacts[reac].datas[dataPos].tar]) > 0.0)) {
-                                                var fN0 = parseFloat(reacts[reac].datas[dataPos].corrN0)
-                                                var cN0 = parseFloat(window.absoluteNcopyCorr[reacts[reac].datas[dataPos].tar]);
+                                                var fNcopy = parseFloat(reacts[reac].datas[dataPos].corrNcopy);
+                                                var fvol = 20.0;
+                                                if ((reacts[reac].hasOwnProperty("vol")) &&
+                                                    (parseFloat(reacts[reac].vol) > 0.0)) {
+                                                    fvol = parseFloat(reacts[reac].vol)
+                                                }
+                                                var cNcopy = parseFloat(window.absoluteNcopyCorr[reacts[reac].datas[dataPos].tar]);
+                                                var finalQuant = fNcopy * cNcopy * fvol / 20.0
                                                 if (window.absoluteNcopyUnit == "cop") {
-                                                    ret += floatWithFixPrec(fN0 / cN0, 2)
-                                                    csv += floatWithFixPrec(fN0 / cN0, 2)
+                                                    ret += floatWithFixPrec(finalQuant, 2)
+                                                    csv += floatWithFixPrec(finalQuant, 2)
                                                 } else {
-                                                    ret += floatWithExPrec(fN0 / cN0, 2)
-                                                    csv += floatWithExPrec(fN0 / cN0, 2)
+                                                    ret += floatWithExPrec(finalQuant, 2)
+                                                    csv += floatWithExPrec(finalQuant, 2)
                                                 }
                                             }
                                         }
