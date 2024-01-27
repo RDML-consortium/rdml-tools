@@ -2349,6 +2349,13 @@ function updateGenormTable() {
 
     ret += '<br /><br />\n'
     ret += '<table class="table table-bordered table-striped" id="genorm-result-table">\n'
+    if (window.genorm.hasOwnProperty("result")) {
+        ret += tsvToTableHeadline("Result: " + window.genorm.result, maxCols)
+        content += tsvToTsvHeadline("Result: " + window.genorm.result, maxCols)
+        ret += tsvToTableHeadline("", maxCols)
+        content += tsvToTsvHeadline("", maxCols)
+    
+    }    
     ret += tsvToTableHeadline("M-values", maxCols)
     content += tsvToTsvHeadline("M-values", maxCols)
     ret += tsvToTableSection(window.genorm.tsv.m_values, maxCols)
