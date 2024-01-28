@@ -56,6 +56,7 @@ function run() {
   const formData = new FormData()
   var ret = {}
   var test = "N";
+  var alpha = 0.05;
   if (document.getElementById('test-radio-non').checked) {
     test = "N";
   }
@@ -75,7 +76,13 @@ function run() {
   if (document.getElementById('sep-radio-colon').checked) {
     sep = ":";
   }
+  var el = document.getElementById('selAlpha')
+  if (el) {
+    alpha = el.value
+  }
+
   ret["parametric"] = test
+  ret["alpha"] = alpha
   ret["seperator"] = sep
   ret["replace-comma"] = document.getElementById('modCommaDot').checked
   ret["table"] = document.getElementById('table-area').value
@@ -111,8 +118,14 @@ function handleSuccess(res) {
     ret += '  <tr>\n    <td style="width:20%;">Test: </td>\n'
     ret += '    <td style="width:80%;">\n' + res["table"]["test name"] + '</td>\n'
     ret += '  </tr>'
+    ret += '  <tr>\n    <td style="width:20%;">alpha:</td>\n'
+    ret += '    <td style="width:80%;">\n' + res["table"]["alpha"] + '</td>\n'
+    ret += '  </tr>'
     ret += '  <tr>\n    <td style="width:20%;">' + res["table"]["stat name"] + ':</td>\n'
     ret += '    <td style="width:80%;">\n' + res["table"]["stat val"] + '</td>\n'
+    ret += '  </tr>'
+    ret += '  <tr>\n    <td style="width:20%;">df:</td>\n'
+    ret += '    <td style="width:80%;">\n' + res["table"]["df"] + '</td>\n'
     ret += '  </tr>'
     ret += '  <tr>\n    <td style="width:20%;">p-value:</td>\n'
     ret += '    <td style="width:80%;">\n' + res["table"]["p val"] + '</td>\n'

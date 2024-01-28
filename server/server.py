@@ -307,6 +307,8 @@ def teststat_data():
         reqdata = json.loads(request.form['reqData'])
         if "parametric" not in reqdata:
             return jsonify(errors=[{"title": "Invalid server request - parametric missing!"}]), 400
+        if "alpha" not in reqdata:
+            return jsonify(errors=[{"title": "Invalid server request - alpha missing!"}]), 400
         if "seperator" not in reqdata:
             return jsonify(errors=[{"title": "Invalid server request - seperator missing!"}]), 400
         if "replace-comma" not in reqdata:
@@ -315,7 +317,7 @@ def teststat_data():
             return jsonify(errors=[{"title": "Invalid server request - table missing!"}]), 400
 
         # Run RDML-Python
-        ret = rdml.webAppRunStatistics(reqdata["table"], parametric=reqdata["parametric"], seperator=reqdata["seperator"], replaceComma=reqdata["replace-comma"])
+        ret = rdml.webAppRunStatistics(reqdata["table"], parametric=reqdata["parametric"], statAlpha=reqdata["alpha"], seperator=reqdata["seperator"], replaceComma=reqdata["replace-comma"])
         if LOGRDMLRUNS:
             logData("RDML-Tools", "TestStat", '0', '---')
         return jsonify(data={"table": ret})
@@ -2432,6 +2434,8 @@ def handle_data():
                 return jsonify(errors=[{"title": "Invalid server request - sel-annotation missing!"}]), 400
             if "stats-parametric" not in reqdata:
                 return jsonify(errors=[{"title": "Invalid server request - stats-parametric missing!"}]), 400
+            if "stats-alpha" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - stats-alpha missing!"}]), 400
             if "incl-annotation" not in reqdata:
                 return jsonify(errors=[{"title": "Invalid server request - incl-annotation missing!"}]), 400
             if "sel-references" not in reqdata:
@@ -2444,6 +2448,7 @@ def handle_data():
                 data["relative"] = experiment.relative(overlapType=reqdata["overlap-type"],
                                                        selAnnotation=reqdata["sel-annotation"],
                                                        statsParametric=reqdata["stats-parametric"],
+                                                       statAlpha=reqdata["stats-alpha"],
                                                        inclAnnotation=reqdata["incl-annotation"],
                                                        selReferences=reqdata["sel-references"],
                                                        saveResultsCSV=True)

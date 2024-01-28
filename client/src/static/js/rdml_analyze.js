@@ -808,6 +808,7 @@ function runRelative() {
     ret["overlap-type"] = getSaveHtmlData("selOverlapRelative")
     ret["sel-annotation"] = window.selAnnotation
     ret["stats-parametric"] = getSaveHtmlData("selStatsParametric")
+    ret["stats-alpha"] = getSaveHtmlData("statsAlpha")
     ret["incl-annotation"] = inclAnno
     ret["sel-references"] = selRefs
     updateServerData(uuid, JSON.stringify(ret))
