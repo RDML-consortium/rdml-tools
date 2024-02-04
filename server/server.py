@@ -2550,8 +2550,8 @@ def bargraph():
                                 if len(tabLines) > 1:
                                     for fRowl in range(1, len(tabLines)):
                                         cellLines = tabLines[fRowl].split("\t")
-                                        if len(cellLines) > 4:
-                                            vals = cellLines[4].split(";")
+                                        if len(cellLines) > 5:
+                                            vals = cellLines[5].split(";")
                                             for val in vals:
                                                 if re.search(r"[0-9]\.[0-9]", val):
                                                     relData += cellLines[0] + ";" + cellLines[1] + ";" + val + "\n"
