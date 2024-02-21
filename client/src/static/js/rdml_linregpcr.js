@@ -1268,7 +1268,14 @@ function updateClientData() {
                                 if ((reacts[reac].hasOwnProperty("datas")) &&
                                     (window.reactData.max_data_len > 0)) {
                                     cell += reacts[reac].datas[dataPos].tar + '<br />'
-                                    cell += 'Cq: ' + reacts[reac].datas[dataPos].cq + '</td>'
+                                    cell += 'Cq: ' + reacts[reac].datas[dataPos].cq + '<br />'
+                                } else {
+                                    cell += '---<br />'
+                                }
+                                if ((reacts[reac].hasOwnProperty("datas")) &&
+                                    (window.reactData.max_data_len > 0) &&
+                                    (reacts[reac].datas[dataPos].hasOwnProperty("corrNcopy"))) {
+                                    cell += 'Ncopy: ' + floatWithFixPrec(reacts[reac].datas[dataPos].corrNcopy, 2) + '</td>'
                                 } else {
                                     cell += '---</td>'
                                 }
@@ -1411,6 +1418,22 @@ function floatWithPrec(val, prec) {
         return "";
     }
     ret += String(Math.round(val * prec) / prec);
+    if (window.decimalSepPoint == false) {
+        ret = ret.replace(/\./g, ',');
+    }
+    return ret;
+}
+
+window.floatWithFixPrec = floatWithFixPrec
+function floatWithFixPrec(val, prec) {
+    var ret = "";
+    if (val == "") {
+        return "";
+    }
+    if (isNaN(parseFloat(val))) {
+        return "";
+    }
+    ret += String(parseFloat(val).toFixed(prec));
     if (window.decimalSepPoint == false) {
         ret = ret.replace(/\./g, ',');
     }

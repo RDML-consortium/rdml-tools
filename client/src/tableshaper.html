@@ -80,10 +80,34 @@
         <br />
         <div class="card">
           <div class="card-body">
-            <h5 class="card-title">Or copy & paste here and click somewhere else</h5>
+            <h5 class="card-title">Or copy & paste here</h5>
             <div class="form-group">
               <textarea class="form-control" id="dropZone" rows="3"></textarea>
             </div>
+            <button type="submit" class="btn btn-outline-primary" id="btn-read-copy">
+              <i class="fas fa-rocket" style="margin-right: 5px;"></i>
+              Read Data
+            </button>
+            <button type="submit" class="btn btn-outline-primary" id="btn-set-rdes-amp">
+              <i class="fas fa-eye" style="margin-right: 5px;"></i>
+              RDES Amplification
+            </button>
+            <button type="submit" class="btn btn-outline-primary" id="btn-set-rdes-melt">
+              <i class="fas fa-eye" style="margin-right: 5px;"></i>
+              RDES Meltcurve
+            </button>
+            <button type="submit" class="btn btn-outline-primary" id="btn-save-rdes">
+              <i class="far fa-save" style="margin-right: 5px;"></i>
+              Save RDES (.tsv)
+            </button>
+            <button type="submit" class="btn btn-outline-primary" id="btn-view-rdes">
+              <i class="fas fa-eye" style="margin-right: 5px;"></i>
+              View Table
+            </button>
+            <button type="submit" class="btn btn-outline-primary" id="btn-delete-input">
+              <i class="fas fa-eye" style="margin-right: 5px;"></i>
+              Delete All
+            </button>
           </div>
         </div>
         <br />
@@ -519,7 +543,7 @@
           </div>
         </div>
         <br />
-        <div class="card tableCard">
+        <div class="card tableCard" id="final-result-table">
           <div class="card-body">
             <h5 class="card-title">Table for export</h5>
             <p> The columns 1-6 must be filled for successfull import into RDML. Leave 

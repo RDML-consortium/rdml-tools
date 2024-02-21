@@ -105,6 +105,13 @@
           <li><a href="#ANA-Absolute-Quan">4.3. AbsoluteQuantification</a></li>
         </ul>
       </li>
+      <li><a href="#RDML-qPCR-Basics">5. qPCR Basics</a>
+        <ul>
+          <li><a href="#BASE-Introduction">5.1. Introduction</a></li>
+          <li><a href="#BASE-qPCR-Setup">5.2. Setting up a qPCR</a></li>
+          <li><a href="#BASE-Genomic-Std">5.3. Use genomic DNA as Standard</a></li>
+        </ul>
+      </li>
     </ul>
 
     <h4 id="Introduction">1. Introduction</h4>
@@ -1051,6 +1058,66 @@
       <a class="plain" target="_blank" href="https://www.gear-genomics.com/terms">Terms of Use</a>
       before using RDML-Analyze and please obey to the requirements.
     </p>
+
+
+    <h4 id="RDML-qPCR-Basics">5. qPCR Basics</h4>
+        <ul>
+          <li><a href="#BASE-Introduction">5.1. Introduction</a></li>
+          <li><a href="#BASE-qPCR-Setup">5.2. Setting up a qPCR</a></li>
+          <li><a href="#BASE-Genomic-Std">5.3. Use genomic DNA as Standard</a></li>
+        </ul>
+    <h5 id="BASE-Introduction">5.1. Introduction</h5>
+    <p style="text-align: justify">
+      This section explains how to set up a qPCR reaction. Please consider it as one example, the way we do it. It 
+      should provide guidance if required, but we do not promote it as the "only correct way". The products used 
+      in this section are the ones we use; we do not wish to advice their use above other products. This section 
+      would be the answer if you ask A. Untergasser: How would you do qPCR?
+    </p>
+
+    <h5 id="BASE-qPCR-Setup">5.2. Setting up a qPCR</h5>
+    <p style="text-align: justify">
+      qPCR requires good primers. Pick required primers using 
+      <a href="https://www.primer3plus.com/" target="_blank">Primer3Plus</a> and order them.
+    </p>
+    <p style="text-align: justify">
+      Upon arrival of the primers dissolve them in TE (10mM Tris, 1mM EDTA, pH 8.0) to a stock concentration of 
+      100&micro;M (100 &micro;mol/L). In 1&micro;l will be 1 pmol primer. In the final qPCR reaction, the primers
+      are used 1:400 times diluted to a final concentration of 250 nM. 
+    </p>
+    <p style="text-align: justify">
+      Create a primer premix for the qPCR reaction using 2.5&micro;l forward primer stock solution, 2.5&micro;l 
+      reverse primer stock solution and 95&micro;l water (diluting primer 1:40 each). In a 10&micro;l qPCR 
+      reaction 1&micro;l of this stock is used (diluting 1:10).
+    </p>
+    <p style="text-align: justify">
+      A typical qPCR reaction in 10&micro;l could be composed of 1&micro;l cDNA/genomic DNA (maximal 10ng), 
+      1&micro;l primer premix, 3&micro;l water and 5&micro;l 2x qPCR mix (LightCycler&reg; 480 SYBR&reg; 
+      Green I Master; 04887352001, Roche Diagnostics GmbH, Mannheim, Germany).
+    </p>
+
+    <h5 id="BASE-Genomic-Std">5.3. Use genomic DNA as Standard</h5>
+    <p style="text-align: justify">
+      Genomic DNA in combination with a single copy gene can be used as a standard. Use 2ng human genomic DNA per
+      qPCR reaction containing 600 copies of the genome. Amplify the exon 6 of FSTL1 (follistatin like 1):
+    </p>
+<pre>
+>FSTL1-fw
+GGGAAAGGGTTTAAGTCCCC
+>FSTL1-rv
+TGGAGTAATGATGGAACAGGG
+</pre>
+    <p style="text-align: justify">
+      Amplicon sequence (259 bp):<br />
+      GGGAAAGGGTTTAAGTCCCCTCTCTCAGTTAGTCTTCCCTTGTGGATCATTCTCTGACCTCTCGGTTCCTCTCACCTAAGCAACTTGT
+      TGTTCTCCTGGTCTGGATACGTTGTAATATTGATGGCAGTTTCATTCTGTTCCACAAACTTCAGGAATTCACTGGAGTCCAGGCGAGA
+      ATCACCATTATCAAAGTTCTAGAAAGGGCATGACAAGATCGTTCAGGGATGTTTTGCAGAACCCCTGTTCCATCATTACTCCA
+    </p>
+    <p style="text-align: justify">
+      Provide the amplicon sequence in the target information to allow RDML-Analyze to compensate for the 
+      amplicon length. Without compensation (and in RDML-LinRegPCR) the Ncopy will be 1554 copies instead of 
+      the expected 600 copies.
+    </p>
+
 
   </main>
 

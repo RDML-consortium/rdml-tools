@@ -25,6 +25,20 @@ const exportTableView = document.getElementById('export-table-view')
 
 const saveJsonButton = document.getElementById('btn-save-Json')
 saveJsonButton.addEventListener('click', saveJsonFile)
+
+const readCopyButton = document.getElementById('btn-read-copy')
+readCopyButton.addEventListener('click', pasteEvent)
+const setRdesAmpButton = document.getElementById('btn-set-rdes-amp')
+setRdesAmpButton.addEventListener('click', setRdesAmp)
+const setRdesMeltButton = document.getElementById('btn-set-rdes-melt')
+setRdesMeltButton.addEventListener('click', setRdesMelt)
+const saveRedsButton = document.getElementById('btn-save-rdes')
+saveRedsButton.addEventListener('click', saveTabFile)
+const setRdesViewButton = document.getElementById('btn-view-rdes')
+setRdesViewButton.addEventListener('click', viewRdes)
+const deleteCopyInButton = document.getElementById('btn-delete-input')
+deleteCopyInButton.addEventListener('click', resetCopyField)
+
 const saveTabButton = document.getElementById('btn-save-Tsv')
 saveTabButton.addEventListener('click', saveTabFile)
 const createRdmlButton = document.getElementById('btn-save-RDML')
@@ -32,12 +46,9 @@ createRdmlButton.addEventListener('click', createServerRdml)
 const loadJFile = document.getElementById('inputJsonFile')
 loadJFile.addEventListener('change', loadJsonFile, false);
 
-const pasteAcc = document.getElementById('dropZone');
-pasteAcc.addEventListener("change", pasteEvent);
-
 // Global data
 window.inputFile = "";
-window.inputFileName = "";
+window.inputFileName = "Data";
 window.inputSeparator = "\t";
 window.modifySettings = {};
 window.resultTab = [];
@@ -174,12 +185,37 @@ function loadInputFile(){
 }
 
 function pasteEvent () {
-    var txt = pasteAcc.value;
+    var txt = document.getElementById('dropZone').value;
     txt = txt.replace(/\r\n/g, "\n");
     txt = txt.replace(/\r/g, "\n");
     txt = txt.replace(/\n+/g, "\n");
     txt = txt.replace(/\n$/g, "");
     window.inputFile = txt;
+    window.inputFileName = "Data";
+    updateSepCount(window.inputFile);
+}
+
+function setRdesAmp () {
+    loadModification(window.setArr[0]);
+    document.getElementById("selMachineSettings").selectedIndex = 1;
+    updateModification();
+}
+
+function setRdesMelt () {
+    loadModification(window.setArr[1]);
+    document.getElementById("selMachineSettings").selectedIndex = 2;
+    updateModification();
+}
+
+function viewRdes () {
+    $('[href="#save-tab"]').tab('show')
+    window.location.href = "#final-result-table";
+}
+
+function resetCopyField () {
+    document.getElementById('dropZone').value = "";
+    window.inputFile = "";
+    window.inputFileName = "Data";
     updateSepCount(window.inputFile);
 }
 

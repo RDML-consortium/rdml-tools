@@ -816,6 +816,24 @@ function runRelative() {
     $('[href="#relative-tab"]').tab('show')
 }
 
+// Migrate RDML version
+window.migrateRDMLversion = migrateRDMLversion;
+function migrateRDMLversion(new_ver) {
+    if (!(window.rdmlData.hasOwnProperty("rdml"))) {
+        return
+    }
+    if (window.editMode == true) {
+        return
+    }
+    if (window.rdmlData.rdml.version == new_ver) {
+        return
+    }
+    var ret = {}
+    ret["mode"] = "migrate-version"
+    ret["new-version"] = new_ver
+    updateServerData(uuid, JSON.stringify(ret))
+}
+
 // TODO client-side validation
 function updateServerData(stat, reqData) {
     const formData = new FormData()
@@ -1076,6 +1094,29 @@ function createLinkBox(apiLink, apiURL, toolhtml, uuuid, valid, experiment = "",
     return ret;
 }
 
+window.createUpdateButton = createUpdateButton
+function createUpdateButton(version) {
+    var ret = ret = '<br /><div class="card">\n<div class="card-body">\n'
+    ret += '<h5 class="card-title">Update RDML version to 1.4</h5>\n'
+    if (version == "1.1") {
+        ret += '<button type="submit" id="btn-migrate-1_2" onclick="migrateRDMLversion(\'1.2\');" '
+        ret += 'class="btn btn-success"><i class="fas fa-rocket" style="margin-right: 5px;"></i>'
+        ret += 'Migrate to RDML Version 1.2</button>\n';
+    }
+    if (version == "1.2") {
+        ret += '<button type="submit" id="btn-migrate-1_3" onclick="migrateRDMLversion(\'1.3\');" '
+        ret += 'class="btn btn-success"><i class="fas fa-rocket" style="margin-right: 5px;"></i>'
+        ret += 'Migrate to RDML Version 1.3</button>\n';
+    }
+    if (version == "1.3") {
+        ret += '<button type="submit" id="btn-migrate-1_4" onclick="migrateRDMLversion(\'1.4\');" '
+        ret += 'class="btn btn-success"><i class="fas fa-rocket" style="margin-right: 5px;"></i>'
+        ret += 'Migrate to RDML Version 1.4</button>\n';
+    }
+    ret += '</div>\n</div>\n'
+    return ret;
+}
+
 window.updateClientData = updateClientData
 function updateClientData() {
     if (window.selRunOnLoad != "") {
@@ -1099,7 +1140,11 @@ function updateClientData() {
     }
 
     // The UUID box
-    var ret = '<br />' + createLinkBox(`${API_LINK}`, `${API_URL}`, 'analyze.html', window.uuid, window.isvalid, window.selExperiment, window.selRun);
+    var ret = '';
+    if ((window.rdmlData.hasOwnProperty("rdml")) && (window.rdmlData.rdml.hasOwnProperty("version")) && (window.rdmlData.rdml.version != "") && (["1.11", "1.2", "1.3"].includes(window.rdmlData.rdml.version))) {
+        ret += '<br />' + createUpdateButton(window.rdmlData.rdml.version) + '<br />';
+    }
+    ret += '<br />' + createLinkBox(`${API_LINK}`, `${API_URL}`, 'analyze.html', window.uuid, window.isvalid, window.selExperiment, window.selRun);
     if (window.isvalid == "invalid") {
         resultError.innerHTML = '<i class="fas fa-fire"></i>\n<span id="error-message">' +
                                 'Error: Uploaded file is not valid RDML!</span>'
