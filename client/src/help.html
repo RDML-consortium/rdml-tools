@@ -1081,8 +1081,8 @@
     </p>
     <p style="text-align: justify">
       Upon arrival of the primers dissolve them in TE (10mM Tris, 1mM EDTA, pH 8.0) to a stock concentration of 
-      100&micro;M (100 &micro;mol/L). In 1&micro;l will be 1 pmol primer. In the final qPCR reaction, the primers
-      are used 1:400 times diluted to a final concentration of 250 nM. 
+      100&micro;M (100&micro;mol/L). In 1&micro;l will be 100pmol primer. In the final qPCR reaction, the primers
+      are used 1:400 times diluted to a final concentration of 250nM.
     </p>
     <p style="text-align: justify">
       Create a primer premix for the qPCR reaction using 2.5&micro;l forward primer stock solution, 2.5&micro;l 
@@ -1094,11 +1094,17 @@
       1&micro;l primer premix, 3&micro;l water and 5&micro;l 2x qPCR mix (LightCycler&reg; 480 SYBR&reg; 
       Green I Master; 04887352001, Roche Diagnostics GmbH, Mannheim, Germany).
     </p>
+    <p style="text-align: justify">
+      Some further thoughts: In a 10&micro;l qPCR reaction will be 2.5pmol of each primer (equals 
+      1.5*10<sup>12</sup> molecules each). If each primer pair would form an amplicon of 100bp length,
+      the weight of the amplicons would be 165ng. Of course, not all primers would bind as a high 
+      concentration of amplicon and a low concentration of primers would impede efficient binding.
+    </p>
 
     <h5 id="BASE-Genomic-Std">5.3. Use genomic DNA as Standard</h5>
     <p style="text-align: justify">
-      Genomic DNA in combination with a single copy gene can be used as a standard. Use 2ng human genomic DNA per
-      qPCR reaction containing 600 copies of the genome. Amplify the exon 6 of FSTL1 (follistatin like 1):
+      Genomic DNA in combination with a single copy gene can be used as a standard. Use 4ng human genomic DNA per
+      qPCR reaction containing 1200 copies of the genome and amplify the exon 6 of FSTL1 (follistatin like 1):
     </p>
 <pre>
 >FSTL1-fw
@@ -1113,11 +1119,10 @@ TGGAGTAATGATGGAACAGGG
       ATCACCATTATCAAAGTTCTAGAAAGGGCATGACAAGATCGTTCAGGGATGTTTTGCAGAACCCCTGTTCCATCATTACTCCA
     </p>
     <p style="text-align: justify">
-      Provide the amplicon sequence in the target information to allow RDML-Analyze to compensate for the 
-      amplicon length. Without compensation (and in RDML-LinRegPCR) the Ncopy will be 1554 copies instead of 
-      the expected 600 copies.
+      Use RDML-Edit to provide the amplicon sequence in the target information to allow RDML-Analyze to compensate 
+      for the amplicon length. Without compensation (and in RDML-LinRegPCR) the Ncopy will be 3108 copies instead 
+      of the expected 1200 copies.
     </p>
-
 
   </main>
 
