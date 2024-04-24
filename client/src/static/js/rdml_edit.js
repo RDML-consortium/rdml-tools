@@ -155,10 +155,6 @@ function tarSeqHtml(base, key) {
     ret += '    <td style="width:75%"><input type="text" class="form-control" id="inTarSequences_' + key
     ret += '_fivePrimeTag" value="' + saveUndefKey(elem, "fivePrimeTag") + '"></td>\n'
     ret += '  </tr>'
-    ret += '  <tr>\n    <td style="width:25%;">' + print_name + ' - Sequence:</td>\n'
-    ret += '    <td style="width:75%"><input type="text" class="form-control" id="inTarSequences_' + key
-    ret += '_sequence" value="' + saveUndefKey(elem, "sequence") + '"></td>\n'
-    ret += '  </tr>'
     ret += '  <tr>\n    <td style="width:25%;">' + print_name + ' - Three Prime Tag:</td>\n'
     ret += '    <td style="width:75%"><input type="text" class="form-control" id="inTarSequences_' + key
     ret += '_threePrimeTag" value="' + saveUndefKey(elem, "threePrimeTag") + '"></td>\n'
@@ -973,14 +969,6 @@ function updateClientData() {
                 ret += '</select>\n</td>\n'
                 ret += '  </tr>'
             }
-            ret += '  <tr>\n    <td style="width:25%;">Description:</td>\n'
-            ret += '    <td style="width:75%"><input type="text" class="form-control" '
-            ret += 'id="inExpDescription" value="'+ saveUndef(exp[i].description) + '"></td>\n'
-            ret += '  </tr>'
-            ret += htmlTriState("Calibrator Sample", 75, "inExpCalibratorSample", exp[i],
-                                "calibratorSample", "Yes", "No", "Not Set")
-            ret += htmlTriState("Inter Run Calibrator", 75,"inExpInterRunCalibrator", exp[i],
-                                "interRunCalibrator", "Yes", "No", "Not Set")
             ret += '  <tr>\n    <td style="width:25%;">Quantity:</td>\n'
             ret += '    <td style="width:75%"><table style="width:100%;">'
             ret += '      <tr><td style="width:50%;">'
@@ -1021,6 +1009,23 @@ function updateClientData() {
                 ret += '</select>\n</td>\n'
                 ret += '  </tr>'
             }
+            ret += '</table></p>\n'
+            ret += '<button type="button" class="btn btn-success" '
+            ret += 'onclick="saveEditElement(\'sample\', ' + i + ', \'' + exp[i].id + '\');">Save Changes</button>'
+            ret += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button type="button" class="btn btn-success" '
+            ret += 'onclick="deleteEditElement(\'sample\', ' + i + ');">Delete</button>'
+            ret += '<br /><br /><br />\n'
+
+            ret += '<h5 class="card-title">Advanced:</h5>\n'
+            ret += '<p><table style="width:100%;">'
+            ret += '  <tr>\n    <td style="width:25%;">Description:</td>\n'
+            ret += '    <td style="width:75%"><input type="text" class="form-control" '
+            ret += 'id="inExpDescription" value="'+ saveUndef(exp[i].description) + '"></td>\n'
+            ret += '  </tr>'
+            ret += htmlTriState("Calibrator Sample", 75, "inExpCalibratorSample", exp[i],
+                                "calibratorSample", "Yes", "No", "Not Set")
+            ret += htmlTriState("Inter Run Calibrator", 75,"inExpInterRunCalibrator", exp[i],
+                                "interRunCalibrator", "Yes", "No", "Not Set")
             ret += '  <tr>\n    <td style="width:25%;">cDNA - Enzyme:</td>\n'
             ret += '    <td style="width:75%"><input type="text" class="form-control" '
             ret += 'id="inExpCdnaSynthesisMethod_enzyme" value="'
@@ -1489,6 +1494,63 @@ function updateClientData() {
             ret += '>toi - target of interest</option>\n'
             ret += '      </select></td>\n'
             ret += '  </tr>'
+            ret += '  <tr>\n    <td style="width:25%;background-color:#cc7a00;">Dye ID:</td>\n'
+            ret += '    <td style="width:75%">'
+            var selDye = saveUndef(exp[i].dyeId)
+            ret += '<select class="form-control" id="inTarDyeId">\n'
+            var allDyes = window.rdmlData.rdml.dyes;
+            for (var cc = 0; cc < allDyes.length; cc++) {
+                ret += '        <option value="' + allDyes[cc].id + '"'
+                if (selDye == allDyes[cc].id) {
+                    ret += ' selected'
+                }
+                ret += '>' + allDyes[cc].id + '</option>\n'
+            }
+            ret += '</select>\n</td>\n'
+            ret += '  </tr>'
+            ret += '  <tr>\n    <td style="width:25%;">' + 'Forward Primer - Sequence:</td>\n'
+            ret += '    <td style="width:75%"><input type="text" class="form-control" id="inTarSequences_forwardPrimer_sequence"'
+            ret += ' value="' + saveUndefKey(exp[i].sequences.forwardPrimer, "sequence") + '"></td>\n'
+            ret += '  </tr>'
+            ret += '  <tr>\n    <td style="width:25%;">' + 'Reverse Primer - Sequence:</td>\n'
+            ret += '    <td style="width:75%"><input type="text" class="form-control" id="inTarSequences_reversePrimer_sequence"'
+            ret += ' value="' + saveUndefKey(exp[i].sequences.reversePrimer, "sequence") + '"></td>\n'
+            ret += '  </tr>'
+            ret += '  <tr>\n    <td style="width:25%;">' + 'probe1 - Sequence:</td>\n'
+            ret += '    <td style="width:75%"><input type="text" class="form-control" id="inTarSequences_probe1_sequence"'
+            ret += ' value="' + saveUndefKey(exp[i].sequences.probe1, "sequence") + '"></td>\n'
+            ret += '  </tr>'
+            ret += '  <tr>\n    <td style="width:25%;">' + 'Probe2 - Sequence:</td>\n'
+            ret += '    <td style="width:75%"><input type="text" class="form-control" id="inTarSequences_probe2_sequence"'
+            ret += ' value="' + saveUndefKey(exp[i].sequences.probe2, "sequence") + '"></td>\n'
+            ret += '  </tr>'
+            ret += '  <tr>\n    <td style="width:25%;">' + 'Amplicon - Sequence:</td>\n'
+            ret += '    <td style="width:75%"><input type="text" class="form-control" id="inTarSequences_amplicon_sequence"'
+            ret += ' value="' + saveUndefKey(exp[i].sequences.amplicon, "sequence") + '"></td>\n'
+            ret += '  </tr>'
+            ret += '  <tr>\n    <td style="width:25%;">' + 'Amplicon Seq. Tools:</td>\n'
+            ret += '    <td style="width:75%"><table style="width:100%;">'
+            ret += '      <tr><td style="width:25%;">'
+            ret += '        <input type="text" class="form-control" id="inTarSequences_fake_amplicon_len"'
+            ret += ' value=""</td>\n<td style="width:75%">&nbsp;&nbsp;&nbsp;'
+            ret += ' <button type="button" onclick="setNAmpliconSeq();">Add number of N as Amplicon Seq.</button>&nbsp;&nbsp;'
+            ret += ' <button type="button" onclick="cleanAmpliconSeq();">Clean Amplicon Seq.</button></td>\n</tr>\n</table>  </tr>'
+            ret += '  </tr>'
+            if (["1.3", "1.4"].includes(window.rdmlData.rdml.version)) {
+                ret += '  <tr>\n    <td style="width:25%;">MeltingTemperature:</td>\n'
+                ret += '    <td style="width:75%"><input type="text" class="form-control" '
+                ret += 'id="inTarMeltingTemperature" value="'+ saveUndef(exp[i].meltingTemperature) + '"></td>\n'
+                ret += '  </tr>'
+            }
+            ret += '</table></p>\n'
+            ret += '<button type="button" class="btn btn-success" '
+            ret += 'onclick="saveEditElement(\'target\', ' + i + ', \'' + exp[i].id + '\');">Save Changes</button>'
+            ret += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button type="button" class="btn btn-success" '
+            ret += 'onclick="deleteEditElement(\'target\', ' + i + ');">Delete</button>'
+            ret += '<br /><br /><br />\n'
+
+            ret += '<h5 class="card-title">Advanced:</h5>\n'
+            ret += '<p><table style="width:100%;">'
             ret += '  <tr>\n    <td style="width:25%;">Description:</td>\n'
             ret += '    <td style="width:75%"><input type="text" class="form-control" '
             ret += 'id="inTarDescription" value="'+ saveUndef(exp[i].description) + '"></td>\n'
@@ -1507,29 +1569,9 @@ function updateClientData() {
                 ret += 'id="inTarAmplificationEfficiencySE" value="'+ saveUndef(exp[i].amplificationEfficiencySE) + '"></td>\n'
                 ret += '  </tr>'
             }
-            if (["1.3", "1.4"].includes(window.rdmlData.rdml.version)) {
-                ret += '  <tr>\n    <td style="width:25%;">MeltingTemperature:</td>\n'
-                ret += '    <td style="width:75%"><input type="text" class="form-control" '
-                ret += 'id="inTarMeltingTemperature" value="'+ saveUndef(exp[i].meltingTemperature) + '"></td>\n'
-                ret += '  </tr>'
-            }
-           ret += '  <tr>\n    <td style="width:25%;">Detection Limit:</td>\n'
+            ret += '  <tr>\n    <td style="width:25%;">Detection Limit:</td>\n'
             ret += '    <td style="width:75%"><input type="text" class="form-control" '
             ret += 'id="inTarDetectionLimit" value="'+ saveUndef(exp[i].detectionLimit) + '"></td>\n'
-            ret += '  </tr>'
-            ret += '  <tr>\n    <td style="width:25%;background-color:#cc7a00;">Dye ID:</td>\n'
-            ret += '    <td style="width:75%">'
-            var selDye = saveUndef(exp[i].dyeId)
-            ret += '<select class="form-control" id="inTarDyeId">\n'
-            var allDyes = window.rdmlData.rdml.dyes;
-            for (var cc = 0; cc < allDyes.length; cc++) {
-                ret += '        <option value="' + allDyes[cc].id + '"'
-                if (selDye == allDyes[cc].id) {
-                    ret += ' selected'
-                }
-                ret += '>' + allDyes[cc].id + '</option>\n'
-            }
-            ret += '</select>\n</td>\n'
             ret += '  </tr>'
             ret += tarSeqHtml(exp[i], "forwardPrimer")
             ret += tarSeqHtml(exp[i], "reversePrimer")
@@ -3626,66 +3668,6 @@ function newEditRun(prim_pos, sec_pos, exp) {
     ret += '    <td style="width:75%"><input type="text" class="form-control" '
     ret += 'id="inRunPos" value="' + (sec_pos + 1) + '"></td>\n'
     ret += '  </tr>'
-    ret += '  <tr>\n    <td style="width:25%;">Description:</td>\n'
-    ret += '    <td style="width:75%"><input type="text" class="form-control" '
-    ret += 'id="inRunDescription" value="'+ saveUndefKey(run, "description") + '"></td>\n'
-    ret += '  </tr>'
-    ret += '  <tr>\n    <td style="width:25%;">Run Date:</td>\n'
-    ret += '    <td style="width:75%">\n<input type="text" class="form-control" '
-    ret += 'id="inRunRunDate" value="' + saveUndefKey(run, "runDate") + '"></td>\n'
-    ret += '  </tr>'
-    ret += '  <tr>\n    <td style="width:25%;">Thermal Cycling Conditions:</td>\n'
-    ret += '    <td style="width:75%">\n'
-    var cycProt = saveUndefKey(run, "thermalCyclingConditions")
-    ret += '<select class="form-control" id="inRunThermalCyclingConditions">\n'
-    ret += '        <option value=""'
-    if (cycProt == "") {
-        ret += ' selected'
-    }
-    ret += '>not set</option>\n'
-    var allCycs = window.rdmlData.rdml.therm_cyc_cons;
-    for (var cc = 0; cc < allCycs.length; cc++) {
-        ret += '        <option value="' + allCycs[cc].id + '"'
-        if (cycProt == allCycs[cc].id) {
-            ret += ' selected'
-        }
-        ret += '>' + allCycs[cc].id + '</option>\n'
-    }
-    ret += '</select>\n</td>\n'
-    var select_val = saveUndefKey(run, "cqDetectionMethod")
-    ret += '  <tr>\n    <td style="width:25%;">Cq Detection Method:</td>\n'
-    ret += '    <td style="width:75%"><select class="form-control" id="inRunCqDetectionMethod">\n'
-    ret += '        <option value=""'
-    if (select_val == "") {
-        ret += ' selected'
-    }
-    ret += '>No value selected</option>\n'
-    ret += '        <option value="automated threshold and baseline settings"'
-    if (select_val == "automated threshold and baseline settings") {
-        ret += ' selected'
-    }
-    ret += '>automated threshold and baseline settings</option>\n'
-    ret += '        <option value="manual threshold and baseline settings"'
-    if (select_val == "manual threshold and baseline settings") {
-        ret += ' selected'
-    }
-    ret += '>manual threshold and baseline settings</option>\n'
-    ret += '        <option value="second derivative maximum"'
-    if (select_val == "second derivative maximum") {
-        ret += ' selected'
-    }
-    ret += '>second derivative maximum</option>\n'
-    ret += '        <option value="other"'
-    if (select_val == "other") {
-        ret += ' selected'
-    }
-    ret += '>other</option>\n'
-    ret += '      </select></td>\n'
-    ret += '  </tr>'
-    ret += '  <tr>\n    <td style="width:25%;">Background Determination Method:</td>\n'
-    ret += '    <td style="width:75%">\n<input type="text" class="form-control" '
-    ret += 'id="inRunBackgroundDeterminationMethod" value="' + saveUndefKey(run, "backgroundDeterminationMethod") + '"></td>\n'
-    ret += '  </tr>'
     ret += '  <tr>\n    <td style="width:25%;background-color:#ffcc99;">PCR Format - Columns:</td>\n'
     ret += '    <td style="width:75%">\n<input type="text" class="form-control" '
     ret += 'id="inRunPcrFormat_columns" value="' + saveUndefKeyKey(run, "pcrFormat", "columns") + '"></td>\n'
@@ -3739,6 +3721,85 @@ function newEditRun(prim_pos, sec_pos, exp) {
     ret += ' <button type="button" onclick="selPlate_96_Well();">96 Well Plate</button>&nbsp;&nbsp;'
     ret += ' <button type="button" onclick="selPlate_384_Well();">384 Well Plate</button></td>\n'
     ret += '  </tr>'
+    ret += '  <tr>\n    <td style="width:25%;">Import Amplification RDES:</td>\n'
+    ret += '    <td style="width:75%">\n<input type="file" class="form-control-file" id="inRunUploadAmplification"></td>\n'
+    ret += '  </tr>'
+    ret += '  <tr>\n    <td style="width:25%;">Import Melting RDES:</td>\n'
+    ret += '    <td style="width:75%">\n<input type="file" class="form-control-file" id="inRunUploadMelting"></td>\n'
+    ret += '  </tr>'
+    ret += '  <tr>\n    <td style="width:25%;">Reaction Volume:</td>\n'
+    ret += '    <td style="width:75%">\n<input type="text" class="form-control" '
+    ret += 'id="inRunDefaultVolume" value=""></td>\n'
+    ret += '  </tr>'
+    ret += '</table></p>\n'
+    ret += '<button type="button" class="btn btn-success btn-sm" '
+    ret += 'onclick="saveRun(' + prim_pos + ', ' + sec_pos + ', ' + edit + ');">Save Changes</button>'
+    ret += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button type="button" class="btn btn-success btn-sm" '
+    ret += 'onclick="disChangesSecElement(\'pRun-experiment-' + prim_pos + '\');">Discard Changes</button>'
+    ret += '<br /><br /><br />\n'
+
+    ret += '<h5 class="card-title">Advanced:</h5>\n'
+    ret += '<p><table style="width:100%;">'
+    ret += '  <tr>\n    <td style="width:25%;">Thermal Cycling Conditions:</td>\n'
+    ret += '    <td style="width:75%">\n'
+    var cycProt = saveUndefKey(run, "thermalCyclingConditions")
+    ret += '<select class="form-control" id="inRunThermalCyclingConditions">\n'
+    ret += '        <option value=""'
+    if (cycProt == "") {
+        ret += ' selected'
+    }
+    ret += '>not set</option>\n'
+    var allCycs = window.rdmlData.rdml.therm_cyc_cons;
+    for (var cc = 0; cc < allCycs.length; cc++) {
+        ret += '        <option value="' + allCycs[cc].id + '"'
+        if (cycProt == allCycs[cc].id) {
+            ret += ' selected'
+        }
+        ret += '>' + allCycs[cc].id + '</option>\n'
+    }
+    ret += '</select>\n</td>\n'
+    ret += '  <tr>\n    <td style="width:25%;">Background Determination Method:</td>\n'
+    ret += '    <td style="width:75%">\n<input type="text" class="form-control" '
+    ret += 'id="inRunBackgroundDeterminationMethod" value="' + saveUndefKey(run, "backgroundDeterminationMethod") + '"></td>\n'
+    ret += '  </tr>'
+    ret += '  <tr>\n    <td style="width:25%;">Description:</td>\n'
+    ret += '    <td style="width:75%"><input type="text" class="form-control" '
+    ret += 'id="inRunDescription" value="'+ saveUndefKey(run, "description") + '"></td>\n'
+    ret += '  </tr>'
+    ret += '  <tr>\n    <td style="width:25%;">Run Date:</td>\n'
+    ret += '    <td style="width:75%">\n<input type="text" class="form-control" '
+    ret += 'id="inRunRunDate" value="' + saveUndefKey(run, "runDate") + '"></td>\n'
+    ret += '  </tr>'
+    var select_val = saveUndefKey(run, "cqDetectionMethod")
+    ret += '  <tr>\n    <td style="width:25%;">Cq Detection Method:</td>\n'
+    ret += '    <td style="width:75%"><select class="form-control" id="inRunCqDetectionMethod">\n'
+    ret += '        <option value=""'
+    if (select_val == "") {
+        ret += ' selected'
+    }
+    ret += '>No value selected</option>\n'
+    ret += '        <option value="automated threshold and baseline settings"'
+    if (select_val == "automated threshold and baseline settings") {
+        ret += ' selected'
+    }
+    ret += '>automated threshold and baseline settings</option>\n'
+    ret += '        <option value="manual threshold and baseline settings"'
+    if (select_val == "manual threshold and baseline settings") {
+        ret += ' selected'
+    }
+    ret += '>manual threshold and baseline settings</option>\n'
+    ret += '        <option value="second derivative maximum"'
+    if (select_val == "second derivative maximum") {
+        ret += ' selected'
+    }
+    ret += '>second derivative maximum</option>\n'
+    ret += '        <option value="other"'
+    if (select_val == "other") {
+        ret += ' selected'
+    }
+    ret += '>other</option>\n'
+    ret += '      </select></td>\n'
+    ret += '  </tr>'
     ret += '  <tr>\n    <td style="width:25%;">Instrument:</td>\n'
     ret += '    <td style="width:75%">\n<input type="text" class="form-control" '
     ret += 'id="inRunInstrument" value="' + saveUndefKey(run, "instrument") + '"></td>\n'
@@ -3750,12 +3811,6 @@ function newEditRun(prim_pos, sec_pos, exp) {
     ret += '  <tr>\n    <td style="width:25%;">Software - Version:</td>\n'
     ret += '    <td style="width:75%">\n<input type="text" class="form-control" '
     ret += 'id="inRunDataCollectionSoftware_version" value="' + saveUndefKeyKey(run, "dataCollectionSoftware", "version") + '"></td>\n'
-    ret += '  </tr>'
-    ret += '  <tr>\n    <td style="width:25%;">Import Amplification RDES:</td>\n'
-    ret += '    <td style="width:75%">\n<input type="file" class="form-control-file" id="inRunUploadAmplification"></td>\n'
-    ret += '  </tr>'
-    ret += '  <tr>\n    <td style="width:25%;">Import Melting RDES:</td>\n'
-    ret += '    <td style="width:75%">\n<input type="file" class="form-control-file" id="inRunUploadMelting"></td>\n'
     ret += '  </tr>'
     if (["1.3", "1.4"].includes(window.rdmlData.rdml.version)) {
         ret += '  <tr>\n    <td style="width:25%;">Digital PCR Data Format:</td>\n'
@@ -3797,6 +3852,8 @@ function selPlate_Rotor(){
     row.value = "Enter maximal number of rotor positions here."
     var rowLab = document.getElementById('inRunPcrFormat_rowLabel');
     rowLab.value = "123"
+    var volume = document.getElementById('inRunDefaultVolume');
+    volume.value = "20.0"
     return;
 }
 
@@ -3811,6 +3868,8 @@ function selPlate_96_Well(){
     row.value = "8"
     var rowLab = document.getElementById('inRunPcrFormat_rowLabel');
     rowLab.value = "ABC"
+    var volume = document.getElementById('inRunDefaultVolume');
+    volume.value = "20.0"
     return;
 }
 
@@ -3825,6 +3884,34 @@ function selPlate_384_Well(){
     row.value = "16"
     var rowLab = document.getElementById('inRunPcrFormat_rowLabel');
     rowLab.value = "ABC"
+    var volume = document.getElementById('inRunDefaultVolume');
+    volume.value = "10.0"
+    return;
+}
+
+// Set N as amplicon sequence
+window.setNAmpliconSeq = setNAmpliconSeq;
+function setNAmpliconSeq(){
+    var rLen = document.getElementById('inTarSequences_fake_amplicon_len');
+    var len = parseInt(rLen.value);
+    var amplicon = "";
+    for (var i = 0; i < len; i++) {
+        amplicon += "N"
+    }
+    var ampSeq = document.getElementById('inTarSequences_amplicon_sequence');
+    if (ampSeq != null) {
+        ampSeq.value = amplicon;
+    }
+    return;
+}
+
+// Clean amplicon sequence
+window.cleanAmpliconSeq = cleanAmpliconSeq;
+function cleanAmpliconSeq(){
+    var rawSeq = document.getElementById('inTarSequences_amplicon_sequence').value;
+    var amplicon = rawSeq.replace(/[^ACGTNacgtn]/g, '');
+    var ampSeq = document.getElementById('inTarSequences_amplicon_sequence');
+    ampSeq.value = amplicon;
     return;
 }
 
@@ -3907,6 +3994,7 @@ function saveRun(prim_pos, run_pos, edit){
     el["pcrFormat_columnLabel"] = getSaveHtmlData("inRunPcrFormat_columnLabel")
     el["pcrFormat_rows"] = getSaveHtmlData("inRunPcrFormat_rows")
     el["pcrFormat_rowLabel"] = getSaveHtmlData("inRunPcrFormat_rowLabel")
+    el["defaultVolume"] = getSaveHtmlData("inRunDefaultVolume")
     el["instrument"] = getSaveHtmlData("inRunInstrument")
     el["dataCollectionSoftware_name"] = getSaveHtmlData("inRunDataCollectionSoftware_name")
     el["dataCollectionSoftware_version"] = getSaveHtmlData("inRunDataCollectionSoftware_version")

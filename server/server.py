@@ -1107,6 +1107,8 @@ def handle_data():
                 return jsonify(errors=[{"title": "Invalid server request - run pcrFormat_rows value missing!"}]), 400
             if reqdata["data"]["pcrFormat_rowLabel"] == "":
                 return jsonify(errors=[{"title": "Invalid server request - run pcrFormat_rowLabel value missing!"}]), 400
+            if "defaultVolume" not in reqdata["data"]:
+                return jsonify(errors=[{"title": "Invalid server request - run defaultVolume missing!"}]), 400
             if "instrument" not in reqdata["data"]:
                 return jsonify(errors=[{"title": "Invalid server request - run instrument missing!"}]), 400
             if "dataCollectionSoftware_name" not in reqdata["data"]:
@@ -1176,6 +1178,8 @@ def handle_data():
                         tabMeltFilename = os.path.join(sf, "rdml_" + uuidstr + "_melting_upload.tsv")
                         tabMeltUpload.save(tabMeltFilename)
                         errRec += run_ele.import_table(rd, tabMeltFilename, "melt")
+                if reqdata["data"]["defaultVolume"] != "":
+                    run_ele.setReactionVolume(reqdata["data"]["defaultVolume"])
                 if "tableUploadDigOverview" in request.files or "tableUploadDigWellsCount" in request.form.keys():
                     logNote1 = "tableUploadDigital"
                     if "tableUploadDigFormat" not in reqdata["data"]:

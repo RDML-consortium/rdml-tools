@@ -198,7 +198,7 @@ window.usedTargets = {}
 window.usedDyeIds = {}
 window.usedDyeMaxPos = 0
 
-const copyThreshold = 10 * Math.pow(1.9, 35.0);
+const copyThreshold = 10 * Math.pow(1.9, 35.0) * 20.0 / 50.0;
 
 function resetAllGlobalVal() {
     window.plateView = "plate";
