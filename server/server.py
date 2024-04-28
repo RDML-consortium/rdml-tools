@@ -1758,6 +1758,39 @@ def handle_data():
                     else:
                         modified = True
 
+            if reqdata["type"] == "edit-target-melting":
+                if "targets" not in reqdata["data"]:
+                    return jsonify(errors=[{"title": "Invalid server request - target melting targets missing!"}]), 400
+                if "tarData" not in reqdata["data"]:
+                    return jsonify(errors=[{"title": "Invalid server request - target melting tarData missing!"}]), 400
+                tarNum = int(reqdata["data"]["targets"])
+                if len(reqdata["data"]["tarData"]) != tarNum:
+                    return jsonify(errors=[{"title": "Invalid server request - unexpected target melting array size!"}]), 400
+                try:
+                    for i in range(0, tarNum):
+                        if "tar" not in reqdata["data"]["tarData"][i]:
+                            return jsonify(errors=[{"title": "Invalid server request - target melting tar missing!"}]), 400
+                        if "tm" not in reqdata["data"]["tarData"][i]:
+                            return jsonify(errors=[{"title": "Invalid server request - target melting tm missing!"}]), 400
+                        if "seq" not in reqdata["data"]["tarData"][i]:
+                            return jsonify(errors=[{"title": "Invalid server request - target melting seq missing!"}]), 400
+                        elem = rd.get_target(byid=reqdata["data"]["tarData"][i]["tar"])
+                        if elem is None:
+                            return jsonify(errors=[{"title": "Invalid server request - target id not found!"}]), 400
+                        elem["meltingTemperature"] = reqdata["data"]["tarData"][i]["tm"]
+                        tarAmp = reqdata["data"]["tarData"][i]["seq"]
+                        if tarAmp.isdigit():
+                            nnnSeq = ""
+                            for k in range(0, int(tarAmp)):
+                                nnnSeq += "N"
+                            elem["sequences_amplicon_sequence"] = nnnSeq
+                        else:
+                            elem["sequences_amplicon_sequence"] = tarAmp
+                except rdml.RdmlError as err:
+                    data["error"] = str(err)
+                else:
+                    modified = True
+
             if reqdata["type"] == "therm_cyc_cons":
                 if "id" not in reqdata["data"]:
                     return jsonify(errors=[{"title": "Invalid server request - thermal cycling conditions id missing!"}]), 400

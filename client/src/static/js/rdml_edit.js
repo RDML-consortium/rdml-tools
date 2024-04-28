@@ -1461,6 +1461,46 @@ function updateClientData() {
     // The targets tab
     var exp = window.rdmlData.rdml.targets;
     ret = ''
+    if ((editMode == true) && (editType == "target_melting")) {
+        ret += '<br /><div class="card text-white bg-primary">\n<div class="card-body">\n'
+        ret += '<h5 class="card-title">Edit Amplicon Sequence and Melting Temperature</h5>\n<p>'
+        ret += '<input type="hidden" id="ed_melt_count" value="' + exp.length + '">'
+        ret += '<table style="width:100%;">'
+        ret += '  <tr>\n'
+        ret += '    <td style="width:25%">Target ID</td>\n'
+        ret += '    <td style="width:15%">Melting Temp.</td>\n'
+        ret += '    <td style="width:60%">Amplicon Sequence (or length in bp)</td>\n'
+        ret += '  </tr>'
+        for (var i = 0; i < exp.length; i++) {
+            ret += '  <tr>\n'
+            ret += '    <td style="width:25%"><input type="hidden" id="ed_melt_tar_'
+            ret += i + '" value="'
+            ret += exp[i].id + '">' + exp[i].id + '</td>\n'
+            ret += '    <td style="width:15%"><input type="text" class="form-control" id="ed_melt_tm_'
+            ret += i + '" value="'
+            if (["1.3", "1.4"].includes(window.rdmlData.rdml.version)) {
+                ret += saveUndef(exp[i].meltingTemperature)
+            } else {
+                ret += 'NA in Ver. <1.3'; // on change edit also saveMeltingChanges();
+            }
+            ret += '"></td>\n'
+            ret += '    <td style="width:60%"><input type="text" class="form-control" id="ed_melt_seq_'
+            ret += i + '" value="'
+            if (exp[i].hasOwnProperty("sequences")) {
+                if (exp[i].sequences.hasOwnProperty("amplicon")) {
+                    ret += saveUndefKey(exp[i].sequences.amplicon, "sequence")
+                }
+            }
+            ret += '"></td>\n'
+            ret += '  </tr>'
+        }
+        ret += '</table></p>\n'
+        ret += '<button type="button" class="btn btn-success" '
+        ret += 'onclick="saveMeltingChanges();">Save Changes</button>'
+        ret += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button type="button" class="btn btn-success" '
+        ret += 'onclick="deleteTargetMelting();">Cancle</button>&nbsp;&nbsp;&nbsp;'
+        ret += '</div>\n</div>\n'
+    }
     for (var i = 0; i < exp.length; i++) {
         if ((editMode == true) && (editType == "target") && (i == editNumber)) {
             ret += '<br /><div class="card text-white bg-primary">\n<div class="card-body">\n'
@@ -1509,24 +1549,49 @@ function updateClientData() {
             ret += '</select>\n</td>\n'
             ret += '  </tr>'
             ret += '  <tr>\n    <td style="width:25%;">' + 'Forward Primer - Sequence:</td>\n'
-            ret += '    <td style="width:75%"><input type="text" class="form-control" id="inTarSequences_forwardPrimer_sequence"'
-            ret += ' value="' + saveUndefKey(exp[i].sequences.forwardPrimer, "sequence") + '"></td>\n'
+            ret += '    <td style="width:75%"><input type="text" class="form-control" id="inTarSequences_forwardPrimer_sequence" value="'
+            if (exp[i].hasOwnProperty("sequences")) {
+                if (exp[i].sequences.hasOwnProperty("forwardPrimer")) {
+                    ret += saveUndefKey(exp[i].sequences.forwardPrimer, "sequence")
+                }
+            }
+            ret += '"></td>\n'
             ret += '  </tr>'
             ret += '  <tr>\n    <td style="width:25%;">' + 'Reverse Primer - Sequence:</td>\n'
-            ret += '    <td style="width:75%"><input type="text" class="form-control" id="inTarSequences_reversePrimer_sequence"'
-            ret += ' value="' + saveUndefKey(exp[i].sequences.reversePrimer, "sequence") + '"></td>\n'
+            ret += '    <td style="width:75%"><input type="text" class="form-control" id="inTarSequences_reversePrimer_sequence" value="'
+            if (exp[i].hasOwnProperty("sequences")) {
+                if (exp[i].sequences.hasOwnProperty("reversePrimer")) {
+                    ret += saveUndefKey(exp[i].sequences.reversePrimer, "sequence")
+                }
+            }
+            ret += '"></td>\n'
             ret += '  </tr>'
             ret += '  <tr>\n    <td style="width:25%;">' + 'probe1 - Sequence:</td>\n'
-            ret += '    <td style="width:75%"><input type="text" class="form-control" id="inTarSequences_probe1_sequence"'
-            ret += ' value="' + saveUndefKey(exp[i].sequences.probe1, "sequence") + '"></td>\n'
+            ret += '    <td style="width:75%"><input type="text" class="form-control" id="inTarSequences_probe1_sequence" value="'
+            if (exp[i].hasOwnProperty("sequences")) {
+                if (exp[i].sequences.hasOwnProperty("probe1")) {
+                    ret += saveUndefKey(exp[i].sequences.probe1, "sequence")
+                }
+            }
+            ret += '"></td>\n'
             ret += '  </tr>'
             ret += '  <tr>\n    <td style="width:25%;">' + 'Probe2 - Sequence:</td>\n'
-            ret += '    <td style="width:75%"><input type="text" class="form-control" id="inTarSequences_probe2_sequence"'
-            ret += ' value="' + saveUndefKey(exp[i].sequences.probe2, "sequence") + '"></td>\n'
+            ret += '    <td style="width:75%"><input type="text" class="form-control" id="inTarSequences_probe2_sequence" value="'
+            if (exp[i].hasOwnProperty("sequences")) {
+                if (exp[i].sequences.hasOwnProperty("probe2")) {
+                    ret += saveUndefKey(exp[i].sequences.probe2, "sequence")
+                }
+            }
+            ret += '"></td>\n'
             ret += '  </tr>'
             ret += '  <tr>\n    <td style="width:25%;">' + 'Amplicon - Sequence:</td>\n'
-            ret += '    <td style="width:75%"><input type="text" class="form-control" id="inTarSequences_amplicon_sequence"'
-            ret += ' value="' + saveUndefKey(exp[i].sequences.amplicon, "sequence") + '"></td>\n'
+            ret += '    <td style="width:75%"><input type="text" class="form-control" id="inTarSequences_amplicon_sequence" value="'
+            if (exp[i].hasOwnProperty("sequences")) {
+                if (exp[i].sequences.hasOwnProperty("amplicon")) {
+                    ret += saveUndefKey(exp[i].sequences.amplicon, "sequence")
+                }
+            }
+            ret += '"></td>\n'
             ret += '  </tr>'
             ret += '  <tr>\n    <td style="width:25%;">' + 'Amplicon Seq. Tools:</td>\n'
             ret += '    <td style="width:75%"><table style="width:100%;">'
@@ -2527,6 +2592,65 @@ function createNewElement(typ){
         updateClientData()
     }
 
+}
+
+window.editTargetMelting = editTargetMelting;
+function editTargetMelting(){
+    if (!(window.rdmlData.hasOwnProperty("rdml"))) {
+        return
+    }
+    if (window.editMode == true) {
+        return  // Another element is already edited
+    }
+    window.editMode = true;
+    window.editType = "target_melting"
+    updateClientData()
+}
+
+window.deleteTargetMelting = deleteTargetMelting;
+function deleteTargetMelting(){
+    if (!(window.rdmlData.hasOwnProperty("rdml"))) {
+        return
+    }
+    if (window.editMode == false) {
+        return  // This can not happen
+    }
+    window.editMode = false;
+    window.editType = ""
+    updateClientData()
+}
+
+window.saveMeltingChanges = saveMeltingChanges;
+function saveMeltingChanges(){
+    if (!(window.rdmlData.hasOwnProperty("rdml"))) {
+        return
+    }
+    if (window.editMode == false) {
+        return  // This can not happen
+    }
+    var ret = {}
+    ret["type"] = "edit-target-melting"
+    ret["mode"] = "edit"
+    var el = {}
+    var tarNum = getSaveHtmlData("ed_melt_count");
+    el["targets"] = tarNum;
+    var tarCount = parseInt(tarNum);
+    var dataArr = [];
+    for (var i = 0; i < tarCount; i++) {
+        var collDat = {};
+        collDat["tar"] = getSaveHtmlData("ed_melt_tar_" + i);
+        var readTm = getSaveHtmlData("ed_melt_tm_" + i);
+        if (readTm == 'NA in Ver. <1.3') {
+            collDat["tm"] = "";
+        } else {
+            collDat["tm"] = readTm;
+        }
+        collDat["seq"] = getSaveHtmlData("ed_melt_seq_" + i);
+        dataArr.push(collDat);
+    }
+    el["tarData"] = dataArr;
+    ret["data"] = el
+    updateServerData(uuid, JSON.stringify(ret))
 }
 
 // Set the edit mode for the selected element
