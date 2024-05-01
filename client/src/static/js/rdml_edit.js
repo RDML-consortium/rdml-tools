@@ -599,18 +599,18 @@ function createLinkBox(apiLink, apiURL, toolhtml, uuuid, valid, experiment = "",
         ret += apiLink  + "annotationedit.html?UUID=" + uuuid + ';TAB=runs-tab'
         ret += experiment + run + '</a> (valid for 3 days)\n<br />\n</p>\n'
     }
-    if (!(toolhtml == 'linregpcr.html')) {
+    if (!(toolhtml == 'runanalyze.html')) {
         ret += '<p>Analyze Run in LinRegPCR:<br />'
-        ret += '<a href="' + apiLink + "linregpcr.html?UUID=" + uuuid + ';TAB=runs-tab'
+        ret += '<a href="' + apiLink + "runanalyze.html?UUID=" + uuuid + ';TAB=runs-tab'
         ret += experiment + run + '" target="_blank">'
-        ret += apiLink  + "linregpcr.html?UUID=" + uuuid + ';TAB=runs-tab'
+        ret += apiLink  + "runanalyze.html?UUID=" + uuuid + ';TAB=runs-tab'
         ret += experiment + run + '</a> (valid for 3 days)\n<br />\n</p>\n'
     }
-    if (!(toolhtml == 'analyze.html')) {
+    if (!(toolhtml == 'experimentanalyze.html')) {
         ret += '<p>Analyze Experiment in RDML-Analyze:<br />'
-        ret += '<a href="' + apiLink + "analyze.html?UUID=" + uuuid + ';TAB=runs-tab'
+        ret += '<a href="' + apiLink + "experimentanalyze.html?UUID=" + uuuid + ';TAB=runs-tab'
         ret += experiment + run + '" target="_blank">'
-        ret += apiLink  + "analyze.html?UUID=" + uuuid + ';TAB=runs-tab'
+        ret += apiLink  + "experimentanalyze.html?UUID=" + uuuid + ';TAB=runs-tab'
         ret += experiment + run + '</a> (valid for 3 days)\n<br />\n</p>\n'
     }
     if (!(toolhtml == 'runview.html')) {
@@ -747,7 +747,7 @@ function updateClientData() {
                 ret += '  <tr>\n    <td style="width:25%;">Number of Reactions:</td>\n'
                 ret += '    <td style="width:75%">\n'+ runs[s].react + '</td>\n'
                 ret += '  </tr>\n</table>'
-                ret += '<a href="' + `${API_LINK}` + "linregpcr.html?UUID=" + window.uuid + ';TAB=runs-tab'
+                ret += '<a href="' + `${API_LINK}` + "runanalyze.html?UUID=" + window.uuid + ';TAB=runs-tab'
                 ret += ';EXP=' + encodeURIComponent(exp[i].id) + ';RUN=' + encodeURIComponent(runs[s].id) + '" '
                 ret += 'target="_blank">Analyze Run in LinRegPCR</a><br />\n'
                 ret += '</p>\n'

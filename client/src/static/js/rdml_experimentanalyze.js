@@ -1053,18 +1053,18 @@ function createLinkBox(apiLink, apiURL, toolhtml, uuuid, valid, experiment = "",
         ret += apiLink  + "annotationedit.html?UUID=" + uuuid + ';TAB=runs-tab'
         ret += experiment + run + '</a> (valid for 3 days)\n<br />\n</p>\n'
     }
-    if (!(toolhtml == 'linregpcr.html')) {
+    if (!(toolhtml == 'runanalyze.html')) {
         ret += '<p>Analyze Run in LinRegPCR:<br />'
-        ret += '<a href="' + apiLink + "linregpcr.html?UUID=" + uuuid + ';TAB=runs-tab'
+        ret += '<a href="' + apiLink + "runanalyze.html?UUID=" + uuuid + ';TAB=runs-tab'
         ret += experiment + run + '" target="_blank">'
-        ret += apiLink  + "linregpcr.html?UUID=" + uuuid + ';TAB=runs-tab'
+        ret += apiLink  + "runanalyze.html?UUID=" + uuuid + ';TAB=runs-tab'
         ret += experiment + run + '</a> (valid for 3 days)\n<br />\n</p>\n'
     }
-    if (!(toolhtml == 'analyze.html')) {
+    if (!(toolhtml == 'experimentanalyze.html')) {
         ret += '<p>Analyze Experiment in RDML-Analyze:<br />'
-        ret += '<a href="' + apiLink + "analyze.html?UUID=" + uuuid + ';TAB=runs-tab'
+        ret += '<a href="' + apiLink + "experimentanalyze.html?UUID=" + uuuid + ';TAB=runs-tab'
         ret += experiment + run + '" target="_blank">'
-        ret += apiLink  + "analyze.html?UUID=" + uuuid + ';TAB=runs-tab'
+        ret += apiLink  + "experimentanalyze.html?UUID=" + uuuid + ';TAB=runs-tab'
         ret += experiment + run + '</a> (valid for 3 days)\n<br />\n</p>\n'
     }
     if (!(toolhtml == 'runview.html')) {
@@ -1144,7 +1144,7 @@ function updateClientData() {
     if ((window.rdmlData.hasOwnProperty("rdml")) && (window.rdmlData.rdml.hasOwnProperty("version")) && (window.rdmlData.rdml.version != "") && (["1.11", "1.2", "1.3"].includes(window.rdmlData.rdml.version))) {
         ret += '<br />' + createUpdateButton(window.rdmlData.rdml.version) + '<br />';
     }
-    ret += '<br />' + createLinkBox(`${API_LINK}`, `${API_URL}`, 'analyze.html', window.uuid, window.isvalid, window.selExperiment, window.selRun);
+    ret += '<br />' + createLinkBox(`${API_LINK}`, `${API_URL}`, 'experimentanalyze.html', window.uuid, window.isvalid, window.selExperiment, window.selRun);
     if (window.isvalid == "invalid") {
         resultError.innerHTML = '<i class="fas fa-fire"></i>\n<span id="error-message">' +
                                 'Error: Uploaded file is not valid RDML!</span>'
