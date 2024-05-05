@@ -717,7 +717,9 @@ def handle_data():
                             return jsonify(errors=[{"title": "Tab annotation file has incorrect file type!"}]), 400
                         tabAnnoFilename = os.path.join(sf, "rdml_" + uuidstr + "_annotation_upload.tsv")
                         tabAnnoUpload.save(tabAnnoFilename)
-                        rd.import_annotations(tabAnnoFilename)
+                        localErr = rd.import_annotations(tabAnnoFilename)
+                        if localErr != "":
+                            data["error"] = localErr
             except rdml.RdmlError as err:
                 data["error"] = str(err)
             else:
