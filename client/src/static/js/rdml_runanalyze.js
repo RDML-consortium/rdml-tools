@@ -684,6 +684,9 @@ function updateServerData(stat, reqData) {
                 }
                 if (res.data.data.hasOwnProperty("reactsdata")) {
                     window.reactData = res.data.data.reactsdata
+                    if (window.reactData.adp_fluor_min < 0.0) {
+                        createCorrAmpData()
+                    }
                     if (window.reactData.hasOwnProperty("LinRegPCR_Result_Table")) {
                         window.baselineData = res.data.data.reactsdata
                         window.linRegPCRTable = JSON.parse(window.reactData.LinRegPCR_Result_Table)
@@ -755,6 +758,45 @@ function updateServerData(stat, reqData) {
             resultError.innerHTML = err
         })
 }
+
+function createCorrAmpData() {
+    var reacts = window.reactData.reacts
+    var globalMax = window.reactData.adp_fluor_max
+    var fluor_max = Number.NEGATIVE_INFINITY
+    var new_max = Number.NEGATIVE_INFINITY
+    var new_min = Number.POSITIVE_INFINITY
+    for (var reac = 0; reac < reacts.length; reac++) {
+        for (var dataPos = 0; dataPos < reacts[reac].datas.length; dataPos++) {
+            reacts[reac].datas[dataPos].cdps = []
+            var curr_min = Number.POSITIVE_INFINITY
+            for (var i = 0; i < reacts[reac].datas[dataPos].adps.length; i++) {
+                var curr_fluor = parseFloat(reacts[reac].datas[dataPos].adps[i][1]);
+                if (curr_fluor < curr_min) {
+                    curr_min = curr_fluor
+                }
+            }
+            var baseShift = 0.0
+            if (curr_min < 0.0) {
+                baseShift = (globalMax - curr_min) / 100.0 - curr_min
+            }
+            for (var i = 0; i < reacts[reac].datas[dataPos].adps.length; i++) {
+                var curr_cyc = reacts[reac].datas[dataPos].adps[i][0];
+                var curr_fluor = parseFloat(reacts[reac].datas[dataPos].adps[i][1]);
+                reacts[reac].datas[dataPos].cdps.push([curr_cyc,curr_fluor + baseShift])
+                if (curr_fluor + baseShift > new_max) {
+                    new_max = curr_fluor + baseShift
+                }
+                if (curr_fluor + baseShift < new_min) {
+                    new_min = curr_fluor + baseShift
+                }
+            }
+        }
+    }
+    window.reactData.cdp_cyc_max = window.reactData.adp_cyc_max;
+    window.reactData.cdp_fluor_min = new_min;
+    window.reactData.cdp_fluor_max = new_max;
+}
+
 
 window.fillLookupDics = fillLookupDics
 function fillLookupDics() {
@@ -996,6 +1038,13 @@ function updateClientData() {
             ret += ' selected'
         }
         ret += '>Amplification - Raw Data</option>\n'
+        if (window.reactData.adp_fluor_min < 0.0) {
+            ret += '        <option value="cdp"'
+            if (window.curveSource == "cdp") {
+                ret += ' selected'
+            }
+            ret += '>Amplification - Scaled Negative Raw Data</option>\n'
+        }
         if (window.linRegPCRTable.length > 0) {
             ret += '        <option value="bas"'
             if (window.curveSource == "bas") {
@@ -1366,6 +1415,11 @@ function updateClientData() {
                 window.winXmax = window.reactData.adp_cyc_max;
                 window.winYmin = window.reactData.adp_fluor_min;
                 window.winYmax = window.reactData.adp_fluor_max;
+            } else if (window.curveSource == "cdp") {
+                window.winXmin = 0;
+                window.winXmax = window.reactData.cdp_cyc_max;
+                window.winYmin = window.reactData.cdp_fluor_min;
+                window.winYmax = window.reactData.cdp_fluor_max;
             } else if (window.curveSource == "bas") {
                 window.winXmin = 0;
                 window.winXmax = window.baselineData.bas_cyc_max;
@@ -3063,7 +3117,7 @@ function updateCurveSource() {
         return
     }
     window.curveSource = newData
-    if (["adp", "bas"].includes(window.curveSource)) {
+    if (["adp", "cdp", "bas"].includes(window.curveSource)) {
         window.yScale = "log"
     } else {
         window.yScale = "lin"
@@ -3110,10 +3164,7 @@ function createSVG() {
 }
 
 function setStartStop() {
-    if (window.curveSource == "adp") {
-        window.winXst = window.winXmin;
-        window.winXend = 5 * Math.ceil(window.winXmax / 5);
-    } else if (window.curveSource == "bas") {
+    if (["adp", "cdp", "bas"].includes(window.curveSource)) {
         window.winXst = window.winXmin;
         window.winXend = 5 * Math.ceil(window.winXmax / 5);
     } else {
@@ -3281,7 +3332,7 @@ function createCoordinates () {
             retVal += "' x2='" + (window.frameXst - 7) + "' y2='" + yPos + "' stroke-width='2' stroke='black' />";
             retVal += "<text x='" + (window.frameXst - 11) + "' y='" + (yPos + 3);
             retVal += "' font-family='Arial' font-size='10' fill='black' text-anchor='end'>";
-            var textValOut = i *  window.winYstep - window.winYst
+            var textValOut = window.winYst + i *  window.winYstep
             retVal += textValOut.toFixed(yRound) + "</text>";
         }
     } else {
@@ -3573,6 +3624,9 @@ function createAllCurves(){
                         if (window.curveSource == "adp") {
                             retVal += createOneCurve(parseInt(reacts[reac].id), dataPos, "1.2",
                                                      reacts[reac].datas[dataPos].adps, colo);
+                        } else if (window.curveSource == "cdp") {
+                            retVal += createOneCurve(parseInt(reacts[reac].id), dataPos, "1.2",
+                                                     reacts[reac].datas[dataPos].cdps, colo);
                         } else if (window.curveSource == "bas") {
                             retVal += createOneCurve(parseInt(reacts[reac].id), dataPos, "1.2",
                                                      baseReact[reac].datas[dataPos].bass, colo);
@@ -3681,6 +3735,9 @@ function createOneHighCurve(id, dataPos) {
             if (window.curveSource == "adp") {
                 retVal += createOneCurve(parseInt(reacts[reac].id), dataPos, "3.0",
                                          reacts[reac].datas[dataPos].adps, colo);
+            } else if (window.curveSource == "cdp") {
+                retVal += createOneCurve(parseInt(reacts[reac].id), dataPos, "3.0",
+                                         reacts[reac].datas[dataPos].cdps, colo);
             } else if (window.curveSource == "bas") {
                 retVal += createOneCurve(parseInt(reacts[reac].id), dataPos, "3.0",
                                          baseReact[reac].datas[dataPos].bass, colo);
