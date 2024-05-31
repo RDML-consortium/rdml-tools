@@ -209,6 +209,16 @@ function delTarData() {
     updateServerData(window.uuid, JSON.stringify(ret))
 }
 
+window.delAllCalculations = delAllCalculations;
+function delAllCalculations() {
+    var ret = {}
+    ret["mode"] = "run-ed-del-all-calc"
+    ret["sel-experiment"] = window.selExperiment
+    ret["sel-run"] = window.selRun
+    updateServerData(window.uuid, JSON.stringify(ret))
+}
+
+
 window.replaceExcl = replaceExcl;
 function replaceExcl() {
     var ret = {}
@@ -756,6 +766,12 @@ function updateClientData() {
         ret += 'onclick="delReactData()">'
         ret += '      <i class="fas fa-rocket" style="margin-right: 5px;"></i>'
         ret += '        Delete Reaction Data'
+        ret += '    </button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
+        ret += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
+        ret += '<button type="submit" class="btn btn-outline-danger" '
+        ret += 'onclick="delAllCalculations()">'
+        ret += '      <i class="fas fa-rocket" style="margin-right: 5px;"></i>'
+        ret += '        Delete All Calculation Results in Run'
         ret += '    </button><br /><br />'
         ret += '    Here you can view the exclusion remarks and from RDML version 1.3+ the'
         ret += '    notes of the RDML file. Any entry in exclusion will exclude this reaction/target combination '
