@@ -264,12 +264,8 @@ function resetMeltcurveData() {
 window.updateRDMLCheck = updateRDMLCheck
 function updateRDMLCheck() {
     var bbUpdateRDML = document.getElementById('updateRDMLData')
-    var optionalGreyTab = document.getElementById('tab-optional-grey')
     if ((bbUpdateRDML) && (bbUpdateRDML.value == "y")) {
-        optionalGreyTab.style.backgroundColor = "#e6e6e6"
         resetLinRegPCRdata()
-    } else {
-        optionalGreyTab.style.backgroundColor = "#ffffff"
     }
     updateLinRegPCRTable()
 }
@@ -908,18 +904,18 @@ function createLinkBox(apiLink, apiURL, toolhtml, uuuid, valid, experiment = "",
         ret += apiLink  + "annotationedit.html?UUID=" + uuuid + ';TAB=runs-tab'
         ret += experiment + run + '</a> (valid for 3 days)\n<br />\n</p>\n'
     }
-    if (!(toolhtml == 'runanalyze.html')) {
-        ret += '<p>Analyze Run in LinRegPCR:<br />'
-        ret += '<a href="' + apiLink + "runanalyze.html?UUID=" + uuuid + ';TAB=runs-tab'
+    if (!(toolhtml == 'runanalysis.html')) {
+        ret += '<p>Analyze Run in RunAnalysis:<br />'
+        ret += '<a href="' + apiLink + "runanalysis.html?UUID=" + uuuid + ';TAB=runs-tab'
         ret += experiment + run + '" target="_blank">'
-        ret += apiLink  + "runanalyze.html?UUID=" + uuuid + ';TAB=runs-tab'
+        ret += apiLink  + "runanalysis.html?UUID=" + uuuid + ';TAB=runs-tab'
         ret += experiment + run + '</a> (valid for 3 days)\n<br />\n</p>\n'
     }
-    if (!(toolhtml == 'experimentanalyze.html')) {
-        ret += '<p>Analyze Experiment in RDML-Analyze:<br />'
-        ret += '<a href="' + apiLink + "experimentanalyze.html?UUID=" + uuuid + ';TAB=runs-tab'
+    if (!(toolhtml == 'experimentanalysis.html')) {
+        ret += '<p>Analyze Experiment in ExperimentAnalysis:<br />'
+        ret += '<a href="' + apiLink + "experimentanalysis.html?UUID=" + uuuid + ';TAB=runs-tab'
         ret += experiment + run + '" target="_blank">'
-        ret += apiLink  + "experimentanalyze.html?UUID=" + uuuid + ';TAB=runs-tab'
+        ret += apiLink  + "experimentanalysis.html?UUID=" + uuuid + ';TAB=runs-tab'
         ret += experiment + run + '</a> (valid for 3 days)\n<br />\n</p>\n'
     }
     if (!(toolhtml == 'runview.html')) {
@@ -979,7 +975,7 @@ function updateClientData() {
     }
 
     // The UUID box
-    var ret = '<br />' + createLinkBox(`${API_LINK}`, `${API_URL}`, 'runanalyze.html', window.uuid, window.isvalid, window.selExperiment, window.selRun);
+    var ret = '<br />' + createLinkBox(`${API_LINK}`, `${API_URL}`, 'runanalysis.html', window.uuid, window.isvalid, window.selExperiment, window.selRun);
     if (window.isvalid == "invalid") {
         resultError.innerHTML = '<i class="fas fa-fire"></i>\n<span id="error-message">' +
         'Error: Uploaded file is not valid RDML!</span>'
@@ -1794,7 +1790,10 @@ function updateLinRegPCRTable() {
                 ret += "\", \"" + window.linRegPCRTable[row][0] + "\")'> \n"  // "id"
                 htmlTag = 'td'
             }
-            for (var col = 0; col < 7; col++) { // "id" - "target chemistry"
+            for (var col = 0; col < 6; col++) { // "id" - "target"
+                if (col == 4) {
+                    continue
+                }
                 ret += '<' + htmlTag + '>' + window.linRegPCRTable[row][col] + '</' + htmlTag + '>\n'
                 content += window.linRegPCRTable[row][col] + "\t"
             }
@@ -1840,40 +1839,45 @@ function updateLinRegPCRTable() {
             }
             content += NumPoint(window.linRegPCRTable[row][21]) + "\t"  // "indiv PCR eff"
             if (row == 0) {
-                ret += '<th>' + window.linRegPCRTable[row][meanCol] + '</th>\n'
+                ret += '<th>mean PCR eff</th>\n'
+                content += "mean PCR eff\t"
             } else {
                 ret += '<td' + highlight_meanPCREff + '>'
                 ret += floatWithPrec(window.linRegPCRTable[row][meanCol], 1000) + '</td>\n'
+                content += NumPoint(window.linRegPCRTable[row][meanCol]) + "\t"
             }
-            content += NumPoint(window.linRegPCRTable[row][meanCol]) + "\t"
             if (row == 0) {
-                ret += '<th>' + window.linRegPCRTable[row][meanCol + 1] + '</th>\n'
+                ret += '<th>standard error of mean PCR eff</th>\n'
+                content += "standard error of mean PCR eff\t"
             } else {
                 ret += '<td' + highlight_meanPCREff + '>'
                 ret += floatWithPrec(window.linRegPCRTable[row][meanCol + 1], 1000) + '</td>\n'
+                content += NumPoint(window.linRegPCRTable[row][meanCol + 1]) + "\t"
             }
-            content += NumPoint(window.linRegPCRTable[row][meanCol + 1]) + "\t"
             if (row == 0) {
-                ret += '<th>' + window.linRegPCRTable[row][meanCol + 4] + '</th>\n'
+                ret += '<th>Cq</th>\n'
+                content += "Cq\t"
             } else {
                 ret += '<td' + highlight_meanCq + '>'
                 ret += floatWithPrec(window.linRegPCRTable[row][meanCol + 4], 1000) + '</td>\n'
+                content += NumPoint(window.linRegPCRTable[row][meanCol + 4]) + "\t"
             }
-            content += NumPoint(window.linRegPCRTable[row][meanCol + 4]) + "\t"
             if (row == 0) {
-                ret += '<th>' + window.linRegPCRTable[row][meanCol + 3] + '</th>\n'
+                ret += '<th>N0</th>\n'
+                content += "N0\t"
             } else {
                 ret += '<td' + highlight_meanN0 + '>'
                 ret += floatWithExPrec(window.linRegPCRTable[row][meanCol + 3], 2) + '</td>\n'
+                content += NumPoint(window.linRegPCRTable[row][meanCol + 3]) + "\t"
             }
-            content += NumPoint(window.linRegPCRTable[row][meanCol + 3]) + "\t"
             if (row == 0) {
-                ret += '<th>' + window.linRegPCRTable[row][meanCol + 2] + '</th>\n'
+                ret += '<th>Ncopy</th>\n'
+                content += "Ncopy\t"
             } else {
                 ret += '<td' + highlight_meanN0 + '>'
                 ret += floatWithPrec(window.linRegPCRTable[row][meanCol + 2], 100) + '</td>\n'
+                content += NumPoint(window.linRegPCRTable[row][meanCol + 2]) + "\t"
             }
-            content += NumPoint(window.linRegPCRTable[row][meanCol + 2]) + "\t" 
             if (row == 0) {
                 ret += '<th>' + window.linRegPCRTable[row][57] + '</th>\n'  // "amplification"
                 content += window.linRegPCRTable[row][57] + "\t"  // "amplification"
@@ -1940,8 +1944,8 @@ function updateLinRegPCRTable() {
                 }
             }
             if (row == 0) {
-                ret += '<th>' + window.linRegPCRTable[row][effErrCol] + '</th>\n'  // "PCR Efficiency"
-                content += window.linRegPCRTable[row][effErrCol] + "\t"
+                ret += '<th>' + window.linRegPCRTable[row][effErrCol].replace(" - no plateau" , "") + '</th>\n'  // "PCR Efficiency"
+                content += window.linRegPCRTable[row][effErrCol].replace(" - no plateau" , "") + "\t"
             } else {
                 ret += '<td' + highlight_ErrEffOutside + '>'
                 if (window.linRegPCRTable[row][effErrCol] == true) {

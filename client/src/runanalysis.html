@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <title>RDML-RunAnalyze | GEAR</title>
+  <title>RDML-RunAnalysis | GEAR</title>
   <meta name="description" content="Analyzes single runs of a RDML file.">
   <link rel="stylesheet" href="static/libs/bootstrap/4.0.0/css/bootstrap.min.css" crossorigin="anonymous">
   <link rel="stylesheet" href="static/libs/fontawesome-free-6.2.1-web/css/all.min.css">
@@ -15,7 +15,7 @@
 
   <header class="px-0 py-4">
     <div class="container">
-      <h1 class="display-4 app-name">RDML-RunAnalyze</h1>
+      <h1 class="display-4 app-name">RDML-RunAnalysis</h1>
         <p class="lead">Analyzes single runs of a RDML file.</p>
         <a class="plain" href="help.html" target="_blank">
           <i class="fas fa-question"></i> Get help
@@ -102,11 +102,17 @@
       </div>
 
       <div class="tab-pane" id="linregpcr-tab">
-        <table style="width:100%;background-color: #e6e6e6;">
+        <table style="width:100%;">
           <tr>
             <td style="width:1%;"></td>
-            <td style="width:47%;">PCR efficiency range for excluding samples from mean efficiency calculation:</td>
-            <td style="width:7%;"><input type="text" class="form-control" value="0.05" id="text-exl-men-eff"></td>
+            <td style="width:47%;"> Excluding samples with diverging individual PCR efficiency:</td>
+            <td style="width:7%;">
+              <select class="form-control" id="choiceExcludeEfficiency">
+                <option value="outlier" selected>exclude outliers (recommended)</option>
+                <option value="mean">exclude outside median range (classic)</option>
+                <option value="include">include all</option>
+              </select>
+            </td>
             <td style="width:2%;"></td>
             <td style="width:4%;"></td>
             <td style="width:14%;">Update RDML Data:</td>
@@ -116,8 +122,7 @@
                 <option value="n">no</option>
               </select>
             </td>
-            <td style="width:4%;"></td>
-            <td style="width:14%;text-align: right;">
+            <td style="width:18%;text-align: right;">
               <button type="submit" class="btn btn-outline-primary" id="btn-linregpcr">
                 <i class="fas fa-rocket" style="margin-right: 5px;"></i>
                 Run AmplificationCurveAnalysis
@@ -126,7 +131,7 @@
             <td style="width:1%;"></td>
           </tr>
         </table>
-        <table style="width:100%;background-color: #e6e6e6;" id="tab-optional-grey">
+        <table style="width:100%;" id="tab-optional-grey">
           <tr>
             <td style="width:1%;"></td>
             <td style="width:26%;">Exclude from mean efficiency calculation:</td>
@@ -138,38 +143,44 @@
               </select>
             </td>
             <td style="width:7%;"></td>
-            <td style="width:18%;">Diverging individual PCR efficiency:</td>
-            <td style="width:20%;">
-              <select class="form-control" id="choiceExcludeEfficiency">
-                <option value="outlier" selected>exclude outliers (recommended)</option>
-                <option value="mean">exclude outside median range (classic)</option>
-                <option value="include">include all</option>
-              </select>
+            <td style="width:14%;">PCR median efficiency range:</td>
+            <td style="width:6%;"><input type="text" class="form-control" value="0.05" id="text-exl-men-eff"></td>
+            <td style="width:18%;text-align: right;">
+              <button type="submit" class="btn btn-outline-primary" id="btn-rdml-linregpcr">
+                <i class="far fa-save" style="margin-right: 5px;"></i>
+                Save RDML
+              </button>
             </td>
             <td style="width:1%;"></td>
           </tr>
         </table>
         <table style="width:100%;">
           <tr>
-            <td style="width:1%;background-color: #e6e6e6;"></td>
-            <td style="width:26%;background-color: #e6e6e6;">Exclude from calculations:</td>
-            <td style="width:21%;background-color: #e6e6e6;">Samples with unstable baseline:</td>
-            <td style="width:6%;background-color: #e6e6e6;">
+            <td style="width:1%;"></td>
+            <td style="width:26%;">Exclude from calculations:</td>
+            <td style="width:21%;">Samples with unstable baseline:</td>
+            <td style="width:6%;">
               <select class="form-control" id="choiceExcludeUnstableBaseline">
                 <option value="y" selected>yes</option>
                 <option value="n">no</option>
               </select>
             </td>
-            <td style="width:3%;background-color: #e6e6e6;"></td>
-            <td style="width:4%;background-color: #e6e6e6;"></td>
-            <td style="width:18%;background-color: #e6e6e6;">Update Target PCR Efficiency:</td>
-            <td style="width:20%;background-color: #e6e6e6;">
+            <td style="width:3%;"></td>
+            <td style="width:4%;"></td>
+            <td style="width:14%;">Update Target PCR Efficiency:</td>
+            <td style="width:6%;">
               <select class="form-control" id="choiceUpdateTarget">
                 <option value="y">yes</option>
                 <option value="n" selected>no</option>
               </select>
             </td>
-            <td style="width:1%;background-color: #e6e6e6;"></td>
+            <td style="width:18%;text-align: right;">
+              <button type="submit" class="btn btn-outline-primary" id="btn-copy-linregpcr">
+                <i class="fas fa-paste" style="margin-right: 5px;"></i>
+                Copy table to clipboard
+              </button>
+            </td>
+            <td style="width:1%;"></td>
           </tr>
         </table>
         <table style="width:100%;">
@@ -199,21 +210,6 @@
               </select>
             </td>
             <td style="width:18%;text-align: right;">
-              <button type="submit" class="btn btn-outline-primary" id="btn-rdml-linregpcr">
-                <i class="far fa-save" style="margin-right: 5px;"></i>
-                Save RDML
-              </button>
-            </td>
-            <td style="width:1%;"></td>
-          </tr>
-        </table>
-        <table style="width:100%;">
-            <td style="width:61%;"></td>
-            <td style="width:38%;text-align: right;">
-              <button type="submit" class="btn btn-outline-primary" id="btn-copy-linregpcr">
-                <i class="fas fa-paste" style="margin-right: 5px;"></i>
-                Copy table to clipboard
-              </button>&nbsp;&nbsp;
               <button type="submit" class="btn btn-outline-primary" id="btn-save-linregpcr">
                 <i class="far fa-save" style="margin-right: 5px;"></i>
                 Save table as CSV
@@ -233,7 +229,7 @@
         <table style="width:100%;">
           <tr>
             <td style="width:1%;"></td>
-            <td style="width:12%;">Baseline Correction:</td>
+            <td style="width:12%;">Normalisation:</td>
             <td style="width:14%;">
               <select class="form-control" id="mcaNormMethod">
                 <option value="exponential" selected>exponential</option>
@@ -301,7 +297,7 @@
         <table style="width:100%;margin-top:0.7em;margin-bottom:0.7em;">
           <tr>
             <td style="width:1%;"></td>
-            <td style="width:20%;">Baseline Correction Parameters: </td>
+            <td style="width:20%;">Normalisation Parameters: </td>
             <td style="width:8%;">Exponential:</td>
             <td style="width:2%;">Low:</td>
             <td style="width:5%;"><input type="text" class="form-control" value="65.0" id="mcaExpLow"></td>
@@ -398,14 +394,14 @@
 
       <div class="tab-pane" id="help-tab">
         <h4>Application Description</h4>
-        <p> RDML-RunAnalyze is a tool to view single runs of a RDML files. Once the RDML file was loaded, the desired experiment
-            and run have to be selected. RDML-RunAnalyze will display the plate setup and, with classic qPCR, the amplification-
+        <p> RDML-RunAnalysis is a tool to view single runs of a RDML files. Once the RDML file was loaded, the desired experiment
+            and run have to be selected. RDML-RunAnalysis will display the plate setup and, with classic qPCR, the amplification-
             or meltcurves. A well / reaction can be selected which will highlight the corresponding curve. If a curve is
             selected, the corresponding reaction will be highlighted. Meltcurves can be easily inspected if the color coding
             is set to target. Setting the color coding to type allows eases the inspection of amplification curves.
         </p>
         <p> More help information is available in
-            <a href="help.html#RDML-RunAnalyze" target="_blank">RDML-Tools Help</a>.
+            <a href="help.html#RDML-RunAnalysis" target="_blank">RDML-Tools Help</a>.
         </p>
         <h4>Accepted Input</h4>
         <p> The RDML files can be provided in rdml or xml format (*.rdml, *.rdm,
@@ -429,7 +425,7 @@
         </p>
         <h4>More Help</h4>
         <p> A general help file is available as
-            <a href="help.html#RDML-RunAnalyze" target="_blank">RDML-Tools Help</a>.
+            <a href="help.html#RDML-RunAnalysis" target="_blank">RDML-Tools Help</a>.
         </p>
       </div>
 
@@ -474,7 +470,7 @@
 
   <script type="module" src="static/libs/bootstrap/4.0.0/js/bootstrap.min.js" crossorigin="anonymous"></script>
   <script src="static/libs/axios-0.27.0.min.js"></script>
-  <script type="module" src="static/js/rdml_runanalyze.js"></script>
+  <script type="module" src="static/js/rdml_runanalysis.js"></script>
 
 </body>
 

@@ -71,7 +71,7 @@
         <li><a href="#RDML-Validate">2.6. RDML-Validate</a></li>
         </ul>
       </li>
-      <li><a href="#RDML-RunAnalyze">3. RDML-RunAnalyze</a>
+      <li><a href="#RDML-RunAnalysis">3. RDML-RunAnalysis</a>
         <ul>
           <li><a href="#LRP-Introduction">3.1. Introduction</a></li>
           <li><a href="#LRP-Warning">3.2. A Word of Caution</a></li>
@@ -95,10 +95,10 @@
           <li><a href="#LRP-WoL-Threshold">3.8. Window-of-Linearity and Quantification Threshold</a></li>
           <li><a href="#LRP-Diff-Pascal">3.9. Differences Between Pascal and Python Version</a></li>
           <li><a href="#LRP-Prepare-RDML">3.10. Importance of the information in RDML files</a></li>
-          <li><a href="#LRP-Run">3.11. Run RunAnalyze</a></li>
+          <li><a href="#LRP-Run">3.11. Run RunAnalysis</a></li>
         </ul>
       </li>
-      <li><a href="#RDML-ExperimentAnalyze">4. RDML-ExperimentAnalyze</a>
+      <li><a href="#RDML-ExperimentAnalysis">4. RDML-ExperimentAnalysis</a>
         <ul>
           <li><a href="#ANA-Introduction">4.1. Introduction</a></li>
           <li><a href="#ANA-Plate-Correct">4.2. InterRunCorrection</a></li>
@@ -132,7 +132,7 @@
       <a href="https://github.com/RDML-consortium/rdmlpython" target="_blank">RDML-Python library</a>, designed to
       create and handle RDML files and their dependencies. The
       <a href="https://github.com/RDML-consortium/rdmlpython" target="_blank">RDML-Python library</a> also offers
-      advanced analysis programs like <a href="#RDML-RunAnalyze">RunAnalyze</a> and MeltCurveAnalysis MeltCurveAnalysis
+      advanced analysis programs like <a href="#RDML-RunAnalysis">RunAnalysis</a> and MeltCurveAnalysis MeltCurveAnalysis
       to analyze the fluorescence data in the RDML files and provide biological or clinical results.
       <br />
       <br />
@@ -253,7 +253,7 @@
     rdmlpython --experiment exp_1 --listrun data.rdml
     </pre>
 
-    <p class="regBottom">Run RunAnalyze on file data.rdml and save the modified file in data_out.rdml and the
+    <p class="regBottom">Run RunAnalysis on file data.rdml and save the modified file in data_out.rdml and the
       analysis results to results.csv:</p>
     <pre>
     rdmlpython -lrp data.rdml -o data_out.rdml --saveResults results.csv
@@ -261,7 +261,7 @@
     </pre>
     <p class="regBottom" style="text-align: justify">
       With the latter command, the analysis results are stored in a (large) tab-separated table results.csv that
-      can be opened in spreadsheet programs like Excel or Calc. By default RunAnalyze will only work on the first run
+      can be opened in spreadsheet programs like Excel or Calc. By default RunAnalysis will only work on the first run
       of the first experiment. You may select a different experiment with the -e option and a different run with the -r
       option. The option --excludeNoPlateau allows to exclude reactions with no plateau phase from the mean PCR efficiency
       calculation. The option --excludeEfficiency can be "outlier", "mean" or "include". With --excludeEfficiency
@@ -272,7 +272,7 @@
       outliers based on a Grubbs's test will be excluded from mean PCR efficiency calculation (recommended and the
       default option). The option --saveRaw raw_data.csv creates the table raw_data.csv with the raw fluorescence data.
       The option --saveBaslineCorr baseline_corrected.csv creates the table baseline_corrected.csv with the baseline
-      corrected fluorescence data. See <a href="#RDML-RunAnalyze">3. RDML-RunAnalyze</a> for details on those options.
+      corrected fluorescence data. See <a href="#RDML-RunAnalysis">3. RDML-RunAnalysis</a> for details on those options.
     </p>
 
     <b>Using the Python Library</b><br />
@@ -295,7 +295,7 @@
     cli_resValidate = cli_validate.validate(filename="test_2_raw_data.rdml")
     print(cli_resValidate)
 
-    # Run RunAnalyze
+    # Run RunAnalysis
     cli_linRegPCR = rdml.Rdml("test_2_raw_data.rdml")
     cli_expList = cli_linRegPCR.experiments()
     cli_exp = cli_expList[0]
@@ -316,7 +316,7 @@
     <h5 id="Acknowledgements">1.6. Acknowledgement</h5>
     <p style="text-align: justify">
       We wish to thank Quinn Gunst and Jaco Hagoort (Department of Medical Biology, Amsterdam UMC, location, AMC,
-      Amsterdam) for their advice and support while preparing the RDML-RunAnalyze program.
+      Amsterdam) for their advice and support while preparing the RDML-RunAnalysis program.
     </p>
 
 
@@ -342,7 +342,7 @@
       Several tools are available to create, edit, reformat and validate RDML files. <a href="#RDML-Edit">RDML-Edit</a>
       is the main tool to view and edit RDML data up to the run level. Selected runs
       can be visualized with <a href="#RDML-RunView">RDML-RunView</a> or analyzed with
-      <a href="#RDML-RunAnalyze">RDML-RunAnalyze</a>. With classic qPCR the amplification-
+      <a href="#RDML-RunAnalysis">RDML-RunAnalysis</a>. With classic qPCR the amplification-
       or meltcurves are displayed, with digital PCR the positive and negative counts are shown.
       <a href="#RDML-TableShaper">RDML-TableShaper</a> helps to reformat exported files from machines lacking RDML
       support. <a href="#RDML-Validate">RDML-Validate</a> validates a RDML file against the corresponding schema.
@@ -465,7 +465,7 @@
     </p>
 
 
-    <h4 id="RDML-RunAnalyze">3. RDML-RunAnalyze</h4>
+    <h4 id="RDML-RunAnalysis">3. RDML-RunAnalysis</h4>
     <ul>
       <li><a href="#LRP-Introduction">3.1. Introduction</a></li>
       <li><a href="#LRP-Warning">3.2. A Word of Caution</a></li>
@@ -489,11 +489,11 @@
       <li><a href="#LRP-WoL-Threshold">3.8. Window-of-Linearity and Quantification Threshold</a></li>
       <li><a href="#LRP-Diff-Pascal">3.9. Differences Between Pascal and Python Version</a></li>
       <li><a href="#LRP-Prepare-RDML">3.10. Importance of the information in RDML files</a></li>
-      <li><a href="#LRP-Run">3.11. Run RunAnalyze</a></li>
+      <li><a href="#LRP-Run">3.11. Run RunAnalysis</a></li>
     </ul>
     <h5 id="LRP-Introduction">3.1. Introduction</h5>
     <p style="text-align: justify">
-      RunAnalyze is a program based on LinRegPCR for the analysis of real time PCR Data, also called quantitative PCR (qPCR) data. The
+      RunAnalysis is a program based on LinRegPCR for the analysis of real time PCR Data, also called quantitative PCR (qPCR) data. The
       program uses non-baseline corrected data, performs a baseline correction on each reaction separately, determines
       a window-of-linearity in the exponential phase and then uses linear regression analysis to determine the PCR
       efficiency per reaction from the slope of the regression line fitted to the selection of data points. The mean
@@ -874,7 +874,7 @@
       Different monitoring chemistries require different Cq corrections which makes it of importance to use RDML-Edit
       to update the respective dye element.
     </p>
-    <h5 id="LRP-Run">3.11. Run RunAnalyze</h5>
+    <h5 id="LRP-Run">3.11. Run RunAnalysis</h5>
     <p style="text-align: justify">
             LinRegPCR depends on correctly annotated RDML files, see "How to Prepare RDML files" and section 2 for details.
       As described before, the LinRegPCR program is used for the calculation of the starting concentration
@@ -929,7 +929,7 @@
     </p>
 
 
-    <h4 id="RDML-ExperimentAnalyze">4. RDML-ExperimentAnalyze</h4>
+    <h4 id="RDML-ExperimentAnalysis">4. RDML-ExperimentAnalysis</h4>
         <ul>
           <li><a href="#ANA-Introduction">4.1. Introduction</a></li>
           <li><a href="#ANA-Plate-Correct">4.2. InterRunCorrection</a></li>
@@ -937,7 +937,7 @@
         </ul>
     <h5 id="ANA-Introduction">4.1. Introduction</h5>
     <p style="text-align: justify">
-      RDML-ExperimentAnalyze is a program for the analysis of an qPCR experiment after N0 values have been calculated. The N0
+      RDML-ExperimentAnalysis is a program for the analysis of an qPCR experiment after N0 values have been calculated. The N0
       values can be calculated for each run using RDML-LinRegPCR.
     </p>
 
@@ -992,7 +992,7 @@
       analysis results. The developers of this application cannot be held responsible for any consequences of the
       use of this program. Please read the
       <a class="plain" target="_blank" href="https://www.gear-genomics.com/terms">Terms of Use</a>
-      before using RDML-ExperimentAnalyze and please obey to the requirements.
+      before using RDML-ExperimentAnalysis and please obey to the requirements.
     </p>
 
     <h5 id="ANA-Absolute-Quan">4.3. AbsoluteQuantification</h5>
@@ -1056,7 +1056,7 @@
       analysis results. The developers of this application cannot be held responsible for any consequences of the
       use of this program. Please read the
       <a class="plain" target="_blank" href="https://www.gear-genomics.com/terms">Terms of Use</a>
-      before using RDML-ExperimentAnalyze and please obey to the requirements.
+      before using RDML-ExperimentAnalysis and please obey to the requirements.
     </p>
 
 
@@ -1120,8 +1120,8 @@ TGGAGTAATGATGGAACAGGG
       ATCACCATTATCAAAGTTCTAGAAAGGGCATGACAAGATCGTTCAGGGATGTTTTGCAGAACCCCTGTTCCATCATTACTCCA
     </p>
     <p style="text-align: justify">
-      Use RDML-Edit to provide the amplicon sequence in the target information to allow RDML-ExperimentAnalyze to compensate 
-      for the amplicon length. Without compensation (and in RDML-RunAnalyze) the Ncopy will be 3108 copies instead 
+      Use RDML-Edit to provide the amplicon sequence in the target information to allow RDML-ExperimentAnalysis to compensate
+      for the amplicon length. Without compensation (and in RDML-RunAnalysis) the Ncopy will be 3108 copies instead
       of the expected 1200 copies.
     </p>
 

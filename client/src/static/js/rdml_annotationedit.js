@@ -421,18 +421,18 @@ function createLinkBox(apiLink, apiURL, toolhtml, uuuid, valid, experiment = "",
         ret += apiLink  + "annotationedit.html?UUID=" + uuuid + ';TAB=runs-tab'
         ret += experiment + run + '</a> (valid for 3 days)\n<br />\n</p>\n'
     }
-    if (!(toolhtml == 'runanalyze.html')) {
-        ret += '<p>Analyze Run in LinRegPCR:<br />'
-        ret += '<a href="' + apiLink + "runanalyze.html?UUID=" + uuuid + ';TAB=runs-tab'
+    if (!(toolhtml == 'runanalysis.html')) {
+        ret += '<p>Analyze Run in RunAnalysis:<br />'
+        ret += '<a href="' + apiLink + "runanalysis.html?UUID=" + uuuid + ';TAB=runs-tab'
         ret += experiment + run + '" target="_blank">'
-        ret += apiLink  + "runanalyze.html?UUID=" + uuuid + ';TAB=runs-tab'
+        ret += apiLink  + "runanalysis.html?UUID=" + uuuid + ';TAB=runs-tab'
         ret += experiment + run + '</a> (valid for 3 days)\n<br />\n</p>\n'
     }
-    if (!(toolhtml == 'experimentanalyze.html')) {
-        ret += '<p>Analyze Experiment in RDML-Analyze:<br />'
-        ret += '<a href="' + apiLink + "experimentanalyze.html?UUID=" + uuuid + ';TAB=runs-tab'
+    if (!(toolhtml == 'experimentanalysis.html')) {
+        ret += '<p>Analyze Experiment in ExperimentAnalysis:<br />'
+        ret += '<a href="' + apiLink + "experimentanalysis.html?UUID=" + uuuid + ';TAB=runs-tab'
         ret += experiment + run + '" target="_blank">'
-        ret += apiLink  + "experimentanalyze.html?UUID=" + uuuid + ';TAB=runs-tab'
+        ret += apiLink  + "experimentanalysis.html?UUID=" + uuuid + ';TAB=runs-tab'
         ret += experiment + run + '</a> (valid for 3 days)\n<br />\n</p>\n'
     }
     if (!(toolhtml == 'runview.html')) {

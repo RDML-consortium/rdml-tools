@@ -599,18 +599,18 @@ function createLinkBox(apiLink, apiURL, toolhtml, uuuid, valid, experiment = "",
         ret += apiLink  + "annotationedit.html?UUID=" + uuuid + ';TAB=runs-tab'
         ret += experiment + run + '</a> (valid for 3 days)\n<br />\n</p>\n'
     }
-    if (!(toolhtml == 'runanalyze.html')) {
-        ret += '<p>Analyze Run in LinRegPCR:<br />'
-        ret += '<a href="' + apiLink + "runanalyze.html?UUID=" + uuuid + ';TAB=runs-tab'
+    if (!(toolhtml == 'runanalysis.html')) {
+        ret += '<p>Analyze Run in RunAnalysis:<br />'
+        ret += '<a href="' + apiLink + "runanalysis.html?UUID=" + uuuid + ';TAB=runs-tab'
         ret += experiment + run + '" target="_blank">'
-        ret += apiLink  + "runanalyze.html?UUID=" + uuuid + ';TAB=runs-tab'
+        ret += apiLink  + "runanalysis.html?UUID=" + uuuid + ';TAB=runs-tab'
         ret += experiment + run + '</a> (valid for 3 days)\n<br />\n</p>\n'
     }
-    if (!(toolhtml == 'experimentanalyze.html')) {
-        ret += '<p>Analyze Experiment in RDML-Analyze:<br />'
-        ret += '<a href="' + apiLink + "experimentanalyze.html?UUID=" + uuuid + ';TAB=runs-tab'
+    if (!(toolhtml == 'experimentanalysis.html')) {
+        ret += '<p>Analyze Experiment in ExperimentAnalysis:<br />'
+        ret += '<a href="' + apiLink + "experimentanalysis.html?UUID=" + uuuid + ';TAB=runs-tab'
         ret += experiment + run + '" target="_blank">'
-        ret += apiLink  + "experimentanalyze.html?UUID=" + uuuid + ';TAB=runs-tab'
+        ret += apiLink  + "experimentanalysis.html?UUID=" + uuuid + ';TAB=runs-tab'
         ret += experiment + run + '</a> (valid for 3 days)\n<br />\n</p>\n'
     }
     if (!(toolhtml == 'runview.html')) {
@@ -747,9 +747,9 @@ function updateClientData() {
                 ret += '  <tr>\n    <td style="width:25%;">Number of Reactions:</td>\n'
                 ret += '    <td style="width:75%">\n'+ runs[s].react + '</td>\n'
                 ret += '  </tr>\n</table>'
-                ret += '<a href="' + `${API_LINK}` + "runanalyze.html?UUID=" + window.uuid + ';TAB=runs-tab'
+                ret += '<a href="' + `${API_LINK}` + "runanalysis.html?UUID=" + window.uuid + ';TAB=runs-tab'
                 ret += ';EXP=' + encodeURIComponent(exp[i].id) + ';RUN=' + encodeURIComponent(runs[s].id) + '" '
-                ret += 'target="_blank">Analyze Run in LinRegPCR</a><br />\n'
+                ret += 'target="_blank">Analyze Run in RunAnalysis</a><br />\n'
                 ret += '</p>\n'
 
                 var k = 0
@@ -1510,16 +1510,6 @@ function updateClientData() {
             ret += '    <td style="width:75%"><input type="text" class="form-control" '
             ret += 'id="inTarId" value="'+ exp[i].id + '"></td>\n'
             ret += '  </tr>'
-            ret += '  <tr>\n    <td style="width:25%;">Method of modification:</td>\n'
-            ret += '    <td style="width:75%"><select class="form-control" id="inTarIdUnique">\n'
-            ret += '        <option value=false selected>Id must be unique and will be renamed</option>\n'
-            ret += '        <option value=true>Change all its uses to existing Id (dangerous - may corrupt data)</option>\n'
-            ret += '      </select></td>\n'
-            ret += '  </tr>'
-            ret += '  <tr>\n    <td style="width:25%;">Place at Position:</td>\n'
-            ret += '    <td style="width:75%"><input type="text" class="form-control" '
-            ret += 'id="inPos" value="' + (i + 1) + '"></td>\n'
-            ret += '  </tr>'
             ret += '  <tr>\n    <td style="width:25%;background-color:#cc7a00;">Type:</td>\n'
             ret += '    <td style="width:75%"><select class="form-control" id="inTarType">\n'
             ret += '        <option value="ref"'
@@ -1548,6 +1538,12 @@ function updateClientData() {
             }
             ret += '</select>\n</td>\n'
             ret += '  </tr>'
+            if (["1.3", "1.4"].includes(window.rdmlData.rdml.version)) {
+                ret += '  <tr>\n    <td style="width:25%;">MeltingTemperature:</td>\n'
+                ret += '    <td style="width:75%"><input type="text" class="form-control" '
+                ret += 'id="inTarMeltingTemperature" value="'+ saveUndef(exp[i].meltingTemperature) + '"></td>\n'
+                ret += '  </tr>'
+            }
             ret += '  <tr>\n    <td style="width:25%;">' + 'Forward Primer - Sequence:</td>\n'
             ret += '    <td style="width:75%"><input type="text" class="form-control" id="inTarSequences_forwardPrimer_sequence" value="'
             if (exp[i].hasOwnProperty("sequences")) {
@@ -1601,12 +1597,6 @@ function updateClientData() {
             ret += ' <button type="button" onclick="setNAmpliconSeq();">Add number of N as Amplicon Seq.</button>&nbsp;&nbsp;'
             ret += ' <button type="button" onclick="cleanAmpliconSeq();">Clean Amplicon Seq.</button></td>\n</tr>\n</table>  </tr>'
             ret += '  </tr>'
-            if (["1.3", "1.4"].includes(window.rdmlData.rdml.version)) {
-                ret += '  <tr>\n    <td style="width:25%;">MeltingTemperature:</td>\n'
-                ret += '    <td style="width:75%"><input type="text" class="form-control" '
-                ret += 'id="inTarMeltingTemperature" value="'+ saveUndef(exp[i].meltingTemperature) + '"></td>\n'
-                ret += '  </tr>'
-            }
             ret += '</table></p>\n'
             ret += '<button type="button" class="btn btn-success" '
             ret += 'onclick="saveEditElement(\'target\', ' + i + ', \'' + exp[i].id + '\');">Save Changes</button>'
@@ -1616,6 +1606,16 @@ function updateClientData() {
 
             ret += '<h5 class="card-title">Advanced:</h5>\n'
             ret += '<p><table style="width:100%;">'
+            ret += '  <tr>\n    <td style="width:25%;">Method of modification:</td>\n'
+            ret += '    <td style="width:75%"><select class="form-control" id="inTarIdUnique">\n'
+            ret += '        <option value=false selected>Id must be unique and will be renamed</option>\n'
+            ret += '        <option value=true>Change all its uses to existing Id (dangerous - may corrupt data)</option>\n'
+            ret += '      </select></td>\n'
+            ret += '  </tr>'
+            ret += '  <tr>\n    <td style="width:25%;">Place at Position:</td>\n'
+            ret += '    <td style="width:75%"><input type="text" class="form-control" '
+            ret += 'id="inPos" value="' + (i + 1) + '"></td>\n'
+            ret += '  </tr>'
             ret += '  <tr>\n    <td style="width:25%;">Description:</td>\n'
             ret += '    <td style="width:75%"><input type="text" class="form-control" '
             ret += 'id="inTarDescription" value="'+ saveUndef(exp[i].description) + '"></td>\n'
@@ -3788,9 +3788,10 @@ function newEditRun(prim_pos, sec_pos, exp) {
     ret += '    <td style="width:75%"><input type="text" class="form-control" '
     ret += 'id="inRunId" value="'+ id_val + '"></td>\n'
     ret += '  </tr>'
-    ret += '  <tr>\n    <td style="width:25%;">Place at Position:</td>\n'
-    ret += '    <td style="width:75%"><input type="text" class="form-control" '
-    ret += 'id="inRunPos" value="' + (sec_pos + 1) + '"></td>\n'
+    ret += '  <tr>\n    <td style="width:25%;background-color:#ffcc99;">PCR Format - Predefined:</td>\n'
+    ret += '    <td style="width:75%"><button type="button" onclick="selPlate_Rotor();">Rotor</button>&nbsp;&nbsp;'
+    ret += ' <button type="button" onclick="selPlate_96_Well();">96 Well Plate</button>&nbsp;&nbsp;'
+    ret += ' <button type="button" onclick="selPlate_384_Well();">384 Well Plate</button></td>\n'
     ret += '  </tr>'
     ret += '  <tr>\n    <td style="width:25%;background-color:#ffcc99;">PCR Format - Columns:</td>\n'
     ret += '    <td style="width:75%">\n<input type="text" class="form-control" '
@@ -3840,11 +3841,6 @@ function newEditRun(prim_pos, sec_pos, exp) {
     ret += '>A1a1</option>\n'
     ret += '      </select></td>\n'
     ret += '  </tr>'
-    ret += '  <tr>\n    <td style="width:25%;background-color:#ffcc99;">PCR Format - Predefined:</td>\n'
-    ret += '    <td style="width:75%"><button type="button" onclick="selPlate_Rotor();">Rotor</button>&nbsp;&nbsp;'
-    ret += ' <button type="button" onclick="selPlate_96_Well();">96 Well Plate</button>&nbsp;&nbsp;'
-    ret += ' <button type="button" onclick="selPlate_384_Well();">384 Well Plate</button></td>\n'
-    ret += '  </tr>'
     ret += '  <tr>\n    <td style="width:25%;">Import Amplification RDES:</td>\n'
     ret += '    <td style="width:75%">\n<input type="file" class="form-control-file" id="inRunUploadAmplification"></td>\n'
     ret += '  </tr>'
@@ -3864,6 +3860,10 @@ function newEditRun(prim_pos, sec_pos, exp) {
 
     ret += '<h5 class="card-title">Advanced:</h5>\n'
     ret += '<p><table style="width:100%;">'
+    ret += '  <tr>\n    <td style="width:25%;">Place at Position:</td>\n'
+    ret += '    <td style="width:75%"><input type="text" class="form-control" '
+    ret += 'id="inRunPos" value="' + (sec_pos + 1) + '"></td>\n'
+    ret += '  </tr>'
     ret += '  <tr>\n    <td style="width:25%;">Thermal Cycling Conditions:</td>\n'
     ret += '    <td style="width:75%">\n'
     var cycProt = saveUndefKey(run, "thermalCyclingConditions")
