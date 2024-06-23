@@ -371,6 +371,9 @@ function checkForUUID() {
     var tab = ""
     var vExp = ""
     var vRun = ""
+    window.selRun = "";
+    window.selExperiment = "";
+    window.selRunOnLoad = "";
 
     var path = (window.location.search + "").replace(/^\?/, "") // .pathname decodeURIComponent(;
     path = path.replace(/&/g, ";")
@@ -947,6 +950,19 @@ function createLinkBox(apiLink, apiURL, toolhtml, uuuid, valid, experiment = "",
 
 window.updateClientData = updateClientData
 function updateClientData() {
+    if (!(window.rdmlData.hasOwnProperty("rdml"))) {
+        return
+    }
+    var exp = window.rdmlData.rdml.experiments;
+    if (window.selExperiment == "") {
+        window.selExperiment = exp[0].id;
+    }
+    if (window.selRun == "") {
+        var runs = exp[0].runs
+        if (runs.length > 0) {
+            window.selRunOnLoad = runs[0].id;
+        }
+    }
     if (window.selRunOnLoad != "") {
         window.selRun = window.selRunOnLoad
         if ((window.rdmlData.hasOwnProperty("rdml")) && (window.selExperiment != "") && (window.selRun != "")){
@@ -982,12 +998,6 @@ function updateClientData() {
         showElement(resultError)
     }
     resultLink.innerHTML = ret
-
-    if (!(window.rdmlData.hasOwnProperty("rdml"))) {
-        return
-    }
-    var ret = ''
-    var exp = window.rdmlData.rdml.experiments;
 
     ret = '<table style="width:100%;background-color: #e6e6e6;">'
     ret += '  <tr>\n    <td style="width:8%;">Experiment:</td>\n<td style="width:29%;">'

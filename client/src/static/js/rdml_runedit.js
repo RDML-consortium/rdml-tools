@@ -109,6 +109,9 @@ function checkForUUID() {
     var tab = ""
     var vExp = ""
     var vRun = ""
+    window.selRun = "";
+    window.selExperiment = "";
+    window.selRunOnLoad = "";
 
     var path = (window.location.search + "").replace(/^\?/, "") // .pathname decodeURIComponent(;
     path = path.replace(/&/g, ";")
@@ -218,6 +221,23 @@ function delAllCalculations() {
     updateServerData(window.uuid, JSON.stringify(ret))
 }
 
+window.delAllNotes = delAllNotes;
+function delAllNotes() {
+    var ret = {}
+    ret["mode"] = "run-ed-del-all-notes"
+    ret["sel-experiment"] = window.selExperiment
+    ret["sel-run"] = window.selRun
+    updateServerData(window.uuid, JSON.stringify(ret))
+}
+
+window.delAllErrors = delAllErrors;
+function delAllErrors() {
+    var ret = {}
+    ret["mode"] = "run-ed-del-all-errors"
+    ret["sel-experiment"] = window.selExperiment
+    ret["sel-run"] = window.selRun
+    updateServerData(window.uuid, JSON.stringify(ret))
+}
 
 window.replaceExcl = replaceExcl;
 function replaceExcl() {
@@ -445,6 +465,19 @@ function createLinkBox(apiLink, apiURL, toolhtml, uuuid, valid, experiment = "",
 
 window.updateClientData = updateClientData
 function updateClientData() {
+    if (!(window.rdmlData.hasOwnProperty("rdml"))) {
+        return
+    }
+    var exp = window.rdmlData.rdml.experiments;
+    if (window.selExperiment == "") {
+        window.selExperiment = exp[0].id;
+    }
+    if (window.selRun == "") {
+        var runs = exp[0].runs
+        if (runs.length > 0) {
+            window.selRunOnLoad = runs[0].id;
+        }
+    }
     if (window.selRunOnLoad != "") {
         window.selRun = window.selRunOnLoad
         if ((window.rdmlData.hasOwnProperty("rdml")) && (window.selExperiment != "") && (window.selRun != "")){
@@ -465,12 +498,6 @@ function updateClientData() {
         showElement(resultError)
     }
     resultLink.innerHTML = ret
-
-    if (!(window.rdmlData.hasOwnProperty("rdml"))) {
-        return
-    }
-    var ret = ''
-    var exp = window.rdmlData.rdml.experiments;
 
     ret = '<table style="width:100%;">'
     ret += '  <tr>\n    <td style="width:8%;">Experiment:</td>\n<td style="width:29%;">'
@@ -772,6 +799,16 @@ function updateClientData() {
         ret += 'onclick="delAllCalculations()">'
         ret += '      <i class="fas fa-rocket" style="margin-right: 5px;"></i>'
         ret += '        Delete All Calculation Results in Run'
+        ret += '    </button>&nbsp;'
+        ret += '<button type="submit" class="btn btn-outline-danger" '
+        ret += 'onclick="delAllNotes()">'
+        ret += '      <i class="fas fa-rocket" style="margin-right: 5px;"></i>'
+        ret += '        Delete All Notes in Run'
+        ret += '    </button>&nbsp;'
+        ret += '<button type="submit" class="btn btn-outline-danger" '
+        ret += 'onclick="delAllErrors()">'
+        ret += '      <i class="fas fa-rocket" style="margin-right: 5px;"></i>'
+        ret += '        Delete All Errors in Run'
         ret += '    </button><br /><br />'
         ret += '    Here you can view the exclusion remarks and from RDML version 1.3+ the'
         ret += '    notes of the RDML file. Any entry in exclusion will exclude this reaction/target combination '

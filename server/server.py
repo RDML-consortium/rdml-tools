@@ -538,6 +538,8 @@ def handle_data():
                 return jsonify(errors=[{"title": "Invalid server request - pcrFormat_rows missing!"}]), 400
             if "pcrFormat_rowLabel" not in request.form.keys():
                 return jsonify(errors=[{"title": "Invalid server request - pcrFormat_rowLabel missing!"}]), 400
+            if "defaultVolume" not in request.form.keys():
+                return jsonify(errors=[{"title": "Invalid server request - defaultVolume missing!"}]), 400
             if "tableDataFormat" not in request.form.keys():
                 return jsonify(errors=[{"title": "Invalid server request - tableDataFormat missing!"}]), 400
             if "tableData" not in request.form.keys():
@@ -571,6 +573,8 @@ def handle_data():
                     with open(tabMeltFilename, "w") as tabMelt:
                         tabMelt.write(request.form['tableData'])
                     run_ele.import_table(rd, tabMeltFilename, "melt")
+                if request.form["defaultVolume"] != "":
+                    run_ele.setReactionVolume(request.form["defaultVolume"])
             except rdml.RdmlError as err:
                 data["error"] = str(err)
 
@@ -2160,6 +2164,56 @@ def handle_data():
                 if s_run is None:
                     return jsonify(errors=[{"title": "Invalid server request - run id not found!"}]), 400
                 mess = s_run.remove_calculations()
+                if len(mess) > 0:
+                    errMess = ""
+                    for iMess in mess:
+                        errMess += iMess + " "
+                    data["error"] = errMess
+
+                data["reactsdata"] = s_run.getreactjson()
+            except rdml.RdmlError as err:
+                data["error"] = str(err)
+            else:
+                modified = True
+
+        if "mode" in reqdata and reqdata["mode"] in ["run-ed-del-all-notes"]:
+            if "sel-experiment" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - sel-experiment id missing!"}]), 400
+            if "sel-run" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - sel-run id missing!"}]), 400
+            try:
+                experiment = rd.get_experiment(byid=reqdata["sel-experiment"])
+                if experiment is None:
+                    return jsonify(errors=[{"title": "Invalid server request - experiment id not found!"}]), 400
+                s_run = experiment.get_run(byid=reqdata["sel-run"])
+                if s_run is None:
+                    return jsonify(errors=[{"title": "Invalid server request - run id not found!"}]), 400
+                mess = s_run.remove_notes()
+                if len(mess) > 0:
+                    errMess = ""
+                    for iMess in mess:
+                        errMess += iMess + " "
+                    data["error"] = errMess
+
+                data["reactsdata"] = s_run.getreactjson()
+            except rdml.RdmlError as err:
+                data["error"] = str(err)
+            else:
+                modified = True
+
+        if "mode" in reqdata and reqdata["mode"] in ["run-ed-del-all-errors"]:
+            if "sel-experiment" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - sel-experiment id missing!"}]), 400
+            if "sel-run" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - sel-run id missing!"}]), 400
+            try:
+                experiment = rd.get_experiment(byid=reqdata["sel-experiment"])
+                if experiment is None:
+                    return jsonify(errors=[{"title": "Invalid server request - experiment id not found!"}]), 400
+                s_run = experiment.get_run(byid=reqdata["sel-run"])
+                if s_run is None:
+                    return jsonify(errors=[{"title": "Invalid server request - run id not found!"}]), 400
+                mess = s_run.remove_errors()
                 if len(mess) > 0:
                     errMess = ""
                     for iMess in mess:

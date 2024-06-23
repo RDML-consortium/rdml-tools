@@ -88,6 +88,7 @@ function createServerRdml() {
     formData.append('pcrFormat_columnLabel', getSaveHtmlData('inRunPcrFormat_columnLabel'))
     formData.append('pcrFormat_rows', getSaveHtmlData('inRunPcrFormat_rows'))
     formData.append('pcrFormat_rowLabel', getSaveHtmlData('inRunPcrFormat_rowLabel'))
+    formData.append('defaultVolume', getSaveHtmlData('inRunDefaultVolume'))
     formData.append('tableDataFormat', getSaveHtmlData('modReformatAmpMelt'))
     formData.append('tableData', content)
 
@@ -1107,6 +1108,8 @@ function selPlate_Rotor(){
     row.value = "Enter maximal number of rotor positions here."
     var rowLab = document.getElementById('inRunPcrFormat_rowLabel');
     rowLab.value = "123"
+    var vol = document.getElementById('inRunDefaultVolume');
+    vol.value = "20.0"
     return;
 }
 
@@ -1121,6 +1124,8 @@ function selPlate_96_Well(){
     row.value = "8"
     var rowLab = document.getElementById('inRunPcrFormat_rowLabel');
     rowLab.value = "ABC"
+    var vol = document.getElementById('inRunDefaultVolume');
+    vol.value = "20.0"
     return;
 }
 
@@ -1135,6 +1140,8 @@ function selPlate_384_Well(){
     row.value = "16"
     var rowLab = document.getElementById('inRunPcrFormat_rowLabel');
     rowLab.value = "ABC"
+    var vol = document.getElementById('inRunDefaultVolume');
+    vol.value = "10.0"
     return;
 }
 

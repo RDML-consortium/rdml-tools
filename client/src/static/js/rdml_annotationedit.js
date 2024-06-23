@@ -91,8 +91,8 @@ function getSaveHtmlData(key) {
 function checkForUUID() {
     var uuid = ""
     var tab = ""
-    var vExp = ""
-    var vRun = ""
+    window.selRun = "";
+    window.selExperiment = "";
 
     var path = (window.location.search + "").replace(/^\?/, "") // .pathname decodeURIComponent(;
     path = path.replace(/&/g, ";")
@@ -111,10 +111,10 @@ function checkForUUID() {
             tab = pVal
         }
         if (pKey == "EXP") {
-            vExp = pVal
+            window.selExperiment = pVal
         }
         if (pKey == "RUN") {
-            vRun = pVal
+            window.selRun = pVal
         }
     }
     if (tab != "") {
