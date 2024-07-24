@@ -43,7 +43,7 @@ def logData(pProg, pKey, pValue, uuid):
     if not LOGRDMLRUNS:
         return
 
-    runTime = datetime.datetime.utcnow()
+    runTime = datetime.datetime.now(datetime.UTC)
     addLine = runTime.strftime("%Y-%m-%dT%H:%M:%S")
     addLine += "\t" + pProg + "\t" + pKey + "\t" + pValue + "\t" + uuid + "\t"
     # Add to nginx config in the location section:
@@ -568,6 +568,11 @@ def handle_data():
                     with open(tabAmpFilename, "w") as tabAmp:
                         tabAmp.write(request.form['tableData'])
                     run_ele.import_table(rd, tabAmpFilename, "amp")
+                elif request.form['tableDataFormat'] == "ncopy":
+                    tabNcopyFilename = os.path.join(sf, "rdml_" + uuidstr + "_ncopy_upload.tsv")
+                    with open(tabNcopyFilename, "w") as tabNcopy:
+                        tabNcopy.write(request.form['tableData'])
+                    run_ele.import_table(rd, tabNcopyFilename, "ncopy")
                 else:
                     tabMeltFilename = os.path.join(sf, "rdml_" + uuidstr + "_melting_upload.tsv")
                     with open(tabMeltFilename, "w") as tabMelt:

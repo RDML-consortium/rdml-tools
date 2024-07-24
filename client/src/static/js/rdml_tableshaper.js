@@ -9,8 +9,11 @@ const API_LINK = process.env.API_LINK
 const submitButton = document.getElementById('btn-submit')
 submitButton.addEventListener('click', loadInputFile)
 
-const exampleButton = document.getElementById('btn-example')
-exampleButton.addEventListener('click', showExample)
+const exampleButtonPcr = document.getElementById('btn-example-qpcr')
+exampleButtonPcr.addEventListener('click', showExamplePcr)
+
+const exampleButtonNcopy = document.getElementById('btn-example-ncopy')
+exampleButtonNcopy.addEventListener('click', showExampleNcopy)
 
 const compButton = document.getElementById('btn-apply-comp')
 compButton.addEventListener('click', compResTable)
@@ -220,13 +223,27 @@ function resetCopyField () {
     updateSepCount(window.inputFile);
 }
 
-function showExample() {
+function showExamplePcr() {
     window.inputFileName = "example"
-    window.inputFile = getSampleStr();
+    window.inputFile = getSampleStrPcr();
     updateSepCount(window.inputFile);
     var opt = document.getElementById("selMachineSettings");
     for (var i = 0 ; i < opt.options.length ; i++) {
         if (opt.options[i].text == "BioRad iCycler v9.35") {
+            opt.value = i - 1;
+        }
+    }
+    loadModification(window.setArr[opt.value]);
+    updateModification();
+}
+
+function showExampleNcopy() {
+    window.inputFileName = "example"
+    window.inputFile = getSampleStrNcopy();
+    updateSepCount(window.inputFile);
+    var opt = document.getElementById("selMachineSettings");
+    for (var i = 0 ; i < opt.options.length ; i++) {
+        if (opt.options[i].text == "RNA Expression Format") {
             opt.value = i - 1;
         }
     }
@@ -605,396 +622,414 @@ function updateModification() {
     if (window.modifySettings["reformatAmpMelt"] == "melt") {
         ftab[0][6] = "Tm";
     }
-
     var trueColRe = new RegExp(window.modifySettings["exTrueRegEx"]);
     var trueCol = window.modifySettings["exTrueCol"] - 1;
 
-    if (window.modifySettings["reformatTableShape"] != "create") {
-        // This is the regular table transformation
-        // Insert columns and extract the fluorescence data
-        var jumpStep = 1;
-        if (window.modifySettings["fluorDelOtherRow"] > 0) {
-            jumpStep = window.modifySettings["fluorDelOtherRow"] + 1 ;
-        }
-        // Fill the array used to exclude lines
-        var exclFromTable = {}
-        if (trueCol >= 0) {
-            for (var r = minRowNr ; r < maxRowNr ; r += jumpStep) {
-                if (trueColRe.test(tab[r][trueCol])) {
-                    exclFromTable[r] = true;
-                } else {
-                    exclFromTable[r] = false;
-                }
-            }
-        } else {
-            exclFromTable[r] = false;
-        }
+    if (window.modifySettings["reformatAmpMelt"] == "ncopy") {
+        ftab[0][6] = "Ncopy";
 
-        var realRowNr = 0;
-        for (var r = minRowNr ; r < maxRowNr ; r += jumpStep) {
-            if (exclFromTable[r]) {
-                continue;
-            }
-            realRowNr++;
-            ftab[realRowNr] = ["", "", "unkn", "", "toi", "unkn_dye", ""];
-            var minColNr = 0;
-            if (window.modifySettings["fluorDelColStart"] > 0) {
-                minColNr = window.modifySettings["fluorDelColStart"];
-            }
+        for (var r = 1 ; r < tab.length ; r += 1) {
             var maxColNr = tab[r].length;
-            if ((window.modifySettings["fluorDelColEnd"] > 1) &&
-                (window.modifySettings["fluorDelColEnd"] < tab[r].length)) {
-                maxColNr = window.modifySettings["fluorDelColEnd"];
-            }
-            var realColNr = 6;
-            for (var c = minColNr ; c < maxColNr ; c++) {
-                realColNr++;
-                if (window.modifySettings["fluorCommaDot"] == true) {
-                    if (tab[r][c].match(/,/) != null) {
-                        var resVal = tab[r][c].replace(/\./g, "");;
-                        ftab[realRowNr][realColNr] = resVal.replace(/,/g, ".");;
-                    } else {
-                        ftab[realRowNr][realColNr] = tab[r][c];
-                    }
-                } else {
-                    ftab[realRowNr][realColNr] = tab[r][c];
-                }
-            }
-        }
-        // Insert extracted data
-        // Cycle information from row
-        if (window.modifySettings["exCycRow"] > 0) {
-            var cycRowRe = new RegExp(window.modifySettings["exCycRowRegEx"]);
-            var fRow = window.modifySettings["exCycRow"] - 1;
-            var minColNr = 0;
-            if (window.modifySettings["fluorDelColStart"] > 0) {
-                minColNr = window.modifySettings["fluorDelColStart"];
-            }
-            var maxColNr = tab[fRow].length;
-            if ((window.modifySettings["fluorDelColEnd"] > 1) &&
-                (window.modifySettings["fluorDelColEnd"] < tab[fRow].length)) {
-                maxColNr = window.modifySettings["fluorDelColEnd"];
-            }
-            var realColNr = 6;
-            for (var c = minColNr ; c < maxColNr ; c++) {
-                realColNr++;
-                var fluorVal = "";
-                var valDotFix = tab[fRow][c];
+            for (var c = 1 ; c < tab[r].length ; c++) {
+                var valDotFix = tab[r][c];
                 if (window.modifySettings["fluorCommaDot"] == true) {
                     if (valDotFix.match(/,/) != null) {
                         var resVal = valDotFix.replace(/\./g, "");;
                         valDotFix = resVal.replace(/,/g, ".");
                     }
                 }
-                if (cycRowRe.test(valDotFix)) {
-                    var match = cycRowRe.exec(valDotFix);
-                    fluorVal = match[1];
-                    if (window.modifySettings["reformatAmpMelt"] == "amp") {
-                        fluorVal = Math.ceil(parseFloat(fluorVal));
-                    }
-                }
-                ftab[0][realColNr] = fluorVal;
-            }
-        }
-        // Well information
-        if (window.modifySettings["exWellCol"] > 0) {
-            var wellColRe = new RegExp(window.modifySettings["exWellRegEx"]);
-            var wellCol = window.modifySettings["exWellCol"] - 1;
-            realRowNr = 0;
-            for (var r = minRowNr ; r < maxRowNr ; r += jumpStep) {
-                if (exclFromTable[r]) {
-                    continue;
-                }
-                realRowNr++;
-                if (wellColRe.test(tab[r][wellCol])) {
-                    var match = wellColRe.exec(tab[r][wellCol]);
-                    ftab[realRowNr][0] = match[1];
-                } else {
-                    ftab[realRowNr][0] = "";
-                }
-            }
-        }
-        // Sample information
-        if (window.modifySettings["exSamCol"] > 0) {
-            var samColRe = new RegExp(window.modifySettings["exSamRegEx"]);
-            var samCol = window.modifySettings["exSamCol"] - 1;
-            realRowNr = 0;
-            for (var r = minRowNr ; r < maxRowNr ; r += jumpStep) {
-                if (exclFromTable[r]) {
-                    continue;
-                }
-                realRowNr++;
-                if (samColRe.test(tab[r][samCol])) {
-                    var match = samColRe.exec(tab[r][samCol]);
-                    ftab[realRowNr][1] = match[1];
-                } else {
-                    ftab[realRowNr][1] = "";
-                }
-            }
-        }
-        // Sample Type information
-        if (window.modifySettings["exSamTypeCol"] > 0) {
-            var samTypeColRe = new RegExp(window.modifySettings["exSamTypeRegEx"]);
-            var samTypeCol = window.modifySettings["exSamTypeCol"] - 1;
-            realRowNr = 0;
-            for (var r = minRowNr ; r < maxRowNr ; r += jumpStep) {
-                if (exclFromTable[r]) {
-                    continue;
-                }
-                realRowNr++;
-                if (samTypeColRe.test(tab[r][samTypeCol])) {
-                    var match = samTypeColRe.exec(tab[r][samTypeCol]);
-                    ftab[realRowNr][2] = match[1];
-                } else {
-                    ftab[realRowNr][2] = "";
-                }
-            }
-        }
-
-        // Target information
-        if (window.modifySettings["exTarCol"] > 0) {
-            var tarColRe = new RegExp(window.modifySettings["exTarRegEx"]);
-            var tarCol = window.modifySettings["exTarCol"] - 1;
-            realRowNr = 0;
-            for (var r = minRowNr ; r < maxRowNr ; r += jumpStep) {
-                if (exclFromTable[r]) {
-                    continue;
-                }
-                realRowNr++;
-                if (tarColRe.test(tab[r][tarCol])) {
-                    var match = tarColRe.exec(tab[r][tarCol]);
-                    ftab[realRowNr][3] = match[1];
-                } else {
-                    ftab[realRowNr][3] = "";
-                }
-            }
-        }
-        // Target Type information
-        if (window.modifySettings["exTarTypeCol"] > 0) {
-            var tarTypeColRe = new RegExp(window.modifySettings["exTarTypeRegEx"]);
-            var tarTypeCol = window.modifySettings["exTarTypeCol"] - 1;
-            realRowNr = 0;
-            for (var r = minRowNr ; r < maxRowNr ; r += jumpStep) {
-                if (exclFromTable[r]) {
-                    continue;
-                }
-                realRowNr++;
-                if (tarTypeColRe.test(tab[r][tarTypeCol])) {
-                    var match = tarTypeColRe.exec(tab[r][tarTypeCol]);
-                    ftab[realRowNr][4] = match[1];
-                } else {
-                    ftab[realRowNr][4] = "";
-                }
-            }
-        }
-        // Dye information
-        if (window.modifySettings["exDyeCol"] > 0) {
-            var dyeColRe = new RegExp(window.modifySettings["exDyeRegEx"]);
-            var dyeCol = window.modifySettings["exDyeCol"] - 1;
-            realRowNr = 0;
-            for (var r = minRowNr ; r < maxRowNr ; r += jumpStep) {
-                if (exclFromTable[r]) {
-                    continue;
-                }
-                realRowNr++;
-                if (dyeColRe.test(tab[r][dyeCol])) {
-                    var match = dyeColRe.exec(tab[r][dyeCol]);
-                    ftab[realRowNr][5] = match[1];
-                } else {
-                    ftab[realRowNr][5] = "";
-                }
-            }
-        }
-        // CqTm information
-        if (window.modifySettings["exCqTmCol"] > 0) {
-            var cqTmColRe = new RegExp(window.modifySettings["exCqTmRegEx"]);
-            var cqTmCol = window.modifySettings["exCqTmCol"] - 1;
-            realRowNr = 0;
-            for (var r = minRowNr ; r < maxRowNr ; r += jumpStep) {
-                if (exclFromTable[r]) {
-                    continue;
-                }
-                realRowNr++;
-                var valDotFix = tab[r][cqTmCol];
-                if (window.modifySettings["fluorCommaDot"] == true) {
-                    if (valDotFix.match(/,/) != null) {
-                        var resVal = valDotFix.replace(/\./g, "");;
-                        valDotFix = resVal.replace(/,/g, ".");
-                    }
-                }
-                if (cqTmColRe.test(valDotFix)) {
-                    var match = cqTmColRe.exec(valDotFix);
-                    ftab[realRowNr][6] = match[1];
-                } else {
-                    ftab[realRowNr][6] = "";
-                }
+                ftab.push([String.fromCharCode('A'.charCodeAt(0) + r - 1) + c, tab[0][c], "unkn", tab[r][0], "ref", "no_dye", valDotFix]);
             }
         }
     } else {
-        // This is a one row is one fluorescence data (the create) version
-        var cycCount = 0;
-        var wellCount = 0;
-        var cycLookUp = {};
-        var wellLookUp = {};
-        var lastWellLookUp = {};
-        var colSum = {};
-        var colNr = {};
-        var cycColRe = new RegExp(window.modifySettings["exCycColRegEx"]);
-        var cycCol = window.modifySettings["exCycCol"] - 1;
-        var wellColRe = new RegExp(window.modifySettings["exWellRegEx"]);
-        var wellCol = window.modifySettings["exWellCol"] - 1;
-        var fluorCol = window.modifySettings["exFluorCol"] - 1;
-        var samColRe = new RegExp(window.modifySettings["exSamRegEx"]);
-        var samTypeColRe = new RegExp(window.modifySettings["exSamTypeRegEx"]);
-        var samTypeCol = window.modifySettings["exSamTypeCol"] - 1;
-        var tarColRe = new RegExp(window.modifySettings["exTarRegEx"]);
-        var tarTypeColRe = new RegExp(window.modifySettings["exTarTypeRegEx"]);
-        var dyeColRe = new RegExp(window.modifySettings["exDyeRegEx"]);
-        var cqTmColRe = new RegExp(window.modifySettings["exCqTmRegEx"]);
-        for (var r = minRowNr ; r < maxRowNr ; r++) {
-            if (trueColRe.test(tab[r][trueCol])) {
-                continue;
+        if (window.modifySettings["reformatTableShape"] != "create") {
+            // This is the regular table transformation
+            // Insert columns and extract the fluorescence data
+            var jumpStep = 1;
+            if (window.modifySettings["fluorDelOtherRow"] > 0) {
+                jumpStep = window.modifySettings["fluorDelOtherRow"] + 1 ;
             }
-            var valDotFix = tab[r][cycCol];
-            if (window.modifySettings["fluorCommaDot"] == true) {
-                if (valDotFix.match(/,/) != null) {
-                    var resVal = valDotFix.replace(/\./g, "");;
-                    valDotFix = resVal.replace(/,/g, ".");
-                }
-            }
-            var matchCyc = cycColRe.exec(valDotFix);
-            var cycVal = matchCyc[1];
-            var matchWell = wellColRe.exec(tab[r][wellCol]);
-            var wellVal = matchWell[1];
-            // Handle the well
-            if (wellLookUp.hasOwnProperty(wellVal) != true) {
-                wellLookUp[wellVal] = wellCount + 1;
-                ftab[wellLookUp[wellVal]] = [wellVal, "", "unkn", "", "toi", "unkn_dye", ""];
-                wellCount++;
-            }
-            // Deal with cycles or temp
-            if ((window.modifySettings["reformatAmpMelt"] == "amp") || (window.modifySettings["exByPos"] != true)) {
-                if (cycLookUp.hasOwnProperty(cycVal) != true) {
-                    cycLookUp[cycVal] = cycCount + 7;
-                    var cycWriteVal = cycVal;
-                    if (window.modifySettings["reformatAmpMelt"] == "amp") {
-                        cycWriteVal = Math.ceil(parseFloat(cycWriteVal));
+            // Fill the array used to exclude lines
+            var exclFromTable = {}
+            if (trueCol >= 0) {
+                for (var r = minRowNr ; r < maxRowNr ; r += jumpStep) {
+                    if (trueColRe.test(tab[r][trueCol])) {
+                        exclFromTable[r] = true;
+                    } else {
+                        exclFromTable[r] = false;
                     }
-                    ftab[0][cycLookUp[cycVal]] = cycWriteVal;
-                    cycCount++;
                 }
             } else {
-                if (lastWellLookUp.hasOwnProperty(wellVal) != true) {
-                    lastWellLookUp[wellVal] = 1;
-                } else {
-                    lastWellLookUp[wellVal] += 1;
+                exclFromTable[r] = false;
+            }
+
+            var realRowNr = 0;
+            for (var r = minRowNr ; r < maxRowNr ; r += jumpStep) {
+                if (exclFromTable[r]) {
+                    continue;
                 }
-                if (colSum.hasOwnProperty(lastWellLookUp[wellVal]) != true) {
-                    colSum[lastWellLookUp[wellVal]] = parseFloat(cycVal);
-                    colNr[lastWellLookUp[wellVal]] = 1;
-                } else {
-                    colSum[lastWellLookUp[wellVal]] += parseFloat(cycVal);
-                    colNr[lastWellLookUp[wellVal]] += 1;
+                realRowNr++;
+                ftab[realRowNr] = ["", "", "unkn", "", "toi", "unkn_dye", ""];
+                var minColNr = 0;
+                if (window.modifySettings["fluorDelColStart"] > 0) {
+                    minColNr = window.modifySettings["fluorDelColStart"];
                 }
-                cycVal = lastWellLookUp[wellVal] - 1;
-                cycLookUp[cycVal] = cycVal + 7;
-                ftab[0][cycLookUp[cycVal]] = (colSum[lastWellLookUp[wellVal]] / colNr[lastWellLookUp[wellVal]]).toFixed(2);
-                cycCount++;
+                var maxColNr = tab[r].length;
+                if ((window.modifySettings["fluorDelColEnd"] > 1) &&
+                    (window.modifySettings["fluorDelColEnd"] < tab[r].length)) {
+                    maxColNr = window.modifySettings["fluorDelColEnd"];
+                }
+                var realColNr = 6;
+                for (var c = minColNr ; c < maxColNr ; c++) {
+                    realColNr++;
+                    if (window.modifySettings["fluorCommaDot"] == true) {
+                        if (tab[r][c].match(/,/) != null) {
+                            var resVal = tab[r][c].replace(/\./g, "");;
+                            ftab[realRowNr][realColNr] = resVal.replace(/,/g, ".");;
+                        } else {
+                            ftab[realRowNr][realColNr] = tab[r][c];
+                        }
+                    } else {
+                        ftab[realRowNr][realColNr] = tab[r][c];
+                    }
+                }
+            }
+            // Insert extracted data
+            // Cycle information from row
+            if (window.modifySettings["exCycRow"] > 0) {
+                var cycRowRe = new RegExp(window.modifySettings["exCycRowRegEx"]);
+                var fRow = window.modifySettings["exCycRow"] - 1;
+                var minColNr = 0;
+                if (window.modifySettings["fluorDelColStart"] > 0) {
+                    minColNr = window.modifySettings["fluorDelColStart"];
+                }
+                var maxColNr = tab[fRow].length;
+                if ((window.modifySettings["fluorDelColEnd"] > 1) &&
+                    (window.modifySettings["fluorDelColEnd"] < tab[fRow].length)) {
+                    maxColNr = window.modifySettings["fluorDelColEnd"];
+                }
+                var realColNr = 6;
+                for (var c = minColNr ; c < maxColNr ; c++) {
+                    realColNr++;
+                    var fluorVal = "";
+                    var valDotFix = tab[fRow][c];
+                    if (window.modifySettings["fluorCommaDot"] == true) {
+                        if (valDotFix.match(/,/) != null) {
+                            var resVal = valDotFix.replace(/\./g, "");;
+                            valDotFix = resVal.replace(/,/g, ".");
+                        }
+                    }
+                    if (cycRowRe.test(valDotFix)) {
+                        var match = cycRowRe.exec(valDotFix);
+                        fluorVal = match[1];
+                        if (window.modifySettings["reformatAmpMelt"] == "amp") {
+                            fluorVal = Math.ceil(parseFloat(fluorVal));
+                        }
+                    }
+                    ftab[0][realColNr] = fluorVal;
+                }
+            }
+            // Well information
+            if (window.modifySettings["exWellCol"] > 0) {
+                var wellColRe = new RegExp(window.modifySettings["exWellRegEx"]);
+                var wellCol = window.modifySettings["exWellCol"] - 1;
+                realRowNr = 0;
+                for (var r = minRowNr ; r < maxRowNr ; r += jumpStep) {
+                    if (exclFromTable[r]) {
+                        continue;
+                    }
+                    realRowNr++;
+                    if (wellColRe.test(tab[r][wellCol])) {
+                        var match = wellColRe.exec(tab[r][wellCol]);
+                        ftab[realRowNr][0] = match[1];
+                    } else {
+                        ftab[realRowNr][0] = "";
+                    }
+                }
             }
             // Sample information
             if (window.modifySettings["exSamCol"] > 0) {
+                var samColRe = new RegExp(window.modifySettings["exSamRegEx"]);
                 var samCol = window.modifySettings["exSamCol"] - 1;
-                var match = samColRe.exec(tab[r][samCol]);
-                ftab[wellLookUp[wellVal]][1] = match[1];
+                realRowNr = 0;
+                for (var r = minRowNr ; r < maxRowNr ; r += jumpStep) {
+                    if (exclFromTable[r]) {
+                        continue;
+                    }
+                    realRowNr++;
+                    if (samColRe.test(tab[r][samCol])) {
+                        var match = samColRe.exec(tab[r][samCol]);
+                        ftab[realRowNr][1] = match[1];
+                    } else {
+                        ftab[realRowNr][1] = "";
+                    }
+                }
             }
             // Sample Type information
             if (window.modifySettings["exSamTypeCol"] > 0) {
+                var samTypeColRe = new RegExp(window.modifySettings["exSamTypeRegEx"]);
                 var samTypeCol = window.modifySettings["exSamTypeCol"] - 1;
-                var match = samTypeColRe.exec(tab[r][samTypeCol]);
-                ftab[wellLookUp[wellVal]][2] = match[1];
+                realRowNr = 0;
+                for (var r = minRowNr ; r < maxRowNr ; r += jumpStep) {
+                    if (exclFromTable[r]) {
+                        continue;
+                    }
+                    realRowNr++;
+                    if (samTypeColRe.test(tab[r][samTypeCol])) {
+                        var match = samTypeColRe.exec(tab[r][samTypeCol]);
+                        ftab[realRowNr][2] = match[1];
+                    } else {
+                        ftab[realRowNr][2] = "";
+                    }
+                }
             }
 
             // Target information
             if (window.modifySettings["exTarCol"] > 0) {
+                var tarColRe = new RegExp(window.modifySettings["exTarRegEx"]);
                 var tarCol = window.modifySettings["exTarCol"] - 1;
-                var match = tarColRe.exec(tab[r][tarCol]);
-                ftab[wellLookUp[wellVal]][3] = match[1];
+                realRowNr = 0;
+                for (var r = minRowNr ; r < maxRowNr ; r += jumpStep) {
+                    if (exclFromTable[r]) {
+                        continue;
+                    }
+                    realRowNr++;
+                    if (tarColRe.test(tab[r][tarCol])) {
+                        var match = tarColRe.exec(tab[r][tarCol]);
+                        ftab[realRowNr][3] = match[1];
+                    } else {
+                        ftab[realRowNr][3] = "";
+                    }
+                }
             }
             // Target Type information
             if (window.modifySettings["exTarTypeCol"] > 0) {
+                var tarTypeColRe = new RegExp(window.modifySettings["exTarTypeRegEx"]);
                 var tarTypeCol = window.modifySettings["exTarTypeCol"] - 1;
-                var match = tarTypeColRe.exec(tab[r][tarTypeCol]);
-                ftab[wellLookUp[wellVal]][4] = match[1];
+                realRowNr = 0;
+                for (var r = minRowNr ; r < maxRowNr ; r += jumpStep) {
+                    if (exclFromTable[r]) {
+                        continue;
+                    }
+                    realRowNr++;
+                    if (tarTypeColRe.test(tab[r][tarTypeCol])) {
+                        var match = tarTypeColRe.exec(tab[r][tarTypeCol]);
+                        ftab[realRowNr][4] = match[1];
+                    } else {
+                        ftab[realRowNr][4] = "";
+                    }
+                }
             }
             // Dye information
             if (window.modifySettings["exDyeCol"] > 0) {
+                var dyeColRe = new RegExp(window.modifySettings["exDyeRegEx"]);
                 var dyeCol = window.modifySettings["exDyeCol"] - 1;
-                var match = dyeColRe.exec(tab[r][dyeCol]);
-                ftab[wellLookUp[wellVal]][5] = match[1];
+                realRowNr = 0;
+                for (var r = minRowNr ; r < maxRowNr ; r += jumpStep) {
+                    if (exclFromTable[r]) {
+                        continue;
+                    }
+                    realRowNr++;
+                    if (dyeColRe.test(tab[r][dyeCol])) {
+                        var match = dyeColRe.exec(tab[r][dyeCol]);
+                        ftab[realRowNr][5] = match[1];
+                    } else {
+                        ftab[realRowNr][5] = "";
+                    }
+                }
             }
             // CqTm information
             if (window.modifySettings["exCqTmCol"] > 0) {
-                var CqTmCol = window.modifySettings["exCqTmCol"] - 1;
-                var valDotFix = tab[r][CqTmCol];
+                var cqTmColRe = new RegExp(window.modifySettings["exCqTmRegEx"]);
+                var cqTmCol = window.modifySettings["exCqTmCol"] - 1;
+                realRowNr = 0;
+                for (var r = minRowNr ; r < maxRowNr ; r += jumpStep) {
+                    if (exclFromTable[r]) {
+                        continue;
+                    }
+                    realRowNr++;
+                    var valDotFix = tab[r][cqTmCol];
+                    if (window.modifySettings["fluorCommaDot"] == true) {
+                        if (valDotFix.match(/,/) != null) {
+                            var resVal = valDotFix.replace(/\./g, "");;
+                            valDotFix = resVal.replace(/,/g, ".");
+                        }
+                    }
+                    if (cqTmColRe.test(valDotFix)) {
+                        var match = cqTmColRe.exec(valDotFix);
+                        ftab[realRowNr][6] = match[1];
+                    } else {
+                        ftab[realRowNr][6] = "";
+                    }
+                }
+            }
+        } else {
+            // This is a one row is one fluorescence data (the create) version
+            var cycCount = 0;
+            var wellCount = 0;
+            var cycLookUp = {};
+            var wellLookUp = {};
+            var lastWellLookUp = {};
+            var colSum = {};
+            var colNr = {};
+            var cycColRe = new RegExp(window.modifySettings["exCycColRegEx"]);
+            var cycCol = window.modifySettings["exCycCol"] - 1;
+            var wellColRe = new RegExp(window.modifySettings["exWellRegEx"]);
+            var wellCol = window.modifySettings["exWellCol"] - 1;
+            var fluorCol = window.modifySettings["exFluorCol"] - 1;
+            var samColRe = new RegExp(window.modifySettings["exSamRegEx"]);
+            var samTypeColRe = new RegExp(window.modifySettings["exSamTypeRegEx"]);
+            var samTypeCol = window.modifySettings["exSamTypeCol"] - 1;
+            var tarColRe = new RegExp(window.modifySettings["exTarRegEx"]);
+            var tarTypeColRe = new RegExp(window.modifySettings["exTarTypeRegEx"]);
+            var dyeColRe = new RegExp(window.modifySettings["exDyeRegEx"]);
+            var cqTmColRe = new RegExp(window.modifySettings["exCqTmRegEx"]);
+            for (var r = minRowNr ; r < maxRowNr ; r++) {
+                if (trueColRe.test(tab[r][trueCol])) {
+                    continue;
+                }
+                var valDotFix = tab[r][cycCol];
                 if (window.modifySettings["fluorCommaDot"] == true) {
                     if (valDotFix.match(/,/) != null) {
                         var resVal = valDotFix.replace(/\./g, "");;
                         valDotFix = resVal.replace(/,/g, ".");
                     }
                 }
-                var match = CqTmColRe.exec(valDotFix);
-                ftab[wellLookUp[wellVal]][6] = match[1];
+                var matchCyc = cycColRe.exec(valDotFix);
+                var cycVal = matchCyc[1];
+                var matchWell = wellColRe.exec(tab[r][wellCol]);
+                var wellVal = matchWell[1];
+                // Handle the well
+                if (wellLookUp.hasOwnProperty(wellVal) != true) {
+                    wellLookUp[wellVal] = wellCount + 1;
+                    ftab[wellLookUp[wellVal]] = [wellVal, "", "unkn", "", "toi", "unkn_dye", ""];
+                    wellCount++;
+                }
+                // Deal with cycles or temp
+                if ((window.modifySettings["reformatAmpMelt"] == "amp") || (window.modifySettings["exByPos"] != true)) {
+                    if (cycLookUp.hasOwnProperty(cycVal) != true) {
+                        cycLookUp[cycVal] = cycCount + 7;
+                        var cycWriteVal = cycVal;
+                        if (window.modifySettings["reformatAmpMelt"] == "amp") {
+                            cycWriteVal = Math.ceil(parseFloat(cycWriteVal));
+                        }
+                        ftab[0][cycLookUp[cycVal]] = cycWriteVal;
+                        cycCount++;
+                    }
+                } else {
+                    if (lastWellLookUp.hasOwnProperty(wellVal) != true) {
+                        lastWellLookUp[wellVal] = 1;
+                    } else {
+                        lastWellLookUp[wellVal] += 1;
+                    }
+                    if (colSum.hasOwnProperty(lastWellLookUp[wellVal]) != true) {
+                        colSum[lastWellLookUp[wellVal]] = parseFloat(cycVal);
+                        colNr[lastWellLookUp[wellVal]] = 1;
+                    } else {
+                        colSum[lastWellLookUp[wellVal]] += parseFloat(cycVal);
+                        colNr[lastWellLookUp[wellVal]] += 1;
+                    }
+                    cycVal = lastWellLookUp[wellVal] - 1;
+                    cycLookUp[cycVal] = cycVal + 7;
+                    ftab[0][cycLookUp[cycVal]] = (colSum[lastWellLookUp[wellVal]] / colNr[lastWellLookUp[wellVal]]).toFixed(2);
+                    cycCount++;
+                }
+                // Sample information
+                if (window.modifySettings["exSamCol"] > 0) {
+                    var samCol = window.modifySettings["exSamCol"] - 1;
+                    var match = samColRe.exec(tab[r][samCol]);
+                    ftab[wellLookUp[wellVal]][1] = match[1];
+                }
+                // Sample Type information
+                if (window.modifySettings["exSamTypeCol"] > 0) {
+                    var samTypeCol = window.modifySettings["exSamTypeCol"] - 1;
+                    var match = samTypeColRe.exec(tab[r][samTypeCol]);
+                    ftab[wellLookUp[wellVal]][2] = match[1];
+                }
+
+                // Target information
+                if (window.modifySettings["exTarCol"] > 0) {
+                    var tarCol = window.modifySettings["exTarCol"] - 1;
+                    var match = tarColRe.exec(tab[r][tarCol]);
+                    ftab[wellLookUp[wellVal]][3] = match[1];
+                }
+                // Target Type information
+                if (window.modifySettings["exTarTypeCol"] > 0) {
+                    var tarTypeCol = window.modifySettings["exTarTypeCol"] - 1;
+                    var match = tarTypeColRe.exec(tab[r][tarTypeCol]);
+                    ftab[wellLookUp[wellVal]][4] = match[1];
+                }
+                // Dye information
+                if (window.modifySettings["exDyeCol"] > 0) {
+                    var dyeCol = window.modifySettings["exDyeCol"] - 1;
+                    var match = dyeColRe.exec(tab[r][dyeCol]);
+                    ftab[wellLookUp[wellVal]][5] = match[1];
+                }
+                // CqTm information
+                if (window.modifySettings["exCqTmCol"] > 0) {
+                    var CqTmCol = window.modifySettings["exCqTmCol"] - 1;
+                    var valDotFix = tab[r][CqTmCol];
+                    if (window.modifySettings["fluorCommaDot"] == true) {
+                        if (valDotFix.match(/,/) != null) {
+                            var resVal = valDotFix.replace(/\./g, "");;
+                            valDotFix = resVal.replace(/,/g, ".");
+                        }
+                    }
+                    var match = CqTmColRe.exec(valDotFix);
+                    ftab[wellLookUp[wellVal]][6] = match[1];
+                }
+                // Fluorescence values
+                var fluorVal = tab[r][fluorCol];
+                if (window.modifySettings["fluorCommaDot"] == true) {
+                    if (tab[r][fluorCol].match(/,/) != null) {
+                        var resVal = tab[r][fluorCol].replace(/\./g, "");
+                        fluorVal = resVal.replace(/,/g, ".");;
+                    }
+                }
+                ftab[wellLookUp[wellVal]][cycLookUp[cycVal]] = fluorVal;
             }
-            // Fluorescence values
-            var fluorVal = tab[r][fluorCol];
-            if (window.modifySettings["fluorCommaDot"] == true) {
-                if (tab[r][fluorCol].match(/,/) != null) {
-                    var resVal = tab[r][fluorCol].replace(/\./g, "");
-                    fluorVal = resVal.replace(/,/g, ".");;
+        }
+    }
+
+    if (window.modifySettings["reformatAmpMelt"] != "ncopy") {
+        // Remove empty rows
+        var wordChar = /\w/;
+        for (var r = ftab.length - 1 ; r > 0 ; r--) {
+            var rowCount = false;
+            // It has to have fluorescence data
+            for (var c = 7 ; c < ftab[r].length ; c++) {
+                if (wordChar.test(ftab[r][c])) {
+                    rowCount = true;
                 }
             }
-            ftab[wellLookUp[wellVal]][cycLookUp[cycVal]] = fluorVal;
-        }
-    }
-
-    // Remove empty rows
-    var wordChar = /\w/;
-    for (var r = ftab.length - 1 ; r > 0 ; r--) {
-        var rowCount = false;
-        // It has to have fluorescence data
-        for (var c = 7 ; c < ftab[r].length ; c++) {
-            if (wordChar.test(ftab[r][c])) {
-                rowCount = true;
+            if (rowCount == false) {
+                ftab.splice(r,1);
             }
         }
-        if (rowCount == false) {
-            ftab.splice(r,1);
-        }
-    }
 
-    // Remove empty colums
-    var maxCol = 0;
-    for (var r = 0 ; r < ftab.length ; r++) {
-        if (maxCol < ftab[r].length) {
-            maxCol = ftab[r].length;
-        }
-    }
-    for (var c = maxCol - 1 ; c >= 0 ; c--) {
-        var colCount = false;
+        // Remove empty colums
+        var maxCol = 0;
         for (var r = 0 ; r < ftab.length ; r++) {
-            if ((c < ftab[r].length) && (wordChar.test(ftab[r][c]))) {
-                colCount = true;
+            if (maxCol < ftab[r].length) {
+                maxCol = ftab[r].length;
             }
         }
-        if (colCount == false) {
+        for (var c = maxCol - 1 ; c >= 0 ; c--) {
+            var colCount = false;
             for (var r = 0 ; r < ftab.length ; r++) {
-                if (c < ftab[r].length) {
-                    ftab[r].splice(c,1);
+                if ((c < ftab[r].length) && (wordChar.test(ftab[r][c]))) {
+                    colCount = true;
+                }
+            }
+            if (colCount == false) {
+                for (var r = 0 ; r < ftab.length ; r++) {
+                    if (c < ftab[r].length) {
+                        ftab[r].splice(c,1);
+                    }
                 }
             }
         }
     }
-
     window.resultTab = ftab;
     updateExport();
 }
@@ -1087,7 +1122,6 @@ function compResTable() {
             window.resultTab[r][modSel] = repText;
         }
     }
-
     updateExport();
 }
 
@@ -1227,6 +1261,38 @@ function getSettingsArr() {
                "exTrueCol":-1,
                "exTrueRegEx":"2"
                },{
+                "settingsID":"RNA Expression Format",
+                "reformatAmpMelt":"ncopy",
+                "reformatTableShape":"keep",
+                "fluorDelColStart":7,
+                "fluorDelRowStart":1,
+                "fluorDelOtherRow":0,
+                "fluorDelColEnd":null,
+                "fluorDelRowEnd":null,
+                "fluorCommaDot":true,
+                "exFluorCol":4,
+                "exByPos":false,
+                "exCycRow":1,
+                "exCycRowRegEx":"(.*)",
+                "exCycCol":1,
+                "exCycColRegEx":"([0-9]+)",
+                "exWellCol":1,
+                "exWellRegEx":"(.*)",
+                "exSamCol":2,
+                "exSamRegEx":"(.*)",
+                "exSamTypeCol":3,
+                "exSamTypeRegEx":"(.*)",
+                "exTarCol":4,
+                "exTarRegEx":"(.*)",
+                "exTarTypeCol":5,
+                "exTarTypeRegEx":"(.*)",
+                "exDyeCol":6,
+                "exDyeRegEx":"(.*)",
+                "exCqTmCol":7,
+                "exCqTmRegEx":"(.*)",
+                "exTrueCol":-1,
+                "exTrueRegEx":"2"
+                },{
                "settingsID":"Applied Biosystems SDS v2.4",
                "reformatAmpMelt":"amp",
                "reformatTableShape":"keep",
@@ -1899,7 +1965,7 @@ function getSettingsArr() {
     return ret;
 }
 
-function getSampleStr() {
+function getSampleStrPcr() {
     var ret = "Well/\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n" +
     "Cycle\tA1 ANF\tA2 EGFP\tA3 GAPDH\tA4 ANF\tA5 EGFP\tA6 GAPDH\tA7 ANF\tA8 EGFP\tA9 GAPDH\tA10 ANF\tA11 EGFP\tA12 GAPDH\tB1 ANF\tB2 EGFP\tB3 GAPDH\tB4 ANF\tB5 EGFP\tB6 GAPDH\tB7 ANF\tB8 EGFP\tB9 GAPDH\tB10 ANF\tB11 EGFP\tB12 GAPDH\tC1 ANF\tC2 EGFP\tC3 GAPDH\tC4 ANF\tC5 EGFP\tC6 GAPDH\tC7 ANF\tC8 EGFP\tC9 GAPDH\tC10 ANF\tC11 EGFP\tC12 GAPDH\tD1 ANF\tD2 EGFP\tD3 GAPDH\tD4 ANF\tD5 EGFP\tD6 GAPDH\tD7 ANF\tD8 EGFP\tD9 GAPDH\tD10 ANF\tD11 EGFP\tD12 GAPDH\tE1 ANF\tE2 EGFP\tE3 GAPDH\tE4 ANF\tE5 EGFP\tE6 GAPDH\tE7 ANF\tE8 EGFP\tE9 GAPDH\tE10 ANF\tE11 EGFP\tE12 GAPDH\tF1 ANF\tF2 EGFP\tF3 GAPDH\tF4 ANF\tF5 EGFP\tF6 GAPDH\tF7 ANF\tF8 EGFP\tF9 GAPDH\tF10 ANF\tF11 EGFP\tF12 GAPDH\tG1 ANF\tG2 EGFP\tG3 GAPDH\tG4 ANF\tG5 EGFP\tG6 GAPDH\tG7 ANF\tG8 EGFP\tG9 GAPDH\tG10 ANF\tG11 EGFP\tG12 GAPDH\tH1 RT-\tH2 RT-\tH3 RT-\tH4 RT-\tH5 RT-\tH6 RT-\tH7 RT-\tH8 RT-\tH9 RT-\tH10 RT-\tH11 RT-\tH12 RT-\n" +
     "0,64\t167,61\t185,18\t179,11\t168,29\t170,41\t182,71\t180,27\t182,56\t188,52\t181,42\t173,75\t175,02\t178,91\t190,44\t219,93\t189,05\t185,81\t195,63\t191,53\t190,21\t207,57\t192,55\t185,87\t178,78\t184,63\t187,39\t189,13\t187,82\t185,73\t193,18\t187,75\t191,94\t191,98\t189,38\t187,82\t173,09\t178,09\t185,53\t191,4\t187,24\t179,21\t194,45\t183,45\t187,34\t214,67\t187,32\t184,97\t170,32\t178,59\t180,7\t188,81\t184,37\t187,75\t191,9\t183,55\t191,3\t191,6\t174,57\t181,66\t174,75\t182,87\t182,61\t185,62\t182,31\t193,26\t191,4\t192,28\t187,81\t198,09\t184,9\t179,63\t181,25\t171,38\t192,18\t189,64\t188,07\t180,29\t196,82\t191,06\t194,35\t197,41\t192,15\t185,85\t182,79\t168,43\t183,63\t183,03\t179,38\t181,39\t180,31\t187,73\t187,68\t188,8\t188,7\t185,15\t170,7\n" +
@@ -1951,3 +2017,17 @@ function getSampleStr() {
     return ret;
 }
 
+function getSampleStrNcopy() {
+    var ret = "\t14dBZ1hearta\t14dinfheart\t3dBZ1hearta\t3dBZ2hearta\t3dinfheart\tcontrolinfheart\te12a\tLVcontrola\tLVtac1a\tNeod1heart\n" +
+    "Eef1e1\t10804.8\t4488.51\t11286.34\t8295.38\t1990.83\t4352.3\t19831.67\t15065.56\t15108.9\t456.5\n" +
+    "H2afz\t71745.21\t58931.28\t64465.43\t101111.32\t7213.91\t22643.73\t418751.95\t81157.04\t124904.52\t6171.35\n" +
+    "Hprt1\t36407.86\t18919.87\t28543.29\t28939.27\t2117.78\t10904.97\t48085.13\t39946.68\t65534.68\t1593.57\n" +
+    "Pgk1\t52607.77\t36881.17\t32680.18\t30566.31\t1553.88\t17054.78\t50057.2\t88134.43\t146957.95\t4400.59\n" +
+    "Polr2a\t231402\t175050.44\t173991.27\t203285.34\t16813.82\t59663.37\t721112.69\t223288.61\t363486.14\t14908.98\n" +
+    "Ppia\t6778.74\t3422.79\t3381.12\t2659.69\t831.7\t1652.48\t10746.95\t12328.11\t7821.8\t3166.95\n" +
+    "Rpl32\t158870.6\t232852.36\t249909.63\t214156.99\t14519.27\t91496.48\t818109.96\t326275.08\t439567.61\t13579.89\n" +
+    "Rpl4\t167802.51\t113490.85\t120657.11\t110379.3\t13323.73\t63332.77\t484770\t255033.67\t291615.71\t9963.21\n" +
+    "Tbp\t5334.91\t4734.26\t2650.81\t2524.12\t1020.86\t2243.98\t16285.87\t7735.4\t7826.7\t1489.2\n";
+
+    return ret;
+}

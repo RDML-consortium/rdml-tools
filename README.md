@@ -39,9 +39,9 @@ The server runs in a terminal
 
 Install the dependencies:
 
-`sudo apt install python3 python3-pip python3-lxml`
+`sudo apt install python3 python3-lxml python3-matplotlib python3-flask npm`
 
-`pip3 install matplotlib flask flask_cors numpy scipy`
+`sudo apt install python3-flask-cors python3-pip python3-numpy python3-scipy`
 
 Start the server:
 
@@ -57,8 +57,6 @@ The client requires a different terminal
 Install the dependencies:
 
 `cd rdml_tools/client`
-
-`sudo apt install npm`
 
 `npm install`
 
