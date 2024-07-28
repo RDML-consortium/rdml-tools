@@ -123,6 +123,17 @@
           </div>
         </div>
         <br />
+        <div class="card">
+          <div class="card-body">
+            <div class="form-check">
+              <label class="form-check-label">
+                <input type="checkbox" class="form-check-input" id="modSemicolonTab"
+                       value="" onchange="updateSemicolonManual()" checked>Replace all tabs in input by tabs
+              </label>
+            </div>
+          </div>
+        </div>
+        <br />
         <div class="card tableCard">
           <div class="card-body">
             <h5 class="card-title">Table after import</h5>
@@ -165,7 +176,8 @@
           <div class="card-body">
             <h5 class="card-title">Combine Data:</h5>
             <select id="selDataCombiMeth" onchange="selectDataCombiMeth()">
-              <option value="mean_sem" selected>Combine: Mean - Error: SEM</option>
+              <option value="mean_quart" selected>Combine: Median - Quartiles: Min/Max</option>
+              <option value="mean_sem">Combine: Mean - Error: SEM</option>
               <option value="mean_sd">Combine: Mean - Error: SD</option>
             </select>
           </div>
@@ -455,6 +467,12 @@
                 <td style="width:25%;">Box Line Strength:</td>
                 <td style="width:75%">
                   <input type="text" class="form-control" id="modBoxLineStroke" onchange="updateMod('modBoxLineStroke', 'BoxLineStroke')" value="">
+                </td>
+              </tr>
+              <tr>
+                <td style="width:25%;">Median Line Strength:</td>
+                <td style="width:75%">
+                  <input type="text" class="form-control" id="modMedianLineStroke" onchange="updateMod('modMedianLineStroke', 'MedianLineStroke')" value="">
                 </td>
               </tr>
             </table>

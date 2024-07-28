@@ -47,6 +47,7 @@ window.inputFile = "";
 window.inputFileName = "";
 window.inputSeparator = "\t";
 window.inputReplaceComma = true;
+window.inputReplaceSemicolon = true;
 window.inputTabStr = "";
 window.inputTabFix = [];
 window.selA = [];
@@ -101,6 +102,7 @@ window.modifySettings["XPlTextSize2"] = "10.0";
 window.modifySettings["XPlTextType2"] = "Arial";
 
 window.modifySettings["BoxLineStroke"] = "1.0";
+window.modifySettings["MedianLineStroke"] = "2.0";
 
 window.modifySettings["ErrShowIt"] = "y";
 window.modifySettings["ErrShape"] = "both";
@@ -317,6 +319,12 @@ function updateCommaManual() {
     importTable();
 }
 
+window.updateSemicolonManual = updateSemicolonManual;
+function updateSemicolonManual() {
+    window.inputReplaceSemicolon = document.getElementById("modSemicolonTab").checked;
+}
+
+
 window.importTable = importTable;
 function importTable() {
     processTable(window.inputFile, window.inputSeparator);
@@ -325,6 +333,9 @@ function importTable() {
 window.readHtmlRawData = readHtmlRawData;
 function readHtmlRawData() {
     var dataIn = getSaveHtmlData("table-data-points")
+    if (window.inputReplaceSemicolon) {
+        dataIn = dataIn.replace(/;/g, "\t");
+    }
     processTable(dataIn, "\t");
 }
 
@@ -337,8 +348,8 @@ function processTable(txtInput, inputSep) {
         if (rawLine.length < 3) {
             continue;
         }
-        var a_0 = rawLine[0].replace(/\t/, " ");
-        var a_1 = rawLine[1].replace(/\t/, " ");
+        var a_0 = rawLine[0].replace(/\t/g, " ");
+        var a_1 = rawLine[1].replace(/\t/g, " ");
         for (var k = 2 ; k < rawLine.length ; k++ ){
             var rawVals = rawLine[k];
             if (rawLine[k] == "") {
@@ -348,9 +359,9 @@ function processTable(txtInput, inputSep) {
             rawVals = rawVals.replace(/^;/, "");
             rawVals = rawVals.replace(/;$/, "");
             if (window.inputReplaceComma) {
-                rawVals = rawVals.replace(/,/, ".")
+                rawVals = rawVals.replace(/,/g, ".")
             } else {
-                rawVals = rawVals.replace(/,/, "")
+                rawVals = rawVals.replace(/,/g, "")
             }
             var rawList = []
             if (inputSep != ";") {
@@ -429,6 +440,50 @@ function getUniqueCol(tab, col){
     return array_keys;
 }
 
+function cMedianQuart(array) {
+  if (!array || array.length === 0) {
+      return Number.Nan;
+  }
+  var cArr = JSON.parse(JSON.stringify(array));
+  cArr.sort(function(a,b) { return a - b;});
+  const n = cArr.length;
+  var max = cArr[n - 1];
+  var min = cArr[0];
+  var median = cMedian(cArr);
+  var lowQuart = null;
+  var highQuart = null;
+  
+  if (n % 2 == 0) {
+    var cent = n / 2;
+    if (n > 4.0) {
+      lowQuart = cMedian(cArr.slice(0, cent));
+      highQuart = cMedian(cArr.slice(cent, n));  
+    }
+  } else {
+    var cent = (n - 1)/ 2;
+    if (n > 4.0) {
+      lowQuart = cMedian(cArr.slice(0, cent));
+      highQuart = cMedian(cArr.slice(cent + 1, n));
+    }
+  }
+  return [min, lowQuart, median, highQuart, max];
+}
+
+function cMedian(array) {
+  // Works on sorted array!
+  if (!array || array.length === 0) {
+    return Number.Nan;
+  }
+  const n = array.length;
+  if (n % 2 == 0) {
+    var cent = (n / 2) - 1;
+    return (array[cent] + array[cent + 1]) / 2.0;
+  } else {
+    var cent = (n - 1)/ 2;
+    return array[cent];
+  }
+}
+  
 function cMean(array) {
   if (!array || array.length === 0) {
       return Number.Nan;
@@ -572,7 +627,17 @@ function selectDataCombiMeth(){
                 if (window.sortData[window.selA[i]][window.selB[j]]["dp"].length == 0) {
                     continue;
                 }
-                if (selMethod == "mean_sem") {
+                if (selMethod == "mean_quart") {
+                    var resArr = cMedianQuart(window.sortData[window.selA[i]][window.selB[j]]["dp"])
+                    // [0 min, 1 lowQuart, 2 median, 3 highQuart, 4 max]
+                    ccErrMin = cSEM(window.sortData[window.selA[i]][window.selB[j]]["dp"])
+                    ccErrMax = ccErrMin
+                    window.sortData[window.selA[i]][window.selB[j]]["aver"] = resArr[2]
+                    window.sortData[window.selA[i]][window.selB[j]]["min"] = resArr[0]
+                    window.sortData[window.selA[i]][window.selB[j]]["max"] = resArr[4]
+                    window.sortData[window.selA[i]][window.selB[j]]["quart_low"] = resArr[1]
+                    window.sortData[window.selA[i]][window.selB[j]]["quart_high"] = resArr[3]
+                } else if (selMethod == "mean_sem") {
                     ccMean = cMean(window.sortData[window.selA[i]][window.selB[j]]["dp"])
                     ccErrMin = cSEM(window.sortData[window.selA[i]][window.selB[j]]["dp"])
                     ccErrMax = ccErrMin
@@ -614,7 +679,17 @@ function selectDataCombiMeth(){
             if (window.sortData[window.selA[i]]["dp"].length == 0) {
                 continue;
             }
-            if (selMethod == "mean_sem") {
+            if (selMethod == "mean_quart") {
+                var resArr = cMedianQuart(window.sortData[window.selA[i]][window.selB[j]]["dp"])
+                // [0 min, 1 lowQuart, 2 median, 3 highQuart, 4 max]
+                ccErrMin = cSEM(window.sortData[window.selA[i]][window.selB[j]]["dp"])
+                ccErrMax = ccErrMin
+                window.sortData[window.selA[i]]["aver"] = resArr[2]
+                window.sortData[window.selA[i]]["min"] = resArr[0]
+                window.sortData[window.selA[i]]["max"] = resArr[4]
+                window.sortData[window.selA[i]]["quart_low"] = resArr[1]
+                window.sortData[window.selA[i]]["quart_high"] = resArr[3]
+            } else if (selMethod == "mean_sem") {
                 ccMean = cMean(window.sortData[window.selA[i]]["dp"])
                 ccErrMin = cSEM(window.sortData[window.selA[i]]["dp"])
                 ccErrMax = ccErrMin
@@ -672,12 +747,30 @@ function selectDataCombiMeth(){
                     window.averTabStr += window.sortData[window.selA[i]][window.selB[j]]["aver"];
                 }
                 window.averTabStr += "\t"
-                if ("aver" in window.sortData[window.selA[i]][window.selB[j]]) {
-                    window.averTabStr += window.sortData[window.selA[i]][window.selB[j]]["err_min"];
-                }
-                window.averTabStr += "\t"
-                if ("aver" in window.sortData[window.selA[i]][window.selB[j]]) {
-                    window.averTabStr += window.sortData[window.selA[i]][window.selB[j]]["err_max"];
+                if (selMethod == "mean_quart") {
+                    if ("aver" in window.sortData[window.selA[i]][window.selB[j]]) {
+                        window.averTabStr += window.sortData[window.selA[i]][window.selB[j]]["min"];
+                    }
+                    window.averTabStr += "\t"
+                    if ("aver" in window.sortData[window.selA[i]][window.selB[j]]) {
+                        window.averTabStr += window.sortData[window.selA[i]][window.selB[j]]["quart_low"];
+                    }
+                    window.averTabStr += "\t"
+                    if ("aver" in window.sortData[window.selA[i]][window.selB[j]]) {
+                        window.averTabStr += window.sortData[window.selA[i]][window.selB[j]]["quart_high"];
+                    }
+                    window.averTabStr += "\t"
+                    if ("aver" in window.sortData[window.selA[i]][window.selB[j]]) {
+                        window.averTabStr += window.sortData[window.selA[i]][window.selB[j]]["max"];
+                    }
+                } else {
+                    if ("aver" in window.sortData[window.selA[i]][window.selB[j]]) {
+                        window.averTabStr += window.sortData[window.selA[i]][window.selB[j]]["err_min"];
+                    }
+                    window.averTabStr += "\t"
+                    if ("aver" in window.sortData[window.selA[i]][window.selB[j]]) {
+                        window.averTabStr += window.sortData[window.selA[i]][window.selB[j]]["err_max"];
+                    }
                 }
                 window.averTabStr += "\n"
             }
@@ -687,12 +780,30 @@ function selectDataCombiMeth(){
                 window.averTabStr += window.sortData[window.selA[i]]["aver"];
             }
             window.averTabStr += "\t"
-            if ("aver" in window.sortData[window.selA[i]]) {
-                window.averTabStr += window.sortData[window.selA[i]]["err_min"];
-            }
-            window.averTabStr += "\t"
-            if ("aver" in window.sortData[window.selA[i]]) {
-                window.averTabStr += window.sortData[window.selA[i]]["err_max"];
+            if (selMethod == "mean_quart") {
+                if ("aver" in window.sortData[window.selA[i]]) {
+                    window.averTabStr += window.sortData[window.selA[i]]["min"];
+                }
+                window.averTabStr += "\t"
+                if ("aver" in window.sortData[window.selA[i]]) {
+                    window.averTabStr += window.sortData[window.selA[i]]["quart_low"];
+                }
+                window.averTabStr += "\t"
+                if ("aver" in window.sortData[window.selA[i]]) {
+                    window.averTabStr += window.sortData[window.selA[i]]["quart_high"];
+                }
+                window.averTabStr += "\t"
+                if ("aver" in window.sortData[window.selA[i]]) {
+                    window.averTabStr += window.sortData[window.selA[i]]["max"];
+                }
+            } else {
+                if ("aver" in window.sortData[window.selA[i]]) {
+                    window.averTabStr += window.sortData[window.selA[i]]["err_min"];
+                }
+                window.averTabStr += "\t"
+                if ("aver" in window.sortData[window.selA[i]]) {
+                    window.averTabStr += window.sortData[window.selA[i]]["err_max"];
+                }
             }
             window.averTabStr += "\n"
         }
@@ -704,6 +815,10 @@ function selectDataCombiMeth(){
 window.updateSam = updateSam;
 function updateSam(id) {
     var str = document.getElementById(id).value;
+    if (window.inputReplaceSemicolon) {
+        str = str.replace(/;/g, "\t");
+        document.getElementById(id).value = str;
+    }
     var rawLine = str.split("\t");
     var collect = [];
     for (var i = 0 ; i < rawLine.length ; i++) {
@@ -1285,7 +1400,12 @@ function createCoordinates () {
 
 function createBoxes() {
     var retVal = ""
+    var barStroke = 2.0;
     var boxStroke = 1.0;
+    var selMethod = document.getElementById('selDataCombiMeth').value;
+    if (isFinite(parseFloat(window.modifySettings["MedianLineStroke"]))) {
+        barStroke = parseFloat(window.modifySettings["MedianLineStroke"]);
+    }
     if (isFinite(parseFloat(window.modifySettings["BoxLineStroke"]))) {
         boxStroke = parseFloat(window.modifySettings["BoxLineStroke"]);
     }
@@ -1293,15 +1413,69 @@ function createBoxes() {
     for (var i = 0 ; i < window.selA.length ; i++) {
         if (window.selB.length != 0) {
             for (var j = 0 ; j < window.selB.length ; j++) {
-                if ((selA[i] in window.xPosLookUp) &&
+                if (selMethod == "mean_quart") {
+                    if ((selA[i] in window.xPosLookUp) &&
+                            (selB[j] in window.xPosLookUp[window.selA[i]]) &&
+                            (selB[j] in window.sortData[window.selA[i]]) &&
+                            ("quart_low" in window.sortData[window.selA[i]][window.selB[j]]) &&
+                            (isFinite(window.sortData[window.selA[i]][window.selB[j]]["quart_low"])) &&
+                            ("quart_high" in window.sortData[window.selA[i]][window.selB[j]]) &&
+                            (isFinite(window.sortData[window.selA[i]][window.selB[j]]["quart_high"]))){
+                        var xPos = window.xPosLookUp[window.selA[i]][window.selB[j]] - window.xPosBarWidth;
+                        var yPos = toSvgYScale(window.sortData[window.selA[i]][window.selB[j]]["quart_high"]);
+                        var xWid = 2 * window.xPosBarWidth;
+                        var yHig = toSvgYScale(window.sortData[window.selA[i]][window.selB[j]]["quart_low"]) - yPos;
+                        retVal += "<rect x='" + xPos + "' y='" + yPos
+                        retVal += "' width='" + xWid + "' height='" + yHig
+                        var useCol = "#0000FF";
+                        if (selB[j] in window.samColorLookup) {
+                            useCol = window.samColorLookup[selB[j]];
+                        }
+                        retVal += "' fill='" + useCol + "' stroke-width='" + boxStroke + "' stroke='#000000' />"
+                    }
+                    if ((selA[i] in window.xPosLookUp) &&
                         (selB[j] in window.xPosLookUp[window.selA[i]]) &&
                         (selB[j] in window.sortData[window.selA[i]]) &&
                         ("aver" in window.sortData[window.selA[i]][window.selB[j]]) &&
                         (isFinite(window.sortData[window.selA[i]][window.selB[j]]["aver"]))){
-                    var xPos = window.xPosLookUp[window.selA[i]][window.selB[j]] - window.xPosBarWidth;
-                    var yPos = toSvgYScale(window.sortData[window.selA[i]][window.selB[j]]["aver"]);
+                        var xPos = window.xPosLookUp[window.selA[i]][window.selB[j]] - window.xPosBarWidth;
+                        var yPos = toSvgYScale(window.sortData[window.selA[i]][window.selB[j]]["aver"]);
+                        var x2Pos = xPos + 2 * window.xPosBarWidth;
+                        var yHig = window.frameYend - yPos;
+                        retVal += "<line x1='" + xPos + "' y1='" + yPos + "' x2='" + x2Pos + "' y2='" + yPos
+                        retVal += "' stroke='#000000' stroke-width='" + barStroke + "' />"
+                    }
+                } else {
+                    if ((selA[i] in window.xPosLookUp) &&
+                            (selB[j] in window.xPosLookUp[window.selA[i]]) &&
+                            (selB[j] in window.sortData[window.selA[i]]) &&
+                            ("aver" in window.sortData[window.selA[i]][window.selB[j]]) &&
+                            (isFinite(window.sortData[window.selA[i]][window.selB[j]]["aver"]))){
+                        var xPos = window.xPosLookUp[window.selA[i]][window.selB[j]] - window.xPosBarWidth;
+                        var yPos = toSvgYScale(window.sortData[window.selA[i]][window.selB[j]]["aver"]);
+                        var xWid = 2 * window.xPosBarWidth;
+                        var yHig = window.frameYend - yPos;
+                        retVal += "<rect x='" + xPos + "' y='" + yPos
+                        retVal += "' width='" + xWid + "' height='" + yHig
+                        var useCol = "#0000FF";
+                        if (selB[j] in window.samColorLookup) {
+                            useCol = window.samColorLookup[selB[j]];
+                        }
+                        retVal += "' fill='" + useCol + "' stroke-width='" + boxStroke + "' stroke='#000000' />"
+                    }
+                }
+            }
+        } else {
+            if (selMethod == "mean_quart") {
+                if ((selA[i] in window.xPosLookUp) &&
+                        ("quart_low" in window.sortData[window.selA[i]]) &&
+                        (isFinite(window.sortData[window.selA[i]]["quart_low"])) &&
+                        ("quart_high" in window.sortData[window.selA[i]]) &&
+                        (isFinite(window.sortData[window.selA[i]]["quart_high"]))){
+                    var xPos = window.xPosLookUp[window.selA[i]] - window.xPosBarWidth;
+                    var yPos = toSvgYScale(window.sortData[window.selA[i]]["quart_high"]);
                     var xWid = 2 * window.xPosBarWidth;
-                    var yHig = window.frameYend - yPos;
+                    var yHig = toSvgYScale(window.sortData[window.selA[i]]["quart_low"]) - yPos;
                     retVal += "<rect x='" + xPos + "' y='" + yPos
                     retVal += "' width='" + xWid + "' height='" + yHig
                     var useCol = "#0000FF";
@@ -1310,21 +1484,30 @@ function createBoxes() {
                     }
                     retVal += "' fill='" + useCol + "' stroke-width='" + boxStroke + "' stroke='#000000' />"
                 }
-            }
-        } else {
-            if ((selA[i] in window.xPosLookUp)  &&
+                if ((selA[i] in window.xPosLookUp)  &&
                     (isFinite(window.sortData[window.selA[i]]["aver"]))) {
-                var xPos = window.xPosLookUp[window.selA[i]] - window.xPosBarWidth;
-                var yPos = toSvgYScale(window.sortData[window.selA[i]]["aver"]);
-                var xWid = 2 * window.xPosBarWidth;
-                var yHig = window.frameYend - yPos;
-                retVal += "<rect x='" + xPos + "' y='" + yPos
-                retVal += "' width='" + xWid + "' height='" + yHig
-                var useCol = "#0000FF";
-                if (selA[i] in window.samColorLookup) {
-                    useCol = window.samColorLookup[selA[i]];
+                    var xPos = window.xPosLookUp[window.selA[i]] - window.xPosBarWidth;
+                    var yPos = toSvgYScale(window.sortData[window.selA[i]]["aver"]);
+                    var x2Pos = xPos + 2 * window.xPosBarWidth;
+                    var yHig = window.frameYend - yPos;
+                    retVal += "<line x1='" + xPos + "' y1='" + yPos + "' x2='" + x2Pos + "' y2='" + yPos
+                    retVal += "' stroke='#000000' stroke-width='" + barStroke + "' />"
                 }
-                retVal += "' fill='" + useCol + "' stroke-width='" + boxStroke + "' stroke='#000000' />"
+            } else {
+                if ((selA[i] in window.xPosLookUp)  &&
+                        (isFinite(window.sortData[window.selA[i]]["aver"]))) {
+                    var xPos = window.xPosLookUp[window.selA[i]] - window.xPosBarWidth;
+                    var yPos = toSvgYScale(window.sortData[window.selA[i]]["aver"]);
+                    var xWid = 2 * window.xPosBarWidth;
+                    var yHig = window.frameYend - yPos;
+                    retVal += "<rect x='" + xPos + "' y='" + yPos
+                    retVal += "' width='" + xWid + "' height='" + yHig
+                    var useCol = "#0000FF";
+                    if (selA[i] in window.samColorLookup) {
+                        useCol = window.samColorLookup[selA[i]];
+                    }
+                    retVal += "' fill='" + useCol + "' stroke-width='" + boxStroke + "' stroke='#000000' />"
+                }
             }
         }
     }
@@ -1361,11 +1544,17 @@ function createErrorBars() {
                         if (isFinite(window.sortData[window.selA[i]][window.selB[j]]["err_max"])) {
                             errMax = aver + window.sortData[window.selA[i]][window.selB[j]]["err_max"];
                         }
+                        if (isFinite(window.sortData[window.selA[i]][window.selB[j]]["max"])) {
+                            errMax = window.sortData[window.selA[i]][window.selB[j]]["max"];
+                        }
                     }
                     if ((window.modifySettings["ErrShape"] == "both") ||
                         (window.modifySettings["ErrShape"] == "lower")) {
                         if (isFinite(window.sortData[window.selA[i]][window.selB[j]]["err_min"])) {
                             errMin = aver - window.sortData[window.selA[i]][window.selB[j]]["err_min"];
+                        }
+                        if (isFinite(window.sortData[window.selA[i]][window.selB[j]]["min"])) {
+                            errMin = window.sortData[window.selA[i]][window.selB[j]]["min"];
                         }
                     }
                     if (errMax == errMin) {
@@ -1392,11 +1581,23 @@ function createErrorBars() {
                 var aver = window.sortData[window.selA[i]]["aver"]
                 var errMax = aver;
                 var errMin = aver;
-                if (isFinite(window.sortData[window.selA[i]]["err_max"])) {
-                    errMax = aver + window.sortData[window.selA[i]]["err_max"];
+                if ((window.modifySettings["ErrShape"] == "both") ||
+                    (window.modifySettings["ErrShape"] == "upper")) {
+                    if (isFinite(window.sortData[window.selA[i]]["err_max"])) {
+                        errMax = aver + window.sortData[window.selA[i]]["err_max"];
+                    }
+                    if (isFinite(window.sortData[window.selA[i]]["max"])) {
+                        errMax = window.sortData[window.selA[i]]["max"];
+                    }
                 }
-                if (isFinite(window.sortData[window.selA[i]]["err_min"])) {
-                    errMin = aver - window.sortData[window.selA[i]]["err_min"];
+                if ((window.modifySettings["ErrShape"] == "both") ||
+                        (window.modifySettings["ErrShape"] == "lower")) {
+                    if (isFinite(window.sortData[window.selA[i]]["err_min"])) {
+                        errMin = aver - window.sortData[window.selA[i]]["err_min"];
+                    }
+                    if (isFinite(window.sortData[window.selA[i]]["min"])) {
+                        errMin = window.sortData[window.selA[i]]["min"];
+                    }
                 }
                 if (errMax == errMin) {
                     continue;
@@ -1834,6 +2035,7 @@ function loadModification(newSett) {
     updateKeyEl(newSett,"XPlTextType2","modXPlTextType2");
 
     updateKeyEl(newSett,"BoxLineStroke","modBoxLineStroke");
+    updateKeyEl(newSett,"MedianLineStroke","modMedianLineStroke");
 
     updateKeyEl(newSett,"ErrShowIt","modErrShowIt");
     updateKeyEl(newSett,"ErrShape","modErrShape");
