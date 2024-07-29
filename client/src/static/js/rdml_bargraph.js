@@ -541,6 +541,7 @@ function selectDataCombiMeth(){
     }
     srtEleB.value = outSrtStrB.replace(/\t$/, "");
 
+    // Create the html to select the colors of the boxes
     var colorEle = document.getElementById("sample-color-sel");
     var colorHtml = '<table style="width:100%;">\n';
     if (window.selB.length != 0) {
@@ -565,6 +566,8 @@ function selectDataCombiMeth(){
     colorHtml += "</table>\n";
     colorEle.innerHTML = colorHtml;
 
+    // Collect all datapoints in their respective groups
+    //     and collect min, positive min and max
     for (var i = 0 ; i < window.inputTabFix.length ; i++) {
         if (window.inputTabFix[i].length != 3) {
             continue;
@@ -612,6 +615,9 @@ function selectDataCombiMeth(){
             window.sortData[elA]["dp"].push(currVal);
         }
     }
+
+    // Calculate the requested statistics
+    //     and update min, positive min and max
     for (var i = 0 ; i < window.selA.length ; i++) {
         var ccMean = Number.Nan;
         var ccErrMin = Number.Nan;
@@ -653,8 +659,16 @@ function selectDataCombiMeth(){
                     window.sortData[window.selA[i]][window.selB[j]]["err_max"] = ccErrMax
                 }
 
-
-
+                // Update min, pos min and max
+                if ((isFinite(window.sortData[window.selA[i]][window.selB[j]]["min"])) &&
+                    (window.sortData[window.selA[i]][window.selB[j]]["min"] < window.sortPara["yMin"])) {
+                    window.sortPara["yMin"] = window.sortData[window.selA[i]][window.selB[j]]["min"];
+                }
+                if ((isFinite(window.sortData[window.selA[i]][window.selB[j]]["min"])) &&
+                    (window.sortData[window.selA[i]][window.selB[j]]["min"] < window.sortPara["yPosMin"]) &&
+                    (window.sortData[window.selA[i]][window.selB[j]]["min"] > 0.0)) {
+                    window.sortPara["yPosMin"] = window.sortData[window.selA[i]][window.selB[j]]["min"];
+                }
                 if ((isFinite(ccMean)) &&
                     (isFinite(ccErrMin)) &&
                     (ccMean - ccErrMin < window.sortPara["yMin"])) {
@@ -680,9 +694,9 @@ function selectDataCombiMeth(){
                 continue;
             }
             if (selMethod == "mean_quart") {
-                var resArr = cMedianQuart(window.sortData[window.selA[i]][window.selB[j]]["dp"])
+                var resArr = cMedianQuart(window.sortData[window.selA[i]]["dp"])
                 // [0 min, 1 lowQuart, 2 median, 3 highQuart, 4 max]
-                ccErrMin = cSEM(window.sortData[window.selA[i]][window.selB[j]]["dp"])
+                ccErrMin = cSEM(window.sortData[window.selA[i]]["dp"])
                 ccErrMax = ccErrMin
                 window.sortData[window.selA[i]]["aver"] = resArr[2]
                 window.sortData[window.selA[i]]["min"] = resArr[0]
@@ -707,6 +721,15 @@ function selectDataCombiMeth(){
 
 
 
+            if ((isFinite(window.sortData[window.selA[i]]["min"])) &&
+                (window.sortData[window.selA[i]]["min"] < window.sortPara["yMin"])) {
+                window.sortPara["yMin"] = window.sortData[window.selA[i]]["min"];
+            }
+            if ((isFinite(window.sortData[window.selA[i]]["min"])) &&
+                (window.sortData[window.selA[i]]["min"] < window.sortPara["yPosMin"]) &&
+                (window.sortData[window.selA[i]]["min"] > 0.0)) {
+                window.sortPara["yPosMin"] = window.sortData[window.selA[i]]["min"];
+            }
             if ((isFinite(ccMean)) &&
                 (isFinite(ccErrMin)) &&
                 (ccMean - ccErrMin < window.sortPara["yMin"])) {
@@ -735,6 +758,7 @@ function selectDataCombiMeth(){
         window.sortPara["yMax"] = window.sortPara["yRawMax"];
     }
 
+    // Create the results table
     window.averTabStr = "";
     for (var i = 0 ; i < window.selA.length ; i++) {
         if (window.selB.length != 0) {
