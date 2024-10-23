@@ -1538,17 +1538,20 @@ function updateClientData() {
             }
             ret += '</select>\n</td>\n'
             ret += '  </tr>'
-            if (["1.3", "1.4"].includes(window.rdmlData.rdml.version)) {
-                ret += '  <tr>\n    <td style="width:25%;">MeltingTemperature:</td>\n'
-                ret += '    <td style="width:75%"><input type="text" class="form-control" '
-                ret += 'id="inTarMeltingTemperature" value="'+ saveUndef(exp[i].meltingTemperature) + '"></td>\n'
-                ret += '  </tr>'
-            }
             ret += '  <tr>\n    <td style="width:25%;">' + 'Forward Primer - Sequence:</td>\n'
             ret += '    <td style="width:75%"><input type="text" class="form-control" id="inTarSequences_forwardPrimer_sequence" value="'
             if (exp[i].hasOwnProperty("sequences")) {
                 if (exp[i].sequences.hasOwnProperty("forwardPrimer")) {
                     ret += saveUndefKey(exp[i].sequences.forwardPrimer, "sequence")
+                }
+            }
+            ret += '"></td>\n'
+            ret += '  </tr>'
+            ret += '  <tr>\n    <td style="width:25%;">' + 'Forward Primer - Conc. (nMol/l):</td>\n'
+            ret += '    <td style="width:75%"><input type="text" class="form-control" id="inTarSequences_forwardPrimer_oligoConc" value="'
+            if (exp[i].hasOwnProperty("sequences")) {
+                if (exp[i].sequences.hasOwnProperty("forwardPrimer")) {
+                    ret += saveUndefKey(exp[i].sequences.forwardPrimer, "oligoConc")
                 }
             }
             ret += '"></td>\n'
@@ -1562,11 +1565,29 @@ function updateClientData() {
             }
             ret += '"></td>\n'
             ret += '  </tr>'
+            ret += '  <tr>\n    <td style="width:25%;">' + 'Reverse Primer - Conc. (nMol/l):</td>\n'
+            ret += '    <td style="width:75%"><input type="text" class="form-control" id="inTarSequences_reversePrimer_oligoConc" value="'
+            if (exp[i].hasOwnProperty("sequences")) {
+                if (exp[i].sequences.hasOwnProperty("reversePrimer")) {
+                    ret += saveUndefKey(exp[i].sequences.reversePrimer, "oligoConc")
+                }
+            }
+            ret += '"></td>\n'
+            ret += '  </tr>'
             ret += '  <tr>\n    <td style="width:25%;">' + 'probe1 - Sequence:</td>\n'
             ret += '    <td style="width:75%"><input type="text" class="form-control" id="inTarSequences_probe1_sequence" value="'
             if (exp[i].hasOwnProperty("sequences")) {
                 if (exp[i].sequences.hasOwnProperty("probe1")) {
                     ret += saveUndefKey(exp[i].sequences.probe1, "sequence")
+                }
+            }
+            ret += '"></td>\n'
+            ret += '  </tr>'
+            ret += '  <tr>\n    <td style="width:25%;">' + 'probe1 - Conc. (nMol/l):</td>\n'
+            ret += '    <td style="width:75%"><input type="text" class="form-control" id="inTarSequences_probe1_oligoConc" value="'
+            if (exp[i].hasOwnProperty("sequences")) {
+                if (exp[i].sequences.hasOwnProperty("probe1")) {
+                    ret += saveUndefKey(exp[i].sequences.probe1, "oligoConc")
                 }
             }
             ret += '"></td>\n'
@@ -1580,6 +1601,15 @@ function updateClientData() {
             }
             ret += '"></td>\n'
             ret += '  </tr>'
+            ret += '  <tr>\n    <td style="width:25%;">' + 'Probe2 - Conc. (nMol/l):</td>\n'
+            ret += '    <td style="width:75%"><input type="text" class="form-control" id="inTarSequences_probe2_oligoConc" value="'
+            if (exp[i].hasOwnProperty("sequences")) {
+                if (exp[i].sequences.hasOwnProperty("probe2")) {
+                    ret += saveUndefKey(exp[i].sequences.probe2, "oligoConc")
+                }
+            }
+            ret += '"></td>\n'
+            ret += '  </tr>'
             ret += '  <tr>\n    <td style="width:25%;">' + 'Amplicon - Sequence:</td>\n'
             ret += '    <td style="width:75%"><input type="text" class="form-control" id="inTarSequences_amplicon_sequence" value="'
             if (exp[i].hasOwnProperty("sequences")) {
@@ -1589,6 +1619,12 @@ function updateClientData() {
             }
             ret += '"></td>\n'
             ret += '  </tr>'
+            if (["1.3", "1.4"].includes(window.rdmlData.rdml.version)) {
+                ret += '  <tr>\n    <td style="width:25%;">Amplicon MeltingTemperature:</td>\n'
+                ret += '    <td style="width:75%"><input type="text" class="form-control" '
+                ret += 'id="inTarMeltingTemperature" value="'+ saveUndef(exp[i].meltingTemperature) + '"></td>\n'
+                ret += '  </tr>'
+            }
             ret += '  <tr>\n    <td style="width:25%;">' + 'Amplicon Seq. Tools:</td>\n'
             ret += '    <td style="width:75%"><table style="width:100%;">'
             ret += '      <tr><td style="width:25%;">'
@@ -1716,6 +1752,11 @@ function updateClientData() {
                     if (use_oligo == true) {
                       ret += oligo + '</td>\n  </tr>'
                     }
+                    if (oligo_elem.hasOwnProperty("oligoConc")) {
+                        ret += '  <tr>\n    <td style="width:25%;">Forward Primer Conc:</td>\n'
+                        ret += '    <td style="width:75%">\n' + oligo_elem.oligoConc
+                        ret += ' nMol/l</td>\n  </tr>'
+                    }
                 }
                 if (exp[i].sequences.hasOwnProperty("reversePrimer")) {
                     var oligo_elem = exp[i].sequences.reversePrimer
@@ -1736,6 +1777,11 @@ function updateClientData() {
                     }
                     if (use_oligo == true) {
                       ret += oligo + '</td>\n  </tr>'
+                    }
+                    if (oligo_elem.hasOwnProperty("oligoConc")) {
+                        ret += '  <tr>\n    <td style="width:25%;">Reverse Primer Conc:</td>\n'
+                        ret += '    <td style="width:75%">\n' + oligo_elem.oligoConc
+                        ret += ' nMol/l</td>\n  </tr>'
                     }
                 }
                 if (exp[i].sequences.hasOwnProperty("probe1")) {
@@ -1758,6 +1804,11 @@ function updateClientData() {
                     if (use_oligo == true) {
                       ret += oligo + '</td>\n  </tr>'
                     }
+                    if (oligo_elem.hasOwnProperty("oligoConc")) {
+                        ret += '  <tr>\n    <td style="width:25%;">Probe 1 Conc:</td>\n'
+                        ret += '    <td style="width:75%">\n' + oligo_elem.oligoConc
+                        ret += ' nMol/l</td>\n  </tr>'
+                    }
                 }
                 if (exp[i].sequences.hasOwnProperty("probe2")) {
                     var oligo_elem = exp[i].sequences.probe2
@@ -1779,7 +1830,12 @@ function updateClientData() {
                     if (use_oligo == true) {
                       ret += oligo + '</td>\n  </tr>'
                     }
-                }
+                    if (oligo_elem.hasOwnProperty("oligoConc")) {
+                        ret += '  <tr>\n    <td style="width:25%;">Probe 2 Conc:</td>\n'
+                        ret += '    <td style="width:75%">\n' + oligo_elem.oligoConc
+                        ret += ' nMol/l</td>\n  </tr>'
+                    }
+               }
                 if (exp[i].sequences.hasOwnProperty("amplicon")) {
                     var oligo_elem = exp[i].sequences.amplicon
                     var use_oligo = false
@@ -2373,16 +2429,6 @@ function updateClientData() {
             ret += '    <td style="width:85%"><input type="text" class="form-control" '
             ret += 'id="inDyeId" value="'+ exp[i].id + '"></td>\n'
             ret += '  </tr>'
-            ret += '  <tr>\n    <td style="width:25%;">Method of modification:</td>\n'
-            ret += '    <td style="width:75%"><select class="form-control" id="inDyeIdUnique">\n'
-            ret += '        <option value=false selected>Id must be unique and will be renamed</option>\n'
-            ret += '        <option value=true>Change all its uses to existing Id (dangerous - may corrupt data)</option>\n'
-            ret += '      </select></td>\n'
-            ret += '  </tr>'
-            ret += '  <tr>\n    <td style="width:15%;">Place at Position:</td>\n'
-            ret += '    <td style="width:85%"><input type="text" class="form-control" '
-            ret += 'id="inPos" value="' + (i + 1) + '"></td>\n'
-            ret += '  </tr>'
             if (["1.3", "1.4"].includes(window.rdmlData.rdml.version)) {
                 ret += '  <tr>\n    <td style="width:25%;">Fluorescence Reporter:</td>\n'
                 ret += '    <td style="width:75%"><select class="form-control" id="inDyeDyeChemistry">\n'
@@ -2430,6 +2476,32 @@ function updateClientData() {
                 ret += '      </select></td>\n'
                 ret += '  </tr>'
             }
+            if (["1.4"].includes(window.rdmlData.rdml.version)) {
+                ret += '  <tr>\n    <td style="width:15%;">dNTP Concentration (&micro;Mol/l)</td>\n'
+                ret += '    <td style="width:85%"><input type="text" class="form-control" '
+                ret += 'id="inDyeDNTPs" value="'
+                if (exp[i].hasOwnProperty("dNTPs")) {
+                    ret += exp[i].dNTPs
+                }
+                ret += '"></td>\n  </tr>'
+                ret += '  <tr>\n    <td style="width:15%;">Dye Concentration (&micro;Mol/l)</td>\n'
+                ret += '    <td style="width:85%"><input type="text" class="form-control" '
+                ret += 'id="inDyeConc" value="'
+                if (exp[i].hasOwnProperty("dyeConc")) {
+                    ret += exp[i].dyeConc
+                }
+                ret += '"></td>\n  </tr>'
+            }
+            ret += '  <tr>\n    <td style="width:25%;">Method of modification:</td>\n'
+            ret += '    <td style="width:75%"><select class="form-control" id="inDyeIdUnique">\n'
+            ret += '        <option value=false selected>Id must be unique and will be renamed</option>\n'
+            ret += '        <option value=true>Change all its uses to existing Id (dangerous - may corrupt data)</option>\n'
+            ret += '      </select></td>\n'
+            ret += '  </tr>'
+            ret += '  <tr>\n    <td style="width:15%;">Place at Position:</td>\n'
+            ret += '    <td style="width:85%"><input type="text" class="form-control" '
+            ret += 'id="inPos" value="' + (i + 1) + '"></td>\n'
+            ret += '  </tr>'
             ret += '</table></p><textarea class="form-control" id="inDyeDescription" rows="20">'
             ret += htmllize(saveUndef(exp[i].description)) + '</textarea><br /><br />\n'
             ret += '<button type="button" class="btn btn-success" '
@@ -2440,12 +2512,23 @@ function updateClientData() {
         } else {
             ret += '<br /><div class="card">\n<div class="card-body">\n'
             ret += '<h5 class="card-title">' + (i + 1) + '. Dye ID: ' + exp[i].id + '</h5>\n<p>'
+            ret += '<table style="width:100%;">'
             if (exp[i].hasOwnProperty("dyeChemistry")) {
-                ret += '<table style="width:100%;">'
                 ret += '  <tr>\n    <td style="width:25%;">Fluorescence Reporter:</td>\n'
                 ret += '    <td style="width:75%">\n'+ exp[i].dyeChemistry + '</td>\n'
-                ret += '  </tr>\n</table>'
+                ret += '  </tr>\n'
             }
+            if (exp[i].hasOwnProperty("dyeConc")) {
+                ret += '  <tr>\n    <td style="width:25%;">Dye Concentration:</td>\n'
+                ret += '    <td style="width:75%">\n'+ exp[i].dyeConc + ' &micro;Mol/l</td>\n'
+                ret += '  </tr>\n'
+            }
+            if (exp[i].hasOwnProperty("dNTPs")) {
+                ret += '  <tr>\n    <td style="width:25%;">dNTPs Concentration:</td>\n'
+                ret += '    <td style="width:75%">\n'+ exp[i].dNTPs + ' &micro;Mol/l</td>\n'
+                ret += '  </tr>\n'
+            }
+            ret += '</table>'
             ret += '<p>' + saveUndef(exp[i].description) + '</p>\n'
             ret += '<button type="button" class="btn btn-success rdml-btn-edit" '
             ret += 'onclick="editPresentElement(\'dye\', ' + i + ');">Edit</button>&nbsp;&nbsp;&nbsp;&nbsp;'
@@ -2856,6 +2939,14 @@ function saveEditElement(typ, pos, oldId){
         if (ver_sense_dye) {
             el["dyeChemistry"] = ver_sense_dye.value
         }
+        var ver_dNTPs = document.getElementById("inDyeDNTPs")
+        if (ver_dNTPs) {
+            el["dNTPs"] = ver_dNTPs.value
+        }
+        var ver_dyeConc = document.getElementById("inDyeConc")
+        if (ver_dyeConc) {
+            el["dyeConc"] = ver_dyeConc.value
+        }
         ret["data"] = el
     }
     if (typ == "sample") {
@@ -2915,15 +3006,19 @@ function saveEditElement(typ, pos, oldId){
         el["dyeId"] = getSaveHtmlData("inTarDyeId")
         el["sequences_forwardPrimer_fivePrimeTag"] = getSaveHtmlData("inTarSequences_forwardPrimer_fivePrimeTag")
         el["sequences_forwardPrimer_sequence"] = getSaveHtmlData("inTarSequences_forwardPrimer_sequence")
+        el["sequences_forwardPrimer_oligoConc"] = getSaveHtmlData("inTarSequences_forwardPrimer_oligoConc")
         el["sequences_forwardPrimer_threePrimeTag"] = getSaveHtmlData("inTarSequences_forwardPrimer_threePrimeTag")
         el["sequences_reversePrimer_fivePrimeTag"] = getSaveHtmlData("inTarSequences_reversePrimer_fivePrimeTag")
         el["sequences_reversePrimer_sequence"] = getSaveHtmlData("inTarSequences_reversePrimer_sequence")
+        el["sequences_reversePrimer_oligoConc"] = getSaveHtmlData("inTarSequences_reversePrimer_oligoConc")
         el["sequences_reversePrimer_threePrimeTag"] = getSaveHtmlData("inTarSequences_reversePrimer_threePrimeTag")
         el["sequences_probe1_fivePrimeTag"] = getSaveHtmlData("inTarSequences_probe1_fivePrimeTag")
         el["sequences_probe1_sequence"] = getSaveHtmlData("inTarSequences_probe1_sequence")
+        el["sequences_probe1_oligoConc"] = getSaveHtmlData("inTarSequences_probe1_oligoConc")
         el["sequences_probe1_threePrimeTag"] = getSaveHtmlData("inTarSequences_probe1_threePrimeTag")
         el["sequences_probe2_fivePrimeTag"] = getSaveHtmlData("inTarSequences_probe2_fivePrimeTag")
         el["sequences_probe2_sequence"] = getSaveHtmlData("inTarSequences_probe2_sequence")
+        el["sequences_probe2_oligoConc"] = getSaveHtmlData("inTarSequences_probe2_oligoConc")
         el["sequences_probe2_threePrimeTag"] = getSaveHtmlData("inTarSequences_probe2_threePrimeTag")
         el["sequences_amplicon_fivePrimeTag"] = getSaveHtmlData("inTarSequences_amplicon_fivePrimeTag")
         el["sequences_amplicon_sequence"] = getSaveHtmlData("inTarSequences_amplicon_sequence")

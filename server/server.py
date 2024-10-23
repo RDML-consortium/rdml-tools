@@ -1548,6 +1548,10 @@ def handle_data():
                         elem["description"] = reqdata["data"]["description"]
                         if "dyeChemistry" in reqdata["data"]:
                             elem["dyeChemistry"] = reqdata["data"]["dyeChemistry"]
+                        if "dyeConc" in reqdata["data"]:
+                            elem["dyeConc"] = reqdata["data"]["dyeConc"]
+                        if "dNTPs" in reqdata["data"]:
+                            elem["dNTPs"] = reqdata["data"]["dNTPs"]
                     except rdml.RdmlError as err:
                         data["error"] = str(err)
                     else:
@@ -1689,24 +1693,32 @@ def handle_data():
                     return jsonify(errors=[{"title": "Invalid server request - target sequences_forwardPrimer_fivePrimeTag missing!"}]), 400
                 if "sequences_forwardPrimer_sequence" not in reqdata["data"]:
                     return jsonify(errors=[{"title": "Invalid server request - target sequences_forwardPrimer_sequence missing!"}]), 400
+                if "sequences_forwardPrimer_oligoConc" not in reqdata["data"]:
+                    return jsonify(errors=[{"title": "Invalid server request - target sequences_forwardPrimer_oligoConc missing!"}]), 400
                 if "sequences_reversePrimer_threePrimeTag" not in reqdata["data"]:
                     return jsonify(errors=[{"title": "Invalid server request - target sequences_reversePrimer_threePrimeTag missing!"}]), 400
                 if "sequences_reversePrimer_fivePrimeTag" not in reqdata["data"]:
                     return jsonify(errors=[{"title": "Invalid server request - target sequences_reversePrimer_fivePrimeTag missing!"}]), 400
                 if "sequences_reversePrimer_sequence" not in reqdata["data"]:
                     return jsonify(errors=[{"title": "Invalid server request - target sequences_reversePrimer_sequence missing!"}]), 400
+                if "sequences_reversePrimer_oligoConc" not in reqdata["data"]:
+                    return jsonify(errors=[{"title": "Invalid server request - target sequences_reversePrimer_oligoConc missing!"}]), 400
                 if "sequences_probe1_threePrimeTag" not in reqdata["data"]:
                     return jsonify(errors=[{"title": "Invalid server request - target sequences_probe1_threePrimeTag missing!"}]), 400
                 if "sequences_probe1_fivePrimeTag" not in reqdata["data"]:
                     return jsonify(errors=[{"title": "Invalid server request - target sequences_probe1_fivePrimeTag missing!"}]), 400
                 if "sequences_probe1_sequence" not in reqdata["data"]:
                     return jsonify(errors=[{"title": "Invalid server request - target sequences_probe1_sequence missing!"}]), 400
+                if "sequences_probe1_oligoConc" not in reqdata["data"]:
+                    return jsonify(errors=[{"title": "Invalid server request - target sequences_probe1_oligoConc missing!"}]), 400
                 if "sequences_probe2_threePrimeTag" not in reqdata["data"]:
                     return jsonify(errors=[{"title": "Invalid server request - target sequences_probe2_threePrimeTag missing!"}]), 400
                 if "sequences_probe2_fivePrimeTag" not in reqdata["data"]:
                     return jsonify(errors=[{"title": "Invalid server request - target sequences_probe2_fivePrimeTag missing!"}]), 400
                 if "sequences_probe2_sequence" not in reqdata["data"]:
                     return jsonify(errors=[{"title": "Invalid server request - target sequences_probe2_sequence missing!"}]), 400
+                if "sequences_probe2_oligoConc" not in reqdata["data"]:
+                    return jsonify(errors=[{"title": "Invalid server request - target sequences_probe2_oligoConc missing!"}]), 400
                 if "sequences_amplicon_threePrimeTag" not in reqdata["data"]:
                     return jsonify(errors=[{"title": "Invalid server request - target sequences_amplicon_threePrimeTag missing!"}]), 400
                 if "sequences_amplicon_fivePrimeTag" not in reqdata["data"]:
@@ -1745,15 +1757,19 @@ def handle_data():
                         elem["dyeId"] = reqdata["data"]["dyeId"]
                         elem["sequences_forwardPrimer_fivePrimeTag"] = reqdata["data"]["sequences_forwardPrimer_fivePrimeTag"]
                         elem["sequences_forwardPrimer_sequence"] = reqdata["data"]["sequences_forwardPrimer_sequence"]
+                        elem["sequences_forwardPrimer_oligoConc"] = reqdata["data"]["sequences_forwardPrimer_oligoConc"]
                         elem["sequences_forwardPrimer_threePrimeTag"] = reqdata["data"]["sequences_forwardPrimer_threePrimeTag"]
                         elem["sequences_reversePrimer_fivePrimeTag"] = reqdata["data"]["sequences_reversePrimer_fivePrimeTag"]
                         elem["sequences_reversePrimer_sequence"] = reqdata["data"]["sequences_reversePrimer_sequence"]
+                        elem["sequences_reversePrimer_oligoConc"] = reqdata["data"]["sequences_reversePrimer_oligoConc"]
                         elem["sequences_reversePrimer_threePrimeTag"] = reqdata["data"]["sequences_reversePrimer_threePrimeTag"]
                         elem["sequences_probe1_fivePrimeTag"] = reqdata["data"]["sequences_probe1_fivePrimeTag"]
                         elem["sequences_probe1_sequence"] = reqdata["data"]["sequences_probe1_sequence"]
+                        elem["sequences_probe1_oligoConc"] = reqdata["data"]["sequences_probe1_oligoConc"]
                         elem["sequences_probe1_threePrimeTag"] = reqdata["data"]["sequences_probe1_threePrimeTag"]
                         elem["sequences_probe2_fivePrimeTag"] = reqdata["data"]["sequences_probe2_fivePrimeTag"]
                         elem["sequences_probe2_sequence"] = reqdata["data"]["sequences_probe2_sequence"]
+                        elem["sequences_probe2_oligoConc"] = reqdata["data"]["sequences_probe2_oligoConc"]
                         elem["sequences_probe2_threePrimeTag"] = reqdata["data"]["sequences_probe2_threePrimeTag"]
                         elem["sequences_amplicon_fivePrimeTag"] = reqdata["data"]["sequences_amplicon_fivePrimeTag"]
                         elem["sequences_amplicon_sequence"] = reqdata["data"]["sequences_amplicon_sequence"]
