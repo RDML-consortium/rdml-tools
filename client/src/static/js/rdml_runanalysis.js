@@ -247,6 +247,7 @@ function resetLinRegPCRdata() {
     window.curveSource = "adp"
     window.baselineData = ""
     resultLinRegPCR.innerHTML = ""
+    textEle.innerHTML = ""
     updateLinRegPCRTable()
 }
 
@@ -696,6 +697,9 @@ function updateServerData(stat, reqData) {
                             }
                         }
                         updateLinRegPCRTable()
+                        if (window.reactData.hasOwnProperty("resultsLinRegPCRReport")) {
+                            updateLinRegPCRReport(window.reactData.resultsLinRegPCRReport)
+                        }
                         var bbUpdateRDML = document.getElementById('updateRDMLData')
                         if ((bbUpdateRDML) && (bbUpdateRDML.value == "y")){
                             window.reloadCurves = true;
@@ -1524,6 +1528,14 @@ function NumPoint(val) {
         ret = ret.replace(/\./g, ',');
     }
     return ret;
+}
+
+function updateLinRegPCRReport(inText) {
+    var textEle = document.getElementById('report-linregpcr');
+    if (textEle) {
+        var modText = inText.replace(/\n/, "<br /><br />"); 
+        textEle.innerHTML = "<p>" + modText + "</p>";
+    }
 }
 
 window.updateLinRegPCRTable = updateLinRegPCRTable
