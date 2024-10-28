@@ -105,8 +105,8 @@
         <table style="width:100%;">
           <tr>
             <td style="width:1%;"></td>
-            <td style="width:47%;"> Excluding samples with diverging individual PCR efficiency:</td>
-            <td style="width:7%;">
+            <td style="width:26%;"> Excluding samples with diverging individual PCR efficiency:</td>
+            <td style="width:28%;">
               <select class="form-control" id="choiceExcludeEfficiency">
                 <option value="outlier" selected>exclude outliers (recommended)</option>
                 <option value="mean">exclude outside median range (classic)</option>
@@ -136,13 +136,13 @@
             <td style="width:1%;"></td>
             <td style="width:26%;">Exclude from mean efficiency calculation:</td>
             <td style="width:21%;">Samples without plateau phase:</td>
-            <td style="width:6%;">
+            <td style="width:7%;">
               <select class="form-control" id="choiceExcludeNoPlateau">
                 <option value="y" selected>yes</option>
                 <option value="n">no</option>
               </select>
             </td>
-            <td style="width:7%;"></td>
+            <td style="width:6%;"></td>
             <td style="width:14%;">PCR median efficiency range:</td>
             <td style="width:6%;"><input type="text" class="form-control" value="0.05" id="text-exl-men-eff"></td>
             <td style="width:18%;text-align: right;">
@@ -159,14 +159,13 @@
             <td style="width:1%;"></td>
             <td style="width:26%;">Exclude from calculations:</td>
             <td style="width:21%;">Samples with unstable baseline:</td>
-            <td style="width:6%;">
+            <td style="width:7%;">
               <select class="form-control" id="choiceExcludeUnstableBaseline">
                 <option value="y" selected>yes</option>
                 <option value="n">no</option>
               </select>
             </td>
-            <td style="width:3%;"></td>
-            <td style="width:4%;"></td>
+            <td style="width:6%;"></td>
             <td style="width:14%;">Update Target PCR Efficiency:</td>
             <td style="width:6%;">
               <select class="form-control" id="choiceUpdateTarget">
@@ -195,13 +194,13 @@
             </td>
             <td style="width:3%;"></td>
             <td style="width:21%;">Decimal Separator:</td>
-            <td style="width:8%;">
+            <td style="width:7%;">
               <select class="form-control" id="selSeparator">
                 <option value="point" selected>Point</option>
                 <option value="comma">Comma</option>
               </select>
             </td>
-            <td style="width:5%;"></td>
+            <td style="width:6%;"></td>
             <td style="width:14%;">Include Annotations:</td>
             <td style="width:6%;">
               <select class="form-control" id="choiceIncludeAnnotations">

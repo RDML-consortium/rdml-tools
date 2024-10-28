@@ -47,21 +47,6 @@ meltcurveCopyButton.addEventListener('click', copyTabMeltcurve)
 const correctionCopyButton = document.getElementById('btn-copy-correction')
 correctionCopyButton.addEventListener('click', copyCorrection)
 
-const choiceExclMeanEff = document.getElementById('text-exl-men-eff')
-choiceExclMeanEff.addEventListener('change', resetLinRegPCRdata)
-
-const choiceSaveRDML = document.getElementById('updateRDMLData')
-choiceSaveRDML.addEventListener('change', updateRDMLCheck)
-
-const choiceExcludeNoPlat = document.getElementById('choiceExcludeNoPlateau')
-choiceExcludeNoPlat.addEventListener('change', updateRDMLCheck)
-
-const choiceExcludeEff = document.getElementById('choiceExcludeEfficiency')
-choiceExcludeEff.addEventListener('change', updateRDMLCheck)
-
-const choiceExcludeUnstBase = document.getElementById('choiceExcludeUnstableBaseline')
-choiceExcludeUnstBase.addEventListener('change', updateRDMLCheck)
-
 const meltcurveButton = document.getElementById('btn-meltcurve')
 meltcurveButton.addEventListener('click', runMeltcurve)
 
@@ -315,15 +300,6 @@ function resetMeltcurveData() {
     window.meltcurveData = ""
     resultMeltcurve.innerHTML = ""
     updateMeltingTable()
-}
-
-window.updateRDMLCheck = updateRDMLCheck
-function updateRDMLCheck() {
-    var bbUpdateRDML = document.getElementById('updateRDMLData')
-    if ((bbUpdateRDML) && (bbUpdateRDML.value == "y")) {
-        resetLinRegPCRdata()
-    }
-    updateLinRegPCRTable()
 }
 
 document.addEventListener("DOMContentLoaded", function() {
