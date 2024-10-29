@@ -1572,6 +1572,8 @@ def handle_data():
                     return jsonify(errors=[{"title": "Invalid server request - sample quantity missing!"}]), 400
                 if "calibratorSample" not in reqdata["data"]:
                     return jsonify(errors=[{"title": "Invalid server request - sample calibratorSample missing!"}]), 400
+                if "doubleStranded" not in reqdata["data"]:
+                    return jsonify(errors=[{"title": "Invalid server request - sample doubleStranded missing!"}]), 400
                 if "cdnaSynthesisMethod_enzyme" not in reqdata["data"]:
                     return jsonify(errors=[{"title": "Invalid server request - sample cdnaSynthesisMethod_enzyme missing!"}]), 400
                 if "cdnaSynthesisMethod_primingMethod" not in reqdata["data"]:
@@ -1654,6 +1656,7 @@ def handle_data():
                                                                0,
                                                                newposition=0)
                         elem["calibratorSample"] = reqdata["data"]["calibratorSample"]
+                        elem["doubleStranded"] = reqdata["data"]["doubleStranded"]
                         elem["cdnaSynthesisMethod_enzyme"] = reqdata["data"]["cdnaSynthesisMethod_enzyme"]
                         elem["cdnaSynthesisMethod_primingMethod"] = reqdata["data"]["cdnaSynthesisMethod_primingMethod"]
                         elem["cdnaSynthesisMethod_dnaseTreatment"] = reqdata["data"]["cdnaSynthesisMethod_dnaseTreatment"]

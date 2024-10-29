@@ -196,8 +196,6 @@ window.convertField = { "id": 0,
                         "probe2 conc": 47,
                         "amplicon len": 48};
 
-
-
 const copyThreshold = 10 * Math.pow(1.9, 35.0);
 
 // Global values for svg curves

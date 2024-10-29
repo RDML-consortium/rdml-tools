@@ -891,16 +891,9 @@ function updateClientData() {
             ret += '    <td style="width:75%"><input type="text" class="form-control" '
             ret += 'id="inSampId" value="'+ exp[i].id + '"></td>\n'
             ret += '  </tr>'
-            ret += '  <tr>\n    <td style="width:25%;">Method of modification:</td>\n'
-            ret += '    <td style="width:75%"><select class="form-control" id="inSampIdUnique">\n'
-            ret += '        <option value=false selected>Id must be unique and will be renamed</option>\n'
-            ret += '        <option value=true>Change all its uses to existing Id (dangerous - may corrupt data)</option>\n'
-            ret += '      </select></td>\n'
-            ret += '  </tr>'
-            ret += '  <tr>\n    <td style="width:25%;">Place at Position:</td>\n'
-            ret += '    <td style="width:75%"><input type="text" class="form-control" '
-            ret += 'id="inPos" value="' + (i + 1) + '"></td>\n'
-            ret += '  </tr>'
+            if (["1.3", "1.4"].includes(window.rdmlData.rdml.version)) {
+                ret += htmlTriState("Double Stranded", 75, "inDoubleStranded", exp[i],
+                    "doubleStranded", "Yes", "No", "Not Set")            }
             ret += '  <tr>\n    <td style="width:25%;">Type:</td>\n'
             ret += '    <td style="width:75%"><select class="form-control" id="inSampType">\n'
             ret += '        <option value="unkn"'
@@ -1018,6 +1011,16 @@ function updateClientData() {
 
             ret += '<h5 class="card-title">Advanced:</h5>\n'
             ret += '<p><table style="width:100%;">'
+            ret += '  <tr>\n    <td style="width:25%;">Method of modification:</td>\n'
+            ret += '    <td style="width:75%"><select class="form-control" id="inSampIdUnique">\n'
+            ret += '        <option value=false selected>Id must be unique and will be renamed</option>\n'
+            ret += '        <option value=true>Change all its uses to existing Id (dangerous - may corrupt data)</option>\n'
+            ret += '      </select></td>\n'
+            ret += '  </tr>'
+            ret += '  <tr>\n    <td style="width:25%;">Place at Position:</td>\n'
+            ret += '    <td style="width:75%"><input type="text" class="form-control" '
+            ret += 'id="inPos" value="' + (i + 1) + '"></td>\n'
+            ret += '  </tr>'
             ret += '  <tr>\n    <td style="width:25%;">Description:</td>\n'
             ret += '    <td style="width:75%"><input type="text" class="form-control" '
             ret += 'id="inExpDescription" value="'+ saveUndef(exp[i].description) + '"></td>\n'
@@ -1206,6 +1209,15 @@ function updateClientData() {
                     ret += '<td style="width:30%">'
                 }
                 ret += '</td>\n  </tr>'
+            }
+            if (exp[i].hasOwnProperty("doubleStranded")) {
+                ret += '  <tr>\n    <td style="width:25%;">Double Stranded:</td>\n'
+                if (exp[i].doubleStranded == "true") {
+                    ret += '    <td colspan="2">Yes (gnomic DNA, Plasmid)</td>\n'
+                } else {
+                    ret += '    <td colspan="2">No (cDNA, Oligos)</td>\n'
+                }
+                ret += '  </tr>'
             }
             if (exp[i].hasOwnProperty("calibratorSample")) {
               ret += '  <tr>\n    <td style="width:25%;">Calibrator Sample:</td>\n'
@@ -2959,6 +2971,7 @@ function saveEditElement(typ, pos, oldId){
             el["quantTargetId"] = getSaveHtmlData("inSampQuantTarget")
         }
         el["calibratorSample"] = readTriState("inExpCalibratorSample")
+        el["doubleStranded"] = readTriState("inDoubleStranded")
         el["interRunCalibrator"] = readTriState("inExpInterRunCalibrator")
         var quant = {}
         quant["value"] = getSaveHtmlData("inExpQuantity_Value")
