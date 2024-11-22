@@ -1213,7 +1213,7 @@ function updateClientData() {
             if (exp[i].hasOwnProperty("doubleStranded")) {
                 ret += '  <tr>\n    <td style="width:25%;">Double Stranded:</td>\n'
                 if (exp[i].doubleStranded == "true") {
-                    ret += '    <td colspan="2">Yes (gnomic DNA, Plasmid)</td>\n'
+                    ret += '    <td colspan="2">Yes (genomic DNA, Plasmid)</td>\n'
                 } else {
                     ret += '    <td colspan="2">No (cDNA, Oligos)</td>\n'
                 }
@@ -2344,7 +2344,7 @@ function updateClientData() {
     }
     documentationsData.innerHTML = ret
 
-    // The more tab - File Info
+    // The dye tab - File Info
     var fileRoot = window.rdmlData.rdml
     ret = '<br /><div class="card">\n<div class="card-body">\n'
     ret += '<h5 class="card-title">RDML File Information</h5>\n<p>'
@@ -2362,7 +2362,7 @@ function updateClientData() {
     ret += '</div>\n</div>\n'
     fileInfoData.innerHTML = ret
 
-    // The more tab - RDML Id Info
+    // The dye tab - RDML Id Info
     var exp = window.rdmlData.rdml.ids;
     ret = ''
     for (var i = 0; i < exp.length; i++) {
@@ -2429,7 +2429,7 @@ function updateClientData() {
     }
     rdmlidsData.innerHTML = ret
 
-    // The more tab - dyes tab
+    // The dye tab - dyes tab
     var exp = window.rdmlData.rdml.dyes;
     ret = ''
     for (var i = 0; i < exp.length; i++) {

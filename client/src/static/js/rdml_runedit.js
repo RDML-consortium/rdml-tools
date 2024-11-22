@@ -239,6 +239,34 @@ function delAllErrors() {
     updateServerData(window.uuid, JSON.stringify(ret))
 }
 
+window.replaceSample = replaceSample;
+function replaceSample() {
+    var ret = {}
+    ret["mode"] = "run-ed-up-sample"
+    ret["sel-experiment"] = window.selExperiment
+    ret["sel-run"] = window.selRun
+    ret["sel-react"] = window.selReact
+    ret["sel-well"] = document.getElementById('runView-ele-react').value
+    ret["sel-pcr"] = document.getElementById('runView-ele-pcrstyle').value
+    ret["sel-new-sam"] = document.getElementById('dropSelSample').value
+    updateServerData(window.uuid, JSON.stringify(ret))
+}
+
+window.replaceTarget = replaceTarget;
+function replaceTarget() {
+    var ret = {}
+    ret["mode"] = "run-ed-up-target"
+    ret["sel-experiment"] = window.selExperiment
+    ret["sel-run"] = window.selRun
+    ret["sel-react"] = window.selReact
+    ret["sel-well"] = document.getElementById('runView-ele-react').value
+    ret["sel-pcr"] = document.getElementById('runView-ele-pcrstyle').value
+    ret["sel-tar"] = document.getElementById('runView-ele-tar').value
+    ret["sel-new-tar"] = document.getElementById('dropSelTarget').value
+    window.selTar = ret["sel-new-tar"]
+    updateServerData(window.uuid, JSON.stringify(ret))
+}
+
 window.replaceExcl = replaceExcl;
 function replaceExcl() {
     var ret = {}
@@ -728,7 +756,7 @@ function updateClientData() {
         ret += '  <div class="card-header">Annotation</div>'
         ret += '  <div class="card-body">'
         ret += '    <div class="form-group">'
-        ret += '      <label for="runView-ele-react">Reaction (Ranges may be provided as B2-D6):</label>'
+        ret += '      <label for="runView-ele-react">Reaction (Ranges may be provided as B2-D6, click on cell to select):</label>'
         ret += '      <input type="text" class="form-control" id="runView-ele-react"'
         ret += ' value="' + window.selWell + '" onchange="updateWellSel()">'
         ret += '    </div>'
@@ -813,6 +841,45 @@ function updateClientData() {
         ret += '    Here you can view the exclusion remarks and from RDML version 1.3+ the'
         ret += '    notes of the RDML file. Any entry in exclusion will exclude this reaction/target combination '
         ret += '    from further analysis. <br />'
+        ret += '    <br /><hr/><br />'
+        var samp = window.rdmlData.rdml.samples;
+        ret += '  <div class="form-group">'
+        ret += '    <label for="dropSelSample">Sample:&nbsp;&nbsp;</label>'
+        ret += '    <select class="form-group" id="dropSelSample">'
+        for (var i = 0; i < samp.length; i++) {
+            ret += '        <option value="' + samp[i].id + '"'
+            if (window.selExperiment == samp[i].id) {
+                ret += ' selected'
+                window.samplePos = i
+            }
+            ret += '>' + samp[i].id + '</option>\n'
+        }
+        ret += '  </select>\n</div>\n'
+        var tar = window.rdmlData.rdml.targets;
+        ret += '  <div class="form-group">'
+        ret += '    <label for="dropSelTarget">Target:&nbsp;&nbsp;</label>'
+        ret += '    <select class="form-group" id="dropSelTarget">'
+        for (var i = 0; i < tar.length; i++) {
+            ret += '        <option value="' + tar[i].id + '"'
+            if (window.selExperiment == tar[i].id) {
+                ret += ' selected'
+                window.targetPos = i
+            }
+            ret += '>' + tar[i].id + '</option>\n'
+        }
+        ret += '  </select>\n</div>\n'
+
+
+        ret += '<button type="submit" class="btn btn-outline-primary" '
+        ret += 'onclick="replaceSample()">'
+        ret += '      <i class="fas fa-rocket" style="margin-right: 5px;"></i>'
+        ret += '        Replace Sample'
+        ret += '    </button>&nbsp;'
+        ret += '<button type="submit" class="btn btn-outline-primary" '
+        ret += 'onclick="replaceTarget()">'
+        ret += '      <i class="fas fa-rocket" style="margin-right: 5px;"></i>'
+        ret += '        Replace Target'
+        ret += '    </button>'
         if (["1.4"].includes(window.rdmlData.rdml.version)) {
             ret += '    <br /><hr/><br />'
             ret += '    <div class="form-group">'
@@ -970,9 +1037,16 @@ function showReactSel(pcr, react, dataPos) {
             wellId += finColumn + 1
         } else if (columnLabel == "ABC") {
             wellId += String.fromCharCode('A'.charCodeAt(0) + finColumn)
-        }    
-        document.getElementById('runView-ele-react').value = wellId
-        window.selWell = wellId
+        }
+        var oldWell = document.getElementById('runView-ele-react').value
+        if ((oldWell == "") || (oldWell.indexOf('-') > -1)) {
+            document.getElementById('runView-ele-react').value = wellId
+            window.selWell = wellId
+        } else {
+            document.getElementById('runView-ele-react').value = oldWell + "-" + wellId
+            window.selWell = oldWell + "-" + wellId
+            window.selReact = -1
+        }
  
         if ((pcr == 0) &&
             (reacts[react].hasOwnProperty("datas")) && 

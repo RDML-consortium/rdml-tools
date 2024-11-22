@@ -7,6 +7,7 @@ const API_URL = process.env.API_URL
 const API_LINK = process.env.API_LINK
 
 const resultLink = document.getElementById('uuid-link-box')
+const fileInfoData = document.getElementById('file-info-data')
 
 const submitButton = document.getElementById('btn-submit')
 submitButton.addEventListener('click', showUpload)
@@ -230,6 +231,24 @@ function resetAllGlobalVal() {
     resetMeltcurveData()
     window.curveSource = "adp"
     updateClientData()
+}
+
+// Migrate RDML version
+window.migrateRDMLversion = migrateRDMLversion;
+function migrateRDMLversion(new_ver) {
+    if (!(window.rdmlData.hasOwnProperty("rdml"))) {
+        return
+    }
+    if (window.editMode == true) {
+        return
+    }
+    if (window.rdmlData.rdml.version == new_ver) {
+        return
+    }
+    var ret = {}
+    ret["mode"] = "migrate-version"
+    ret["new-version"] = new_ver
+    updateServerData(uuid, JSON.stringify(ret))
 }
 
 window.updateLinRegPCRDecimalSep = updateLinRegPCRDecimalSep
@@ -706,7 +725,7 @@ function updateServerData(stat, reqData) {
                     if (exp.length > 0) {
                         window.selExperiment = exp[0].id;
                         var runs = exp[0].runs
-                        if (runs.length > 0) {
+                        if ((window.selRunOnLoad == "") && (runs.length > 0)) {
                             window.selRunOnLoad = runs[0].id;
                         }
                     }
@@ -770,6 +789,9 @@ function updateServerData(stat, reqData) {
                                                         "will result in wrong PCR efficiencies (<a href=\"" + 
                                                          `${API_LINK}` + 
                                                          "/help.html#LRP-Neg-Val-Warning\" target=\"_blank\">click to read more</a>)");
+                } else {
+                    window.errorMessage = "";
+                    hideElement(resultError)
                 }
                 fillLookupDics()
                 updateClientData()
@@ -992,7 +1014,7 @@ function updateClientData() {
     }
     if (window.selRun == "") {
         var runs = exp[0].runs
-        if (runs.length > 0) {
+        if ((window.selRunOnLoad == "") && (runs.length > 0)) {
             window.selRunOnLoad = runs[0].id;
         }
     }
@@ -1031,6 +1053,18 @@ function updateClientData() {
         showElement(resultError)
     }
     resultLink.innerHTML = ret
+
+    // The dye tab - File Info
+    var fileRoot = window.rdmlData.rdml
+    ret = '<br /><div class="card">\n<div class="card-body">\n'
+    ret += '<h5 class="card-title">RDML File Information</h5>\n<p>'
+    ret += '<table style="width:100%;">'
+    ret += '  <tr>\n    <td style="width:15%;">Version:</td>\n'
+    ret += '    <td style="width:85%">\n'+ fileRoot.version + '</td>\n'
+    ret += '  </tr>'
+    ret += '</table></p>\n'
+    ret += '</div>\n</div>\n'
+    fileInfoData.innerHTML = ret
 
     ret = '<table style="width:100%;background-color: #e6e6e6;">'
     ret += '  <tr>\n    <td style="width:8%;">Experiment:</td>\n<td style="width:29%;">'
