@@ -89,7 +89,10 @@ function handleSuccess(res) {
     ret += ' (valid for 3 days)\n</p>\n'
     ret += '<p>Link to remove uploaded data:\n'
     ret += '<a href="' + `${API_LINK}` + "remove.html?UUID=" + res.uuid + '" target="_blank">'
-    ret += `${API_LINK}`  + "remove.html?UUID=" + res.uuid + '</a> (valid for 3 days)\n<br />\n'
+    ret += `${API_LINK}` + "remove.html?UUID=" + res.uuid + '</a> (valid for 3 days)\n<br />\n'
+    ret += '<p>Help to fix broken RDML files:\n'
+    ret += '<a href="' + `${API_LINK}` + '/help.html#RDML-FixBrokenRDML" target="_blank">'
+    ret += `${API_LINK}` + '/help.html#RDML-FixBrokenRDML</a>\n<br />\n'
     ret += '</p>\n<br />\n'
     var resArr = res.table.split('\n')
     ret += '<table style="width:100%; border-collapse: separate; border-spacing: 5px;">\n'

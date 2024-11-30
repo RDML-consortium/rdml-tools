@@ -529,6 +529,7 @@ function runLinRegPCR() {
     window.exUnstBase = true
     window.exDiffMean = "outlier"
     window.updateTargets = false
+    window.errorMessage = "";
     hideElement(resultError)
 
     window.sampSelFirst = "7s8e45-Show-All"  // To avoid conflicts with existing values
@@ -585,6 +586,7 @@ function runMeltcurve() {
         return
     }
     resultMeltcurve.innerHTML = ""
+    window.errorMessage = "";
     hideElement(resultError)
 
     window.sampSelFirst = "7s8e45-Show-All"  // To avoid conflicts with existing values
@@ -789,9 +791,6 @@ function updateServerData(stat, reqData) {
                                                         "will result in wrong PCR efficiencies (<a href=\"" + 
                                                          `${API_LINK}` + 
                                                          "/help.html#LRP-Neg-Val-Warning\" target=\"_blank\">click to read more</a>)");
-                } else {
-                    window.errorMessage = "";
-                    hideElement(resultError)
                 }
                 fillLookupDics()
                 updateClientData()

@@ -645,7 +645,8 @@ function updateClientData() {
     var ret = '<br />' + createLinkBox(`${API_LINK}`, `${API_URL}`, 'edit.html', window.uuid, window.isvalid, window.selExperiment, window.selRun);
     if (window.isvalid == "invalid") {
         var errT = '<i class="fas fa-fire"></i>\n<span id="error-message">'
-        errT += 'Error: Uploaded file is not valid RDML! '
+        errT += 'Error: Uploaded file is not valid RDML! (<a href="' + `${API_LINK}` +
+                '/help.html#RDML-FixBrokenRDML" target="_blank">click to read more</a>) '
         errT += window.errorMessage + '</span>'
         resultError.innerHTML = errT
         showElement(resultError)
