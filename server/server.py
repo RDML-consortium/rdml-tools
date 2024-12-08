@@ -43,7 +43,7 @@ def logData(pProg, pKey, pValue, uuid):
     if not LOGRDMLRUNS:
         return
 
-    runTime = datetime.datetime.now(datetime.UTC)
+    runTime = datetime.datetime.now(datetime.timezone.utc)
     addLine = runTime.strftime("%Y-%m-%dT%H:%M:%S")
     addLine += "\t" + pProg + "\t" + pKey + "\t" + pValue + "\t" + uuid + "\t"
     # Add to nginx config in the location section:
