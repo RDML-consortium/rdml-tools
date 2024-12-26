@@ -110,6 +110,7 @@ window.fixCurves = false;
 window.selDigitalOnLoad = "none";
 
 window.maxLogRange = 10000;
+window.selectedRange = "";
 
 window.exNoPlateau = true;
 window.exUnstBase  = true;
@@ -1216,6 +1217,11 @@ function updateClientData() {
             ret += ' selected'
         }
         ret += '>Dye by Position</option>\n'
+        ret += '        <option value="range"'
+        if (window.sampSelFirst == "range") {
+            ret += ' selected'
+        }
+        ret += '>Range</option>\n'
         ret += '        <option value="excluded"'
         if (window.sampSelFirst == "excluded") {
             ret += ' selected'
@@ -1249,8 +1255,10 @@ function updateClientData() {
         ret += ' value="' + window.maxLogRange + '" onchange="updateMinLogRange()">\n'
         ret += '</td>\n'
         ret += '  <td style="width:4%;"></td>\n'
-        ret += '  <td style="width:9%;"></td>\n'
+        ret += '  <td style="width:9%;">Range:\n</td>\n'
         ret += '  <td style="width:28%;">'
+        ret += '  <input type="text" class="form-control" id="text-selected-range"'
+        ret += ' value="' + window.selectedRange + '" onchange="updateSampSel(0)">\n'
         ret += '</td>\n'
         ret += '<td style="width:4%;"></td>'
         ret += '<td style="width:5%;"></td>'
@@ -1749,7 +1757,7 @@ function updateLinRegPCRTable() {
                     highlight_Ncopy = colWarn
                 }
                 if ((cqValue > -0.001) && (cqValue < 10.0)) {
-                    highlight_Cqhighlight_Cq = colWarn
+                    highlight_Cq = colWarn
                     highlight_Ncopy = colWarn
                 }
 
@@ -2717,6 +2725,7 @@ function updateSampSel(updateOnly) {
     var dropSecFirst = document.getElementById("dropSampSelFirst")
     var dropSecSecond = document.getElementById("dropSampSelSecond")
     var dropSecThird = document.getElementById("dropSampSelThird")
+    var newSelectedRange = document.getElementById('text-selected-range').value
     if (!(dropSecFirst && dropSecSecond && dropSecThird)) {
         // One of the selections does not exist
         return
@@ -2725,6 +2734,12 @@ function updateSampSel(updateOnly) {
     var newSecondData = getSaveHtmlData("dropSampSelSecond")
     var newThirdData = getSaveHtmlData("dropSampSelThird")
     var reSelectSamples = false
+    newSelectedRange = newSelectedRange.replace(/[^A-Z0-9;\-]/g, "");
+    if (window.selectedRange != newSelectedRange) {
+        window.selectedRange = newSelectedRange
+        document.getElementById('text-selected-range').value = window.selectedRange
+        reSelectSamples = true
+    }
 
     if ((updateOnly == 0) && (window.sampSelFirst != newFirstData)) {
         window.sampSelFirst = newFirstData
@@ -2987,7 +3002,6 @@ function updateSampSel(updateOnly) {
         }
     }
 
-
     // The third select
     var dropThird = document.getElementById("dropSampSelThird")
     for (var opt = dropThird.options.length - 1; opt > -1; opt--) {
@@ -3040,112 +3054,183 @@ function updateSampSel(updateOnly) {
         }
     }
 
-
     if (reSelectSamples == true) {
-        if (window.sampSelThird == "7s8e45-Show-All") {
-            if ((window.sampSelFirst != "excluded") && (window.sampSelSecond == "7s8e45-Show-All")) {
-                if (window.reactData.hasOwnProperty("reacts")) {
-                    var reacts = window.reactData.reacts
+        if (window.sampSelFirst == "range") {
+            if (window.reactData.hasOwnProperty("reacts")) {
+                var reacts = window.reactData.reacts
+                if (window.selectedRange == "") {
                     for (var i = 0; i < reacts.length; i++) {
                         for (var k = 0; k < reacts[i].datas.length; k++) {
-                            reacts[i].datas[k]["runview_show"] = true
+                            reacts[i].datas[k]["runview_show"] = false
                         }
                     }
-                }
-                window.sampSelThirdList = []
-            } else {
-                if (window.reactData.hasOwnProperty("reacts")) {
-                    var reacts = window.reactData.reacts
+                } else {
+                    var pcrFormat = window.rdmlData.rdml.experiments[window.experimentPos].runs[window.runPos].pcrFormat
+                    var columns = parseInt(pcrFormat.columns)
+                    var rowLabel = pcrFormat.rowLabel
+                    var columnLabel = pcrFormat.columnLabel
+                    var selctedReactIds = [];
+                    var allRanges = window.selectedRange.split(";");
+                    for (var selAllRange = 0; selAllRange < allRanges.length; selAllRange++) {
+                        var rangePositions = allRanges[selAllRange].split("-");
+                        var firstCol = 0
+                        var firstRow = 0
+                        var secondCol = 0
+                        var secondRow = 0
+                        if (columnLabel == "ABC") {
+                            var firstLetter = rangePositions[0].replace(/[^A-Z]/g, "");
+                            firstCol = firstLetter.charCodeAt(0) - 'A'.charCodeAt(0);
+                        } else {
+                            firstCol = parseInt(rangePositions[0].replace(/[^0-9]/g, ""));
+                        }
+                        if (rowLabel == "ABC") {
+                            var firstLetter = rangePositions[0].replace(/[^A-Z]/g, "");
+                            firstRow = firstLetter.charCodeAt(0) - 'A'.charCodeAt(0);
+                        } else {
+                            firstRow = parseInt(rangePositions[0].replace(/[^0-9]/g, ""));
+                        }
+                        if (rangePositions.length < 2) {
+                            secondCol = firstCol
+                            secondRow = firstRow
+                        } else {
+                            if (columnLabel == "ABC") {
+                                var firstLetter = rangePositions[1].replace(/[^A-Z]/g, "");
+                                secondCol = firstLetter.charCodeAt(0) - 'A'.charCodeAt(0);
+                            } else {
+                                secondCol = parseInt(rangePositions[1].replace(/[^0-9]/g, ""));
+                            }
+                            if (rowLabel == "ABC") {
+                                var firstLetter = rangePositions[1].replace(/[^A-Z]/g, "");
+                                secondRow = firstLetter.charCodeAt(0) - 'A'.charCodeAt(0);
+                            } else {
+                                secondRow = parseInt(rangePositions[1].replace(/[^0-9]/g, ""));
+                            }
+                        }
+                        for (var curRow = firstRow; curRow <= secondRow; curRow++) {
+                            for (var curCol = firstCol; curCol <= secondCol; curCol++) {
+                                selctedReactIds.push((columns * curRow + curCol))
+                            }
+                        }
+                    }
                     for (var i = 0; i < reacts.length; i++) {
-                        if (window.sampSelFirst == "sample") {
-                            var selectItNow = false
-                            if (reacts[i].sample == newSecondData) {
-                                selectItNow = true
-                            }
+                        if (selctedReactIds.includes(parseInt(reacts[i].id))) {
                             for (var k = 0; k < reacts[i].datas.length; k++) {
-                                reacts[i].datas[k]["runview_show"] = selectItNow
+                                reacts[i].datas[k]["runview_show"] = true
                             }
-                        }
-
-                        if (window.sampSelFirst == "target") {
-                            for (var k = 0; k < reacts[i].datas.length; k++) {
-                                if (reacts[i].datas[k].tar == newSecondData) {
-                                    reacts[i].datas[k]["runview_show"] = true
-                                } else {
-                                    reacts[i].datas[k]["runview_show"] = false
-                                }
-                            }
-                        }
-
-                        if (window.sampSelFirst == "dye_id") {
-                            for (var k = 0; k < reacts[i].datas.length; k++) {
-                                if (window.tarToDye[reacts[i].datas[k].tar] == newSecondData) {
-                                    reacts[i].datas[k]["runview_show"] = true
-                                } else {
-                                    reacts[i].datas[k]["runview_show"] = false
-                                }
-                            }
-                        }
-
-                        if (window.sampSelFirst == "dye_pos") {
-                            for (var k = 0; k < reacts[i].datas.length; k++) {
-                                if (k == newSecondData) {
-                                    reacts[i].datas[k]["runview_show"] = true
-                                } else {
-                                    reacts[i].datas[k]["runview_show"] = false
-                                }
-                            }
-                        }
-
-                        if (window.sampSelFirst == "excluded") {
+                        } else {
                             for (var k = 0; k < reacts[i].datas.length; k++) {
                                 reacts[i].datas[k]["runview_show"] = false
-                                if (reacts[i].datas[k].hasOwnProperty("excl")) {
-                                    if ((window.sampSelSecond == "7s8e45-Show-All") ||
-                                        ((reacts[i].datas[k].excl != "") && (reacts[i].datas[k].excl == newSecondData)) ||
-                                        ((reacts[i].datas[k].excl == "") && ("7s8e45-Empty-Val" == newSecondData))) {
-                                        reacts[i].datas[k]["runview_show"] = true
-                                    }
-                                }
                             }
                         }
-
-                        if ((window.sampSelFirst == "linRegPCR") && (window.linRegPCRTable.length > 0 )) {
-                            for (var k = 0; k < reacts[i].datas.length; k++) {
-                                reacts[i].datas[k]["runview_show"] = false
-                                for (var lt = 1; lt < window.linRegPCRTable.length; lt++) {
-                                    if (reacts[i].id == window.linRegPCRTable[lt][window.convertField["id"]] &&
-                                        reacts[i].datas[k].tar == window.linRegPCRTable[lt][window.convertField["target"]] &&
-                                        (((newSecondData == "no_amplification") && (window.linRegPCRTable[lt][window.convertField["amplification"]] == false)) ||
-                                         ((newSecondData == "no_baseline") && (window.linRegPCRTable[lt][window.convertField["baseline error"]] == true)) ||
-                                         ((newSecondData == "no_plateau") && (window.linRegPCRTable[lt][window.convertField["plateau"]] == false)) ||
-                                         ((newSecondData == "noisy_sample") && (window.linRegPCRTable[lt][window.convertField["noisy sample"]] == true)) ||
-                                         ((newSecondData == "excl_PCReff") && (window.linRegPCRTable[lt][window.convertField["excl PCR efficiency"]] == true)) ||
-                                         ((newSecondData == "shortLogLin") && (window.linRegPCRTable[lt][window.convertField["short log lin phase"]] == true)) ||
-                                         ((newSecondData == "cqShifting") && (window.linRegPCRTable[lt][window.convertField["Cq is shifting"]] == true)) ||
-                                         ((newSecondData == "tooLowCqEff") && (window.linRegPCRTable[lt][window.convertField["too low Cq eff"]] == true)) ||
-                                         ((newSecondData == "tooLowCqN0") && (window.linRegPCRTable[lt][window.convertField["too low Cq N0"]] == true)) ||
-                                         ((newSecondData == "not_in_WoL") && (window.linRegPCRTable[lt][window.convertField["used for W-o-L setting"]] == false)))) {
-                                        reacts[i].datas[k]["runview_show"] = true
-                                        break
-                                    }
-                                }
-                            }
-                        }
-
                     }
                 }
             }
         } else {
-            if (window.reactData.hasOwnProperty("reacts")) {
-                var reacts = window.reactData.reacts
-                for (var i = 0; i < reacts.length; i++) {
-                    var selectItNow = false
-                    if (reacts[i].id == sampSelThird) {
-                        selectItNow = true
+            if (window.sampSelThird == "7s8e45-Show-All") {
+                if ((window.sampSelFirst != "excluded") && (window.sampSelSecond == "7s8e45-Show-All")) {
+                    if (window.reactData.hasOwnProperty("reacts")) {
+                        var reacts = window.reactData.reacts
+                        for (var i = 0; i < reacts.length; i++) {
+                            for (var k = 0; k < reacts[i].datas.length; k++) {
+                                reacts[i].datas[k]["runview_show"] = true
+                            }
+                        }
                     }
-                    for (var k = 0; k < reacts[i].datas.length; k++) {
-                        reacts[i].datas[k]["runview_show"] = selectItNow
+                    window.sampSelThirdList = []
+                } else {
+                    if (window.reactData.hasOwnProperty("reacts")) {
+                        var reacts = window.reactData.reacts
+                        for (var i = 0; i < reacts.length; i++) {
+                            if (window.sampSelFirst == "sample") {
+                                var selectItNow = false
+                                if (reacts[i].sample == newSecondData) {
+                                    selectItNow = true
+                                }
+                                for (var k = 0; k < reacts[i].datas.length; k++) {
+                                    reacts[i].datas[k]["runview_show"] = selectItNow
+                                }
+                            }
+
+                            if (window.sampSelFirst == "target") {
+                                for (var k = 0; k < reacts[i].datas.length; k++) {
+                                    if (reacts[i].datas[k].tar == newSecondData) {
+                                        reacts[i].datas[k]["runview_show"] = true
+                                    } else {
+                                        reacts[i].datas[k]["runview_show"] = false
+                                    }
+                                }
+                            }
+
+                            if (window.sampSelFirst == "dye_id") {
+                                for (var k = 0; k < reacts[i].datas.length; k++) {
+                                    if (window.tarToDye[reacts[i].datas[k].tar] == newSecondData) {
+                                        reacts[i].datas[k]["runview_show"] = true
+                                    } else {
+                                        reacts[i].datas[k]["runview_show"] = false
+                                    }
+                                }
+                            }
+
+                            if (window.sampSelFirst == "dye_pos") {
+                                for (var k = 0; k < reacts[i].datas.length; k++) {
+                                    if (k == newSecondData) {
+                                        reacts[i].datas[k]["runview_show"] = true
+                                    } else {
+                                        reacts[i].datas[k]["runview_show"] = false
+                                    }
+                                }
+                            }
+
+                            if (window.sampSelFirst == "excluded") {
+                                for (var k = 0; k < reacts[i].datas.length; k++) {
+                                    reacts[i].datas[k]["runview_show"] = false
+                                    if (reacts[i].datas[k].hasOwnProperty("excl")) {
+                                        if ((window.sampSelSecond == "7s8e45-Show-All") ||
+                                            ((reacts[i].datas[k].excl != "") && (reacts[i].datas[k].excl == newSecondData)) ||
+                                            ((reacts[i].datas[k].excl == "") && ("7s8e45-Empty-Val" == newSecondData))) {
+                                            reacts[i].datas[k]["runview_show"] = true
+                                        }
+                                    }
+                                }
+                            }
+
+                            if ((window.sampSelFirst == "linRegPCR") && (window.linRegPCRTable.length > 0 )) {
+                                for (var k = 0; k < reacts[i].datas.length; k++) {
+                                    reacts[i].datas[k]["runview_show"] = false
+                                    for (var lt = 1; lt < window.linRegPCRTable.length; lt++) {
+                                        if (reacts[i].id == window.linRegPCRTable[lt][window.convertField["id"]] &&
+                                            reacts[i].datas[k].tar == window.linRegPCRTable[lt][window.convertField["target"]] &&
+                                            (((newSecondData == "no_amplification") && (window.linRegPCRTable[lt][window.convertField["amplification"]] == false)) ||
+                                            ((newSecondData == "no_baseline") && (window.linRegPCRTable[lt][window.convertField["baseline error"]] == true)) ||
+                                            ((newSecondData == "no_plateau") && (window.linRegPCRTable[lt][window.convertField["plateau"]] == false)) ||
+                                            ((newSecondData == "noisy_sample") && (window.linRegPCRTable[lt][window.convertField["noisy sample"]] == true)) ||
+                                            ((newSecondData == "excl_PCReff") && (window.linRegPCRTable[lt][window.convertField["excl PCR efficiency"]] == true)) ||
+                                            ((newSecondData == "shortLogLin") && (window.linRegPCRTable[lt][window.convertField["short log lin phase"]] == true)) ||
+                                            ((newSecondData == "cqShifting") && (window.linRegPCRTable[lt][window.convertField["Cq is shifting"]] == true)) ||
+                                            ((newSecondData == "tooLowCqEff") && (window.linRegPCRTable[lt][window.convertField["too low Cq eff"]] == true)) ||
+                                            ((newSecondData == "tooLowCqN0") && (window.linRegPCRTable[lt][window.convertField["too low Cq N0"]] == true)) ||
+                                            ((newSecondData == "not_in_WoL") && (window.linRegPCRTable[lt][window.convertField["used for W-o-L setting"]] == false)))) {
+                                            reacts[i].datas[k]["runview_show"] = true
+                                            break
+                                        }
+                                    }
+                                }
+                            }
+
+                        }
+                    }
+                }
+            } else {
+                if (window.reactData.hasOwnProperty("reacts")) {
+                    var reacts = window.reactData.reacts
+                    for (var i = 0; i < reacts.length; i++) {
+                        var selectItNow = false
+                        if (reacts[i].id == sampSelThird) {
+                            selectItNow = true
+                        }
+                        for (var k = 0; k < reacts[i].datas.length; k++) {
+                            reacts[i].datas[k]["runview_show"] = selectItNow
+                        }
                     }
                 }
             }
