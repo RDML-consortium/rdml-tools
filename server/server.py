@@ -2646,6 +2646,10 @@ def handle_data():
         if "mode" in reqdata and reqdata["mode"] in ["run-relative"]:
             if "sel-experiment" not in reqdata:
                 return jsonify(errors=[{"title": "Invalid server request - sel-experiment id missing!"}]), 400
+            if "sel-quant-method" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - sel-quant-method id missing!"}]), 400
+            if "sel-quant-unit" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - sel-quant-unit id missing!"}]), 400
             if "overlap-type" not in reqdata:
                 return jsonify(errors=[{"title": "Invalid server request - overlap-type id missing!"}]), 400
             if "sel-annotation" not in reqdata:
@@ -2663,7 +2667,9 @@ def handle_data():
                 experiment = rd.get_experiment(byid=reqdata["sel-experiment"])
                 if experiment is None:
                     return jsonify(errors=[{"title": "Invalid server request - experiment id not found!"}]), 400
-                data["relative"] = experiment.relative(overlapType=reqdata["overlap-type"],
+                data["relative"] = experiment.quantify(quantMethod=reqdata["sel-quant-method"],
+                                                       quantUnit=reqdata["sel-quant-unit"],
+                                                       overlapType=reqdata["overlap-type"],
                                                        selAnnotation=reqdata["sel-annotation"],
                                                        statsParametric=reqdata["stats-parametric"],
                                                        statAlpha=reqdata["stats-alpha"],

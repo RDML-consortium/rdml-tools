@@ -42,6 +42,7 @@
       <i class="fas fa-spinner spinner"></i>
       Analysis is running, please be patient. RDML-ExperimentAnalysis may run for up to 120 seconds.
     </div>
+
     <ul class="nav nav-fill mb-4" id="mainTab">
       <li class="nav-item">
         <a class="nav-link active" href="#main-tab" id="link-main">Main</a>
@@ -56,15 +57,16 @@
         <a class="nav-link" href="#absolute-tab" id="link-absolute">AbsoluteQuantification</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="#genorm-tab" id="link-genorm">geNorm</a>
+        <a class="nav-link" href="#quantify-tab" id="link-quantify">Quantifiy</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="#relative-tab" id="link-relative">RelativeQuantification</a>
+        <a class="nav-link" href="#genorm-tab" id="link-genorm">geNorm</a>
       </li>
       <li class="nav-item">
         <a class="nav-link" href="#help-tab" id="link-help">Help</a>
       </li>
     </ul>
+
     <div class="tab-content" id="main-tabs">
       <div class="tab-pane show active" id="main-tab">
         <div class="card">
@@ -92,13 +94,13 @@
               <i class="fas fa-eye" style="margin-right: 5px;"></i>
               Load Example AbsoluteQuantification
             </button>
+            <button type="submit" class="btn btn-outline-primary" id="btn-example-quantify">
+              <i class="fas fa-eye" style="margin-right: 5px;"></i>
+              Load Example Quantify
+            </button>
             <button type="submit" class="btn btn-outline-primary" id="btn-example-genorm">
               <i class="fas fa-eye" style="margin-right: 5px;"></i>
               Load Example geNorm
-            </button>
-            <button type="submit" class="btn btn-outline-primary" id="btn-example-relative">
-              <i class="fas fa-eye" style="margin-right: 5px;"></i>
-              Load Example RelativeQuantification
             </button>
           </div>
         </div>
@@ -313,6 +315,123 @@
         <div id="result-absolute"></div>
       </div>
 
+      <div class="tab-pane" id="quantify-tab">
+        <table style="width:100%;background-color: #e6e6e6;">
+          <tr>
+            <td style="width:1%;"></td>
+            <td style="width:14%;">Quantification Method:</td>
+            <td style="width:14%;">
+              <select class="form-control" id="selQuantMethod">
+                <option value="TD0" selected>TD0 Quantification</option>
+                <option value="reference">Reference Sample</option>
+              </select>
+            </td>
+            <td style="width:4%;"></td>
+            <td style="width:14%;">Quant. Unit:</td>
+            <td style="width:8%;">
+              <select class="form-control" id="selQuantUnit">
+                <option value="cop" selected>cop - copies per reaction</option>
+                <option value="fold">fold - fold change</option>
+                <option value="dil">dil - dilution</option>
+                <option value="nMol">nMol - nanomol per reaction</option>
+                <option value="ng">ng - nanogram per reaction</option>
+                <option value="other">other - other unit</option>
+              </select>
+            </td>
+            <td style="width:4%;"></td>
+            <td style="width:14%;">Use Reference:</td>
+            <td style="width:6%;">
+              <select class="form-control" id="selQuantUseRef">
+                <option value="y">yes</option>
+                <option value="n" selected>no</option>
+              </select>
+            </td>
+            <td style="width:20%;text-align: right;">
+              <button type="submit" class="btn btn-outline-primary" id="btn-run-quantify">
+                <i class="fas fa-rocket" style="margin-right: 5px;"></i>
+                Run RelativeQuantification
+              </button>
+            </td>
+            <td style="width:1%;"></td>
+          </tr>
+        </table>
+        <table style="width:100%;background-color: #e6e6e6;">
+          <tr>
+            <td style="width:1%;"></td>
+            <td style="width:14%;">Overlap:</td>
+            <td style="width:14%;">
+              <select class="form-control" id="selOverlapRelative">
+                <option value="samples" selected>Technical Replicates</option>
+                <option value="annotation">Same Annotation</option>
+              </select>
+            </td>
+            <td style="width:4%;"></td>
+            <td style="width:14%;background-color: #e6e6e6;">Sel. Annotation:</td>
+            <td style="width:8%;background-color: #e6e6e6;">
+              <select class="form-control" id="selRelativeAnnotation">
+                <option value="" selected>Not Selected</option>
+              </select>
+            </td>
+            <td style="width:4%;"></td>
+            <td style="width:14%;">Include Annotations:</td>
+            <td style="width:6%;">
+              <select class="form-control" id="choiceIncludeAnnotationsRel">
+                <option value="y">yes</option>
+                <option value="n" selected>no</option>
+              </select>
+            </td>
+            <td style="width:20%;text-align: right;">
+              <button type="submit" class="btn btn-outline-primary" id="btn-rdml-relative">
+                <i class="far fa-save" style="margin-right: 5px;"></i>
+                Save RDML
+              </button>
+            </td>
+            <td style="width:1%;"></td>
+          </tr>
+        </table>
+        <table style="width:100%;">
+          <tr>
+            <td style="width:1%;background-color: #e6e6e6;"></td>
+            <td style="width:14%;background-color: #e6e6e6;">Alpha:</td>
+            <td style="width:14%;background-color: #e6e6e6;">
+              <input class="form-control" type="text" id="statsAlpha" value="0.05">
+            </td>
+            <td style="width:4%;background-color: #e6e6e6;"></td>
+            <td style="width:14%;background-color: #e6e6e6;">Statistics:</td>
+            <td style="width:8%;background-color: #e6e6e6;">
+              <select class="form-control" id="selStatsParametric">
+                <option value="n" selected>non-parametric tests</option>
+                <option value="y">parametric tests</option>
+              </select>
+            </td>
+            <td style="width:2%;background-color: #e6e6e6;"></td>
+            <td style="width:2%;"></td>
+            <td style="width:14%;">Decimal Separator:</td>
+            <td style="width:6%;">
+              <select class="form-control" id="selRelativeSeparator">
+                <option value="point" selected>Point</option>
+                <option value="comma">Comma</option>
+              </select>
+            </td>
+            <td style="width:20%;text-align: right;">
+              <button type="submit" class="btn btn-outline-primary" id="btn-copy-relative">
+                <i class="fas fa-paste" style="margin-right: 5px;"></i>
+                Copy table to clipboard
+              </button>&nbsp;&nbsp;
+              <button type="submit" class="btn btn-outline-primary" id="btn-save-relative">
+                <i class="far fa-save" style="margin-right: 5px;"></i>
+                Save table as CSV
+              </button>
+            </td>
+            <td style="width:1%;"></td>
+          </tr>
+        </table>
+        <div id="result-sel-references"></div>
+        <br />
+        <br />
+        <div id="result-relative"></div>
+      </div>
+
       <div class="tab-pane" id="genorm-tab">
         <table style="width:100%;background-color: #e6e6e6;">
           <tr>
@@ -387,97 +506,6 @@
         <br />
         <br />
         <div id="result-genorm"></div>
-
-      </div>
-
-      <div class="tab-pane" id="relative-tab">
-        <table style="width:100%;background-color: #e6e6e6;">
-          <tr>
-            <td style="width:1%;"></td>
-            <td style="width:14%;">Overlap:</td>
-            <td style="width:14%;">
-              <select class="form-control" id="selOverlapRelative">
-                <option value="samples" selected>Technical Replicates</option>
-                <option value="annotation">Same Annotation</option>
-              </select>
-            </td>
-            <td style="width:4%;"></td>
-            <td style="width:14%;background-color: #e6e6e6;">Sel. Annotation:</td>
-            <td style="width:8%;background-color: #e6e6e6;">
-              <select class="form-control" id="selRelativeAnnotation">
-                <option value="" selected>Not Selected</option>
-              </select>
-            </td>
-            <td style="width:4%;"></td>
-            <td style="width:14%;">Include Annotations:</td>
-            <td style="width:6%;">
-              <select class="form-control" id="choiceIncludeAnnotationsRel">
-                <option value="y">yes</option>
-                <option value="n" selected>no</option>
-              </select>
-            </td>
-            <td style="width:20%;text-align: right;">
-              <button type="submit" class="btn btn-outline-primary" id="btn-run-relative">
-                <i class="fas fa-rocket" style="margin-right: 5px;"></i>
-                Run RelativeQuantification
-              </button>
-            </td>
-            <td style="width:1%;"></td>
-          </tr>
-        </table>
-        <table style="width:100%;">
-          <tr>
-            <td style="width:1%;background-color: #e6e6e6;"></td>
-            <td style="width:14%;background-color: #e6e6e6;">Alpha:</td>
-            <td style="width:14%;background-color: #e6e6e6;">
-              <input class="form-control" type="text" id="statsAlpha" value="0.05">
-            </td>
-            <td style="width:4%;background-color: #e6e6e6;"></td>
-            <td style="width:14%;background-color: #e6e6e6;">Statistics:</td>
-            <td style="width:8%;background-color: #e6e6e6;">
-              <select class="form-control" id="selStatsParametric">
-                <option value="n" selected>non-parametric tests</option>
-                <option value="y">parametric tests</option>
-              </select>
-            </td>
-            <td style="width:2%;background-color: #e6e6e6;"></td>
-            <td style="width:2%;"></td>
-            <td style="width:14%;">Decimal Separator:</td>
-            <td style="width:6%;">
-              <select class="form-control" id="selRelativeSeparator">
-                <option value="point" selected>Point</option>
-                <option value="comma">Comma</option>
-              </select>
-            </td>
-            <td style="width:20%;text-align: right;">
-              <button type="submit" class="btn btn-outline-primary" id="btn-rdml-relative">
-                <i class="far fa-save" style="margin-right: 5px;"></i>
-                Save RDML
-              </button>
-            </td>
-            <td style="width:1%;"></td>
-          </tr>
-        </table>
-        <table style="width:100%;">
-          <tr>
-            <td style="width:61%;"></td>
-            <td style="width:38%;text-align: right;">
-              <button type="submit" class="btn btn-outline-primary" id="btn-copy-relative">
-                <i class="fas fa-paste" style="margin-right: 5px;"></i>
-                Copy table to clipboard
-              </button>&nbsp;&nbsp;
-              <button type="submit" class="btn btn-outline-primary" id="btn-save-relative">
-                <i class="far fa-save" style="margin-right: 5px;"></i>
-                Save table as CSV
-              </button>
-            </td>
-            <td style="width:1%;"></td>
-          </tr>
-        </table>
-        <div id="result-sel-references"></div>
-        <br />
-        <br />
-        <div id="result-relative"></div>
       </div>
 
       <div class="tab-pane" id="help-tab">

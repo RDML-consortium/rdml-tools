@@ -25,7 +25,7 @@ exampleAbsolute.addEventListener('click', showAbsolute)
 const exampleGenorm = document.getElementById('btn-example-genorm')
 exampleGenorm.addEventListener('click', showGenorm)
 
-const exampleRelative = document.getElementById('btn-example-relative')
+const exampleRelative = document.getElementById('btn-example-quantify')
 exampleRelative.addEventListener('click', showRelative)
 
 const interRunCorrButton = document.getElementById('btn-run-interruncorr')
@@ -37,7 +37,7 @@ absoluteQuanButton.addEventListener('click', runAbsoluteQuan)
 const genormButton = document.getElementById('btn-run-genorm')
 genormButton.addEventListener('click', runGenorm)
 
-const relativeButton = document.getElementById('btn-run-relative')
+const relativeButton = document.getElementById('btn-run-quantify')
 relativeButton.addEventListener('click', runRelative)
 
 const interRunCorrRDMLButton = document.getElementById('btn-rdml-interruncorr')
@@ -808,6 +808,8 @@ function runRelative() {
     var ret = {}
     ret["mode"] = "run-relative"
     ret["sel-experiment"] = window.selExperiment
+    ret["sel-quant-method"] = getSaveHtmlData("selQuantMethod")
+    ret["sel-quant-unit"] = getSaveHtmlData("selQuantUnit")
     ret["overlap-type"] = getSaveHtmlData("selOverlapRelative")
     ret["sel-annotation"] = window.selAnnotation
     ret["stats-parametric"] = getSaveHtmlData("selStatsParametric")
@@ -2453,10 +2455,16 @@ function updateRelativeTable() {
     var ret = ""
     var content = ""
     var maxCols = 0
-
+    if (window.relative.tsv.hasOwnProperty("dil_std")) {
+        maxCols = tsvGetMaxColumns(window.relative.tsv.dil_std, maxCols)
+    }
     maxCols = tsvGetMaxColumns(window.relative.tsv.technical_data, maxCols)
-    maxCols = tsvGetMaxColumns(window.relative.tsv.reference_data, maxCols)
-    maxCols = tsvGetMaxColumns(window.relative.tsv.relative_data, maxCols)
+    if (window.relative.tsv.hasOwnProperty("reference_data")) {
+        maxCols = tsvGetMaxColumns(window.relative.tsv.reference_data, maxCols)
+    }
+    if (window.relative.tsv.hasOwnProperty("relative_data")) {
+        maxCols = tsvGetMaxColumns(window.relative.tsv.relative_data, maxCols)
+    }
     if (window.relative.tsv.hasOwnProperty("annotation_data")) {
         maxCols = tsvGetMaxColumns(window.relative.tsv.annotation_data, maxCols)
         maxCols = tsvGetMaxColumns(window.relative.tsv.statistics_data, maxCols)
@@ -2469,22 +2477,34 @@ function updateRelativeTable() {
 
     ret += '<br /><br />\n'
     ret += '<table class="table table-bordered table-striped" id="relative-result-table">\n'
+    if (window.relative.tsv.hasOwnProperty("dil_std")) {
+        ret += tsvToTableHeadline("Dilution Standard", maxCols)
+        content += tsvToTsvHeadline("Dilution Standard", maxCols)
+        ret += tsvToTableSectionNoRaw(window.relative.tsv.dil_std, maxCols)
+        content += tsvToTsvSectionNoRaw(window.relative.tsv.dil_std, maxCols)
+        ret += tsvToTableHeadline("", maxCols)
+        content += tsvToTsvHeadline("", maxCols)
+    }
     ret += tsvToTableHeadline("Technical Replicates", maxCols)
     content += tsvToTsvHeadline("Technical Replicates", maxCols)
     ret += tsvToTableSectionNoRaw(window.relative.tsv.technical_data, maxCols)
     content += tsvToTsvSectionNoRaw(window.relative.tsv.technical_data, maxCols)
-    ret += tsvToTableHeadline("", maxCols)
-    content += tsvToTsvHeadline("", maxCols)
-    ret += tsvToTableHeadline("Reference Genes", maxCols)
-    content += tsvToTsvHeadline("Reference Genes", maxCols)
-    ret += tsvToTableSectionNoRaw(window.relative.tsv.reference_data, maxCols)
-    content += tsvToTsvSectionNoRaw(window.relative.tsv.reference_data, maxCols)
-    ret += tsvToTableHeadline("", maxCols)
-    content += tsvToTsvHeadline("", maxCols)
-    ret += tsvToTableHeadline("Relative Expression", maxCols)
-    content += tsvToTsvHeadline("Relative Expression", maxCols)
-    ret += tsvToTableSectionNoRaw(window.relative.tsv.relative_data, maxCols)
-    content += tsvToTsvSectionNoRaw(window.relative.tsv.relative_data, maxCols)
+    if (window.relative.tsv.hasOwnProperty("reference_data")) {
+        ret += tsvToTableHeadline("", maxCols)
+        content += tsvToTsvHeadline("", maxCols)
+        ret += tsvToTableHeadline("Reference Genes", maxCols)
+        content += tsvToTsvHeadline("Reference Genes", maxCols)
+        ret += tsvToTableSectionNoRaw(window.relative.tsv.reference_data, maxCols)
+        content += tsvToTsvSectionNoRaw(window.relative.tsv.reference_data, maxCols)
+    }
+    if (window.relative.tsv.hasOwnProperty("relative_data")) {
+        ret += tsvToTableHeadline("", maxCols)
+        content += tsvToTsvHeadline("", maxCols)
+        ret += tsvToTableHeadline("Relative Expression", maxCols)
+        content += tsvToTsvHeadline("Relative Expression", maxCols)
+        ret += tsvToTableSectionNoRaw(window.relative.tsv.relative_data, maxCols)
+        content += tsvToTsvSectionNoRaw(window.relative.tsv.relative_data, maxCols)
+    }
     if (window.relative.tsv.hasOwnProperty("annotation_data")) {
         ret += tsvToTableHeadline("", maxCols)
         content += tsvToTsvHeadline("", maxCols)
