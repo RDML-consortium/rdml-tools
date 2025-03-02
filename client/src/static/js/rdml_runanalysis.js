@@ -551,8 +551,8 @@ function runLinRegPCR() {
         window.exNoPlateau = false;
     }
     var bbExcludeEfficiency = document.getElementById('choiceExcludeEfficiency')
-    if ((bbExcludeEfficiency) && (bbExcludeEfficiency.value == "n")) {
-        window.exDiffMean = false;
+    if (bbExcludeEfficiency) {
+        window.exDiffMean = bbExcludeEfficiency.value
     }
     var bbExcludeUnstBase = document.getElementById('choiceExcludeUnstableBaseline')
     if ((bbExcludeUnstBase) && (bbExcludeUnstBase.value == "n")) {
