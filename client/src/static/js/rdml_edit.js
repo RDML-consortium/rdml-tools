@@ -2497,7 +2497,7 @@ function updateClientData() {
                     ret += exp[i].dNTPs
                 }
                 ret += '"></td>\n  </tr>'
-                ret += '  <tr>\n    <td style="width:15%;">Dye Concentration (&micro;Mol/l)</td>\n'
+                ret += '  <tr>\n    <td style="width:15%;">Dye Concentration (nMol/l)</td>\n'
                 ret += '    <td style="width:85%"><input type="text" class="form-control" '
                 ret += 'id="inDyeConc" value="'
                 if (exp[i].hasOwnProperty("dyeConc")) {
@@ -2533,7 +2533,7 @@ function updateClientData() {
             }
             if (exp[i].hasOwnProperty("dyeConc")) {
                 ret += '  <tr>\n    <td style="width:25%;">Dye Concentration:</td>\n'
-                ret += '    <td style="width:75%">\n'+ exp[i].dyeConc + ' &micro;Mol/l</td>\n'
+                ret += '    <td style="width:75%">\n'+ exp[i].dyeConc + ' nMol/l</td>\n'
                 ret += '  </tr>\n'
             }
             if (exp[i].hasOwnProperty("dNTPs")) {
