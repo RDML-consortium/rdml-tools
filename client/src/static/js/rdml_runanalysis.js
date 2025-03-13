@@ -166,6 +166,8 @@ window.convertField = { "id": 0,
                         "last log cycle": 15,
                         "n included": 16,
                         "indiv PCR eff": 17,
+                        "indiv PCR eff x": 53,
+                        "indiv PCR eff y": 54,
                         "R2": 18,
                         "PCR eff": 19,
                         "standard error of PCR eff": 20,
@@ -3617,8 +3619,8 @@ function createEfficiencyCurves () {
 
         if (k > -1) {
             var chemistry = window.linRegPCRTable[k][cv["target chemistry"]]
-            var meanFitX = parseFloat(window.linRegPCRTable[k][cv["Cq"]])
-            var meanFitY = parseFloat(window.linRegPCRTable[k][cv["threshold"]])
+            var meanFitX = parseFloat(window.linRegPCRTable[k][cv["indiv PCR eff x"]])
+            var meanFitY = parseFloat(window.linRegPCRTable[k][cv["indiv PCR eff y"]])
             var indivEff = parseFloat(window.linRegPCRTable[k][cv["indiv PCR eff"]])
             var meanEff = parseFloat(window.linRegPCRTable[k][cv["PCR eff"]])
 
