@@ -1550,8 +1550,8 @@ def handle_data():
                             elem["dyeChemistry"] = reqdata["data"]["dyeChemistry"]
                         if "dyeConc" in reqdata["data"]:
                             elem["dyeConc"] = reqdata["data"]["dyeConc"]
-                        if "dNTPs" in reqdata["data"]:
-                            elem["dNTPs"] = reqdata["data"]["dNTPs"]
+                        if "nCopyFact" in reqdata["data"]:
+                            elem["nCopyFact"] = reqdata["data"]["nCopyFact"]
                     except rdml.RdmlError as err:
                         data["error"] = str(err)
                     else:
@@ -2747,7 +2747,11 @@ def handle_data():
             logData("RDML-Tools", logNote1, "modify", uuidstr)
         else:
             logData("RDML-Tools", logNote1, "view", uuidstr)
+        print("Goos")
         data["filedata"] = rd.tojson()
+     #   for key in data:
+    #        print(key)
+   #     print("----")
         return jsonify(data=data)
     return jsonify(errors=[{"title": "Error in handling POST request!"}]), 400
 

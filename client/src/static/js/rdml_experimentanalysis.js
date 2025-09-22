@@ -860,7 +860,6 @@ function updateServerData(stat, reqData) {
     formData.append('reqData', reqData)
 
     showElement(resultInfo)
-
     axios
         .post(`${API_URL}/data`, formData)
         .then(res => {

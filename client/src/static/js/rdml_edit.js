@@ -2490,11 +2490,11 @@ function updateClientData() {
                 ret += '  </tr>'
             }
             if (["1.4"].includes(window.rdmlData.rdml.version)) {
-                ret += '  <tr>\n    <td style="width:15%;">dNTP Concentration (&micro;Mol/l)</td>\n'
+                ret += '  <tr>\n    <td style="width:15%;">nCopy Factor</td>\n'
                 ret += '    <td style="width:85%"><input type="text" class="form-control" '
-                ret += 'id="inDyeDNTPs" value="'
-                if (exp[i].hasOwnProperty("dNTPs")) {
-                    ret += exp[i].dNTPs
+                ret += 'id="inDyeNCopyFact" value="'
+                if (exp[i].hasOwnProperty("nCopyFact")) {
+                    ret += exp[i].nCopyFact
                 }
                 ret += '"></td>\n  </tr>'
                 ret += '  <tr>\n    <td style="width:15%;">Dye Concentration (nMol/l)</td>\n'
@@ -2536,9 +2536,9 @@ function updateClientData() {
                 ret += '    <td style="width:75%">\n'+ exp[i].dyeConc + ' nMol/l</td>\n'
                 ret += '  </tr>\n'
             }
-            if (exp[i].hasOwnProperty("dNTPs")) {
-                ret += '  <tr>\n    <td style="width:25%;">dNTPs Concentration:</td>\n'
-                ret += '    <td style="width:75%">\n'+ exp[i].dNTPs + ' &micro;Mol/l</td>\n'
+            if (exp[i].hasOwnProperty("nCopyFact")) {
+                ret += '  <tr>\n    <td style="width:25%;">nCopy Factor:</td>\n'
+                ret += '    <td style="width:75%">\n'+ exp[i].nCopyFact + '</td>\n'
                 ret += '  </tr>\n'
             }
             ret += '</table>'
@@ -2952,9 +2952,9 @@ function saveEditElement(typ, pos, oldId){
         if (ver_sense_dye) {
             el["dyeChemistry"] = ver_sense_dye.value
         }
-        var ver_dNTPs = document.getElementById("inDyeDNTPs")
-        if (ver_dNTPs) {
-            el["dNTPs"] = ver_dNTPs.value
+        var ver_nCopyFact = document.getElementById("inDyeNCopyFact")
+        if (ver_nCopyFact) {
+            el["nCopyFact"] = ver_nCopyFact.value
         }
         var ver_dyeConc = document.getElementById("inDyeConc")
         if (ver_dyeConc) {

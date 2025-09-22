@@ -1406,7 +1406,7 @@ function updateClientData() {
                                 if ((reacts[reac].hasOwnProperty("datas")) &&
                                     (window.reactData.max_data_len > 0) &&
                                     (reacts[reac].datas[dataPos].hasOwnProperty("corrNcopy"))) {
-                                    cell += 'Ncopy: ' + floatWithFixPrec(reacts[reac].datas[dataPos].corrNcopy, 2) + '</td>'
+                                    cell += 'Ncopy: ' + floatWithThousFixPrec(reacts[reac].datas[dataPos].corrNcopy, 2) + '</td>'
                                 } else {
                                     cell += '---</td>'
                                 }
@@ -1570,6 +1570,23 @@ function floatWithFixPrec(val, prec) {
         return "";
     }
     ret += String(parseFloat(val).toFixed(prec));
+    if (window.decimalSepPoint == false) {
+        ret = ret.replace(/\./g, ',');
+    }
+    return ret;
+}
+
+window.floatWithThousFixPrec = floatWithThousFixPrec
+function floatWithThousFixPrec(val, prec) {
+    var ret = "";
+    if (val == "") {
+        return "";
+    }
+    if (isNaN(parseFloat(val))) {
+        return "";
+    }
+    ret += String(parseFloat(val).toFixed(prec));
+    ret = ret.replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, "&#729;");
     if (window.decimalSepPoint == false) {
         ret = ret.replace(/\./g, ',');
     }
