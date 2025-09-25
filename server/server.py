@@ -2747,7 +2747,6 @@ def handle_data():
             logData("RDML-Tools", logNote1, "modify", uuidstr)
         else:
             logData("RDML-Tools", logNote1, "view", uuidstr)
-        print("Goos")
         data["filedata"] = rd.tojson()
      #   for key in data:
     #        print(key)

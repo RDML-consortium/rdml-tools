@@ -83,6 +83,18 @@ function jsDebugFunction() {
     updateClientData()
 }
 
+function jsDebugTable(tab) {
+    alert("Ready to debug")
+    var tabS = "";
+    for (var row = 0; row < tab.length; row++) {
+        for (var col = 0; col < tab[row].length; col++) {
+            tabS += tab[row][col] + "\t"
+        }
+        tabS += "\n";
+    }
+    saveTabFile("debug.csv", tabS)
+    updateClientData()
+}
 
 const inputFile = document.getElementById('inputFile')
 const resultInfo = document.getElementById('result-info')
@@ -154,51 +166,45 @@ window.convertField = { "id": 0,
                         "sample type": 3,
                         "sample nucleotide": 4,
                         "target": 5,
-                        "target chemistry": 6,
-                        "excluded": 7,
-                        "note": 8,
-                        "baseline": 9,
-                        "plateau": 10,
-                        "plateau / baseline": 11,
-                        "lower limit": 12,
-                        "upper limit": 13,
+                        "target type": 6,  
+                        "target dye": 7,
+                        "target chemistry": 8,
+                        "excluded": 9,
+                        "note": 10,
+                        "baseline": 11,
+                        "plateau": 12,
+                        "plateau / baseline": 13,
                         "n in log phase": 14,
-                        "last log cycle": 15,
-                        "n included": 16,
-                        "indiv PCR eff": 17,
-                        "indiv PCR eff x": 53,
-                        "indiv PCR eff y": 54,
-                        "R2": 18,
-                        "PCR eff": 19,
-                        "standard error of PCR eff": 20,
-                        "threshold": 21,
-                        "Cq": 22,
-                        "indiv Ncopy": 23,
-                        "Ncopy": 24,
-                        "amplification": 25,
-                        "baseline error": 26,
-                        "instable baseline": 27,
-                        "plateau": 28,
-                        "noisy sample": 29,
+                        "n included": 15,
+                        "last log cycle": 16,
+                        "indiv PCR eff x": 17,
+                        "indiv PCR eff y": 18,             
+                        "indiv PCR eff": 19,
+                        "R2": 20,
+                        "PCR eff": 21,
+                        "standard error of PCR eff": 22,
+                        "TD0 fluorescence": 23,
+                        "TD0": 24,
+                        "indiv Ncopy": 25,
+                        "Ncopy": 26,
+                        "amplification": 27,
+                        "baseline error": 28,
+                        "plateau": 29,
                         "excl PCR efficiency": 30,
-                        "short log lin phase": 31,
-                        "Cq is shifting": 32,
-                        "too low Cq eff": 33,
-                        "too low Cq N0": 34,
-                        "used for W-o-L setting": 35,
-                        "nAmpli": 36,
-                        "vol": 37,
-                        "dNTPs": 38,
-                        "dyeConc": 39,
-                        "primer len for": 40,
-                        "primer conc for": 41,
-                        "primer len rev": 42,
-                        "primer conc rev": 43,
-                        "probe1 len": 44,
-                        "probe1 conc": 45,
-                        "probe2 len": 46,
-                        "probe2 conc": 47,
-                        "amplicon len": 48};
+                        "used for mean PCR efficiency": 31,
+                        "nAmpli": 32,
+                        "vol": 33,
+                        "nCopyFact": 34,
+                        "dyeConc": 35,
+                        "primer len for": 36,
+                        "primer conc for": 37,
+                        "primer len rev": 38,
+                        "primer conc rev": 39,
+                        "probe1 len": 40,
+                        "probe1 conc": 41,
+                        "probe2 len": 42,
+                        "probe2 conc": 43,
+                        "amplicon len": 44};
 
 const copyThreshold = 10 * Math.pow(1.9, 35.0);
 
@@ -1686,6 +1692,7 @@ function updateLinRegPCRTable() {
     var content = "";
     var htmlTag = 'td';
     var ret = '<table class="table table-bordered table-striped" id="LinRegPCR_Result_Table"><thead style=\"position: sticky;top: 0\">\n'
+    // jsDebugTable(window.linRegPCRTable)
     if (choiceTable.value == "debug") {
         for (var row = 0; row < window.linRegPCRTable.length; row++) {
             if (row == 0) {
@@ -1697,7 +1704,10 @@ function updateLinRegPCRTable() {
                 htmlTag = 'td'
             }
             for (var col = 0; col < window.linRegPCRTable[row].length; col++) {
-                if (col < 9) {
+                if (col < cv["note"] + 1) {
+                    content += window.linRegPCRTable[row][col] + "\t"
+                    ret += '<' + htmlTag + '>' + window.linRegPCRTable[row][col] + '</' + htmlTag + '>\n'
+                } else if ((col > cv["amplification"] - 1) && (col < cv["used for mean PCR efficiency"] + 1)) {
                     content += window.linRegPCRTable[row][col] + "\t"
                     ret += '<' + htmlTag + '>' + window.linRegPCRTable[row][col] + '</' + htmlTag + '>\n'
                 } else {
@@ -1713,37 +1723,32 @@ function updateLinRegPCRTable() {
         }
     } else if (choiceTable.value == "extended") {
         for (var row = 0; row < window.linRegPCRTable.length; row++) {
-            var highlight_nInLog = ""
             var highlight_indivPCREff = ""
             var highlight_nIncluded = ""
             var highlight_meanPCREff = ""
-            var highlight_Cq = ""
+            var highlight_TD0 = ""
             var highlight_Ncopy = ""
-            var highlight_ErrAmp = ""
-            var highlight_ErrBase = ""
-            var highlight_ErrInstab = ""
-            var highlight_ErrPlat = ""
-            var highlight_ErrNoisy = ""
-            var highlight_ErrEffOutside = ""
+            var highlight_ErrAmplification = ""
+            var highlight_ErrBaseline = ""
+            var highlight_ErrPlateau = ""
+            var highlight_ErrPCREfficiency = ""
+            var highlight_UsedMeanPCREff = ""
 
             var colWarn = ' style="background-color: #ffc266"'
             var colErr = ' style="background-color: #ff5c33"'
 
-            var cqValue = -1.0;
-            if (window.linRegPCRTable[row][cv["Cq"]] != "") {
-                cqValue = parseFloat(window.linRegPCRTable[row][cv["Cq"]])
+            var td0Value = -1.0;
+            if (window.linRegPCRTable[row][cv["TD0"]] != "") {
+                td0Value = parseFloat(window.linRegPCRTable[row][cv["TD0"]])
             }
 
             // Similar to rdml.py
             if (["ntc", "nac", "ntp", "nrt"].includes(window.linRegPCRTable[row][cv["sample type"]])) {
-                if (cqValue > 0.0) {
-                    highlight_Cq = colErr
+                if (td0Value > 0.0) {
+                    highlight_TD0 = colErr
                     highlight_Ncopy = colErr
                     if (window.linRegPCRTable[row][cv["amplification"]] == true) {
-                        highlight_ErrAmp = colErr
-                    }
-                    if (window.linRegPCRTable[row][cv["plateau"]] == true) {
-                        highlight_ErrPlat = colErr
+                        highlight_ErrAmplification = colErr
                     }
                     if (window.linRegPCRTable[row][cv["excl PCR efficiency"]] == false) {
                         highlight_ErrEffOutside = colErr
@@ -1752,13 +1757,10 @@ function updateLinRegPCRTable() {
                     }
                 } else {
                     if (window.linRegPCRTable[row][cv["amplification"]] == true) {
-                        highlight_ErrAmp = colWarn
-                    }
-                    if (window.linRegPCRTable[row][cv["plateau"]] == true) {
-                        highlight_ErrPlat = colWarn
+                        highlight_ErrAmplification = colWarn
                     }
                     if (window.linRegPCRTable[row][cv["excl PCR efficiency"]] == false) {
-                        highlight_ErrEffOutside = colWarn
+                        highlight_ErrPCREfficiency = colWarn
                         highlight_meanPCREff = colWarn
                         highlight_indivPCREff = colWarn
                     }
@@ -1766,34 +1768,34 @@ function updateLinRegPCRTable() {
             }
             if (["std", "pos"].includes(window.linRegPCRTable[row][cv["sample type"]])) {
                 if (parseInt(window.linRegPCRTable[row][cv["n in log phase"]]) < 5) {
-                    highlight_nInLog = colWarn
+                    highlight_nIncluded = colWarn
                 }
                 if (parseFloat(window.linRegPCRTable[row][cv["indiv PCR eff"]]) < 1.7) {
                     highlight_indivPCREff = colWarn
                 }
-                if (cqValue > 34.0) {
-                    highlight_Cq = colWarn
+                if (td0Value > 34.0) {
+                    highlight_TD0 = colWarn
                     highlight_Ncopy = colWarn
                 }
-                if ((cqValue > -0.001) && (cqValue < 10.0)) {
-                    highlight_Cq = colWarn
+                if ((td0Value > -0.001) && (td0Value < 10.0)) {
+                    highlight_TD0 = colWarn
                     highlight_Ncopy = colWarn
                 }
 
-                if (!(cqValue > 0.0)) {
-                    highlight_Cq = colErr
+                if (!(td0Value > 0.0)) {
+                    highlight_TD0 = colErr
                     highlight_Ncopy = colErr
                     if (window.linRegPCRTable[row][cv["amplification"]] == false) {
-                        highlight_ErrAmp = colErr
+                        highlight_ErrAmplification = colErr
                     }
                     if (window.linRegPCRTable[row][cv["baseline error"]] == true) {
-                        highlight_ErrBase = colErr
+                        highlight_ErrBaseline = colErr
                     }
                     if (window.linRegPCRTable[row][cv["instable baseline"]] == true) {
                         highlight_ErrInstab = colErr
                     }
                     if (window.linRegPCRTable[row][cv["plateau"]] == false) {
-                        highlight_ErrPlat = colErr
+                        highlight_ErrPlateau = colErr
                     }
                     if (window.linRegPCRTable[row][cv["noisy sample"]] == true) {
                         highlight_ErrNoisy = colErr
@@ -1805,22 +1807,22 @@ function updateLinRegPCRTable() {
                     }
                 } else {
                     if (window.linRegPCRTable[row][cv["amplification"]] == false) {
-                        highlight_ErrAmp = colWarn
+                        highlight_ErrAmplification = colWarn
                     }
                     if (window.linRegPCRTable[row][cv["baseline error"]] == true) {
-                        highlight_ErrBase = colWarn
+                        highlight_ErrBaseline = colWarn
                     }
                     if (window.linRegPCRTable[row][cv["instable baseline"]] == true) {
                         highlight_ErrInstab = colWarn
                     }
                     if (window.linRegPCRTable[row][cv["plateau"]] == false) {
-                        highlight_ErrPlat = colWarn
+                        highlight_ErrPlateau = colWarn
                     }
                     if (window.linRegPCRTable[row][cv["noisy sample"]] == true) {
                         highlight_ErrNoisy = colWarn
                     }
                     if (window.linRegPCRTable[row][cv["excl PCR efficiency"]] == true) {
-                        highlight_ErrEffOutside = colWarn
+                        highlight_ErrPCREfficiency = colWarn
                         highlight_meanPCREff = colWarn
                         highlight_indivPCREff = colWarn
                     }
@@ -1828,36 +1830,36 @@ function updateLinRegPCRTable() {
             }
             if (window.linRegPCRTable[row][cv["sample type"]] == "unkn") {
                 if (parseInt(window.linRegPCRTable[row][cv["n in log phase"]]) < 5) {
-                    highlight_nInLog = colWarn
+                    highlight_nIncluded = colWarn
                 }
                 if (parseFloat(window.linRegPCRTable[row][cv["indiv PCR eff"]]) < 1.7) {
                     highlight_indivPCREff = colWarn
                 }
-                if (cqValue > 34.0) {
-                    highlight_Cq = colWarn
+                if (td0Value > 34.0) {
+                    highlight_TD0 = colWarn
                     highlight_Ncopy = colWarn
                 }
-                if ((cqValue > -0.001) && (cqValue < 10.0)) {
-                    highlight_Cq = colWarn
+                if ((td0Value > -0.001) && (td0Value < 10.0)) {
+                    highlight_TD0 = colWarn
                     highlight_Ncopy = colWarn
                 }
                 if (window.linRegPCRTable[row][cv["amplification"]] == false) {
-                    highlight_ErrAmp = colWarn
+                    highlight_ErrAmplification = colWarn
                 }
                 if (window.linRegPCRTable[row][cv["baseline error"]] == true) {
-                    highlight_ErrBase = colWarn
+                    highlight_ErrBaseline = colWarn
                 }
                 if (window.linRegPCRTable[row][cv["instable baseline"]] == true) {
                     highlight_ErrInstab = colWarn
                 }
                 if (window.linRegPCRTable[row][cv["plateau"]] == false) {
-                    highlight_ErrPlat = colWarn
+                    highlight_ErrPlateau = colWarn
                 }
                 if (window.linRegPCRTable[row][cv["noisy sample"]] == true) {
                     highlight_ErrNoisy = colWarn
                 }
                 if (window.linRegPCRTable[row][cv["excl PCR efficiency"]] == true) {
-                    highlight_ErrEffOutside = colWarn
+                    highlight_ErrPCREfficiency = colWarn
                     highlight_meanPCREff = colWarn
                     highlight_indivPCREff = colWarn
                 }
@@ -1912,15 +1914,9 @@ function updateLinRegPCRTable() {
             }
             content += window.linRegPCRTable[row][cv["note"]] + "\t"
             if (row == 0) {
-                ret += '<th>' + window.linRegPCRTable[row][cv["plateau / baseline"]] + '</th>\n'
-            } else {
-                ret += '<td>' + floatWithPrec(window.linRegPCRTable[row][cv["plateau / baseline"]], 10) + '</td>\n'
-            }
-            content += NumPoint(window.linRegPCRTable[row][cv["plateau / baseline"]]) + "\t"
-            if (row == 0) {
                 ret += '<th>' + window.linRegPCRTable[row][cv["n in log phase"]] + '</th>\n'
             } else {
-                ret += '<td' + highlight_nInLog + '>' + window.linRegPCRTable[row][cv["n in log phase"]] + '</td>\n'
+                ret += '<td>' + window.linRegPCRTable[row][cv["n in log phase"]] + '</td>\n'
             }
             content += NumPoint(window.linRegPCRTable[row][cv["n in log phase"]]) + "\t"
             if (row == 0) {
@@ -1953,12 +1949,20 @@ function updateLinRegPCRTable() {
                 content += NumPoint(window.linRegPCRTable[row][cv["standard error of PCR eff"]]) + "\t"
             }
             if (row == 0) {
-                ret += '<th>Cq</th>\n'
-                content += "Cq\t"
+                ret += '<th>TD0</th>\n'
+                content += "TD0\t"
             } else {
-                ret += '<td' + highlight_Cq + '>'
-                ret += floatWithPrec(window.linRegPCRTable[row][cv["Cq"]], 1000) + '</td>\n'
-                content += NumPoint(window.linRegPCRTable[row][cv["Cq"]]) + "\t"
+                ret += '<td' + highlight_TD0 + '>'
+                ret += floatWithPrec(window.linRegPCRTable[row][cv["TD0"]], 1000) + '</td>\n'
+                content += NumPoint(window.linRegPCRTable[row][cv["TD0"]]) + "\t"
+            }
+            if (row == 0) {
+                ret += '<th>indiv Ncopy</th>\n'
+                content += "Ncopy\t"
+            } else {
+                ret += '<td' + highlight_Ncopy + '>'
+                ret += floatWithPrec(window.linRegPCRTable[row][cv["indiv Ncopy"]], 100) + '</td>\n'
+                content += NumPoint(window.linRegPCRTable[row][cv["indiv Ncopy"]]) + "\t"
             }
             if (row == 0) {
                 ret += '<th>Ncopy</th>\n'
@@ -1972,7 +1976,7 @@ function updateLinRegPCRTable() {
                 ret += '<th>' + window.linRegPCRTable[row][cv["amplification"]] + '</th>\n'
                 content += window.linRegPCRTable[row][cv["amplification"]] + "\t"
             } else {
-                ret += '<td' + highlight_ErrAmp + '>'
+                ret += '<td' + highlight_ErrAmplification + '>'
                 if (window.linRegPCRTable[row][cv["amplification"]] == true) {
                     ret += 'Yes</td>\n'
                     content += "Yes\t"
@@ -1985,21 +1989,8 @@ function updateLinRegPCRTable() {
                 ret += '<th>' + window.linRegPCRTable[row][cv["baseline error"]] + '</th>\n'
                 content += window.linRegPCRTable[row][cv["baseline error"]] + "\t"
             } else {
-                ret += '<td' + highlight_ErrBase + '>'
-                if (window.linRegPCRTable[row][cv["baseline error"]] == true) {
-                    ret += 'Yes</td>\n'
-                    content += "Yes\t"
-                } else {
-                    ret += 'No</td>\n'
-                    content += "No\t"
-                }
-            }
-            if (row == 0) {
-                ret += '<th>' + window.linRegPCRTable[row][cv["instable baseline"]] + '</th>\n'
-                content += window.linRegPCRTable[row][cv["instable baseline"]] + "\t"
-            } else {
-                ret += '<td' + highlight_ErrInstab + '>'
-                if (window.linRegPCRTable[row][cv["instable baseline"]] == true) {
+                ret += '<td' + highlight_ErrBaseline + '>'
+                if (window.linRegPCRTable[row][cv["baseline error"]] > 0) {
                     ret += 'Yes</td>\n'
                     content += "Yes\t"
                 } else {
@@ -2011,21 +2002,8 @@ function updateLinRegPCRTable() {
                 ret += '<th>' + window.linRegPCRTable[row][cv["plateau"]] + '</th>\n'
                 content += window.linRegPCRTable[row][cv["plateau"]] + "\t"
             } else {
-                ret += '<td' + highlight_ErrPlat + '>'
+                ret += '<td' + highlight_ErrPlateau + '>'
                 if (window.linRegPCRTable[row][cv["plateau"]] == true) {
-                    ret += 'Yes</td>\n'
-                    content += "Yes\t"
-                } else {
-                    ret += 'No</td>\n'
-                    content += "No\t"
-                }
-            }
-            if (row == 0) {
-                ret += '<th>' + window.linRegPCRTable[row][cv["noisy sample"]] + '</th>\n'
-                content += window.linRegPCRTable[row][cv["noisy sample"]] + "\t"
-            } else {
-                ret += '<td' + highlight_ErrNoisy + '>'
-                if (window.linRegPCRTable[row][cv["noisy sample"]] == true) {
                     ret += 'Yes</td>\n'
                     content += "Yes\t"
                 } else {
@@ -2037,7 +2015,7 @@ function updateLinRegPCRTable() {
                 ret += '<th>' + window.linRegPCRTable[row][cv["excl PCR efficiency"]] + '</th>\n'
                 content += window.linRegPCRTable[row][cv["excl PCR efficiency"]] + "\t"
             } else {
-                ret += '<td' + highlight_ErrEffOutside + '>'
+                ret += '<td' + highlight_ErrPCREfficiency + '>'
                 if (window.linRegPCRTable[row][cv["excl PCR efficiency"]] == true) {
                     ret += 'Yes</td>\n'
                     content += "Yes\t"
@@ -2047,14 +2025,15 @@ function updateLinRegPCRTable() {
                 }
             }
             if (row == 0) {
-                ret += '<th>' + window.linRegPCRTable[row][cv["used for W-o-L setting"]] + '</th>\n'
-                content += window.linRegPCRTable[row][cv["used for W-o-L setting"]] + "\t"
+                ret += '<th>' + window.linRegPCRTable[row][cv["used for mean PCR efficiency"]] + '</th>\n'
+                content += window.linRegPCRTable[row][cv["used for mean PCR efficiency"]] + "\t"
             } else {
-                if (window.linRegPCRTable[row][cv["used for W-o-L setting"]] == true) {
-                    ret += '<td>Yes</td>\n'
+                ret += '<td' + highlight_UsedMeanPCREff + '>'
+                if (window.linRegPCRTable[row][cv["used for mean PCR efficiency"]] == true) {
+                    ret += 'Yes</td>\n'
                     content += "Yes\t"
                 } else {
-                    ret += '<td style="background-color: #ffc266;">No</td>\n'
+                    ret += 'No</td>\n'
                     content += "No\t"
                 }
             }
