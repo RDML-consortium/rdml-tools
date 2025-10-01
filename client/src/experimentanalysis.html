@@ -54,9 +54,6 @@
         <a class="nav-link" href="#interrun-tab" id="link-interrun">InterRunCorrection</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="#absolute-tab" id="link-absolute">AbsoluteQuantification</a>
-      </li>
-      <li class="nav-item">
         <a class="nav-link" href="#quantify-tab" id="link-quantify">Quantifiy</a>
       </li>
       <li class="nav-item">
@@ -89,10 +86,6 @@
             <button type="submit" class="btn btn-outline-primary" id="btn-example-platecorr-six">
               <i class="fas fa-eye" style="margin-right: 5px;"></i>
               Load Example 6 Plate Correction
-            </button>
-            <button type="submit" class="btn btn-outline-primary" id="btn-example-absolute">
-              <i class="fas fa-eye" style="margin-right: 5px;"></i>
-              Load Example AbsoluteQuantification
             </button>
             <button type="submit" class="btn btn-outline-primary" id="btn-example-quantify">
               <i class="fas fa-eye" style="margin-right: 5px;"></i>
@@ -194,125 +187,6 @@
         <br />
         <br />
         <div id="result-interruncorr"></div>
-      </div>
-
-      <div class="tab-pane" id="absolute-tab">
-       <table style="width:100%;background-color: #e6e6e6;">
-          <tr>
-            <td style="width:1%;"></td>
-            <td style="width:14%;">Method:</td>
-            <td style="width:14%;">
-              <select class="form-control" id="selAbsoluteMethod">
-                <option value="reference" selected>Reference Sample</option>
-                <option value="cq-guess">Rule of Thumb (Cq 35 == 10 copies)</option>
-                <option value="optical">Optical Calibrator (Experimental!)</option>
-              </select>
-            </td>
-            <td style="width:4%;"></td>
-            <td style="width:14%;">Quant. Unit:</td>
-            <td style="width:8%;">
-              <select class="form-control" id="selAbsoluteUnit">
-                <option value="cop" selected>cop - copies per reaction</option>
-                <option value="fold">fold - fold change</option>
-                <option value="dil">dil - dilution</option>
-                <option value="nMol">nMol - nanomol per reaction</option>
-                <option value="ng">ng - nanogram per reaction</option>
-                <option value="other">other - other unit</option>
-              </select>
-            </td>
-            <td style="width:4%;"></td>
-            <td style="width:14%;">Estimate Missing Tar.:</td>
-            <td style="width:6%;">
-              <select class="form-control" id="selAbsoluteMissTar">
-                <option value="y">yes</option>
-                <option value="n" selected>no</option>
-              </select>
-            </td>
-            <td style="width:20%;text-align: right;">
-              <button type="submit" class="btn btn-outline-primary" id="btn-run-absolute">
-                <i class="fas fa-rocket" style="margin-right: 5px;"></i>
-                Run AbsoluteQuantification
-              </button>
-            </td>
-            <td style="width:1%;"></td>
-          </tr>
-        </table>
-        <table style="width:100%;background-color: #e6e6e6;">
-          <tr>
-            <td style="width:1%;"></td>
-            <td style="width:14%;">Overlap:</td>
-            <td style="width:14%;">
-              <select class="form-control" id="selOverlapAbsolute">
-                <option value="samples" selected>Technical Replicates</option>
-                <option value="annotation">Same Annotation</option>
-              </select>
-            </td>
-            <td style="width:4%;"></td>
-            <td style="width:14%;background-color: #e6e6e6;">Sel. Annotation:</td>
-            <td style="width:8%;background-color: #e6e6e6;">
-              <select class="form-control" id="selAbsoluteAnnotation">
-                <option value="" selected>Not Selected</option>
-              </select>
-            </td>
-            <td style="width:4%;"></td>
-            <td style="width:14%;">Include Annotations:</td>
-            <td style="width:6%;">
-              <select class="form-control" id="choiceIncludeAnnotationsAbs">
-                <option value="y">yes</option>
-                <option value="n" selected>no</option>
-              </select>
-            </td>
-            <td style="width:20%;text-align: right;"></td>
-            <td style="width:1%;"></td>
-          </tr>
-        </table>
-        <table style="width:100%;">
-          <tr>
-            <td style="width:1%;background-color: #e6e6e6;"></td>
-            <td style="width:14%;background-color: #e6e6e6;"></td>
-            <td style="width:14%;background-color: #e6e6e6;"></td>
-            <td style="width:4%;background-color: #e6e6e6;"></td>
-            <td style="width:14%;background-color: #e6e6e6;">Def. React. Volume:</td>
-            <td style="width:8%;background-color: #e6e6e6;">
-              <input class="form-control" type="text" id="selAbsoluteReactVol" value="20">
-            </td>
-            <td style="width:1%;background-color: #e6e6e6;"></td>
-            <td style="width:3%;"></td>
-            <td style="width:14%;">Decimal Separator:</td>
-            <td style="width:6%;">
-              <select class="form-control" id="selAbsoluteSeparator">
-                <option value="point" selected>Point</option>
-                <option value="comma">Comma</option>
-              </select>
-            </td>
-            <td style="width:20%;text-align: right;">
-              <button type="submit" class="btn btn-outline-primary" id="btn-rdml-absolute">
-                <i class="far fa-save" style="margin-right: 5px;"></i>
-                Save RDML
-              </button>
-            </td>
-            <td style="width:1%;"></td>
-          </tr>
-        </table>
-        <table style="width:100%;">
-          <tr>
-            <td style="width:61%;"></td>
-            <td style="width:38%;text-align: right;">
-              <button type="submit" class="btn btn-outline-primary" id="btn-copy-absolute">
-                <i class="fas fa-paste" style="margin-right: 5px;"></i>
-                Copy table to clipboard
-              </button>&nbsp;&nbsp;
-              <button type="submit" class="btn btn-outline-primary" id="btn-save-absolute">
-                <i class="far fa-save" style="margin-right: 5px;"></i>
-                Save table as CSV
-              </button>
-            </td>
-            <td style="width:1%;"></td>
-          </tr>
-        </table>
-        <br />
-        <br />
-        <div id="result-absolute"></div>
       </div>
 
       <div class="tab-pane" id="quantify-tab">

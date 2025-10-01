@@ -19,9 +19,6 @@ examplePlateTwoCorrButton.addEventListener('click', showPlateCorrTwoExample)
 const examplePlateSixCorrButton = document.getElementById('btn-example-platecorr-six')
 examplePlateSixCorrButton.addEventListener('click', showPlateCorrSixExample)
 
-const exampleAbsolute = document.getElementById('btn-example-absolute')
-exampleAbsolute.addEventListener('click', showAbsolute)
-
 const exampleGenorm = document.getElementById('btn-example-genorm')
 exampleGenorm.addEventListener('click', showGenorm)
 
@@ -30,9 +27,6 @@ exampleRelative.addEventListener('click', showRelative)
 
 const interRunCorrButton = document.getElementById('btn-run-interruncorr')
 interRunCorrButton.addEventListener('click', runInterRunCorr)
-
-const absoluteQuanButton = document.getElementById('btn-run-absolute')
-absoluteQuanButton.addEventListener('click', runAbsoluteQuan)
 
 const genormButton = document.getElementById('btn-run-genorm')
 genormButton.addEventListener('click', runGenorm)
@@ -43,9 +37,6 @@ relativeButton.addEventListener('click', runRelative)
 const interRunCorrRDMLButton = document.getElementById('btn-rdml-interruncorr')
 interRunCorrRDMLButton.addEventListener('click', showRDMLSave)
 
-const absoluteQuanRDMLButton = document.getElementById('btn-rdml-absolute')
-absoluteQuanRDMLButton.addEventListener('click', showRDMLSave)
-
 const genormRDMLButton = document.getElementById('btn-rdml-genorm')
 genormRDMLButton.addEventListener('click', showRDMLSave)
 
@@ -55,9 +46,6 @@ relativeRDMLButton.addEventListener('click', showRDMLSave)
 const interRunCorrCopyButton = document.getElementById('btn-copy-interruncorr')
 interRunCorrCopyButton.addEventListener('click', copyTabInterRunCorr)
 
-const absoluteQuanCopyButton = document.getElementById('btn-copy-absolute')
-absoluteQuanCopyButton.addEventListener('click', copyTabAbsoluteQuan)
-
 const genormCopyButton = document.getElementById('btn-copy-genorm')
 genormCopyButton.addEventListener('click', copyTabGenorm)
 
@@ -66,9 +54,6 @@ relativeCopyButton.addEventListener('click', copyTabRelative)
 
 const interRunCorrSaveButton = document.getElementById('btn-save-interruncorr')
 interRunCorrSaveButton.addEventListener('click', saveTabInterRunCorr)
-
-const absoluteQuanSaveButton = document.getElementById('btn-save-absolute')
-absoluteQuanSaveButton.addEventListener('click', saveTabAbsoluteQuan)
 
 const genormSaveButton = document.getElementById('btn-save-genorm')
 genormSaveButton.addEventListener('click', saveTabGenorm)
@@ -85,9 +70,6 @@ resSaveSVGVValButton.addEventListener('click', saveVValsSVG)
 const choiceIntRunAnno = document.getElementById('selInterAnnotation')
 choiceIntRunAnno.addEventListener('change', updateIntRunAnno)
 
-const choiceAbsoluteAnno = document.getElementById('selAbsoluteAnnotation')
-choiceAbsoluteAnno.addEventListener('change', updateAbsoluteAnno)
-
 const choiceGenormAnno = document.getElementById('selGenormAnnotation')
 choiceGenormAnno.addEventListener('change', updateGenormAnno)
 
@@ -99,9 +81,6 @@ choiceRelativeAnno.addEventListener('change', updateRelativeAnno)
 
 const choicePlateSeparator = document.getElementById('selPlateSeparator')
 choicePlateSeparator.addEventListener('change', updatePlateResDeciSep)
-
-const choiceAbsQuanSeparator = document.getElementById('selAbsoluteSeparator')
-choiceAbsQuanSeparator.addEventListener('change', updateAbsQuanResDeciSep)
 
 const choiceGenormSeparator = document.getElementById('selGenormSeparator')
 choiceGenormSeparator.addEventListener('change', updateGenormResDeciSep)
@@ -129,7 +108,6 @@ const resultError = document.getElementById('result-error')
 const selectorsData = document.getElementById('selectors-data')
 const resultData = document.getElementById('result-data')
 const resultInterRunCorr = document.getElementById('result-interruncorr')
-const resultAbsoluteQant = document.getElementById('result-absolute')
 const resultGenorm = document.getElementById('result-genorm')
 const resultRelative = document.getElementById('result-relative')
 
@@ -171,9 +149,6 @@ window.plateSaveTable = "";
 window.interRunCal = {};
 window.interRunSaveTable = "";
 
-window.absoluteQant = {};
-window.absoluteQantSaveTable = "";
-window.absoluteNcopyCorr = -1.0;
 window.absoluteNcopyUnit = "";
 
 window.genorm = {};
@@ -207,7 +182,6 @@ function resetAllGlobalVal() {
     window.samValues = {}
     hideElement(resultError)
     resetAllInterRun()
-    resetAbsoluteQant()
     resetGenorm()
     resetRelative()
     window.selRefGenes = {};
@@ -218,14 +192,6 @@ function resetAllInterRun() {
     window.interRunCal = {};
     window.interRunSaveTable = "";
     resultInterRunCorr.innerHTML = "";
-}
-
-function resetAbsoluteQant() {
-    window.absoluteQant = {};
-    window.absoluteNcopyCorr = -1.0;
-    window.absoluteNcopyUnit = "";
-    window.absoluteQantTable = "";
-    resultAbsoluteQant.innerHTML = "";
 }
 
 function resetGenorm() {
@@ -256,17 +222,6 @@ function updatePlateDeciSep() {
 window.updatePlateResDeciSep = updatePlateResDeciSep
 function updatePlateResDeciSep() {
     var data = getSaveHtmlData("selPlateSeparator")
-    if (data == "point") {
-        window.decimalSepPoint = true;
-    } else {
-        window.decimalSepPoint = false;
-    }
-    updateAllDeciSep()
-}
-
-window.updateAbsQuanResDeciSep = updateAbsQuanResDeciSep
-function updateAbsQuanResDeciSep() {
-    var data = getSaveHtmlData("selAbsoluteSeparator")
     if (data == "point") {
         window.decimalSepPoint = true;
     } else {
@@ -313,7 +268,6 @@ function updateAllDeciSep() {
     }
     updateClientData()
     updatePlateTable()
-    updateAbsoluteTable()
     updateGenormTable()
     updateRelativeTable()
 }
@@ -328,12 +282,6 @@ function updateAnnotation() {
 window.updateIntRunAnno = updateIntRunAnno
 function updateIntRunAnno() {
     window.selAnnotation = getSaveHtmlData("selInterAnnotation")
-    updateAllAnnotations()
-}
-
-window.updateAbsoluteAnno = updateAbsoluteAnno
-function updateAbsoluteAnno() {
-    window.selAnnotation = getSaveHtmlData("selAbsoluteAnnotation")
     updateAllAnnotations()
 }
 
@@ -376,24 +324,6 @@ function updateAllAnnotations() {
 window.updateInterRunAnnotations = updateInterRunAnnotations
 function updateInterRunAnnotations() {
     var selAn = document.getElementById("selInterAnnotation")
-    for (var i = selAn.length - 1; i > 0; i--) {
-        selAn.remove(i);
-    }
-    var allAnnotations = Object.keys(window.samAnnotations)
-    for (var i = 0; i < allAnnotations.length; i++) {
-        var opt = document.createElement('option');
-        opt.value = allAnnotations[i];
-        opt.innerHTML = allAnnotations[i];
-        if (window.selAnnotation == allAnnotations[i]) {
-            opt.selected = true;
-        }
-        selAn.appendChild(opt);
-    }
-}
-
-window.updateAbsoluteAnnotations = updateAbsoluteAnnotations
-function updateAbsoluteAnnotations() {
-    var selAn = document.getElementById("selAbsoluteAnnotation")
     for (var i = selAn.length - 1; i > 0; i--) {
         selAn.remove(i);
     }
@@ -655,18 +585,6 @@ function showPlateCorrSixExample() {
     $('[href="#runs-tab"]').tab('show')
 }
 
-function showAbsolute() {
-    resetAllGlobalVal()
-    window.selRun = "";
-    window.selPCRStyle = "classic";
-    window.selExperiment = "Reference Sample";
-    window.selRunOnLoad = "Vermeulen Merge";
-    window.selDigitalOnLoad = "none";
-
-    updateServerData("absolute", '{"mode": "upload", "validate": true}')
-    $('[href="#runs-tab"]').tab('show')
-}
-
 function showGenorm() {
     resetAllGlobalVal()
     window.selRun = "";
@@ -725,35 +643,6 @@ function runInterRunCorr() {
     updateServerData(uuid, JSON.stringify(ret))
 
     $('[href="#interrun-tab"]').tab('show')
-}
-
-function runAbsoluteQuan() {
-    if (window.selExperiment == "") {
-        alert("Select an experiment first!")
-        return
-    }
-    var inclAnno = false
-    var inclAnno = document.getElementById('choiceIncludeAnnotationsAbs')
-    if ((inclAnno) && (inclAnno.value == "y")) {
-        inclAnno = true
-    }
-    resultAbsoluteQant.innerHTML = ""
-    hideElement(resultError)
-    window.plateView = "list";
-
-    var ret = {}
-    ret["mode"] = "run-absolute-quantification"
-    ret["sel-experiment"] = window.selExperiment
-    ret["absolute-method"] = getSaveHtmlData("selAbsoluteMethod")
-    ret["absolute-unit"] = getSaveHtmlData("selAbsoluteUnit")
-    ret["estimate-missing"] = getSaveHtmlData("selAbsoluteMissTar")
-    ret["absolute-react-vol"] = getSaveHtmlData("selAbsoluteReactVol")
-    ret["overlap-type"] = getSaveHtmlData("selOverlapAbsolute")
-    ret["sel-annotation"] = window.selAnnotation
-    ret["incl-annotation"] = inclAnno
-    updateServerData(uuid, JSON.stringify(ret))
-
-    $('[href="#absolute-tab"]').tab('show')
 }
 
 function runGenorm() {
@@ -846,8 +735,6 @@ function updateServerData(stat, reqData) {
         formData.append('showPlateCorrTwoExample', 'showPlateCorrExample')
     } else if (stat == "platecorrsix") {
         formData.append('showPlateCorrSixExample', 'showPlateCorrSixExample')
-    } else if (stat == "absolute") {
-        formData.append('showAbsolute', 'showAbsolute')
     } else if (stat == "genorm") {
         formData.append('showGenorm', 'showGenorm')
     } else if (stat == "relative") {
@@ -883,12 +770,6 @@ function updateServerData(stat, reqData) {
                     if (res.data.data.hasOwnProperty("interruncal")) {
                         window.interRunCal = res.data.data.interruncal
                         updatePlateTable()
-                    }
-                    if (res.data.data.hasOwnProperty("absolutequan")) {
-                        window.absoluteQant = res.data.data.absolutequan
-                        window.absoluteNcopyCorr = res.data.data.absolutequan.corrNcopyFact
-                        window.absoluteNcopyUnit = res.data.data.absolutequan.absUnit
-                        updateAbsoluteTable()
                     }
                     if (res.data.data.hasOwnProperty("genorm")) {
                         window.genorm = res.data.data.genorm
@@ -2054,7 +1935,6 @@ function updateClientData() {
         resultSelReferences.innerHTML = refBox + "\n" + refList;
     }
     updateInterRunAnnotations()
-    updateAbsoluteAnnotations()
     updateGenormAnnotations()
     updateRelativeAnnotations()
 }
@@ -2319,67 +2199,6 @@ function updatePlateTable() {
     resultInterRunCorr.innerHTML = ret
 }
 
-window.updateAbsoluteTable = updateAbsoluteTable
-function updateAbsoluteTable() {
-    if (!(window.absoluteQant.hasOwnProperty("corrNcopyFact"))) {
-        return
-    }
-    var maxCols = 0
-    maxCols = tsvGetMaxColumns(window.absoluteQant.tsv.corrNcopyFact, maxCols)
-    if (window.absoluteQant.tsv.hasOwnProperty("dilStandard")) {
-        maxCols = tsvGetMaxColumns(window.absoluteQant.tsv.dilStandard, maxCols)
-    }
-    if (window.absoluteQant.tsv.hasOwnProperty("standard")) {
-        maxCols = tsvGetMaxColumns(window.absoluteQant.tsv.standard, maxCols)
-    }
-    maxCols = tsvGetMaxColumns(window.absoluteQant.tsv.technical_data, maxCols)
-    if (window.absoluteQant.tsv.hasOwnProperty("annotation_data")) {
-        maxCols = tsvGetMaxColumns(window.absoluteQant.tsv.annotation_data, maxCols)
-    }
-
-    var ret = '<p>The calculated results are displayed in the RunView tab.</p>\n'
-    ret += '<table class="table table-bordered table-striped" id="absolute-quan-result-table">\n'
-    var content = ""
-    ret += tsvToTableHeadline("Quantification Factor", maxCols)
-    content += tsvToTsvHeadline("Quantification Factor", maxCols)
-    ret += tsvToTableSection(window.absoluteQant.tsv.corrNcopyFact, maxCols)
-    content += tsvToTsvSection(window.absoluteQant.tsv.corrNcopyFact, maxCols)
-    ret += tsvToTableHeadline("", maxCols)
-    content += tsvToTsvHeadline("", maxCols)
-    if (window.absoluteQant.tsv.hasOwnProperty("dilStandard")) {
-        ret += tsvToTableHeadline("Dilution Curves", maxCols)
-        content += tsvToTsvHeadline("Dilution Curves", maxCols)
-        ret += tsvToTableSection(window.absoluteQant.tsv.dilStandard, maxCols)
-        content += tsvToTsvSection(window.absoluteQant.tsv.dilStandard, maxCols)
-        ret += tsvToTableHeadline("", maxCols)
-        content += tsvToTsvHeadline("", maxCols)
-    }
-    if (window.absoluteQant.tsv.hasOwnProperty("standard")) {
-        ret += tsvToTableHeadline("Samples with Concentrations", maxCols)
-        content += tsvToTsvHeadline("Samples with Concentrations", maxCols)
-        ret += tsvToTableSection(window.absoluteQant.tsv.standard, maxCols)
-        content += tsvToTsvSection(window.absoluteQant.tsv.standard, maxCols)
-        ret += tsvToTableHeadline("", maxCols)
-        content += tsvToTsvHeadline("", maxCols)
-    }
-    ret += tsvToTableHeadline("Technical Replicates", maxCols)
-    content += tsvToTsvHeadline("Technical Replicates", maxCols)
-    ret += tsvToTableSectionNoRaw(window.absoluteQant.tsv.technical_data, maxCols)
-    content += tsvToTsvSectionNoRaw(window.absoluteQant.tsv.technical_data, maxCols)
-    ret += tsvToTableHeadline("", maxCols)
-    content += tsvToTsvHeadline("", maxCols)
-    if (window.absoluteQant.tsv.hasOwnProperty("annotation_data")) {
-        ret += tsvToTableHeadline("Expression by Annotation", maxCols)
-        content += tsvToTsvHeadline("Expression by Annotation", maxCols)
-        ret += tsvToTableSectionNoRaw(window.absoluteQant.tsv.annotation_data, maxCols)
-        content += tsvToTsvSectionNoRaw(window.absoluteQant.tsv.annotation_data, maxCols)
-        ret += tsvToTableHeadline("", maxCols)
-        content += tsvToTsvHeadline("", maxCols)
-    }
-    window.absoluteQantSaveTable = content
-    resultAbsoluteQant.innerHTML = ret
-}
-
 window.updateGenormTable = updateGenormTable
 function updateGenormTable() {
     if (!(window.genorm.hasOwnProperty("tsv"))) {
@@ -2610,12 +2429,6 @@ function saveTabInterRunCorr() {
     return;
 };
 
-window.saveTabAbsoluteQuan = saveTabAbsoluteQuan;
-function saveTabAbsoluteQuan() {
-    saveTabFile("Absolute_Quantification.tsv", window.absoluteQantSaveTable)
-    return;
-};
-
 window.saveTabGenorm = saveTabGenorm;
 function saveTabGenorm() {
     saveTabFile("Genorm.tsv", window.genormSaveTable)
@@ -2638,13 +2451,6 @@ function copyPlateTable() {
 window.copyTabInterRunCorr = copyTabInterRunCorr;
 function copyTabInterRunCorr() {
     var el = document.getElementById("plate-corr-result-table");
-    copyTableById(el);
-    return;
-};
-
-window.copyTabAbsoluteQuan = copyTabAbsoluteQuan;
-function copyTabAbsoluteQuan() {
-    var el = document.getElementById("absolute-quan-result-table");
     copyTableById(el);
     return;
 };
