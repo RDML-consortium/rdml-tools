@@ -1873,7 +1873,7 @@ function updateLinRegPCRTable() {
             }
             if (row == 0) {
                 ret += '<th>indiv Ncopy</th>\n'
-                content += "Ncopy\t"
+                content += "indiv Ncopy\t"
             } else {
                 ret += '<td  style="text-align: right;' + highlight_indiv_Ncopy + '">'
                 ret +=  floatWithPrec(window.linRegPCRTable[row][cv["indiv Ncopy"]], 100) + '</td>\n'

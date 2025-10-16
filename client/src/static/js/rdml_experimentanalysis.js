@@ -256,13 +256,11 @@ window.updateAllDeciSep = updateAllDeciSep
 function updateAllDeciSep() {
     if (window.decimalSepPoint == true) {
         choicePlateSeparator.value = "point";
-        choiceAbsQuanSeparator.value = "point";
         choiceGenormSeparator.value = "point";
         choiceRelativeSeparator.value = "point";
     } else {
         window.decimalSepPoint = false;
         choicePlateSeparator.value = "comma";
-        choiceAbsQuanSeparator.value = "comma";
         choiceGenormSeparator.value = "comma";
         choiceRelativeSeparator.value = "comma";
     }
