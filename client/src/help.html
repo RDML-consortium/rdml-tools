@@ -54,18 +54,24 @@
           <li><a href="#Acknowledgements">1.6. Acknowledgement</a></li>
         </ul>
       </li>
-      <li><a href="#Basic-RDML-Tools">2. Basic RDML Tools</a>
+      <li><a href="#Basic-RDML-Tools">2. RDML-Tools</a>
+
+
+        <li><a href="#Tool-Introduction">2.1. Introduction</a>
         <ul>
-          <li><a href="#Tool-Overview">2.1. Overview of the Basic RDML Tools</a></li>
           <li><a href="#Import">2.2. Import Data into RDML</a>
           <ul>
-            <li><a href="#Tool-Overview">2.1. Overview of the Basic RDML Tools</a></li>
-            <li><a href="#Import-Machine">2.2.1. Machine Export</a></li>
-            <li><a href="#Import-classicPCR">2.2.2. Classic PCR</a></li>
-            <li><a href="#Import-digitalPCR">2.2.3. Digital PCR</a></li>
-            <li><a href="#Import-supData">2.2.4. Supplement Remaining Data</a></li>
+            <li><a href="#Import-Introduction">2.2.1. Introduction into Importing Data</a></li>
+            <li><a href="#Import-validRDMLfile">2.2.2. Import of a Valid RDML file</a></li>
+            <li><a href="#Import-invalidRDMLfile">2.2.3. Import of a Invalid RDML file</a></li>
+            <li><a href="#Import-validRDESfile">2.2.4. Import of a Valid RDES file</a></li>
+            <li><a href="#Import-RDES-Introduction">2.2.5. Introduction Into RDES</a></li>
+            <li><a href="#Import-Raw-Data-Warning">2.2.6. A Note on Raw Data</a></li>
+            <li><a href="#Import-repairRDESfile">2.2.7. Repair a RDES file</a></li>
+            <li><a href="#Import-knownCSVfile">2.2.8. Import of a Known CSV file</a></li>
+            <li><a href="#Import-unknownCSVfile">2.2.9. Import of a Unknown CSV file</a></li>
           </ul>
-        <li><a href="#RDML-Edit">2.3. RDML-Edit</a>
+        <li><a href="#RDML-Edit">2.3. Supplement Remaining Data or Edit with RDML-Edit</a>
         <li><a href="#RDML-TableShaper">2.4. RDML-TableShaper</a></li>
         <li><a href="#RDML-RunView">2.5. RDML-RunView</a></li>
         <li><a href="#RDML-Validate">2.6. RDML-Validate</a></li>
@@ -118,8 +124,14 @@
     <h4 id="Introduction">1. Introduction</h4>
     <h5 id="General-Introduction">1.1. General Introduction</h5>
     <p style="text-align: justify">
-      The <a href="https://rdml.org" target="_blank">Real-time PCR Data Markup Language (RDML)</a> is a structured and
-      universal data standard for exchanging quantitative PCR (qPCR) data and digital PCR (dPCR) data. The data standard
+      The RDML-Tools are a software package with everything needed to analyze quantitative PCR (qPCR) data. It can import the raw data 
+      exported by the qPCR machines, repair RDML-files, complement missing data, analyze melting and amplification 
+      curves, combine several plates, identify reference genes, includes absolute and relative quantification and 
+      evaluate experimental groups. It uses <a href="https://rdml.org" target="_blank">Real-time PCR Data Markup Language (RDML)</a>
+      to store the data.
+      <br />
+      <br />
+      RDML is a structured and universal data standard for exchanging qPCR data and digital PCR (dPCR) data. The data standard
       should contain sufficient information to understand the experimental setup, re-analyse the data and interpret the
       results. It was designed to enable transparent exchange of annotated qPCR data between instrument software and
       third-party data analysis packages, between colleagues and collaborators, and between authors, peer reviewers,
@@ -145,12 +157,12 @@
       <br />
       Andreas Untergasser (Zentrum f&uuml;r Molekulare Biologie, University of Heidelberg, Germany; Genome Core,
       EMBL, Heidelberg, Germany), Maurice van den Hoff and Jan Ruijter (both Department of Medical Biology,
-      Amsterdam UMC, location, AMC, Amsterdam)
+      Amsterdam UMC, location, AMC, Amsterdam).
     </p>
 
-    <h5 id="Data-Standard">1.2. RDML Data Standard</h5>
+    <h5 id="Data-Standard">1.2. RDML and RDES Data Standard</h5>
     <p style="text-align: justify">
-      The <a target="_blank" href="http://www.rdml.org">RDML data standard</a> is a compressed
+      The <a target="_blank" href="https://rdml.org/">RDML data standard</a> is a compressed
       text file in Extensible Markup Language (XML). By design, it collects the information of different experimenters,
       dyes, samples, targets and thermal cycling conditions separately to experiment/run information, were this
       information is only referenced by the unique ID. In a final RDML file, for example, one target might be
@@ -168,10 +180,15 @@
       RDML was first published in
       "<a href="https://www.ncbi.nlm.nih.gov/pubmed/19223324" target="_blank">RDML: structured language and
       reporting guidelines for real-time quantitative PCR data in 2009 (Lefever et al., 2009 Nucleic Acids Res.
-      37(7):2065-2069. (doi: 10.1093/nar/gkp056 or PMID: 19223324))</a>". Version 1.2 and the database RDMLdb were
-      introduced in "<a href="https://www.ncbi.nlm.nih.gov/pubmed/26087842" target="_blank">RDML-Ninja and RDMLdb for
-      standardized exchange of qPCR data in 2015 (Ruijter et al., 2015 BMC Bioinformatics 16:197.
-      (doi: 10.1186/s12859-015-0637-6 or PMID: 26087842)</a>".
+      37(7):2065-2069. (doi: 10.1093/nar/gkp056 or PMID: 19223324))</a>".
+      <br />
+      <br />
+      As an addition, the simple <a target="_blank" href="https://rdml.org/rdes.html">Real-time PCR Data Essential 
+      Spreadsheet Format (RDES)</a> was developped as an easy export format. In principle, it is a tab separated 
+      text file with essential data and the cycles in columns and the wells in rows. RDES was first published in
+      "<a href="https://pubmed.ncbi.nlm.nih.gov/36916500/" target="_blank">Disclosing quantitative RT-PCR raw 
+      data during manuscript submission: a call for action in 2023 (Untergasser et al., 2023 Mol Oncol. 
+      May;17(5):713-717. (doi: 10.1002/1878-0261.13418. or PMID: 36916500))</a>". 
     </p>
 
     <h5 id="License">1.3. License</h5>
@@ -207,9 +224,9 @@
     </p>
 
     <h5 id="LRP-Library">1.5. The Python Library rdmlpython and the Command Line</h5>
-    <p class="regBottom" style="text-align: justify">The rdml-tools are great to analyze single files and view the result. Behind the
-      scenes the RDML-tools do no calculations. They shape the input, hand it over to the server, the server does the
-      calculations using the python library rdmlpython, collects the results and hands them to the rdml-tools which
+    <p class="regBottom" style="text-align: justify">The RDML-Tools are great to analyze single files and view the result. Behind the
+      scenes the RDML-Tools do no calculations. They shape the input, hand it over to the server, the server does the
+      calculations using the python library rdmlpython, collects the results and hands them to the RDML-Tools which
       display the results and allow to browse them interactively. If big files or a large number of files have to
       be analyzed or due to privacy reasons the data may not run on external servers, running rdmlpython locally
       via the command line interface might be an option. Programmers may use rdmlpython to handle RDML files in
@@ -321,67 +338,235 @@
     </p>
 
 
-    <h4 id="Basic-RDML-Tools">2. Basic RDML Tools</h4>
-    <ul>
-      <li><a href="#Tool-Overview">2.1. Overview of the Basic RDML Tools</a></li>
-      <li><a href="#Import">2.2. Import Data into RDML</a>
-      <ul>
-        <li><a href="#Tool-Overview">2.1. Overview of the Basic RDML Tools</a></li>
-        <li><a href="#Import-Machine">2.2.1. Machine Export</a></li>
-        <li><a href="#Import-classicPCR">2.2.2. Classic PCR</a></li>
-        <li><a href="#Import-digitalPCR">2.2.3. Digital PCR</a></li>
-        <li><a href="#Import-supData">2.2.4. Supplement Remaining Data</a></li>
-      </ul>
-    <li><a href="#RDML-Edit">2.3. RDML-Edit</a>
-    <li><a href="#RDML-TableShaper">2.4. RDML-TableShaper</a></li>
-    <li><a href="#RDML-RunView">2.5. RDML-RunView</a></li>
-    <li><a href="#RDML-Validate">2.6. RDML-Validate</a></li>
-    <li><a href="#RDML-FixBrokenRDML">2.7. RDML-Fix Broken RDML Files</a></li>
-    </ul>
-
-    <h5 id="Tool-Overview">2.1. Overview of the Basic RDML Tools</h5>
+    <h5 id="Tool-Introduction">2.1. Introduction</h5>
     <p style="text-align: justify">
-      Several tools are available to create, edit, reformat and validate RDML files. <a href="#RDML-Edit">RDML-Edit</a>
-      is the main tool to view and edit RDML data up to the run level. Selected runs
-      can be visualized with <a href="#RDML-RunView">RDML-RunView</a> or analyzed with
-      <a href="#RDML-RunAnalysis">RDML-RunAnalysis</a>. With classic qPCR the amplification-
-      or meltcurves are displayed, with digital PCR the positive and negative counts are shown.
-      <a href="#RDML-TableShaper">RDML-TableShaper</a> helps to reformat exported files from machines lacking RDML
-      support. <a href="#RDML-Validate">RDML-Validate</a> validates a RDML file against the corresponding schema.
+      The RDML-Tools cover everything needet to analyze qPCR data. The general concept is to automate as 
+      much as possible and archive reliable data independent of user input. To get the most out of RDML-Tools, 
+      the user needs to complement a set of data, which will be described in the respective paragaphs below. For 
+      example, an increase in fluorescence points to amplification. If the RDML-Tools were provided with the 
+      respective sample type, they will be silent if the sample is a positive control or a unknown sample but 
+      throw an error if it is a negative control. Naturally, the RDML-Tools will also thow an error if no 
+      amplification occures in a positive control.
+      <br />
+      <br />
+      The import of the data and the annotation of the data is cubersome, but usually a lab works with the same 
+      machine and a usualy used set of targets. The targets need to be annotated only once and can be copied 
+      over from well annotated files.
     </p>
 
     <h5 id="Import">2.2. Import Data into RDML</h5>
-    <h5 id="Import-Machine">2.2.1. Machine Export</h5>
+    <h5 id="Import-Introduction">2.2.1. Introduction into Importing Data</h5>
     <p style="text-align: justify">
-      Importing data is always the second-best choice to having a native RDML export by your qPCR machine. If a machine
-      purchase is planned, consider one of the
-      <a href="https://rdml.org/instruments.html" target="_blank">machines with RDML or RDES support</a>.<br />
-      Without RDML or RDES export in your machine, you have to export to another file format and reformat the data into RDML.
-      Run RDML-Edit and create a new file on the main tab and enable editing with the "enable edit mode" button. For
-      digital PCR, the version needs to be 1.3 or above which can be set on the "more" tab.
+      Although RDML and RDES are around for several decades, not all qPCR machines support one of the formats. 
+      Therefore, the import remains a challenge today. In the following section all import options are explained.
     </p>
-    <h5 id="Import-classicPCR">2.2.2. Classic PCR</h5>
+
+    <h5 id="Import-validRDMLfile">2.2.2. Import of a Valid RDML file</h5>
     <p style="text-align: justify">
-      Most machines offer at least an export of the raw fluorescence data to Excel or tab-delimited text files.
-      Unfortunately, there is no consensus on the format of these exports. Follow the instructions for
-      <a href="#RDML-TableShaper">RDML-TableShaper</a> to convert the export from your machine into the standard table
-      RDML import format. In RDML-Edit, select or create a new experiment on the experiments tab. Create a new run in
-      this experiment and provide the file from TableShaper at "Import Amplification Data".
+      Ideally, a machine exports a valid RDML file, so no big modifications are needed. It is still recomendet 
+      to perform some checks before the start. RDML-Tools require the RDML version 1.4, so the file may need to 
+      be converted.
     </p>
-    <h5 id="Import-digitalPCR">2.2.3. Digital PCR</h5>
+    <ol>
+    <li>Open <a href="https://www.rdml-tools.com/edit.html">RDML-Edit</a>, select the RDML file and press 
+      "Upload File".</li>
+    <li>Go back to the "Main" tab. Check the version in "RDML File Information".</li>
+    <li>If the version was not 1.4, click on "Enable Edit Mode" on the top, then the "Migrate to RDML Version ..." 
+      buttons appear. Click them one by one inceasing the version of the file to 1.4.</li>
+    <li>In the "Links to other RDML tools" section, click on the link to RDML-Validate. It should state that the
+      file is valid. Else continue with <a href="#Import-invalidRDLfile">2.2.3. Import of a invalid RDML file</a>.
+    </li>
+    <li>Now the file is ready. Do not forget to save it by pressing "Save File".</li>
+    </ol>
+
+    <h5 id="Import-invalidRDMLfile">2.2.3. Import of a Invalid RDML file</h5>
     <p style="text-align: justify">
-      Currently only the export files of Bio-Rad and Stilla machines are supported. Select or create a new experiment
-      on the experiments tab. Create a new run and provide the results or overview file at "Import Digital Data
-      Overview" and the files with the raw well data at "Import Digital Data Wells". Although import without an
-      overview file is possible, naming samples and targets will be very laborious and is not recommended.
+      Some qPCR machines do export RDML files, but the files are not valid. For some machines RDML-Tools can 
+      fix this errors archiving a valid RDML file.
     </p>
+    <ol>
+    <li>Open <a href="https://www.rdml-tools.com/edit.html">RDML-Edit</a>, select the RDML file and press 
+      "Upload File". A error mentioning the invalid RDML file might appear.</li>
+    <li>Go back to the "Main" tab and click on "Enable Edit Mode" on the top. Then green buttons appear. Click 
+      on "Repair RDML File" and "Recreate Lost IDs".</li>
+    <li>Check the version in "RDML File Information". If the version was not 1.4, then click the "Migrate to RDML 
+      Version ..." buttons one by one inceasing the version of the file to 1.4.</li>
+    <li>In the "Links to other RDML tools" section, click on the link to RDML-Validate. If it does not state 
+      "RDML file is valid.", send us the RDML file for further inspection.</li>
+    <li>Now the file is ready. Do not forget to save it by pressing "Save File".</li>
+    </ol>
+
+    <h5 id="Import-validRDESfile">2.2.4. Import of a Valid RDES file</h5>
+    <p style="text-align: justify">
+      Some machines do export RDES files. In this case RDML-Edit can be used to create an RDML file. Be aware, that 
+      amplification data and melting curve data are saved in seperate RDES files.
+    </p>
+    <ol>
+    <li>Open <a href="https://www.rdml-tools.com/edit.html">RDML-Edit</a> and press the
+      "Create New File" button.</li>
+    <li>RDML-Edit switches to the "Experiments" tab. Click on "Create New Experiment".</li>
+    <li>Give the experiment a name and press "Save Changes".</li>
+    <li>Now the experiment excists and a new run can be created, press "New Run".</li>
+    <li>Give the run a name.</li>
+    <li>Select the plate format. The pedefined buttons give shortcuts for the most common formats. Do also check
+      the "Reaction Volume" fits your experiment in &micro;l.</li>
+    <li>Select the respective RDES files for upload at the "Import Amplification RDES" and "Import Melting RDES" 
+      fields.</li>
+    <li>Press "Save Changes" and evaluate the import message. Check that the "Number of Reactions" field of the 
+      experiment fits the expectations and no reactions are lost. If it fails, read the next paragraphs for some 
+      tips on how to continue.
+    </li>
+    <li>Now the file is ready. Do not forget to save it by pressing "Save File".</li>
+    </ol>
+
+    <h5 id="Import-RDES-Introduction">2.2.5. Introduction Into RDES</h5>
+    <p style="text-align: justify">
+      If RDES files need to be repaired or CSV files need to be converted, a understanding of the RDES file format is 
+      required. It consists of seven columns left of the fluorescence block of which the first six need to be filled.
+      The sample type may be one of "unkn", "std", "pos", "nac", "ntc", "nrt" or "ntp". The target type may be "toi" 
+      or "ref". Sample and target may be any text, but be aware that technical replicates must have identical sample 
+      and target information. Find below an example with amplification data. Melting data will have temperatures 
+      instead of cycle in the heading column and colum 7 must be "Tm", but can be empty like the Cq column. Correctly 
+      formated RDES files require tab as column separator, linux newlines and dot as decimal separator. See 
+      <a target="_blank" href="https://rdml.org/rdes.html">Real-time PCR Data Essential Spreadsheet Format (RDES)</a>
+      for more information about the format.
+    </p>
+
+    <table class="table table-bordered table-hover table-condensed">
+      <thead>
+        <tr>
+          <th>Well</th><th>Sample</th><th>Sample Type</th><th>Target</th><th>Target Type</th><th>Dye</th><th>Cq</th><th>1</th><th>2</th><th>3</th><th>...</th><th>44</th><th>45</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>A1</td><td>sam 1</td><td>unkn</td><td>ANF</td><td>toi</td><td>unkn_dye</td><td> </td><td>167,61</td><td>171,84</td><td>175,77</td><td>...</td><td>635,11</td><td>634,88</td>
+        </tr>
+        <tr>
+          <td>A2</td><td>sam 1</td><td>unkn</td><td>EGFP</td><td>toi</td><td>unkn_dye</td><td> </td><td>185,18</td><td>194,59</td><td>201,04</td><td>...</td><td>925,12</td><td>923,84</td>
+        </tr>
+        <tr>
+          <td>A3</td><td>sam 1</td><td>unkn</td><td>GAPDH</td><td>toi</td><td>unkn_dye</td><td> </td><td>179,11</td><td>182,69</td><td>185,65</td><td>...</td><td>735,28</td><td>739,5</td>
+        </tr>
+        <tr>
+          <td>...</td><td>...</td><td>...</td><td>...</td><td>...</td><td>...</td><td>...</td><td>...</td><td>...</td><td>...</td><td>...</td><td>...</td><td>...</td>
+        </tr>
+        <tr>
+          <td>H11</td><td>neg</td><td>unkn</td><td>RT-</td><td>toi</td><td>unkn_dye</td><td> </td><td>185,15</td><td>188,06</td><td>190,16</td><td>...</td><td>712,36</td><td>718,66</td>
+        </tr>
+        <tr>
+          <td>H12</td><td>neg</td><td>unkn</td><td>RT-</td><td>toi</td><td>unkn_dye</td><td> </td><td>170,7</td><td>180,56</td><td>183,9</td><td>...</td><td>653,92</td><td>660,56</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h5 id="Import-Raw-Data-Warning">2.2.6. A Note on Raw Data</h5>
+    <p style="text-align: justify">
+      The RDML-Tools may throw a warning if negative fluorescence values are imported or used. Actually, fluorescence 
+      values can never be negative, as zero means no light is emitted. Usually negative values occur if a baseline 
+      correction was applied to the raw fluorescence data.
+      <br /><br />
+      Most machines perform a baseline correction based on the first 3(5)-10(15) cycles and fit a linear function, 
+      which is subtracted from the raw fluorescence data. If only a constant value was subtracted, the calculations 
+      are not affected and the constant value is removed. If the subtracted linear function has also an inclination, 
+      RDML-Tools will not be able to calculate the correct PCR efficiencies. There is no way to undo the curve 
+      based baseline correction.
+      <br /><br />
+      If this error occurs, check if the software of the qPCR machine allows to switch off the baseline correction. 
+      Contact the vendor and ask for help - and maybe also ask why there is no RDML or RDES export, as this will make 
+      life much easier. Up to then, there is nothing you can do about it. You may continue using RDML-Tools, but be 
+      warned that the PCR efficiencies might be affected. You may try DNA dilution standards and see if 
+      RDML-ExperimentAnalysis reports similar PCR efficiencies calculated by the curves and calculated by dilution.
+    </p>
+
+    <h5 id="Import-repairRDESfile">2.2.7. Repair a RDES file</h5>
+    <p style="text-align: justify">
+      RDML-Edit demands correctly formated RDES files, with tab as column separator, linux newlines and dot as 
+      decimal separator. Opening the file in Speadsheed programms can easily mess this up and making the import 
+      impossible. This can be easily fixed in RDES-TableShaper.
+    </p>
+    <ol>
+    <li>Open <a href="http://localhost:1234/tableshaper.html">RDML-TableShaper</a> select the RDES file and press 
+      "Upload File".</li>
+    <li>Check that the file contained the intended data below the "Table after import". Confirm that the colums 
+      and rows were recognized and labled with numbers in the grey fields.</li>
+    <li>Depending on imported data, click on "RDES Amplification" or "RDES Meltcurve".</li>
+    <li>Go to the "Save" tab an inspect the RDES file below. All rows which should be imported must have a 
+      green background.</li>
+    <li>In case information is missing, the information can be added using the "Complement columns 1 to 6" 
+      section. Sample and target may be any text, but be aware that technical replicates must have identical sample 
+      and target information. Optionally all samples can be labled "sample1" and all targets "target1". Then the 
+      correct annotation must be provided in RDML-Edit later.
+    <li>Now the file is ready. Save it by pressing "Save table file in RDES format" on the top.</li>
+    <li>Repeat the procedure to have amplification and melting RDES files.</li>
+    <li>Continue creating an RDML file following <a href="#Import-validRDESfile">2.2.4. Import of a Valid RDES 
+      file</a></li>
+    </ol>
+
+    <h5 id="Import-knownCSVfile">2.2.8. Import of a Known CSV file</h5>
+    <ol>
+    <li>Open <a href="http://localhost:1234/tableshaper.html">RDML-TableShaper</a> select the RDES file and press 
+      "Upload File".</li>
+    <li>Check that the file contained the intended data below the "Table after import". Confirm that the colums 
+      and rows were recognized and labled with numbers in the grey fields.</li>
+    <li>Go to the "Modify" tab an select the qPCR format of your machine from the "Load predefined setting" 
+      pulldown menue.</li>
+    <li>Go to the "Save" tab an inspect the RDES file below. All rows which should be imported must have a 
+      green background.</li>
+    <li>In case information is missing, the information can be added using the "Complement columns 1 to 6" 
+      section. Sample and target may be any text, but be aware that technical replicates must have identical sample 
+      and target information. Optionally all samples can be labled "sample1" and all targets "target1". Then the 
+      correct annotation must be provided in RDML-Edit later.
+    <li>Now the file is ready. Save it by pressing "Save table file in RDES format" on the top.</li>
+    <li>Repeat the procedure to have amplification and melting RDES files.</li>
+    <li>Continue creating an RDML file following <a href="#Import-validRDESfile">2.2.4. Import of a Valid RDES 
+      file</a></li>
+    </ol>
+
+
+<h5 id="Import-unknownCSVfile">2.2.9. Import of a Unknown CSV file</h5>
+    <p style="text-align: justify">
+      Some machines do not export RDML or RDES files. In this case the export is more challenging as it has to be taken 
+      care that the raw fluorescent measurments of each cycle are exported. RDML-Tools do only read csv formated 
+      text files. In case the qPCR machine exports Excel files, select the tab with the fluorescence data and 
+      save it as UTF-8 txt or csv file. If possible, use tab as column separator.
+    </p>
+    <ol>
+    <li>Open <a href="https://www.rdml-tools.com/edit.html">RDML-Edit</a>, select the RDML file and press 
+      "Upload File". A error mentioning the invalid RDML file might appear.</li>
+    <li>Go back to the "Main" tab and click on "Enable Edit Mode" on the top. Then green buttons appear. Click 
+      on "Repair RDML File" and "Recreate Lost IDs".</li>
+    <li>Check the version in "RDML File Information". If the version was not 1.4, then click the "Migrate to RDML 
+      Version ..." buttons one by one inceasing the version of the file to 1.4.
+    </li>
+    <li>In the "Links to other RDML tools" section, click on the link to RDML-Validate. It should state that the
+      file is valid. Else the automatic repair can not fix the file - you can contact us and send us the file.
+    </li>
+    <li>Now the file is ready. Do not forget to save it by pressing "Save File".</li>
+    </ol>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     <h5 id="Import-supData">2.2.4. Supplement Remaining Data</h5>
     <p style="text-align: justify">
       Last, data for all the samples, targets and thermal cycling conditions have to be added or supplemented after
       raw data import into RDML-Edit using the edit button for the respective elements.
     </p>
 
-    <h5 id="RDML-Edit">2.3. RDML-Edit</h5>
+    <h5 id="RDML-Edit">2.3. Supplement Remaining Data or Edit with RDML-Edit</h5>
     <p style="text-align: justify">
       RDML-Edit is a powerful tool to create, view and edit RDML files. RDML files supports many optional parameters and
       each parameter has many sub-parameters, of which many may not yet be used in the current file. Be reminded, that,
@@ -402,7 +587,7 @@
 
     <h5 id="RDML-TableShaper">2.4. RDML-TableShaper</h5>
     <p style="text-align: justify">
-      RDML-TableShaper is a tool to shape tables with amplification data for the import with RDML-tools. This procedure
+      RDML-TableShaper is a tool to shape tables with amplification data for the import with RDML-Tools. This procedure
       is error-prone and second best to original RDML export by the machine. As some machines do not offer RDML export,
       TableShaper might help. All qPCR machines enable the export of the fluorescence data per cycle, although some
       only export into a text file format. Note that the exported data have to be corrected for the technical
@@ -759,22 +944,7 @@
     </p>
 
     <h5 id="LRP-Neg-Val-Warning">3.6.4. Negative Values Warning</h5>
-    <p style="text-align: justify">
-      The RDML-Tools may throw a warning if negative fluorescence values are imported or used. Actually, fluorescence 
-      values can never be negative, as zero means no light is emitted. Usually negative values occur if a baseline 
-      correction was applied to the raw fluorescence data.
-      <br /><br />
-      Most machines perform a baseline correction based on the first 3(5)-10(15) cycles and fit a curve, which is 
-      subtracted from the raw fluorescence data. If only a constant value was subtracted, the calculations of 
-      LinRegPCR are not affected and the constant value is removed. If the subtracted curve has also an inclination, 
-      LinRegPCR will not be able to calculate the correct PCR efficiencies. There is no way to undo the curve 
-      based baseline correction.
-      <br /><br />
-      If this error occurs, you can check if the software of your machine allows to switch off the baseline 
-      correction. You can contact the vendor and ask for help - and maybe also ask why there is noe RDML or RDES 
-      export, as this will make your life much easier. Up to then, there is nothing you can do about it. You may 
-      continue using LinRegPCR, but be warned that the PCR efficiencies might be affected.
-    </p>
+   
 
     <h5 id="LRP-Mean-Efficiency">3.7. Mean Efficiency Calculation</h5>
     <p style="text-align: justify">

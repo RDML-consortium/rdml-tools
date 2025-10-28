@@ -799,7 +799,7 @@ function updateServerData(stat, reqData) {
                     resultError.innerHTML = err.replace("will result in wrong PCR efficiencies", 
                                                         "will result in wrong PCR efficiencies (<a href=\"" + 
                                                          `${API_LINK}` + 
-                                                         "/help.html#LRP-Neg-Val-Warning\" target=\"_blank\">click to read more</a>)");
+                                                         "/help.html#Import-Raw-Data-Warning\" target=\"_blank\">click to read more</a>)");
                 }
                 fillLookupDics()
                 updateClientData()

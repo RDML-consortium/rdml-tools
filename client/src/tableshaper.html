@@ -502,7 +502,7 @@
         <br />
         <div class="card">
           <div class="card-body">
-            <h5 class="card-title">Complement columns 1 to 5 (required)</h5>
+            <h5 class="card-title">Complement columns 1 to 6 (required)</h5>
             <select id="inCompSelection" onchange="selCompSelection()">
               <option value="1" selected="true">Sample</option>
               <option value="2">Sample Type</option>
@@ -567,7 +567,7 @@
 
       <div class="tab-pane" id="help-tab">
         <h4>Application Description</h4>
-        <p> RDML-TableShaper is a tool to shape tables with amplification data for
+        <p> RDML-TableShaper is a tool to shape tables with amplification or melting data for
             the import with RDML-tools. This is error-prone and second best to
             original RDML export by the machine. As some machines do not offer RDML
             export, TableShaper might help. Most qPCR machines export Excel files. Please
@@ -597,9 +597,8 @@
         <p>
             3. Fill the missing content in the third tab. To be able to import the
             table into RDML, the first six columns have to be filled. Using the fields
-            on the third tab eases this step as squares B2-D7 can be used. Take care in
-            this step as errors in the target id and sample id can not be fixed in RDML
-            later. Save the result as .tsv file.
+            on the third tab eases this step as squares B2-D7 can be used. Save the
+            result as .tsv file.
         </p>
         <p>
             4. To create an RDML file fill the information on the "Create RDML file"
@@ -622,8 +621,9 @@
             iCycler v9.35.
         </p>
         <h4>More Help</h4>
-        <p> A general help file is available as
-            <a href="help.html#RDML-TableShaper" target="_blank">RDML-Tools Help</a>.
+        <p> A detailed introduction is available at
+            <a href="help.html#Import"> " target="_blank">RDML-Tools Help - 2.2. Import
+              Data into RDML</a>.
         </p>
       </div>
 
