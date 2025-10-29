@@ -534,7 +534,7 @@ function updateClientData() {
     ret += '  </tr>'
     ret += '</table>'
     ret += '<button type="button" class="btn btn-success" '
-    ret += 'onclick="combineAnnos();">Change All Values</button>'
+    ret += 'onclick="combineAnnos();">Create Combined Annotation</button>'
     ret += '</div>\n</div>\n<br />\n<br />\n'
     ret += '<div class="card">\n<div class="card-body">\n'
     ret += '<h5 class="card-title">Create new Annotation</h5>\n<p>'
