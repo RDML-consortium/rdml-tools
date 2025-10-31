@@ -104,16 +104,16 @@
     <h4 id="Introduction">1. Introduction</h4>
     <h5 id="General-Introduction">1.1. General Introduction</h5>
     <p style="text-align: justify">
-      The RDML-Tools are a software package with everything needed to analyze quantitative PCR (qPCR) data. It can import the raw data 
+      The RDML-Tools is a software package with everything needed to analyze quantitative PCR (qPCR) data. It can import the raw data 
       exported by the qPCR machines, repair RDML-files, complement missing data, analyze melting and amplification 
-      curves, combine several plates, identify reference genes, includes absolute and relative quantification and 
+      curves, combine several plates, identify reference genes, performs absolute and relative quantification and 
       evaluate experimental groups. By using the RDML-Tools you agree to the 
       <a href="https://www.gear-genomics.com/terms/" target="_blank">Terms of Use</a>.       
       RDML-Tools uses <a href="https://rdml.org" target="_blank">Real-time PCR Data Markup Language (RDML)</a>
       to store the data.
       <br />
       <br />
-      The RDML-Tools were developped by Andreas Untergasser (Zentrum f&uuml;r Molekulare Biologie, University of Heidelberg, Germany; Genome Core,
+      The RDML-Tools were developed by Andreas Untergasser (Zentrum f&uuml;r Molekulare Biologie, University of Heidelberg, Germany; Genome Core,
       EMBL, Heidelberg, Germany), Maurice van den Hoff and Jan Ruijter (both Department of Medical Biology,
       Amsterdam UMC, location, AMC, Amsterdam).
     </p>
@@ -125,7 +125,7 @@
       <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2665230/" target="_blank">Ruijter et al., Nucleic Acids
         Research, 2009 37(6):e45 (doi: 10.1093/nar/gkp045 or PMID: 19237396)</a>. The procedures in this program can
       be used for fluorescence data resulting from monitoring the PCR reaction. You should start your analysis with
-      raw fluorescence data. Data import is your own responsibility. It is of importance to check which data are
+      raw fluorescence data. Data import is your own responsibility. It is important to check which data are
       exported by your PCR system and how to retrieve the raw fluorescence data. As a quick and easy check; negative
       values should not occur in your raw fluorescent data file. The fact that LinRegPCR reads your data is <b>no
       proof</b> that you have the correct data. By using this program you acknowledge that you have read the above
@@ -173,7 +173,7 @@
     <h5 id="Data-Standard">1.5. RDML and RDES Data Standard</h5>
     <p style="text-align: justify">
       RDML is a structured and universal data standard for exchanging qPCR data and digital PCR (dPCR) data. The data standard
-      should contain sufficient information to understand the experimental setup, re-analyse the data and interpret the
+      should contain sufficient information to understand the experimental setup, re-analyze the data and interpret the
       results. It was designed to enable transparent exchange of annotated qPCR data between instrument software and
       third-party data analysis packages, between colleagues and collaborators, and between authors, peer reviewers,
       journals and readers.
@@ -355,7 +355,7 @@
       <a href="https://github.com/RDML-consortium/rdmlpython/blob/master/rdml.py">source code of rdmlpython</a>
       for details.
     </p>
-    <p class="regBottom">As an basic example create the file test.py with this content:</p>
+    <p class="regBottom">As a basic example create the file test.py with this content:</p>
     <pre>
     #! /usr/bin/env python
 
@@ -390,24 +390,24 @@
 
     <h5 id="Acknowledgements">1.8. Acknowledgement</h5>
     <p style="text-align: justify">
-      We wish to thank Quinn Gunst and Jaco Hagoort (Department of Medical Biology, Amsterdam UMC, location, AMC,
+      We want to thank Quinn Gunst and Jaco Hagoort (Department of Medical Biology, Amsterdam UMC, location, AMC,
       Amsterdam) for their advice and support while preparing the RDML-RunAnalysis program.
     </p>
 
 
     <h5 id="Tool-Introduction">2.1. Introduction</h5>
     <p style="text-align: justify">
-      The RDML-Tools cover everything needet to analyze qPCR data. The general concept is to automate as 
+      The RDML-Tools cover everything needed to analyze qPCR data. The general concept is to automate as 
       much as possible and archive reliable data independent of user input. To get the most out of RDML-Tools, 
-      the user needs to complement a set of data, which will be described in the respective paragaphs below. For 
+      the user needs to complement a set of data, which will be described in the respective paragraphs below. For 
       example, an increase in fluorescence points to amplification. If the RDML-Tools were provided with the 
       respective sample type, they will be silent if the sample is a positive control or a unknown sample but 
-      throw an error if it is a negative control. Naturally, the RDML-Tools will also thow an error if no 
-      amplification occures in a positive control.
+      throw an error if it is a negative control. Naturally, the RDML-Tools will also throw an error if no 
+      amplification occurs in a positive control.
       <br />
       <br />
-      The import of the data and the annotation of the data is cubersome, but usually a lab works with the same 
-      machine and a usualy used set of targets. The targets need to be annotated only once and can be copied 
+      The import of the data and the annotation of the data is cumbersome, but usually a lab works with the same 
+      machine and a usually used set of targets. The targets need to be annotated only once and can be copied 
       over from well annotated files.
     </p>
 
@@ -421,7 +421,7 @@
 
     <h5 id="Import-validRDMLfile">2.2.2. Import of a Valid RDML File</h5>
     <p style="text-align: justify">
-      Ideally, a machine exports a valid RDML file, so no big modifications are needed. It is still recomendet 
+      Ideally, a machine exports a valid RDML file, so no big modifications are needed. It is still recommended 
       to perform some checks before the start. RDML-Tools require the RDML version 1.4, so the file may need to 
       be converted.
     </p>
@@ -430,7 +430,7 @@
       "Upload File".</li>
     <li>Go back to the "Main" tab. Check the version in "RDML File Information".</li>
     <li>If the version was not 1.4, click on "Enable Edit Mode" on the top, then the "Migrate to RDML Version ..." 
-      buttons appear. Click them one by one inceasing the version of the file to 1.4.</li>
+      buttons appear. Click them one by one increasing the version of the file to 1.4.</li>
     <li>In the "Links to other RDML tools" section, click on the link to RDML-Validate. It should state that the
       file is valid. Else continue with <a href="#Import-invalidRDMLfile">Import of a invalid RDML file</a>.
     </li>
@@ -448,7 +448,7 @@
     <li>Go back to the "Main" tab and click on "Enable Edit Mode" on the top. Then green buttons appear. Click 
       on "Repair RDML File" and "Recreate Lost IDs".</li>
     <li>Check the version in "RDML File Information". If the version was not 1.4, then click the "Migrate to RDML 
-      Version ..." buttons one by one inceasing the version of the file to 1.4.</li>
+      Version ..." buttons one by one increasing the version of the file to 1.4.</li>
     <li>In the "Links to other RDML tools" section, click on the link to RDML-Validate. If it does not state 
       "RDML file is valid.", send us the RDML file for further inspection.</li>
     <li>Now the file is ready. Do not forget to save it by pressing "Save File".</li>
@@ -457,16 +457,16 @@
     <h5 id="Import-validRDESfile">2.2.4. Import of a Valid RDES File</h5>
     <p style="text-align: justify">
       Some machines do export RDES files. In this case RDML-Edit can be used to create an RDML file. Be aware, that 
-      amplification data and melting curve data are saved in seperate RDES files.
+      amplification data and melting curve data are saved in separate RDES files.
     </p>
     <ol>
     <li>Open <a href="https://www.rdml-tools.com/edit.html">RDML-Edit</a> and press the
       "Create New File" button.</li>
     <li>RDML-Edit switches to the "Experiments" tab. Click on "Create New Experiment".</li>
     <li>Give the experiment a name and press "Save Changes".</li>
-    <li>Now the experiment excists and a new run can be created, press "New Run".</li>
+    <li>Now the experiment exists and a new run can be created, press "New Run".</li>
     <li>Give the run a name.</li>
-    <li>Select the plate format. The pedefined buttons give shortcuts for the most common formats. Do also check
+    <li>Select the plate format. The predefined buttons give shortcuts for the most common formats. Do also check
       the "Reaction Volume" fits your experiment in &micro;l.</li>
     <li>Select the respective RDES files for upload at the "Import Amplification RDES" and "Import Melting RDES" 
       fields.</li>
@@ -484,8 +484,8 @@
       The sample type may be one of "unkn", "std", "pos", "nac", "ntc", "nrt" or "ntp". The target type may be "toi" 
       or "ref". Sample and target may be any text, but be aware that technical replicates must have identical sample 
       and target information. Find below an example with amplification data. Melting data will have temperatures 
-      instead of cycle in the heading column and colum 7 must be "Tm", but can be empty like the Cq column. Correctly 
-      formated RDES files require tab as column separator, linux newlines and dot as decimal separator. See 
+      instead of cycle in the heading column and column 7 must be "Tm", but can be empty like the Cq column. Correctly 
+      formatted RDES files require tab as column separator, Linux newlines and dot as decimal separator. See 
       <a target="_blank" href="https://rdml.org/rdes.html">Real-time PCR Data Essential Spreadsheet Format (RDES)</a>
       for more information about the format.
     </p>
@@ -539,21 +539,21 @@
 
     <h5 id="Import-repairRDESfile">2.2.7. Repair a RDES File</h5>
     <p style="text-align: justify">
-      RDML-Edit demands correctly formated RDES files, with tab as column separator, linux newlines and dot as 
-      decimal separator. Opening the file in Speadsheed programms can easily mess this up and making the import 
+      RDML-Edit demands correctly formatted RDES files, with tab as column separator, Linux newlines and dot as 
+      decimal separator. Opening the file in Spreadsheed programs can easily mess this up and making the import 
       impossible. This can be easily fixed in RDES-TableShaper.
     </p>
     <ol>
     <li>Open <a href="http://localhost:1234/tableshaper.html">RDES-TableShaper</a> select the RDES file and press 
       "Upload File".</li>
-    <li>Check that the file contained the intended data below the "Table after import". Confirm that the colums 
-      and rows were recognized and labled with numbers in the grey fields.</li>
+    <li>Check that the file contained the intended data below the "Table after import". Confirm that the columns 
+      and rows were recognized and labeled with numbers in the grey fields.</li>
     <li>Depending on imported data, click on "RDES Amplification" or "RDES Meltcurve".</li>
     <li>Go to the "Save" tab an inspect the RDES file below. All rows which should be imported must have a 
       green background.</li>
     <li>In case information is missing, the information can be added using the "Complement columns 1 to 6" 
       section. Sample and target may be any text, but be aware that technical replicates must have identical sample 
-      and target information. Optionally all samples can be labled "sample1" and all targets "target1". Then the 
+      and target information. Optionally all samples can be labeled "sample1" and all targets "target1". Then the 
       correct annotation must be provided in RDML-Edit later.
     <li>Now the file is ready. Save it by pressing "Save table file in RDES format" on the top.</li>
     <li>Repeat the procedure to have amplification and melting RDES files.</li>
@@ -564,7 +564,7 @@
     <h5 id="Import-knownCSVfile">2.2.8. Import of a Known CSV File</h5>
     <p style="text-align: justify">
       Some machines do not export RDML or RDES files. In this case the export is more challenging as it has to be taken 
-      care that the raw fluorescent measurments of each cycle are exported. RDML-Tools do only read csv formated 
+      care that the raw fluorescent measurements of each cycle are exported. RDML-Tools do only read csv formatted 
       text files. Most qPCR machines export Excel files. Please convert them by opening in Excel (Microsoft) or Calc 
       (Libre Office), selecting the table with the amplification or melting data and save as tab separated text file, 
       ideally in UTF-8 txt.
@@ -572,10 +572,10 @@
     <ol>
     <li>Open <a href="http://localhost:1234/tableshaper.html">RDES-TableShaper</a> select the RDES file and press 
       "Upload File".</li>
-    <li>Check that the file contained the intended data below the "Table after import". Confirm that the colums 
-      and rows were recognized and labled with numbers in the grey fields.</li>
+    <li>Check that the file contained the intended data below the "Table after import". Confirm that the columns 
+      and rows were recognized and labeled with numbers in the grey fields.</li>
     <li>Go to the "Modify" tab an select the qPCR format of your machine from the "Load predefined setting" 
-      pulldown menue.</li>
+      pulldown menu.</li>
     <li>Go to the "Save" tab an inspect the RDES file below. All rows which should be imported must have a 
       green background.</li>
     <li>In case information is missing, there are several options. 
@@ -586,8 +586,8 @@
         <li>The current file can be downloaded by pressing "Save table file in RDES format" on the top. Open 
           the file in Excel (Microsoft) or Calc (Libre Office) and complement the missing data and save the file. 
           It is recommended to import the file once more as described in <a href="#Import-repairRDESfile">Repair 
-          a RDES file</a> to get the column seperators and line endings right.</li>
-        <li>Lable all samples "sample1" and all targets "target1". Then the correct annotation must be provided 
+          a RDES file</a> to get the column separators and line endings right.</li>
+        <li>Label all samples "sample1" and all targets "target1". Then the correct annotation must be provided 
           using RDML-Edit and other tools later. This could be more convenient.</li>
       </ul>
     <li>Now the file is ready. Save it by pressing "Save table file in RDES format" on the top.</li>
@@ -602,7 +602,7 @@
       please contact us and send us the file, so we can add it to the list. Of course, you may also create an 
       import template yourself. Therefore, the layout of the table has first to be evaluated. Open the file in 
       a spreadsheet program or an editor and evaluate the columns and rows. It may have the same layout like 
-      RDES, the wells/reachtions are given in rows, the cycles in the columns. This would require later "Keep 
+      RDES, the wells/reactions are given in rows, the cycles in the columns. This would require later "Keep 
       table shape" later in the protocol:
     </p>
     <table class="table table-bordered table-hover table-condensed">
@@ -634,7 +634,7 @@
     </table>
     <p style="text-align: justify">
       <br /><br />
-      Alternatively, it may be transposed with cycles as rows and the wells/reachtions as columns. This would 
+      Alternatively, it may be transposed with cycles as rows and the wells/reactions as columns. This would 
       require later "Flip columns and rows" later in the protocol:
     </p>
     <table class="table table-bordered table-hover table-condensed">
@@ -724,14 +724,14 @@
       collect additional information. This data can also be collected from the file if the information is present.
       Each field can be modified by a regular expression, if desired. Regular expressions are very powerful but 
       are out of the scope of this manual. If the default (.*) needs to be modified, ask any informatician for 
-      help (it will be an easy task) or dive into Javascript capturing regular expressions tutorials.
+      help (it will be an easy task) or dive into JavaScript capturing regular expressions tutorials.
     </li>
     <li>Go to the "Save" tab and inspect the table on the bottom. It should be filled with all the information 
       selected before. Check that the fluorescence data are there, cycles or temp. were correctly read in the 
       first row.
     </li>
     <li>If this worked well, go back to the "Modify" tab and save your custom import using the "Save settings 
-      JSON file" button on the top. If other data have to be imported, the steps before can ve skipped and this 
+      JSON file" button on the top. If other data have to be imported, the steps before can be skipped and this 
       file can be uploaded using "Load settings JSON file" on the left instead. Then go back to the "Save" tab.</li>
     <li>Usually, some of the first 6 columns are not filled after that step. Without this information, the data 
       can not be imported as described at <a href="#Import-validRDESfile">Import of a Valid RDES file</a> and 
@@ -744,8 +744,8 @@
         <li>The current file can be downloaded by pressing "Save table file in RDES format" on the top. Open 
           the file in Excel (Microsoft) or Calc (Libre Office) and complement the missing data and save the file. 
           It is recommended to import the file once more as described in <a href="#Import-repairRDESfile">Repair 
-          a RDES file</a> to get the column seperators and line endings right.</li>
-        <li>Lable all samples "sample1" and all targets "target1". Then the correct annotation must be provided 
+          a RDES file</a> to get the column separators and line endings right.</li>
+        <li>Label all samples "sample1" and all targets "target1". Then the correct annotation must be provided 
           using RDML-Edit and other tools later. This could be more convenient.</li>
       </ul>
     <li>Now the file is ready. Save it by pressing "Save table file in RDES format" on the top.</li>
@@ -757,7 +757,7 @@
 
     <h5 id="RDML-Edit">2.3. Supplement Remaining Data using RDML-Edit</h5>
     <p style="text-align: justify">
-      If the import as described in <a href="#Import">Import Data into RDML</a> worked out, a vaild RDML file version 
+      If the import as described in <a href="#Import">Import Data into RDML</a> worked out, a valid RDML file version 
       1.4 should have been created. Although it is valid, some information should be added to get the most of the 
       RDML-Tools. Besides RDML-Edit dedicated tools like RDML-RunEdit, RDML-AnnotationEdit and RDML-Merge help with 
       special functionality. 
@@ -765,7 +765,7 @@
     <p style="text-align: justify">
       RDML-Edit is a powerful tool to create, view and edit RDML files. RDML files supports many optional parameters and
       each parameter has many sub-parameters, of which many may not yet be used in the current file. In RDML a target 
-      for example is described only once in the targets list with all its futher information and thereafter is only 
+      for example is described only once in the targets list with all its further information and thereafter is only 
       identified by its unique id. In the data elements of each reaction the target is then referenced by its id.
     </p>
     <p style="text-align: justify">
@@ -779,36 +779,36 @@
       the browser is closed.
     </p>
     <p style="text-align: justify">
-      Lets assume all samples were labled "sample1" and all targets "target1" and only the fluorescence data of the 
-      amplification and the melting curve were imported. Lets repair the run setup and add the rrequired additional 
+      Lets assume all samples were labeled "sample1" and all targets "target1" and only the fluorescence data of the 
+      amplification and the melting curve were imported. Lets repair the run setup and add the required additional 
       information step by step. First the RDML file is loaded and dye information is added:
     </p>
     <ol>
     <li>Open <a href="https://www.rdml-tools.com/edit.html">RDML-Edit</a>, select the RDML file and press 
       "Upload File".</li>
     <li>Go to the "Main" tab and check the version in "RDML File Information". If the version was not 1.4, then 
-      click the "Migrate to RDML Version ..." buttons one by one inceasing the version of the file to 1.4.</li>
+      click the "Migrate to RDML Version ..." buttons one by one increasing the version of the file to 1.4.</li>
     <li>Click on "Enable Edit Mode" on the top. Then green buttons appear.</li>
     <li>Go to the "Dye" tab and press the "Create New Dye" button.</li>
     <li>Fields with an orange background must be provided with information. Give the dye a ID like "SYBR I" 
       and press "Save Changes".</li>
-    <li>The dye "SYBR I" excists now. Press "Edit" to add more information.</li>
+    <li>The dye "SYBR I" exists now. Press "Edit" to add more information.</li>
     <li>Select the proper "Fluorescence Reporter". This is essential for the calculation of Ncopy. If not provided, 
       "non-saturating DNA binding Dye" will be used by default.</li>
-    <li>If a concentration of the dye is known (not of a hybridisation probe, that goes somewhere different), it can 
+    <li>If a concentration of the dye is known (not of a hybridization probe, that goes somewhere different), it can 
       be added as well.</li>
     <li>Press "Save Changes" and repeat this for all other dyes.</li>
     </ol>
     <p style="text-align: justify">
       RDML is a flexible format. On the "Documentation" tab information text can be stored and attached by its ID at 
       several other positions. For example the freezing of the samples could be described and attached at all the 
-      samples which were frozen that way. Similarily, the "Experimenters" or the "Cycling Conditions" can be 
+      samples which were frozen that way. Similarly, the "Experimenters" or the "Cycling Conditions" can be 
       mentioned and attached to the respective runs. Also this is recommended for documentation purposes, it has no 
       impact on the calculations of the RDML-Tools.
     </p>
     <p style="text-align: justify">
       The target information needs to be added next. The target information are essential for documentation and for 
-      reporducibility and are required for the correct calculations of the RDML-Tools:
+      reproducibility and are required for the correct calculations of the RDML-Tools:
     </p>
     <ol>
     <li>Assuming the RDML file is still opened from the previous step, to the "Targets" tab and press the "Create 
@@ -816,13 +816,13 @@
     <li>Provide the target with a understandable and unique "ID".</li>
     <li>Select a "Type". Use "toi - target of interest" for all targets that should be quantified. Use "ref - 
       reference target" if this target should be used as a reference gene to correct the gene expression of other 
-      genes. If it is not labled here as "ref", it can not be used in the "Quantify" tab or "geNorm" tab of 
+      genes. If it is not labeled here as "ref", it can not be used in the "Quantify" tab or "geNorm" tab of 
       RDML-ExperimentAnalysis later.</li>
     <li>Select the suitable dye used for this target. If the same target is used with different dyes, a second 
       target with a different ID needs to be created.</li>
-    <li>Provied the primer sequences and the concentrations of the forward and reverse primer, the hydrolysis probe 
+    <li>Provide the primer sequences and the concentrations of the forward and reverse primer, the hydrolysis probe 
       as "probe1" if present and the amplicon sequence. The amplicon length is essential for the correct calculation 
-      of non-saturationg dyes, the primer concentration for probes. Primer concentrations are usually in the range of 
+      of non-saturating dyes, the primer concentration for probes. Primer concentrations are usually in the range of 
       100-700nMol/l, if not provided, 250nMol/l is used. If the amplicon sequence can not be provided or is not 
       available, provide the length of the amplicon using "Amplicon Seq. Tools". It will create a string of Ns of 
       appropriate length.</li>
@@ -839,12 +839,12 @@
     <li>Assuming the RDML file is still opened from the previous step, to the "Samples" tab and press the "Create 
       New Sample" button.</li>
     <li>Provide the target with a understandable and unique "ID".</li>
-    <li>Select a "Type". This is essential for RDML-Tools an it will be used to perform validy checks. Positive controls 
+    <li>Select a "Type". This is essential for RDML-Tools an it will be used to perform validity checks. Positive controls 
       and standards must archive an amplification. Negative controls may not and unknown samples may both. The sample 
-      type will result in different, apropriate handling of the sample.</li>
+      type will result in different, appropriate handling of the sample.</li>
     <li>Select "Double Stranded" yes for plasmids, genomic DNA and PCR products, no for cDNA or other single stranded 
       DNA. This parameter is essential for the correct calculation of Ncopy. Speaking of "one copy", a single copy of 
-      double stranded DNA (gnomic DNA) or a single standed DNA (cDNA) could be meant.</li>
+      double stranded DNA (gnomic DNA) or a single stranded DNA (cDNA) could be meant.</li>
     <li>Press "Save Changes".</li>
     <li>If the sample is part of a standard, the sample type "std" should be selected and the concentration should be 
       given by pressing the "Add Quantity" button. Be aware that here the concentration should be given in copies per 
@@ -867,17 +867,17 @@
      RDML-RunEdit is a tool to view single runs of a RDML files. Once the RDML file was loaded, the desired experiment
      and run have to be selected. RDML-RunView will display the plate setup with the errors and the notes editable. 
      The user can adapt the target, sample and volume information and adapt or delete incorrect errors and notes or 
-     introduce errors orrured during qPCR preperation. Emply wells may be deleted.
+     introduce errors occured during qPCR preparation. Empty wells may be deleted.
     </p>
     <p style="text-align: justify">
-      If a complete plate was imported, it is advisble to delete the empty wells for a better overview:
+      If a complete plate was imported, it is advisable to delete the empty wells for a better overview:
     </p>
     <ol>
     <li>Open <a href="https://www.rdml-tools.com/runedit.html">RDML-RunEdit</a>, select the RDML file and press 
       "Upload File".</li>
     <li>Go to the "RunEdit" tab and select the correct experiment and run on the top.</li>
     <li>It is recommended to open the same run in 
-      <a href="https://www.rdml-tools.com/runanalysis.html">RDML-RunAnalsyis</a> in a seperate window and inspect the 
+      <a href="https://www.rdml-tools.com/runanalysis.html">RDML-RunAnalsyis</a> in a separate window and inspect the 
       plate on the "RunView" tab. Using the "Select Sample by" and providing "Range" like A1-B6;C7-D8, the 
       fluorescence of the wells can be evaluated and removed in RDML-RunEdit in a different window.</li>
     <li>Select the "Reaction" for the change. It accepts single wells like A1 or ranges like A1-D3. For convenience, this 
@@ -915,7 +915,7 @@
     <p style="text-align: justify">
       RDML-RunEdit is also an efficient way to edit notes and excluded text in the run. Be aware that a reaction with any 
       excluded text will be removed from all further calculations. It is good practice to give the reason for exclusion 
-      in the excluded text or write any special obeservations into the note text.
+      in the excluded text or write any special observations into the note text.
     </p>
     <ol>
     <li>Open <a href="https://www.rdml-tools.com/runedit.html">RDML-RunEdit</a>, select the RDML file and press 
@@ -971,9 +971,9 @@
     <li>Go to the "AnnotationEdit" tab.
       <ul style="list-style-type:disc;">
         <li>A annotation csv file can be downloaded by pressing "Export Annotation Data" on the top left. This file
-          can be opend in Excel (Microsoft) or Calc (Libre Office). Additional annotation can be provided by 
+          can be opened in Excel (Microsoft) or Calc (Libre Office). Additional annotation can be provided by 
           adding a key in the first row of an additional column. Then add the values for each sample in this 
-          new column. Save the file and upload it by selectiong it with "Import Annotation Data" and click 
+          new column. Save the file and upload it by selecting it with "Import Annotation Data" and click 
           the "Import Annotation Data" button.
         </li>
         <li>With the "Create New Annotation from two existent Annotations" section a key and a value can be 
@@ -995,9 +995,9 @@
        and press "Upload File".</li>
     <li>Go to the "Create New Annotation from two existent Annotations" section on the "AnnotationEdit" tab.</li>
     <li>Give new key for the combined element in "Combined Property Name".</li>
-    <li>Provide an excisting key for the left part of the combined element in "Property Left".</li>
+    <li>Provide an existing key for the left part of the combined element in "Property Left".</li>
     <li>The text provided in "Connect with" will be placed between the left and the right key.</li>
-    <li>Provide an excisting key for the right part of the combined element in "Property Right".</li>
+    <li>Provide an existing key for the right part of the combined element in "Property Right".</li>
     <li>Click "Create Combined Annotation" to merge the keys and create a new one.</li>
     <li>Save the edited RDML file. Press the "Save RDML" button on top right.</li>
     </ol>
@@ -1038,7 +1038,7 @@
     <li>Go to the "RunView" tab and select the desired experiment and run.</li>
     <li>Go to the "MeltingCuveAnalysis" tab and click "Run Meltcurve".</li>
     <li>A table is calculated with a row for each reaction, grouped by target. A set of columns is created for 
-      each peak. The first set of columns allways displays the information about the expected peak. Evaluate 
+      each peak. The first set of columns always displays the information about the expected peak. Evaluate 
       the expected peaks, the excluded and note messages.</li>
     <li>This table can be copied to the clipboard by clicking "Copy table to clipboard" and pasted in a spreadsheet 
       program or downloaded TSV file by clicking "Save table as CSV" for later use. </li>
@@ -1050,7 +1050,7 @@
     <li>The curves should be inspected and reactions with artifacts should be excluded from further analysis.</li>
     <li>All reactions which are marked as excluded by any text in this column are ignored in further analysis. 
       On the RunView tab the excluded and notes field can be modified or deleted, provided a single reaction is 
-      selected. Be aware that the table on the "Melting Curve Analysis" tab is not updated. Alternativley, this 
+      selected. Be aware that the table on the "Melting Curve Analysis" tab is not updated. Alternatively, this 
       can be done by clicking the link below "Edit a single Run in RunEdit" on the "Main" tab and following the 
       instructions of <a href="#RDML-RunEdit">RDML-RunEdit</a>.</li>
     <li>Save the analyzed RDML file by clicking "Save RDML" on the "MeltingCuveAnalysis" tab.</li>
@@ -1063,7 +1063,7 @@
       can only be detected when sufficient amounts were amplified to pass background fluorescence. Shortly after 
       the components in the reaction mix, usually the non-saturating dye or the primers get limiting and the 
       exponential phase of the amplification ends. The "AmplificationCurveAnalysis" tab can calculate a TD0, the 
-      point when the exponential phase ended, a PCR efficieny per target and the Ncopy value for each reaction.
+      point when the exponential phase ended, a PCR efficiency per target and the Ncopy value for each reaction.
     </p>
     <p style="text-align: justify">
       The TD0 is calculated as described before for example by Carl T. Wittwer (United States Patent US6303305B1). 
@@ -1082,7 +1082,7 @@
       underestimated. Then a new baseline is applied as half of the value before and the lowest 
       fluorescence of the exponential range. If the inclination of the lower range was higher, the baseline 
       was overestimated and a new baseline is calculated as half of 0 and the value before. This continues 
-      untill both inclinations differ less then 0.0001. From the upper inclination the individual PCR 
+      until both inclinations differ less then 0.0001. From the upper inclination the individual PCR 
       efficiency is calculated. The PCR efficiencies have still some noise, so the user can choose to exclude 
       derivating efficiencies based on an statistical function, the difference to the median value or to 
       include all. The statistical function performs an iterative outlier test consisting of a combination of 
@@ -1112,7 +1112,7 @@
     <li>The curves should be inspected and reactions with issues should be excluded from further analysis.</li>
     <li>All reactions which are marked as excluded by any text in this column are ignored in further analysis. 
       On the RunView tab the excluded and notes field can be modified or deleted, provided a single reaction is 
-      selected. Be aware that the table on the "Melting Curve Analysis" tab is not updated. Alternativley, this 
+      selected. Be aware that the table on the "Melting Curve Analysis" tab is not updated. Alternatively, this 
       can be done by clicking the link below "Edit a single Run in RunEdit" on the "Main" tab and following the 
       instructions of <a href="#RDML-RunEdit">RDML-RunEdit</a>.</li>
     <li>Save the analyzed RDML file by clicking "Save RDML" on the "AmplificationCurveAnalysis" tab.</li>
@@ -1120,10 +1120,10 @@
 
     <h5 id="RDML-ExperimentAnalysis">2.8. Analyze an Experiment with RDML-ExperimentAnalysis</h5>
     <p style="text-align: justify">
-      RDML-RunAnalysis calculates an Ncopy, TD0 and PCR efficiency for each reaction of each tecnical replicate. 
-      Usually, most experimentes aim at different resuts. The technical replicates should be averaged, corrected 
+      RDML-RunAnalysis calculates an Ncopy, TD0 and PCR efficiency for each reaction of each technical replicate. 
+      Usually, most experiments aim at different results. The technical replicates should be averaged, corrected 
       with standards and/or reference genes and experimental groups evaluated. RDML-RunAnalysis uses the resuls 
-      of RDML-RunAnalysis to perform this calculations. Be aware, that all runs of an experiment have to be 
+      of RDML-RunAnalysis to perform these calculations. Be aware, that all runs of an experiment have to be 
       analyzed as described in <a href="#RDML-RunAnalysis">Analyze a Run with RDML-RunAnalysis</a> before using 
       RDML-ExperimentAnalysis.
     </p>
@@ -1162,7 +1162,7 @@
 
     <h5 id="RDML-ExperimentAnalysis-GeNorm">2.8.2. Identifying Reference Genes using geNorm</h5>
     <p style="text-align: justify">
-      A common approach to reduce variation between different biological samples is to nomalize the measured 
+      A common approach to reduce variation between different biological samples is to normalize the measured 
       expression using a validated set of at least two reference genes. Reference genes are target of which the 
       combined expression does not change in the studied experimental conditions. geNorm can be used to identify 
       suitable references genes.
@@ -1191,9 +1191,9 @@
       On the "Quantify" tab all quantification takes place. It uses the Ncopy values, so for each run in the 
       experiment the amplification curve analysis as described in <a href="#RDML-RunAnalysis">Analyze a Run with 
       RDML-RunAnalysis</a> has to be performed first. If the experiment contains more than one run, the runs have 
-      to be combined as decribed in <a href="#RDML-ExperimentAnalysis-InterRunCorr">Inter-Run Correction 
-      with RDML-ExperimentAnalysis</a>. Clicking "Run Quantify" will calculate the results wich are persented in 
-      sereral tables. The paramters which influence the calculations will be mentioned in the sections below.
+      to be combined as described in <a href="#RDML-ExperimentAnalysis-InterRunCorr">Inter-Run Correction 
+      with RDML-ExperimentAnalysis</a>. Clicking "Run Quantify" will calculate the results which are presented in 
+      several tables. The parameters which influence the calculations will be mentioned in the sections below.
     </p>
     <p style="text-align: justify">
       If a dilution standard is present, RDML-ExperimentAnalysis will analyze its properties and calculate in 
@@ -1206,7 +1206,7 @@
     <p style="text-align: justify">
       RDML-ExperimentAnalysis will display the results as Ncopy values. If the "Quantification Method" 
       "Reference Sample" was selected, all Ncopy values will be normalized using the standard with the highest 
-      concentration. This is aquivalent to the classic absolute quantification method.
+      concentration. This is equivalent to the classic absolute quantification method.
     </p>
     <p style="text-align: justify">
       Reactions with the same target and sample name are considered technical replicates. RDML-ExperimentAnalysis 
@@ -1218,14 +1218,14 @@
     </p>
     <p style="text-align: justify">
       In the table "Reference Genes" the relative expression of the reference genes to their geometric mean is 
-      calculated. This factor is used to nomalize the Ncopy factors leaving their mean expression unchanged. The 
+      calculated. This factor is used to normalize the Ncopy factors leaving their mean expression unchanged. The 
       reference genes which should be included in this calculation are selected on top with "Selected Reference 
       Genes for Correction", by default all are selected. This analysis requires target genes of the type "ref" 
       as described in <a href="#RDML-Edit">Supplement Remaining Data using RDML-Edit</a>.
     </p>
     <p style="text-align: justify">
       The table "Relative Expression" gives the expression values of the mean of the technical replicates 
-      corrected with the correction factor of the selected reference genes. This is aquivalent to the classic 
+      corrected with the correction factor of the selected reference genes. This is equivalent to the classic 
       relative quantification method.
     </p>
     <p style="text-align: justify">
@@ -1236,7 +1236,7 @@
       replicate will be calculated and given in the table "Statistics".
     </p>
     <p style="text-align: justify">
-      For convenience, a link to RDML-BarGraph will appear. This tool can create create box and whisker graphs 
+      For convenience, a link to RDML-BarGraph will appear. This tool can create box and whisker graphs 
       and highlights the individual values as dots.
     </p>
 
@@ -1244,7 +1244,7 @@
     <h5 id="RDML-TestStat">2.9. Statistics by RDML-TestStat</h5>
     <p style="text-align: justify"></p>
      RDML-TestStat calculates basic statistics on groups like the "Quantify" tab of RDML-ExperimentAnalysis does 
-     for experiments. It is just a simple wraper for the functions of the <a target="_blank" 
+     for experiments. It is just a simple wrapper for the functions of the <a target="_blank" 
      href="https://scipy.org">SciPy library</a> running on the server. For the parametric tests of two groups, 
      the t-test is used (stats.ttest_ind()). For more than two groups, the One-way ANOVA is used 
      (stats.f_oneway()). For non-parametric tests of two groups, the Mann-Whitney test is used 
@@ -1256,7 +1256,7 @@
     <h5 id="RDML-BarGraph">2.10. Visualize results using RDML-BarGraph</h5>
     <p style="text-align: justify"></p>
       RDML-BarGraph is a tool to create bar plots with error bars and the individual values as dots. The plot can 
-      be downloaded as SVG and mofified in other tools like InkScape. The function to place the dots in a not 
+      be downloaded as SVG and modified in other tools like Inkscape. The function to place the dots in a not 
       overlapping form was heavily inspired by the calculateCompactSwarm function from the R package beeswarm
       (see <a target="_blank" href="https://github.com/aroneklund/beeswarm">https://github.com/aroneklund/beeswarm</a>).
     </p>
@@ -1274,7 +1274,7 @@
     <p style="text-align: justify">
       RDML-Validate validates a RDML file against the corresponding schema. If the validation fails, RDML-Validate
       displays a list of errors. Errors point to programming mistakes in the software used to create the RDML file and
-      might be difficult to fix by the user. RDML-Edit might help to repaire files as described in 
+      might be difficult to fix by the user. RDML-Edit might help to repair files as described in 
       <a href="#Import-invalidRDMLfile">Import of a Invalid RDML File</a>. If this happens, you should contact the 
       developers of the respective software and send us the corrupted RDML file.
     </p>
