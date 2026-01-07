@@ -1712,7 +1712,7 @@ function updateLinRegPCRTable() {
                     ret += '<' + htmlTag + '>' + window.linRegPCRTable[row][col] + '</' + htmlTag + '>\n'
                 } else {
                     content += NumPoint(window.linRegPCRTable[row][col]) + "\t"
-                    ret += '<' + htmlTag + '">' + NumPoint(window.linRegPCRTable[row][col]) + '</' + htmlTag + '>\n'
+                    ret += '<' + htmlTag + '>' + NumPoint(window.linRegPCRTable[row][col]) + '</' + htmlTag + '>\n'
                 }
             }
             content = content.replace(/\t$/g, "\n");
