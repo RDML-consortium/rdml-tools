@@ -125,7 +125,7 @@ window.maxLogRange = 10000;
 window.selectedRange = "";
 
 window.exNoPlateau = true;
-window.exUnstBase  = true;
+window.maxCycExpPhase  = 9;
 window.exDiffMean = "outlier";
 window.updateTargets = false;
 window.decimalSepPoint = true;
@@ -535,7 +535,7 @@ function runLinRegPCR() {
     var rPCREffRange = 0.05
     var rUpdateRDML = true
     window.exNoPlateau = true
-    window.exUnstBase = true
+    window.maxCycExpPhase = 9
     window.exDiffMean = "outlier"
     window.updateTargets = false
     window.errorMessage = "";
@@ -562,9 +562,9 @@ function runLinRegPCR() {
     if (bbExcludeEfficiency) {
         window.exDiffMean = bbExcludeEfficiency.value
     }
-    var bbExcludeUnstBase = document.getElementById('choiceExcludeUnstableBaseline')
-    if ((bbExcludeUnstBase) && (bbExcludeUnstBase.value == "n")) {
-        window.exUnstBase = false;
+    var bbMaxCycExpPhase = document.getElementById('text-exl-max-cycl-exp')
+    if (bbMaxCycExpPhase) {
+        window.maxCycExpPhase = parseInt(bbMaxCycExpPhase.value)
     }
     var bbUpdateTarget = document.getElementById('choiceUpdateTarget')
     if ((bbUpdateTarget) && (bbUpdateTarget.value == "n")) {
@@ -583,7 +583,7 @@ function runLinRegPCR() {
     ret["update-RDML-data"] = rUpdateRDML
     ret["exclude-no-plateau"] = window.exNoPlateau
     ret["exclude-efficiency"] = window.exDiffMean
-    ret["exclude-unstable-base"] = window.exUnstBase
+    ret["max-cyc-exp-phase"] = window.maxCycExpPhase
     updateServerData(uuid, JSON.stringify(ret))
 
     $('[href="#linregpcr-tab"]').tab('show')

@@ -80,6 +80,7 @@
           <ul>
             <li><a href="#RDML-RunAnalysis-Melting">2.7.1. Melting Curve Analysis with RDML-RunAnalysis</a></li>
             <li><a href="#RDML-RunAnalysis-Amplification">2.7.2. Amplification Curve Analysis with RDML-RunAnalysis</a></li>
+            <li><a href="#RDML-RunAnalysis-exponentialRange">2.7.3. Getting the Exponential Range Right</a></li>
           </ul></li>
         <li><a href="#RDML-ExperimentAnalysis">2.8. Analyze an Experiment with RDML-ExperimentAnalysis</a>
           <ul>
@@ -126,7 +127,7 @@
       <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2665230/" target="_blank">Ruijter et al., Nucleic Acids
         Research, 2009 37(6):e45 (doi: 10.1093/nar/gkp045 or PMID: 19237396)</a>. The procedures in this program can
       be used for fluorescence data resulting from monitoring the PCR reaction. You should start your analysis with
-      raw fluorescence data. Data import is your own responsibility. It is important to check which data are
+      raw fluorescence data. Do not use a passive dye like ROX. Data import is your own responsibility. It is important to check which data are
       exported by your PCR system and how to retrieve the raw fluorescence data. As a quick and easy check; negative
       values should not occur in your raw fluorescent data file. The fact that LinRegPCR reads your data is <b>no
       proof</b> that you have the correct data. By using this program you acknowledge that you have read the above
@@ -548,6 +549,11 @@
       life much easier. Up to then, there is nothing you can do about it. You may continue using RDML-Tools, but be 
       warned that the PCR efficiencies might be affected. You may try DNA dilution standards and see if 
       RDML-ExperimentAnalysis reports similar PCR efficiencies calculated by the curves and calculated by dilution.
+      <br /><br />
+      Do not use passive dyes like ROX for the correction of pipetting or loading differences. The PCR efficiency
+      calculation requires accurate fluorescence measurements and the correction using passive dyes increases the 
+      noise. If a passive dye is present in your reaction mix, you can try to inactivate the correction in your 
+      qPCR machines software.
     </p>
 
     <h5 id="Import-repairRDESfile">2.2.7. Repair a RDES File</h5>
@@ -1103,7 +1109,7 @@
       outlying value with a Grubbs test; if present, the outlier is excluded from the analysis and the test is 
       repeated. The remaining values are used to calculate a mean PCR efficiency for the target. Be aware 
       that this calculations do not work on data which were baseline corrected using a linear function with an 
-      inclination.
+      inclination. Please inspect your curves as described in the next section.
     </p>
     <p style="text-align: justify">
       The TD0 and the PCR efficiency can be used to calculate an Ncopy value, which gives the copies present 
@@ -1130,6 +1136,31 @@
       instructions of <a href="#RDML-RunEdit">RDML-RunEdit</a>.</li>
     <li>Save the analyzed RDML file by clicking "Save RDML" on the "AmplificationCurveAnalysis" tab.</li>
     </ol>
+
+    <h5 id="RDML-RunAnalysis-exponentialRange">2.7.3. Getting the Exponential Range Right</h5>
+    <p style="text-align: justify">
+      The PCR efficiency is an essential parameter which is calculated from the inclination of the exponential 
+      phase of the amplification curve after baseline correction. The start of the exponential phase is found by 
+      going backwards untill the fluorescence does not decrease any more. By default, the length of the 
+      exponential range is limited to a maximum of 9 cycles. For this calculations precise raw fluorescence 
+      measurements are required without any background correction applied and without using a passive reference 
+      dye like ROX (please inactivate passive dye in your machine software).
+    </p>
+
+    <img  src="static/img/curve_exp_phase.svg" alt="amp curves with issues" width="100%"/>
+
+    <p style="text-align: justify">
+      The curves show the same data, left with eponential range limited to the default 9 cycles, right limited 
+      to 6. The exponential range is indicated by big dots, if the dots were used for the calculations (baseline 
+      correction and PCR efficiency calculation), the dots are filled. In some reaction mix - machine combinations 
+      the start of the exponential phase is not found acurately. This leads to too many included points in the 
+      eponential phase, which in consequence makes baseline correction impossible and therfore results in a 
+      wrong PCR efficiency. This is visible as the baseline corrected fluorescence measurements are not on a 
+      straight line but form an S-shaped curve (top left). The user can limit the maximum number of cycles in the 
+      exponential phase with the "Max. Cycles Exponential Phase" parameter on the "AmplificationCurveAnalysis" 
+      tab. If set to 6, the correct baseline is found and reasonable PCR efficiencies are calculated (top right). 
+      Please note that this fix is intended for failing analysis and sould not be required for standard analysis.
+    </p>
 
     <h5 id="RDML-ExperimentAnalysis">2.8. Analyze an Experiment with RDML-ExperimentAnalysis</h5>
     <p style="text-align: justify">

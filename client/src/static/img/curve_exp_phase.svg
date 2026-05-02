@@ -1,0 +1,1646 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   viewBox="-60 -40 800 400"
+   width="1200"
+   version="1.1"
+   id="svg72"
+   sodipodi:docname="curve_exp_phase.svg"
+   inkscape:version="1.4.3 (fcd0343856, 2026-01-01)"
+   height="400"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"><defs
+   id="defs72" />
+<sodipodi:namedview
+   id="namedview72"
+   pagecolor="#ffffff"
+   bordercolor="#000000"
+   borderopacity="0.25"
+   inkscape:showpageshadow="2"
+   inkscape:pageopacity="0.0"
+   inkscape:pagecheckerboard="0"
+   inkscape:deskcolor="#d1d1d1"
+   inkscape:zoom="1.7356069"
+   inkscape:cx="677.57278"
+   inkscape:cy="278.57691"
+   inkscape:window-width="2802"
+   inkscape:window-height="1555"
+   inkscape:window-x="216"
+   inkscape:window-y="182"
+   inkscape:window-maximized="0"
+   inkscape:current-layer="svg72" />
+<line
+   x1="-77.666542"
+   y1="309.79483"
+   x2="221.86313"
+   y2="9.7948446"
+   stroke-width="0.5"
+   stroke="#808080"
+   stroke-linecap="square"
+   id="line1"
+   style="fill:#000000;stroke:#000000;stroke-width:1.3;stroke-dasharray:none" />
+<polyline
+   fill="none"
+   stroke-linejoin="round"
+   stroke="#ff4a46"
+   stroke-width="1.2"
+   points="42.857142857142854,213.84152801213776 114.28571428571428,212.54523583457518 128.57142857142856,219.54323134099613 142.85714285714286,239.53848172994356 200,228.99798313653594 214.28571428571428,224.16010657799882 228.57142857142856,226.0674248960285 242.85714285714286,188.2280712229869 257.1428571428571,158.70843429798526 271.4285714285714,151.3408404603656 285.7142857142857,136.6606549497532 300,127.70767775284006 314.2857142857143,117.05789951160529 328.57142857142856,104.53948901217109 342.85714285714283,88.27192832377898 357.14285714285717,70.55993413200846 371.42857142857144,54.01754984433731 385.7142857142857,38.203718504611174 400,24.13922488936464 414.28571428571433,13.291452872943069 428.57142857142856,6.362711502193349 442.85714285714283,2.872077657512989 457.1428571428571,1.672463244229391 "
+   onclick="showReactSel(9, 0)"
+   id="polyline2"
+   transform="translate(-204.94608,9.7948447)" />
+<circle
+   cx="-162.08893"
+   cy="223.63637"
+   r="1.2"
+   stroke="#ff4a46"
+   stroke-width="0.9"
+   fill="none"
+   id="circle2" />
+
+#FF4A46<circle
+   cx="-90.66037"
+   cy="222.34009"
+   r="1.2"
+   stroke="#ff4a46"
+   stroke-width="0.9"
+   fill="none"
+   id="circle3" />
+
+#FF4A46<circle
+   cx="-76.374641"
+   cy="229.33807"
+   r="1.2"
+   stroke="#ff4a46"
+   stroke-width="0.9"
+   fill="none"
+   id="circle4" />
+
+#FF4A46<circle
+   cx="-62.088932"
+   cy="249.33333"
+   r="1.2"
+   stroke="#ff4a46"
+   stroke-width="0.9"
+   fill="none"
+   id="circle5" />
+
+#FF4A46<circle
+   cx="-4.9460826"
+   cy="238.79283"
+   r="1.2"
+   stroke="#ff4a46"
+   stroke-width="0.9"
+   fill="none"
+   id="circle6" />
+
+#FF4A46<circle
+   cx="9.3396387"
+   cy="233.95496"
+   r="1.2"
+   stroke="#ff4a46"
+   stroke-width="0.9"
+   fill="none"
+   id="circle7" />
+
+#FF4A46<circle
+   cx="23.625345"
+   cy="235.86227"
+   r="2.4000001"
+   stroke="#ff4a46"
+   stroke-width="0.9"
+   fill="none"
+   id="circle8" />
+
+#FF4A46<circle
+   cx="37.911068"
+   cy="198.02292"
+   r="2.4000001"
+   stroke="#ff4a46"
+   stroke-width="0.9"
+   fill="#ff4a46"
+   id="circle9" />
+
+#FF4A46<circle
+   cx="52.196774"
+   cy="168.50328"
+   r="2.4000001"
+   stroke="#ff4a46"
+   stroke-width="0.9"
+   fill="#ff4a46"
+   id="circle10" />
+
+#FF4A46<circle
+   cx="66.482475"
+   cy="161.13568"
+   r="2.4000001"
+   stroke="#ff4a46"
+   stroke-width="0.9"
+   fill="#ff4a46"
+   id="circle11" />
+
+#FF4A46<circle
+   cx="80.768211"
+   cy="146.45551"
+   r="2.4000001"
+   stroke="#ff4a46"
+   stroke-width="0.9"
+   fill="#ff4a46"
+   id="circle12" />
+
+#FF4A46<circle
+   cx="95.053917"
+   cy="137.50252"
+   r="2.4000001"
+   stroke="#ff4a46"
+   stroke-width="0.9"
+   fill="#ff4a46"
+   id="circle13" />
+
+#FF4A46<circle
+   cx="109.33963"
+   cy="126.85275"
+   r="2.4000001"
+   stroke="#ff4a46"
+   stroke-width="0.9"
+   fill="#ff4a46"
+   id="circle14" />
+
+#FF4A46<circle
+   cx="123.62537"
+   cy="114.33434"
+   r="2.4000001"
+   stroke="#ff4a46"
+   stroke-width="0.9"
+   fill="#ff4a46"
+   id="circle15" />
+
+#FF4A46<circle
+   cx="137.91107"
+   cy="98.066772"
+   r="2.4000001"
+   stroke="#ff4a46"
+   stroke-width="0.9"
+   fill="#ff4a46"
+   id="circle16" />
+
+#FF4A46<circle
+   cx="152.19678"
+   cy="80.354782"
+   r="2.4000001"
+   stroke="#ff4a46"
+   stroke-width="0.9"
+   fill="#ff4a46"
+   id="circle17" />
+
+#FF4A46<circle
+   cx="166.48248"
+   cy="63.812397"
+   r="1.2"
+   stroke="#ff4a46"
+   stroke-width="0.9"
+   fill="none"
+   id="circle18" />
+
+#FF4A46<circle
+   cx="180.76822"
+   cy="47.998566"
+   r="1.2"
+   stroke="#ff4a46"
+   stroke-width="0.9"
+   fill="none"
+   id="circle19" />
+
+#FF4A46<circle
+   cx="195.05392"
+   cy="33.934071"
+   r="1.2"
+   stroke="#ff4a46"
+   stroke-width="0.9"
+   fill="none"
+   id="circle20" />
+
+#FF4A46<circle
+   cx="209.33963"
+   cy="23.086298"
+   r="1.2"
+   stroke="#ff4a46"
+   stroke-width="0.9"
+   fill="none"
+   id="circle21" />
+
+#FF4A46<circle
+   cx="223.62537"
+   cy="16.157557"
+   r="1.2"
+   stroke="#ff4a46"
+   stroke-width="0.9"
+   fill="none"
+   id="circle22" />
+
+#FF4A46<circle
+   cx="237.91107"
+   cy="12.666923"
+   r="1.2"
+   stroke="#ff4a46"
+   stroke-width="0.9"
+   fill="none"
+   id="circle23" />
+
+#FF4A46<circle
+   cx="252.19678"
+   cy="11.467308"
+   r="1.2"
+   stroke="#ff4a46"
+   stroke-width="0.9"
+   fill="none"
+   id="circle24" />
+
+#FF4A46<line
+   x1="-204.94608"
+   y1="309.79483"
+   x2="-204.94608"
+   y2="316.79483"
+   stroke-width="2"
+   stroke="#000000"
+   id="line24" />
+<text
+   x="-204.94608"
+   y="335.79483"
+   font-family="Arial"
+   font-size="20px"
+   fill="#000000"
+   text-anchor="middle"
+   id="text24">0</text>
+<line
+   x1="-133.5175"
+   y1="309.79483"
+   x2="-133.5175"
+   y2="316.79483"
+   stroke-width="2"
+   stroke="#000000"
+   id="line25" />
+<text
+   x="-133.5175"
+   y="335.79483"
+   font-family="Arial"
+   font-size="20px"
+   fill="#000000"
+   text-anchor="middle"
+   id="text25">5</text>
+<line
+   x1="-62.088932"
+   y1="309.79483"
+   x2="-62.088932"
+   y2="316.79483"
+   stroke-width="2"
+   stroke="#000000"
+   id="line26" />
+<text
+   x="-62.088932"
+   y="335.79483"
+   font-family="Arial"
+   font-size="20px"
+   fill="#000000"
+   text-anchor="middle"
+   id="text26">10</text>
+<line
+   x1="9.3396387"
+   y1="309.79483"
+   x2="9.3396387"
+   y2="316.79483"
+   stroke-width="2"
+   stroke="#000000"
+   id="line27" />
+<text
+   x="9.3396387"
+   y="335.79483"
+   font-family="Arial"
+   font-size="20px"
+   fill="#000000"
+   text-anchor="middle"
+   id="text27">15</text>
+<line
+   x1="80.768211"
+   y1="309.79483"
+   x2="80.768211"
+   y2="316.79483"
+   stroke-width="2"
+   stroke="#000000"
+   id="line28" />
+<text
+   x="80.768211"
+   y="335.79483"
+   font-family="Arial"
+   font-size="20px"
+   fill="#000000"
+   text-anchor="middle"
+   id="text28">20</text>
+<line
+   x1="152.19678"
+   y1="309.79483"
+   x2="152.19678"
+   y2="316.79483"
+   stroke-width="2"
+   stroke="#000000"
+   id="line29" />
+<text
+   x="152.19678"
+   y="335.79483"
+   font-family="Arial"
+   font-size="20px"
+   fill="#000000"
+   text-anchor="middle"
+   id="text29">25</text>
+<line
+   x1="223.62537"
+   y1="309.79483"
+   x2="223.62537"
+   y2="316.79483"
+   stroke-width="2"
+   stroke="#000000"
+   id="line30" />
+<text
+   x="223.62537"
+   y="335.79483"
+   font-family="Arial"
+   font-size="20px"
+   fill="#000000"
+   text-anchor="middle"
+   id="text30">30</text>
+<line
+   x1="295.05392"
+   y1="309.79483"
+   x2="295.05392"
+   y2="316.79483"
+   stroke-width="2"
+   stroke="#000000"
+   id="line31" />
+<text
+   x="295.05392"
+   y="335.79483"
+   font-family="Arial"
+   font-size="20px"
+   fill="#000000"
+   text-anchor="middle"
+   id="text31">35</text>
+<line
+   x1="-204.94608"
+   y1="309.79483"
+   x2="-211.94609"
+   y2="309.79483"
+   stroke-width="2"
+   stroke="#000000"
+   id="line32" />
+<line
+   x1="-204.94608"
+   y1="303.95041"
+   x2="-211.94609"
+   y2="303.95041"
+   stroke-width="2"
+   stroke="#000000"
+   id="line33" />
+<text
+   x="-215.94609"
+   y="306.95041"
+   font-family="Arial"
+   font-size="10px"
+   fill="#000000"
+   text-anchor="end"
+   id="text33">60</text>
+<line
+   x1="-204.94608"
+   y1="299.00903"
+   x2="-211.94609"
+   y2="299.00903"
+   stroke-width="2"
+   stroke="#000000"
+   id="line34" />
+<line
+   x1="-204.94608"
+   y1="294.72861"
+   x2="-211.94609"
+   y2="294.72861"
+   stroke-width="2"
+   stroke="#000000"
+   id="line35" />
+<line
+   x1="-204.94608"
+   y1="290.95303"
+   x2="-211.94609"
+   y2="290.95303"
+   stroke-width="2"
+   stroke="#000000"
+   id="line36" />
+<line
+   x1="-204.94608"
+   y1="287.57562"
+   x2="-211.94609"
+   y2="287.57562"
+   stroke-width="2"
+   stroke="#000000"
+   id="line37" />
+<text
+   x="-215.94609"
+   y="290.57562"
+   font-family="Arial"
+   font-size="10px"
+   fill="#000000"
+   text-anchor="end"
+   id="text37">100</text>
+<line
+   x1="-204.94608"
+   y1="265.35645"
+   x2="-211.94609"
+   y2="265.35645"
+   stroke-width="2"
+   stroke="#000000"
+   id="line38" />
+<text
+   x="-215.94609"
+   y="268.35645"
+   font-family="Arial"
+   font-size="10px"
+   fill="#000000"
+   text-anchor="end"
+   id="text38">200</text>
+<line
+   x1="-204.94608"
+   y1="252.35905"
+   x2="-211.94609"
+   y2="252.35905"
+   stroke-width="2"
+   stroke="#000000"
+   id="line39" />
+<text
+   x="-215.94609"
+   y="255.35905"
+   font-family="Arial"
+   font-size="10px"
+   fill="#000000"
+   text-anchor="end"
+   id="text39">300</text>
+<line
+   x1="-204.94608"
+   y1="243.13725"
+   x2="-211.94609"
+   y2="243.13725"
+   stroke-width="2"
+   stroke="#000000"
+   id="line40" />
+<text
+   x="-215.94609"
+   y="246.13725"
+   font-family="Arial"
+   font-size="10px"
+   fill="#000000"
+   text-anchor="end"
+   id="text40">400</text>
+<line
+   x1="-204.94608"
+   y1="235.98427"
+   x2="-211.94609"
+   y2="235.98427"
+   stroke-width="2"
+   stroke="#000000"
+   id="line41" />
+<line
+   x1="-204.94608"
+   y1="230.13985"
+   x2="-211.94609"
+   y2="230.13985"
+   stroke-width="2"
+   stroke="#000000"
+   id="line42" />
+<text
+   x="-215.94609"
+   y="233.13985"
+   font-family="Arial"
+   font-size="10px"
+   fill="#000000"
+   text-anchor="end"
+   id="text42">600</text>
+<line
+   x1="-204.94608"
+   y1="225.19847"
+   x2="-211.94609"
+   y2="225.19847"
+   stroke-width="2"
+   stroke="#000000"
+   id="line43" />
+<line
+   x1="-204.94608"
+   y1="220.91805"
+   x2="-211.94609"
+   y2="220.91805"
+   stroke-width="2"
+   stroke="#000000"
+   id="line44" />
+<line
+   x1="-204.94608"
+   y1="217.14246"
+   x2="-211.94609"
+   y2="217.14246"
+   stroke-width="2"
+   stroke="#000000"
+   id="line45" />
+<line
+   x1="-204.94608"
+   y1="213.76506"
+   x2="-211.94609"
+   y2="213.76506"
+   stroke-width="2"
+   stroke="#000000"
+   id="line46" />
+<text
+   x="-215.94609"
+   y="216.76506"
+   font-family="Arial"
+   font-size="10px"
+   fill="#000000"
+   text-anchor="end"
+   id="text46">1000</text>
+<line
+   x1="-204.94608"
+   y1="191.54587"
+   x2="-211.94609"
+   y2="191.54587"
+   stroke-width="2"
+   stroke="#000000"
+   id="line47" />
+<text
+   x="-215.94609"
+   y="194.54587"
+   font-family="Arial"
+   font-size="10px"
+   fill="#000000"
+   text-anchor="end"
+   id="text47">2000</text>
+<line
+   x1="-204.94608"
+   y1="178.54848"
+   x2="-211.94609"
+   y2="178.54848"
+   stroke-width="2"
+   stroke="#000000"
+   id="line48" />
+<text
+   x="-215.94609"
+   y="181.54848"
+   font-family="Arial"
+   font-size="10px"
+   fill="#000000"
+   text-anchor="end"
+   id="text48">3000</text>
+<line
+   x1="-204.94608"
+   y1="169.32668"
+   x2="-211.94609"
+   y2="169.32668"
+   stroke-width="2"
+   stroke="#000000"
+   id="line49" />
+<text
+   x="-215.94609"
+   y="172.32668"
+   font-family="Arial"
+   font-size="10px"
+   fill="#000000"
+   text-anchor="end"
+   id="text49">4000</text>
+<line
+   x1="-204.94608"
+   y1="162.17369"
+   x2="-211.94609"
+   y2="162.17369"
+   stroke-width="2"
+   stroke="#000000"
+   id="line50" />
+<line
+   x1="-204.94608"
+   y1="156.32927"
+   x2="-211.94609"
+   y2="156.32927"
+   stroke-width="2"
+   stroke="#000000"
+   id="line51" />
+<text
+   x="-215.94609"
+   y="159.32927"
+   font-family="Arial"
+   font-size="10px"
+   fill="#000000"
+   text-anchor="end"
+   id="text51">6000</text>
+<line
+   x1="-204.94608"
+   y1="151.38789"
+   x2="-211.94609"
+   y2="151.38789"
+   stroke-width="2"
+   stroke="#000000"
+   id="line52" />
+<line
+   x1="-204.94608"
+   y1="147.10747"
+   x2="-211.94609"
+   y2="147.10747"
+   stroke-width="2"
+   stroke="#000000"
+   id="line53" />
+<line
+   x1="-204.94608"
+   y1="143.33188"
+   x2="-211.94609"
+   y2="143.33188"
+   stroke-width="2"
+   stroke="#000000"
+   id="line54" />
+<line
+   x1="-204.94608"
+   y1="139.95448"
+   x2="-211.94609"
+   y2="139.95448"
+   stroke-width="2"
+   stroke="#000000"
+   id="line55" />
+<text
+   x="-215.94609"
+   y="142.95448"
+   font-family="Arial"
+   font-size="10px"
+   fill="#000000"
+   text-anchor="end"
+   id="text55">10000</text>
+<line
+   x1="-204.94608"
+   y1="117.73528"
+   x2="-211.94609"
+   y2="117.73528"
+   stroke-width="2"
+   stroke="#000000"
+   id="line56" />
+<text
+   x="-215.94609"
+   y="120.73528"
+   font-family="Arial"
+   font-size="10px"
+   fill="#000000"
+   text-anchor="end"
+   id="text56">20000</text>
+<line
+   x1="-204.94608"
+   y1="104.73789"
+   x2="-211.94609"
+   y2="104.73789"
+   stroke-width="2"
+   stroke="#000000"
+   id="line57" />
+<text
+   x="-215.94609"
+   y="107.73789"
+   font-family="Arial"
+   font-size="10px"
+   fill="#000000"
+   text-anchor="end"
+   id="text57">30000</text>
+<line
+   x1="-204.94608"
+   y1="95.51609"
+   x2="-211.94609"
+   y2="95.51609"
+   stroke-width="2"
+   stroke="#000000"
+   id="line58" />
+<text
+   x="-215.94609"
+   y="98.51609"
+   font-family="Arial"
+   font-size="10px"
+   fill="#000000"
+   text-anchor="end"
+   id="text58">40000</text>
+<line
+   x1="-204.94608"
+   y1="88.363106"
+   x2="-211.94609"
+   y2="88.363106"
+   stroke-width="2"
+   stroke="#000000"
+   id="line59" />
+<line
+   x1="-204.94608"
+   y1="82.518692"
+   x2="-211.94609"
+   y2="82.518692"
+   stroke-width="2"
+   stroke="#000000"
+   id="line60" />
+<text
+   x="-215.94609"
+   y="85.518692"
+   font-family="Arial"
+   font-size="10px"
+   fill="#000000"
+   text-anchor="end"
+   id="text60">60000</text>
+<line
+   x1="-204.94608"
+   y1="77.577309"
+   x2="-211.94609"
+   y2="77.577309"
+   stroke-width="2"
+   stroke="#000000"
+   id="line61" />
+<line
+   x1="-204.94608"
+   y1="73.29689"
+   x2="-211.94609"
+   y2="73.29689"
+   stroke-width="2"
+   stroke="#000000"
+   id="line62" />
+<line
+   x1="-204.94608"
+   y1="69.521294"
+   x2="-211.94609"
+   y2="69.521294"
+   stroke-width="2"
+   stroke="#000000"
+   id="line63" />
+<line
+   x1="-204.94608"
+   y1="66.143906"
+   x2="-211.94609"
+   y2="66.143906"
+   stroke-width="2"
+   stroke="#000000"
+   id="line64" />
+<text
+   x="-215.94609"
+   y="69.143906"
+   font-family="Arial"
+   font-size="10px"
+   fill="#000000"
+   text-anchor="end"
+   id="text64">100000</text>
+<line
+   x1="-204.94608"
+   y1="43.924709"
+   x2="-211.94609"
+   y2="43.924709"
+   stroke-width="2"
+   stroke="#000000"
+   id="line65" />
+<text
+   x="-215.94609"
+   y="46.924709"
+   font-family="Arial"
+   font-size="10px"
+   fill="#000000"
+   text-anchor="end"
+   id="text65">200000</text>
+<line
+   x1="-204.94608"
+   y1="30.927313"
+   x2="-211.94609"
+   y2="30.927313"
+   stroke-width="2"
+   stroke="#000000"
+   id="line66" />
+<text
+   x="-215.94609"
+   y="33.927311"
+   font-family="Arial"
+   font-size="10px"
+   fill="#000000"
+   text-anchor="end"
+   id="text66">300000</text>
+<line
+   x1="-204.94608"
+   y1="21.705511"
+   x2="-211.94609"
+   y2="21.705511"
+   stroke-width="2"
+   stroke="#000000"
+   id="line67" />
+<text
+   x="-215.94609"
+   y="24.705511"
+   font-family="Arial"
+   font-size="10px"
+   fill="#000000"
+   text-anchor="end"
+   id="text67">400000</text>
+<line
+   x1="-204.94608"
+   y1="14.552526"
+   x2="-211.94609"
+   y2="14.552526"
+   stroke-width="2"
+   stroke="#000000"
+   id="line68" />
+<line
+   x1="-204.94608"
+   y1="58.501129"
+   x2="300.05392"
+   y2="58.501129"
+   stroke-width="1.5"
+   stroke="#00ff00"
+   stroke-linecap="square"
+   id="line69" />
+<line
+   x1="171.28052"
+   y1="58.501129"
+   x2="171.28052"
+   y2="309.79483"
+   stroke-width="1.5"
+   stroke="#00ff00"
+   stroke-linecap="square"
+   id="line70" />
+<line
+   x1="-204.94608"
+   y1="309.79483"
+   x2="300.05392"
+   y2="309.79483"
+   stroke-width="2"
+   stroke="#000000"
+   stroke-linecap="square"
+   id="line71" />
+<line
+   x1="-204.94608"
+   y1="4.7948446"
+   x2="-204.94608"
+   y2="309.79483"
+   stroke-width="2"
+   stroke="#000000"
+   stroke-linecap="square"
+   id="line72" />
+<g
+   id="svgHighCurve" />
+<line
+   x1="606.52094"
+   y1="309.82104"
+   x2="820.37469"
+   y2="9.8210392"
+   stroke-width="0.5"
+   stroke="#808080"
+   stroke-linecap="square"
+   id="line1-4"
+   style="fill:#000000;stroke:#000000;stroke-width:1.3;stroke-dasharray:none" />
+<polyline
+   fill="none"
+   stroke-linejoin="round"
+   stroke="#ff4a46"
+   stroke-width="1.2"
+   points="285.7142857142857,171.3900697518251 300,149.94931949873822 314.2857142857143,131.30944564688647 328.57142857142856,113.45829287306304 342.85714285714283,93.3391183062665 357.14285714285717,73.37750474531634 371.42857142857144,55.66932108239297 385.7142857142857,39.20212078294412 400,24.7794624933166 414.28571428571433,13.74656982484862 428.57142857142856,6.7288535845545425 442.85714285714283,3.200249348053262 457.1428571428571,1.9885210956649644 "
+   onclick="showReactSel(9, 0)"
+   id="polyline2-8"
+   transform="translate(411.88105,9.8210395)" />
+<circle
+   cx="697.59534"
+   cy="181.21112"
+   r="2.4000001"
+   stroke="#ff4a46"
+   stroke-width="0.9"
+   fill="#ff4a46"
+   id="circle2-7" />
+<circle
+   cx="711.88104"
+   cy="159.77037"
+   r="2.4000001"
+   stroke="#ff4a46"
+   stroke-width="0.9"
+   fill="#ff4a46"
+   id="circle3-7" />
+<circle
+   cx="726.16675"
+   cy="141.13049"
+   r="2.4000001"
+   stroke="#ff4a46"
+   stroke-width="0.9"
+   fill="#ff4a46"
+   id="circle4-9" />
+<circle
+   cx="740.45251"
+   cy="123.27933"
+   r="2.4000001"
+   stroke="#ff4a46"
+   stroke-width="0.9"
+   fill="#ff4a46"
+   id="circle5-8" />
+<circle
+   cx="754.73822"
+   cy="103.16016"
+   r="2.4000001"
+   stroke="#ff4a46"
+   stroke-width="0.9"
+   fill="#ff4a46"
+   id="circle6-2" />
+<circle
+   cx="769.02393"
+   cy="83.19854"
+   r="2.4000001"
+   stroke="#ff4a46"
+   stroke-width="0.9"
+   fill="#ff4a46"
+   id="circle7-5" />
+<circle
+   cx="783.30963"
+   cy="65.490364"
+   r="1.2"
+   stroke="#ff4a46"
+   stroke-width="0.9"
+   fill="none"
+   id="circle8-4" />
+<circle
+   cx="797.59534"
+   cy="49.023163"
+   r="1.2"
+   stroke="#ff4a46"
+   stroke-width="0.9"
+   fill="none"
+   id="circle9-6" />
+<circle
+   cx="811.88104"
+   cy="34.600502"
+   r="1.2"
+   stroke="#ff4a46"
+   stroke-width="0.9"
+   fill="none"
+   id="circle10-7" />
+<circle
+   cx="826.16675"
+   cy="23.567606"
+   r="1.2"
+   stroke="#ff4a46"
+   stroke-width="0.9"
+   fill="none"
+   id="circle11-9" />
+<circle
+   cx="840.45251"
+   cy="16.549891"
+   r="1.2"
+   stroke="#ff4a46"
+   stroke-width="0.9"
+   fill="none"
+   id="circle12-7" />
+<circle
+   cx="854.73822"
+   cy="13.021288"
+   r="1.2"
+   stroke="#ff4a46"
+   stroke-width="0.9"
+   fill="none"
+   id="circle13-5" />
+<circle
+   cx="869.02393"
+   cy="11.809557"
+   r="1.2"
+   stroke="#ff4a46"
+   stroke-width="0.9"
+   fill="none"
+   id="circle14-0" />
+<line
+   x1="411.88101"
+   y1="309.82104"
+   x2="411.88101"
+   y2="316.82104"
+   stroke-width="2"
+   stroke="#000000"
+   id="line14" />
+<text
+   x="411.88101"
+   y="335.82104"
+   font-family="Arial"
+   font-size="20px"
+   fill="#000000"
+   text-anchor="middle"
+   id="text14">0</text>
+<line
+   x1="483.3096"
+   y1="309.82104"
+   x2="483.3096"
+   y2="316.82104"
+   stroke-width="2"
+   stroke="#000000"
+   id="line15" />
+<text
+   x="483.3096"
+   y="335.82104"
+   font-family="Arial"
+   font-size="20px"
+   fill="#000000"
+   text-anchor="middle"
+   id="text15">5</text>
+<line
+   x1="554.73816"
+   y1="309.82104"
+   x2="554.73816"
+   y2="316.82104"
+   stroke-width="2"
+   stroke="#000000"
+   id="line16" />
+<text
+   x="554.73816"
+   y="335.82104"
+   font-family="Arial"
+   font-size="20px"
+   fill="#000000"
+   text-anchor="middle"
+   id="text16">10</text>
+<line
+   x1="626.16675"
+   y1="309.82104"
+   x2="626.16675"
+   y2="316.82104"
+   stroke-width="2"
+   stroke="#000000"
+   id="line17" />
+<text
+   x="626.16675"
+   y="335.82104"
+   font-family="Arial"
+   font-size="20px"
+   fill="#000000"
+   text-anchor="middle"
+   id="text17">15</text>
+<line
+   x1="697.59534"
+   y1="309.82104"
+   x2="697.59534"
+   y2="316.82104"
+   stroke-width="2"
+   stroke="#000000"
+   id="line18" />
+<text
+   x="697.59534"
+   y="335.82104"
+   font-family="Arial"
+   font-size="20px"
+   fill="#000000"
+   text-anchor="middle"
+   id="text18">20</text>
+<line
+   x1="769.02393"
+   y1="309.82104"
+   x2="769.02393"
+   y2="316.82104"
+   stroke-width="2"
+   stroke="#000000"
+   id="line19" />
+<text
+   x="769.02393"
+   y="335.82104"
+   font-family="Arial"
+   font-size="20px"
+   fill="#000000"
+   text-anchor="middle"
+   id="text19">25</text>
+<line
+   x1="840.45251"
+   y1="309.82104"
+   x2="840.45251"
+   y2="316.82104"
+   stroke-width="2"
+   stroke="#000000"
+   id="line20" />
+<text
+   x="840.45251"
+   y="335.82104"
+   font-family="Arial"
+   font-size="20px"
+   fill="#000000"
+   text-anchor="middle"
+   id="text20">30</text>
+<line
+   x1="911.88104"
+   y1="309.82104"
+   x2="911.88104"
+   y2="316.82104"
+   stroke-width="2"
+   stroke="#000000"
+   id="line21" />
+<text
+   x="911.88104"
+   y="335.82104"
+   font-family="Arial"
+   font-size="20px"
+   fill="#000000"
+   text-anchor="middle"
+   id="text21">35</text>
+<line
+   x1="411.88101"
+   y1="309.82104"
+   x2="404.88101"
+   y2="309.82104"
+   stroke-width="2"
+   stroke="#000000"
+   id="line22" />
+<line
+   x1="411.88101"
+   y1="303.97662"
+   x2="404.88101"
+   y2="303.97662"
+   stroke-width="2"
+   stroke="#000000"
+   id="line23" />
+<text
+   x="400.88101"
+   y="306.97662"
+   font-family="Arial"
+   font-size="10px"
+   fill="#000000"
+   text-anchor="end"
+   id="text23">60</text>
+<line
+   x1="411.88101"
+   y1="299.03525"
+   x2="404.88101"
+   y2="299.03525"
+   stroke-width="2"
+   stroke="#000000"
+   id="line24-3" />
+<line
+   x1="411.88101"
+   y1="294.75482"
+   x2="404.88101"
+   y2="294.75482"
+   stroke-width="2"
+   stroke="#000000"
+   id="line25-8" />
+<line
+   x1="411.88101"
+   y1="290.97925"
+   x2="404.88101"
+   y2="290.97925"
+   stroke-width="2"
+   stroke="#000000"
+   id="line26-2" />
+<line
+   x1="411.88101"
+   y1="287.60184"
+   x2="404.88101"
+   y2="287.60184"
+   stroke-width="2"
+   stroke="#000000"
+   id="line27-8" />
+<text
+   x="400.88101"
+   y="290.60184"
+   font-family="Arial"
+   font-size="10px"
+   fill="#000000"
+   text-anchor="end"
+   id="text27-9">100</text>
+<line
+   x1="411.88101"
+   y1="265.38266"
+   x2="404.88101"
+   y2="265.38266"
+   stroke-width="2"
+   stroke="#000000"
+   id="line28-1" />
+<text
+   x="400.88101"
+   y="268.38266"
+   font-family="Arial"
+   font-size="10px"
+   fill="#000000"
+   text-anchor="end"
+   id="text28-6">200</text>
+<line
+   x1="411.88101"
+   y1="252.38525"
+   x2="404.88101"
+   y2="252.38525"
+   stroke-width="2"
+   stroke="#000000"
+   id="line29-3" />
+<text
+   x="400.88101"
+   y="255.38525"
+   font-family="Arial"
+   font-size="10px"
+   fill="#000000"
+   text-anchor="end"
+   id="text29-5">300</text>
+<line
+   x1="411.88101"
+   y1="243.16345"
+   x2="404.88101"
+   y2="243.16345"
+   stroke-width="2"
+   stroke="#000000"
+   id="line30-9" />
+<text
+   x="400.88101"
+   y="246.16345"
+   font-family="Arial"
+   font-size="10px"
+   fill="#000000"
+   text-anchor="end"
+   id="text30-4">400</text>
+<line
+   x1="411.88101"
+   y1="236.01047"
+   x2="404.88101"
+   y2="236.01047"
+   stroke-width="2"
+   stroke="#000000"
+   id="line31-8" />
+<line
+   x1="411.88101"
+   y1="230.16605"
+   x2="404.88101"
+   y2="230.16605"
+   stroke-width="2"
+   stroke="#000000"
+   id="line32-1" />
+<text
+   x="400.88101"
+   y="233.16605"
+   font-family="Arial"
+   font-size="10px"
+   fill="#000000"
+   text-anchor="end"
+   id="text32">600</text>
+<line
+   x1="411.88101"
+   y1="225.22467"
+   x2="404.88101"
+   y2="225.22467"
+   stroke-width="2"
+   stroke="#000000"
+   id="line33-9" />
+<line
+   x1="411.88101"
+   y1="220.94424"
+   x2="404.88101"
+   y2="220.94424"
+   stroke-width="2"
+   stroke="#000000"
+   id="line34-5" />
+<line
+   x1="411.88101"
+   y1="217.16866"
+   x2="404.88101"
+   y2="217.16866"
+   stroke-width="2"
+   stroke="#000000"
+   id="line35-3" />
+<line
+   x1="411.88101"
+   y1="213.79124"
+   x2="404.88101"
+   y2="213.79124"
+   stroke-width="2"
+   stroke="#000000"
+   id="line36-0" />
+<text
+   x="400.88101"
+   y="216.79124"
+   font-family="Arial"
+   font-size="10px"
+   fill="#000000"
+   text-anchor="end"
+   id="text36">1000</text>
+<line
+   x1="411.88101"
+   y1="191.57207"
+   x2="404.88101"
+   y2="191.57207"
+   stroke-width="2"
+   stroke="#000000"
+   id="line37-2" />
+<text
+   x="400.88101"
+   y="194.57207"
+   font-family="Arial"
+   font-size="10px"
+   fill="#000000"
+   text-anchor="end"
+   id="text37-3">2000</text>
+<line
+   x1="411.88101"
+   y1="178.57468"
+   x2="404.88101"
+   y2="178.57468"
+   stroke-width="2"
+   stroke="#000000"
+   id="line38-1" />
+<text
+   x="400.88101"
+   y="181.57468"
+   font-family="Arial"
+   font-size="10px"
+   fill="#000000"
+   text-anchor="end"
+   id="text38-3">3000</text>
+<line
+   x1="411.88101"
+   y1="169.35287"
+   x2="404.88101"
+   y2="169.35287"
+   stroke-width="2"
+   stroke="#000000"
+   id="line39-5" />
+<text
+   x="400.88101"
+   y="172.35287"
+   font-family="Arial"
+   font-size="10px"
+   fill="#000000"
+   text-anchor="end"
+   id="text39-6">4000</text>
+<line
+   x1="411.88101"
+   y1="162.19989"
+   x2="404.88101"
+   y2="162.19989"
+   stroke-width="2"
+   stroke="#000000"
+   id="line40-7" />
+<line
+   x1="411.88101"
+   y1="156.35547"
+   x2="404.88101"
+   y2="156.35547"
+   stroke-width="2"
+   stroke="#000000"
+   id="line41-3" />
+<text
+   x="400.88101"
+   y="159.35547"
+   font-family="Arial"
+   font-size="10px"
+   fill="#000000"
+   text-anchor="end"
+   id="text41">6000</text>
+<line
+   x1="411.88101"
+   y1="151.41409"
+   x2="404.88101"
+   y2="151.41409"
+   stroke-width="2"
+   stroke="#000000"
+   id="line42-6" />
+<line
+   x1="411.88101"
+   y1="147.13367"
+   x2="404.88101"
+   y2="147.13367"
+   stroke-width="2"
+   stroke="#000000"
+   id="line43-9" />
+<line
+   x1="411.88101"
+   y1="143.35808"
+   x2="404.88101"
+   y2="143.35808"
+   stroke-width="2"
+   stroke="#000000"
+   id="line44-3" />
+<line
+   x1="411.88101"
+   y1="139.98068"
+   x2="404.88101"
+   y2="139.98068"
+   stroke-width="2"
+   stroke="#000000"
+   id="line45-1" />
+<text
+   x="400.88101"
+   y="142.98068"
+   font-family="Arial"
+   font-size="10px"
+   fill="#000000"
+   text-anchor="end"
+   id="text45">10000</text>
+<line
+   x1="411.88101"
+   y1="117.76147"
+   x2="404.88101"
+   y2="117.76147"
+   stroke-width="2"
+   stroke="#000000"
+   id="line46-9" />
+<text
+   x="400.88101"
+   y="120.76147"
+   font-family="Arial"
+   font-size="10px"
+   fill="#000000"
+   text-anchor="end"
+   id="text46-6">20000</text>
+<line
+   x1="411.88101"
+   y1="104.76408"
+   x2="404.88101"
+   y2="104.76408"
+   stroke-width="2"
+   stroke="#000000"
+   id="line47-1" />
+<text
+   x="400.88101"
+   y="107.76408"
+   font-family="Arial"
+   font-size="10px"
+   fill="#000000"
+   text-anchor="end"
+   id="text47-1">30000</text>
+<line
+   x1="411.88101"
+   y1="95.542282"
+   x2="404.88101"
+   y2="95.542282"
+   stroke-width="2"
+   stroke="#000000"
+   id="line48-8" />
+<text
+   x="400.88101"
+   y="98.542282"
+   font-family="Arial"
+   font-size="10px"
+   fill="#000000"
+   text-anchor="end"
+   id="text48-1">40000</text>
+<line
+   x1="411.88101"
+   y1="88.389297"
+   x2="404.88101"
+   y2="88.389297"
+   stroke-width="2"
+   stroke="#000000"
+   id="line49-2" />
+<line
+   x1="411.88101"
+   y1="82.544884"
+   x2="404.88101"
+   y2="82.544884"
+   stroke-width="2"
+   stroke="#000000"
+   id="line50-1" />
+<text
+   x="400.88101"
+   y="85.544884"
+   font-family="Arial"
+   font-size="10px"
+   fill="#000000"
+   text-anchor="end"
+   id="text50">60000</text>
+<line
+   x1="411.88101"
+   y1="77.6035"
+   x2="404.88101"
+   y2="77.6035"
+   stroke-width="2"
+   stroke="#000000"
+   id="line51-0" />
+<line
+   x1="411.88101"
+   y1="73.32309"
+   x2="404.88101"
+   y2="73.32309"
+   stroke-width="2"
+   stroke="#000000"
+   id="line52-5" />
+<line
+   x1="411.88101"
+   y1="69.547485"
+   x2="404.88101"
+   y2="69.547485"
+   stroke-width="2"
+   stroke="#000000"
+   id="line53-8" />
+<line
+   x1="411.88101"
+   y1="66.170105"
+   x2="404.88101"
+   y2="66.170105"
+   stroke-width="2"
+   stroke="#000000"
+   id="line54-9" />
+<text
+   x="400.88101"
+   y="69.170105"
+   font-family="Arial"
+   font-size="10px"
+   fill="#000000"
+   text-anchor="end"
+   id="text54">100000</text>
+<line
+   x1="411.88101"
+   y1="43.950905"
+   x2="404.88101"
+   y2="43.950905"
+   stroke-width="2"
+   stroke="#000000"
+   id="line55-9" />
+<text
+   x="400.88101"
+   y="46.950905"
+   font-family="Arial"
+   font-size="10px"
+   fill="#000000"
+   text-anchor="end"
+   id="text55-9">200000</text>
+<line
+   x1="411.88101"
+   y1="30.953508"
+   x2="404.88101"
+   y2="30.953508"
+   stroke-width="2"
+   stroke="#000000"
+   id="line56-0" />
+<text
+   x="400.88101"
+   y="33.953506"
+   font-family="Arial"
+   font-size="10px"
+   fill="#000000"
+   text-anchor="end"
+   id="text56-9">300000</text>
+<line
+   x1="411.88101"
+   y1="21.731707"
+   x2="404.88101"
+   y2="21.731707"
+   stroke-width="2"
+   stroke="#000000"
+   id="line57-6" />
+<text
+   x="400.88101"
+   y="24.731707"
+   font-family="Arial"
+   font-size="10px"
+   fill="#000000"
+   text-anchor="end"
+   id="text57-6">400000</text>
+<line
+   x1="411.88101"
+   y1="14.578722"
+   x2="404.88101"
+   y2="14.578722"
+   stroke-width="2"
+   stroke="#000000"
+   id="line58-1" />
+<line
+   x1="411.88101"
+   y1="59.959652"
+   x2="916.88104"
+   y2="59.959652"
+   stroke-width="1.5"
+   stroke="#00ff00"
+   stroke-linecap="square"
+   id="line59-8" />
+<line
+   x1="788.10767"
+   y1="59.959652"
+   x2="788.10767"
+   y2="309.82104"
+   stroke-width="1.5"
+   stroke="#00ff00"
+   stroke-linecap="square"
+   id="line60-9" />
+<line
+   x1="411.88101"
+   y1="309.82104"
+   x2="916.88104"
+   y2="309.82104"
+   stroke-width="2"
+   stroke="#000000"
+   stroke-linecap="square"
+   id="line61-2" />
+<line
+   x1="411.88101"
+   y1="4.8210397"
+   x2="411.88101"
+   y2="309.82104"
+   stroke-width="2"
+   stroke="#000000"
+   stroke-linecap="square"
+   id="line62-3" />
+<text
+   xml:space="preserve"
+   style="font-size:16px;writing-mode:lr-tb;direction:ltr;fill:#000000"
+   x="-93.038025"
+   y="-7.1584616"
+   id="text72"><tspan
+     sodipodi:role="line"
+     id="tspan72"
+     x="-93.038025"
+     y="-7.1584616"
+     style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:16px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold'">Max. Cycles Exponential Phase: 9</tspan></text>
+<text
+   xml:space="preserve"
+   style="font-size:16px;writing-mode:lr-tb;direction:ltr;fill:#000000"
+   x="523.72797"
+   y="-7.7579603"
+   id="text72-1"><tspan
+     sodipodi:role="line"
+     id="tspan72-1"
+     x="523.72797"
+     y="-7.7579603"
+     style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:16px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold'">Max. Cycles Exponential Phase: 6</tspan></text>
+</svg>

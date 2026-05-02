@@ -2450,8 +2450,8 @@ def handle_data():
                 return jsonify(errors=[{"title": "Invalid server request - exclude-no-plateau missing!"}]), 400
             if "exclude-efficiency" not in reqdata:
                 return jsonify(errors=[{"title": "Invalid server request - exclude-efficiency missing!"}]), 400
-            if "exclude-unstable-base" not in reqdata:
-                return jsonify(errors=[{"title": "Invalid server request - exclude-unstable-base missing!"}]), 400
+            if "max-cyc-exp-phase" not in reqdata:
+                return jsonify(errors=[{"title": "Invalid server request - max-cyc-exp-phase missing!"}]), 400
             try:
                 logNote1 = "run-linregpcr"
                 experiment = rd.get_experiment(byid=reqdata["sel-experiment"])
@@ -2465,7 +2465,7 @@ def handle_data():
                                                            updateRDML=reqdata["update-RDML-data"],
                                                            excludeNoPlateau=reqdata["exclude-no-plateau"],
                                                            excludeEfficiency=reqdata["exclude-efficiency"],
-                                                           excludeInstableBaseline=reqdata["exclude-unstable-base"])
+                                                           maxCycExpPhase=reqdata["max-cyc-exp-phase"])
                 if "error" in data["reactsdata"]:
                     data["error"] = data["reactsdata"]["error"]
                 if reqdata["update-RDML-data"]:
